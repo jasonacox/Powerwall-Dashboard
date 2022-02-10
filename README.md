@@ -85,7 +85,7 @@ Note: the influxdb.sql file is set to use `America/Los_Angeles` as timezone. Use
 
 * From `Configuration\Data Sources` add `Sun and Moon` database with:
   - Name: `Sun and Moon`
-  - Enter your latitude and longitude. You can use this [web page](https://jasonacox.github.io/powerwall_monitor/location.html) to find your GPS location if you don't know).
+  - Enter your latitude and longitude. You can use this [web page](https://jasonacox.github.io/Powerwall-Dashboard/location.html) to find your GPS location if you don't know).
   - Click "Save & test" button
 
 * From `Dashboard\Manage` (or `Dashboard\Browse`), select `Import`, and upload `dashboard.json`
