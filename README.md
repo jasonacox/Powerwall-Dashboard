@@ -19,7 +19,7 @@ The host system will require:
 Clone this repo to your local host that will run the dashboard:
 
 ```bash
-    git clone https://github.com/jasonacox/powerwall_monitor.git
+    git clone https://github.com/jasonacox/Powerwall-Dashboard.git
 ```
 
 ## Quick Start
