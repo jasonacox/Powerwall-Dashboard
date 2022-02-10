@@ -1,0 +1,74 @@
+version: "3.5"
+
+services:
+    influxdb:
+        image: influxdb:1.8
+        container_name: influxdb
+        hostname: influxdb
+        restart: always
+        volumes:
+            - type: bind
+              source: ./influxdb.conf
+              target: /etc/influxdb/influxdb.conf
+              read_only: true
+            - type: bind
+              source: ./influxdb
+              target: /var/lib/influxdb
+        ports:
+            - target: 8086
+              published: 8086
+              mode: host
+
+    pypowerwall:
+        image: jasonacox/pypowerwall:latest
+        container_name: pypowerwall
+        hostname: pypowerwall
+        restart: always
+        ports:
+            - target: 8675
+              published: 8675
+              mode: host
+        environment:
+            PW_PASSWORD: "password"
+            PW_EMAIL: "email@example.com"
+            PW_HOST: "192.168.91.1"
+            PW_TIMEZONE: "America/Los_Angeles"
+            PW_DEBUG: "yes"
+
+    telegraf:
+        image: telegraf:latest
+        container_name: telegraf
+        hostname: telegraf
+        restart: always
+        volumes:
+            - type: bind
+              source: ./telegraf.conf
+              target: /etc/telegraf/telegraf.conf
+              read_only: true
+        depends_on:
+            - influxdb
+            - pypowerwall
+
+    grafana:
+        image: grafana/grafana:6.5.1-ubuntu
+        container_name: grafana
+        hostname: grafana
+        restart: always
+        user: "1000:1000"
+        volumes:
+            - type: bind
+              source: ./grafana
+              target: /var/lib/grafana
+        ports:
+            - target: 9000
+              published: 9000
+              mode: host
+        environment:
+            GF_PATHS_PROVISIONING: /var/lib/grafana/provisions
+            GF_SERVER_HTTP_PORT: 9000
+            GF_INSTALL_PLUGINS: "grafana-piechart-panel, natel-plotly-panel, blackmirror1-singlestat-math-panel, btplc-trend-box-panel, marcuscalidus-svg-panel, michaeldmoore-multistat-panel, yesoreyeram-boomtable-panel, ryantxu-ajax-panel, grafana-influxdb-flux-datasource, fetzerch-sunandmoon-datasource, andig-darksky-datasource, simpod-json-datasource"
+            GF_ANALYTICS_CHECK_FOR_UPDATES: "false"
+            GF_ANALYTICS_REPORTING_ENABLED: "false"
+        depends_on:
+            - influxdb
+

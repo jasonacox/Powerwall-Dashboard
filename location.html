@@ -1,0 +1,50 @@
+<html>
+    <head>
+        <title>Find My GPS Coordinates</title>
+    </head>
+    <body>
+        <button id = "find-me">Show My GPS Coordinates</button><br/>
+        <p id = "status"></p>
+        <a id = "map-link" target="_blank"></a>
+        <p id = "latitude"></p>
+        <p id = "longitude"></p>
+        <script>
+            function geoFindMe() {
+
+                const status = document.querySelector('#status');
+                const mapLink = document.querySelector('#map-link');
+                const lat = document.querySelector('#latitude');
+                const lon = document.querySelector('#longitude');
+
+                mapLink.href = '';
+                mapLink.textContent = '';
+
+                function success(position) {
+                    const latitude  = position.coords.latitude;
+                    const longitude = position.coords.longitude;
+
+                    status.textContent = '';
+                    mapLink.href = `https://www.google.com/maps/@${latitude},${longitude},16z/`;
+                    // mapLink.href = `https://www.openstreetmap.org/#map=18/${latitude}/${longitude}`;
+                    mapLink.textContent = `MAP Link: Latitude: ${latitude} - Longitude: ${longitude}`;
+                    lat.textContent = `latitude = ${latitude}`;
+                    lon.textContent = `latitude = ${longitude}`;
+                }
+
+                function error() {
+                    status.textContent = 'Unable to retrieve your location';
+                }
+
+                if(!navigator.geolocation) {
+                    status.textContent = 'Geolocation is not supported by your browser';
+                } else {
+                    status.textContent = 'Locating…';
+                    navigator.geolocation.getCurrentPosition(success, error);
+                }
+
+            }
+            document.querySelector('#find-me').addEventListener('click', geoFindMe);
+        </script>
+    </body>
+</html>
+
