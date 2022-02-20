@@ -127,7 +127,7 @@ Since [pyPowerwall proxy](https://github.com/jasonacox/pypowerwall/tree/main/pro
 ### Credits
 
 * This is based on the great work by mihailescu2m at [https://github.com/mihailescu2m/powerwall_monitor](https://github.com/mihailescu2m/powerwall_monitor).
-* Telegraf at https://docs.influxdata.com/telegraf/v1.21/introduction/getting-started/
-* InfluxDB at https://www.influxdata.com/
+* Grafana at https://github.com/grafana/grafana 
+* Telegraf at https://github.com/influxdata/telegraf
+* InfluxDB at https://github.com/influxdata/influxdb
 * pyPowerwall at https://github.com/jasonacox/pypowerwall
-
