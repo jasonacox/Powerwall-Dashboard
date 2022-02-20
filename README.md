@@ -22,7 +22,7 @@ Clone this repo to your local host that will run the dashboard:
     git clone https://github.com/jasonacox/Powerwall-Dashboard.git
 ```
 
-## Quick Start
+## Option 1 - Quick Start
 
 Run the interactive setup script that will ask you for your Powerwall details and Time Zone data.
 
@@ -32,7 +32,7 @@ Run the interactive setup script that will ask you for your Powerwall details an
 
 Jump to the **Grafana Setup** below to complete the setup.
 
-## Manual Install
+## Option 2 - Manual Install
 
 If you prefer, you can perform the same steps that `setup.sh` performs.
 
