@@ -96,7 +96,7 @@ Note: the influxdb.sql file is set to use `America/Los_Angeles` as timezone. Use
 
 * InfluxDB does not run reliably on older models of Raspberry Pi, resulting in the Docker container terminating with `error 139`.  
 
-### Troubleshooting Tips
+### Troubleshooting Tips and Tricks
 
 Check the logs of the services using:
 
@@ -107,12 +107,27 @@ Check the logs of the services using:
     docker logs -f grafana
 ```
 
-Missing String data?
+#### Missing String data?
 
 * String data only shows up for Tesla inverters as part of the Powerwall+ systems.  Unfortunately, non-Tesla inverter data is not available via the Tesla API. If you find a way to pull this data, please submit an Issue or Pull Request to get it added.
 * The default dashboard and InfluxDB setup supports up to 3 Tesla Powerwall+ inverters. Support for more can be added by editing the [dashboard.json](dashboard.json) and [influxdb.sql](influxdb.sql) files. Open an Issue and we can help (see [#2](https://github.com/jasonacox/Powerwall-Dashboard/issues/2)).
 
+#### Tips and Tricks
+
+Since [pyPowerwall proxy](https://github.com/jasonacox/pypowerwall/tree/main/proxy) is part of this dashboard stack, you can query it to get raw data (read only) from the Powerwall API.  This includes some aggregate functions you might find useful for other projects.  I use this for [ESP32 driven display](https://github.com/jasonacox/Powerwall-Display) for example. Replace localhost with the address of the system running the dashboard:
+
+* pyPowerwall stats: http://localhost:8675/stats
+* Powerwall firmware version and uptime: http://localhost:8675/api/status
+* Powerwall temperatures: http://localhost:8675/temps
+* Powerwall device vitals: http://localhost:8675/vitals
+* Powerwall strings: http://localhost:8675/strings
+* Powerwall battery level: http://localhost:8675/soe
+* Key power data in CSV format (grid, home, solar, battery, batterylevel): http://localhost:8675/csv
+
 ### Credits
 
 * This is based on the great work by mihailescu2m at [https://github.com/mihailescu2m/powerwall_monitor](https://github.com/mihailescu2m/powerwall_monitor).
+* Telegraf at https://docs.influxdata.com/telegraf/v1.21/introduction/getting-started/
+* InfluxDB at https://www.influxdata.com/
+* pyPowerwall at https://github.com/jasonacox/pypowerwall
 
