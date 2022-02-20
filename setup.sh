@@ -15,9 +15,9 @@ read -p 'Timezone (default America/Los_Angeles): ' TZ
 
 echo ""
 echo "Updating..."
-sed -i .bak "s/password/${PASSWORD}/g" powerwall.yml
-sed -i .bak "s/email@example.com/${EMAIL}/g" powerwall.yml
-sed -i .bak "s/192.168.91.1/${IP}/g" powerwall.yml
+sed -i.bak "s/password/${PASSWORD}/g" powerwall.yml
+sed -i.bak "s/email@example.com/${EMAIL}/g" powerwall.yml
+sed -i.bak "s/192.168.91.1/${IP}/g" powerwall.yml
 if [ -z "${TZ}" ]; then echo "Using default TZ"; else ./tz.sh "${TZ}"; fi
 echo "-----------------------------------------"
 
