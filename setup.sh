@@ -6,6 +6,14 @@
 echo "Powerwall Monitor - SETUP"
 echo "-----------------------------------------"
 
+# Service Running Helper Function
+running() {
+    local url=${1:-http://localhost:80}
+    local code=${2:-200}
+    local status=$(curl --head --location --connect-timeout 5 --write-out %{http_code} --silent --output /dev/null ${url})
+    [[ $status == ${code} ]]
+}
+
 # Replace Credentials 
 echo "Enter credentials for Powerwall..."
 read -p 'Password: ' PASSWORD
@@ -27,12 +35,16 @@ docker-compose -f powerwall.yml up -d
 echo "-----------------------------------------"
 
 # Set up Influx
-echo "Setting up InfluxDB..."
-echo "Waiting for start..."
-sleep 5
-echo "Setup InfluxDB Data..."
+echo "Waiting for InfluxDB to start..."
+until running http://localhost:8086/ping 204 2>/dev/null; do
+    printf '.'
+    sleep 5
+done
+echo " up!"
+sleep 2
+echo "Setup InfluxDB Data for Powerwall..."
 docker exec -it influxdb influx -import -path=/var/lib/influxdb/influxdb.sql
-sleep 5
+sleep 2
 
 # Display Final Instructions
 cat << EOF
