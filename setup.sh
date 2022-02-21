@@ -1,9 +1,9 @@
 #!/bin/bash
 #
-# Interactive Setup Script for powerwall_monitor
+# Interactive Setup Script for Powerwall Dashboard
 # by Jason Cox - 21 Jan 2022
 
-echo "Powerwall Monitor - SETUP"
+echo "Powerwall Dashboard - SETUP"
 echo "-----------------------------------------"
 
 # Service Running Helper Function
@@ -13,6 +13,18 @@ running() {
     local status=$(curl --head --location --connect-timeout 5 --write-out %{http_code} --silent --output /dev/null ${url})
     [[ $status == ${code} ]]
 }
+
+# Docker Dependency Check
+if ! docker info > /dev/null 2>&1; then
+    echo "ERROR: docker is not available or not runnning."
+    echo "This script requires docker, please install and try again."
+    exit 1
+fi
+if ! docker-compose version > /dev/null 2>&1; then
+    echo "ERROR: docker-compose is not available or not runnning."
+    echo "This script requires docker-compose, please install and try again."
+    exit 1
+fi
 
 # Replace Credentials 
 echo "Enter credentials for Powerwall..."
