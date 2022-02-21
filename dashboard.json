@@ -599,7 +599,10 @@
         "combined": "red",
         "solar": "yellow",
         "solar + battery": "red",
-        "solar only": "yellow"
+        "solar > grid": "purple",
+        "solar > home": "yellow",
+        "solar only": "yellow",
+        "total": "blue"
       },
       "bars": true,
       "cacheTimeout": null,
@@ -610,7 +613,7 @@
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
-        "h": 8,
+        "h": 10,
         "w": 5,
         "x": 19,
         "y": 12
@@ -624,11 +627,13 @@
         "avg": false,
         "current": false,
         "hideEmpty": false,
-        "hideZero": false,
+        "hideZero": true,
         "max": false,
         "min": false,
         "rightSide": false,
         "show": true,
+        "sort": null,
+        "sortDesc": null,
         "total": true,
         "values": true
       },
@@ -650,41 +655,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "alias": "solar",
-          "groupBy": [],
-          "hide": false,
-          "measurement": "http",
-          "orderByTime": "ASC",
-          "policy": "kwh",
-          "query": "SELECT sum(\"solar\")   * 0.179 FROM \"daily\".\"http\" WHERE $timeFilter GROUP BY time(1d) tz('America/Los_Angeles')",
-          "rawQuery": false,
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "solar"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "sum"
-              },
-              {
-                "params": [
-                  "  * 0.179"
-                ],
-                "type": "math"
-              }
-            ]
-          ],
-          "tags": [],
-          "tz": "America/Los_Angeles"
-        },
-        {
-          "alias": "combined",
+          "alias": "powerwall > home",
           "groupBy": [
             {
               "params": [
@@ -703,7 +674,43 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT s + g FROM (SELECT sum(solar)  * 0.358 AS s, sum(to_grid) * 0.179 AS g FROM kwh.http WHERE  $timeFilter tz('America/Los_Angeles'))",
+          "query": "SELECT fp FROM (SELECT sum(\"from_pw\")  * 0.19 AS fp FROM kwh.http WHERE  $timeFilter tz('America/Los_Angeles'))\n",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "from_grid"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "solar > home",
+          "groupBy": [
+            {
+              "params": [
+                "1h"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "none"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT s - (tp + tg) FROM (SELECT sum(\"solar\") * 0.19 AS s,  sum(\"to_pw\")  * 0.19 AS tp, sum(\"to_grid\") * 0.19 AS tg FROM kwh.http WHERE  $timeFilter tz('America/Los_Angeles'))\n",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "time_series",
@@ -730,14 +737,14 @@
           "tags": []
         },
         {
-          "alias": "battery",
+          "alias": "solar > grid",
           "groupBy": [],
           "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "kwh",
-          "query": "SELECT \"from_pw\"   * 0.358 FROM \"kwh\".\"http\" WHERE $timeFilter tz('America/Los_Angeles')",
-          "rawQuery": false,
+          "query": "SELECT tg FROM (SELECT sum(\"to_pw\")  * 0.19 AS tp, sum(\"solar\") * 0.19 AS s, sum(\"to_grid\") * 0.19 AS tg FROM kwh.http WHERE  $timeFilter tz('America/Los_Angeles'))\n",
+          "rawQuery": true,
           "refId": "C",
           "resultFormat": "time_series",
           "select": [
@@ -750,7 +757,7 @@
               },
               {
                 "params": [
-                  "  * 0.358"
+                  "  * 0.19"
                 ],
                 "type": "math"
               }
@@ -758,6 +765,52 @@
           ],
           "tags": [],
           "tz": "America/Los_Angeles"
+        },
+        {
+          "alias": "total",
+          "groupBy": [
+            {
+              "params": [
+                "1h"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "none"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT tg + (s - tp - tg ) + fp FROM (SELECT sum(\"to_pw\")  * 0.19 AS tp, sum(\"solar\") * 0.19 AS s, sum(\"to_grid\") * 0.19 AS tg, sum(\"from_pw\") * 0.19 AS fp FROM kwh.http WHERE  $timeFilter tz('America/Los_Angeles'))\n",
+          "rawQuery": true,
+          "refId": "D",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "solar_instant_power"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              },
+              {
+                "params": [
+                  "/ 1000  * 0.358"
+                ],
+                "type": "math"
+              }
+            ]
+          ],
+          "tags": []
         }
       ],
       "thresholds": [],
@@ -776,7 +829,7 @@
         "buckets": null,
         "mode": "series",
         "name": null,
-        "show": true,
+        "show": false,
         "values": [
           "total"
         ]
@@ -850,8 +903,8 @@
       "default_title_for_rows": "Metric",
       "font_size": ".9rem",
       "gridPos": {
-        "h": 5,
-        "w": 5,
+        "h": 6,
+        "w": 6,
         "x": 0,
         "y": 16
       },
@@ -1788,7 +1841,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 21
+        "y": 22
       },
       "id": 22,
       "panels": [],
@@ -1809,7 +1862,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 22
+        "y": 23
       },
       "hiddenSeries": false,
       "id": 24,
@@ -1934,7 +1987,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 22
+        "y": 23
       },
       "hiddenSeries": false,
       "id": 25,
@@ -2063,7 +2116,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 30
+        "y": 31
       },
       "hiddenSeries": false,
       "id": 26,
@@ -2189,7 +2242,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 30
+        "y": 31
       },
       "hiddenSeries": false,
       "id": 27,
@@ -2364,7 +2417,7 @@
         "h": 5,
         "w": 8,
         "x": 0,
-        "y": 38
+        "y": 39
       },
       "hiddenSeries": false,
       "id": 32,
@@ -3044,7 +3097,7 @@
         "h": 5,
         "w": 8,
         "x": 8,
-        "y": 38
+        "y": 39
       },
       "hiddenSeries": false,
       "id": 33,
@@ -3724,7 +3777,7 @@
         "h": 5,
         "w": 8,
         "x": 16,
-        "y": 38
+        "y": 39
       },
       "hiddenSeries": false,
       "id": 31,
@@ -4412,7 +4465,7 @@
         "h": 6,
         "w": 12,
         "x": 0,
-        "y": 43
+        "y": 44
       },
       "hiddenSeries": false,
       "id": 34,
@@ -4611,11 +4664,12 @@
       },
       "yaxes": [
         {
+          "decimals": null,
           "format": "watt",
           "label": null,
           "logBase": 1,
           "max": null,
-          "min": null,
+          "min": "0",
           "show": true
         },
         {
@@ -4646,7 +4700,7 @@
         "h": 6,
         "w": 12,
         "x": 12,
-        "y": 43
+        "y": 44
       },
       "hiddenSeries": false,
       "id": 35,
@@ -4954,7 +5008,7 @@
         "h": 5,
         "w": 24,
         "x": 0,
-        "y": 49
+        "y": 50
       },
       "hiddenSeries": false,
       "id": 30,
@@ -5107,5 +5161,5 @@
   "timezone": "browser",
   "title": "Powerwall",
   "uid": "RSDbqvRRz",
-  "version": 16
+  "version": 19
 }
