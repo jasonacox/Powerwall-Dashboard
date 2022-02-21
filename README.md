@@ -17,7 +17,7 @@ The host system will require:
 
 ## Setup
 
-Clone this repo to your local host that will run the dashboard:
+Clone this repo on the host that will run the dashboard:
 
 ```bash
     git clone https://github.com/jasonacox/Powerwall-Dashboard.git
@@ -39,37 +39,37 @@ If you prefer, you can perform the same steps that `setup.sh` performs.
 
 You will want to set your local timezone by editing `powerwall.yml`, `influxdb.sql` and `dashboard.json` or you can use this handy `tz.sh` update script.  A list of timezones is available [here](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
 
-```bash
-  # Replace with your timezone
-  bash tz.sh "America/Los_Angeles"
-```
+  ```bash
+    # Replace with your timezone
+    bash tz.sh "America/Los_Angeles"
+  ```
 
 ### Docker Containers
 
 * Edit `powerwall.yml` and look for the section under `pypowerall` and update the following details for your Powerwall:
 
-```yml
-            PW_PASSWORD: "password"
-            PW_EMAIL: "email@example.com"
-            PW_HOST: "192.168.91.1"
-            PW_TIMEZONE: "America/Los_Angeles"
-            PW_DEBUG: "yes"
+  ```yml
+              PW_PASSWORD: "password"
+              PW_EMAIL: "email@example.com"
+              PW_HOST: "192.168.91.1"
+              PW_TIMEZONE: "America/Los_Angeles"
+              PW_DEBUG: "yes"
 
-```
+  ```
 
 * Start the docker containers
 
-```bash
-    docker-compose -f powerwall.yml up -d
-```
+  ```bash
+      docker-compose -f powerwall.yml up -d
+  ```
 
 ### InfluxDB
 
 * Connect to the Influx database to import setup commands: 
 
-```bash
-    docker exec -it influxdb influx -import -path=/var/lib/influxdb/influxdb.sql
-```
+  ```bash
+      docker exec -it influxdb influx -import -path=/var/lib/influxdb/influxdb.sql
+  ```
 
 Note: the influxdb.sql file is set to use `America/Los_Angeles` as timezone. Use the `tz.sh` script or manually update the database commands above to replace `America/Los_Angeles` with your own timezone.
 
@@ -110,8 +110,8 @@ Check the logs of the services using:
 
 #### Missing String data?
 
-* String data only shows up for Tesla inverters as part of the Powerwall+ systems.  Unfortunately, non-Tesla inverter data is not available via the Tesla API. If you find a way to pull this data, please submit an Issue or Pull Request to get it added.
-* The default dashboard and InfluxDB setup supports up to 3 Tesla Powerwall+ inverters. Support for more can be added by editing the [dashboard.json](dashboard.json) and [influxdb.sql](influxdb.sql) files. Open an Issue and we can help (see [#2](https://github.com/jasonacox/Powerwall-Dashboard/issues/2)).
+* String data only shows up for Tesla inverters as part of Powerwall+ systems.  Unfortunately, non-Tesla inverter data is not available via the Tesla API. If you find a way to pull this data, please submit an Issue or Pull Request to get it added.
+* The default dashboard and InfluxDB setup supports up to 4 Tesla Powerwall+ inverters. Support for more can be added by editing the [dashboard.json](dashboard.json) and [influxdb.sql](influxdb.sql) files. Open an Issue and we can help (see [#2](https://github.com/jasonacox/Powerwall-Dashboard/issues/2)).
 
 #### Docker Errors
 
