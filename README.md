@@ -118,16 +118,16 @@ Check the logs of the services using:
 If you are getting permission errors running docker, or an error that it isn't installed:
 * Ensure docker is installed for your OS (run `docker version` to test)
 * If you see permission denied, add your user to the docker group and reboot your system:
-```bash
-# Add your user to docker group
-sudo usermod -aG docker $USER
-```
-* If you can't acccess the dashboard after a reboot, that means that docker was not set to start on reboot. On many OS distributions you can set it to start on boot with:
-```bash
-# Set docker to start on boot
- sudo systemctl enable docker.service
- sudo systemctl enable containerd.service
-```
+  ```bash
+  # Add your user to docker group
+  sudo usermod -aG docker $USER
+  ```
+* If you can't access the dashboard after a reboot, that means that docker was not set to start on reboot. On many OS distributions you can set it to start on boot with:
+  ```bash
+  # Set docker to start on boot
+  sudo systemctl enable docker.service
+  sudo systemctl enable containerd.service
+  ```
 * See [Docker install here](https://docs.docker.com/engine/install/linux-postinstall/) for more information.
 
 #### Tips and Tricks
