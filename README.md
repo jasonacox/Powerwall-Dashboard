@@ -5,7 +5,7 @@ Monitoring Dashboard for the Tesla Powerwall using Grafana, InfluxDB and Telegra
 ![Dashboard](https://user-images.githubusercontent.com/836718/144769680-78b8abf4-4336-4672-9483-896b0476ec44.png)
 ![Strings](https://user-images.githubusercontent.com/836718/146310511-7863e4bb-7e43-40b9-9790-65c1d6ce24ba.png)
 
-This is based on the great work by [mihailescu2m](https://github.com/mihailescu2m/powerwall_monitor) but has been modified to use pypowerwall as a proxy to the Powerwall and includes solar String graphs for Powerwall+ systems.
+This is based on the great work by [mihailescu2m](https://github.com/mihailescu2m/powerwall_monitor) but has been modified to use pypowerwall as a proxy to the Powerwall and includes solar String, Inverter and Powerwall Temperature graphs for Powerwall+ systems.
 
 ## Requirements
 
@@ -13,6 +13,7 @@ The host system will require:
 
 * docker
 * docker-compose
+* You should not need to run `sudo` to install this tool. See [Docker Errors](https://github.com/jasonacox/Powerwall-Dashboard#docker-errors) below for help.
 
 ## Setup
 
@@ -111,6 +112,23 @@ Check the logs of the services using:
 
 * String data only shows up for Tesla inverters as part of the Powerwall+ systems.  Unfortunately, non-Tesla inverter data is not available via the Tesla API. If you find a way to pull this data, please submit an Issue or Pull Request to get it added.
 * The default dashboard and InfluxDB setup supports up to 3 Tesla Powerwall+ inverters. Support for more can be added by editing the [dashboard.json](dashboard.json) and [influxdb.sql](influxdb.sql) files. Open an Issue and we can help (see [#2](https://github.com/jasonacox/Powerwall-Dashboard/issues/2)).
+
+#### Docker Errors
+
+If you are getting permission errors running docker, or an error that it isn't installed:
+* Ensure docker is installed for your OS (run `docker version` to test)
+* If you see permission denied, add your user to the docker group and reboot your system:
+```bash
+# Add your user to docker group
+sudo usermod -aG docker $USER
+```
+* If you can't acccess the dashboard after a reboot, that means that docker was not set to start on reboot. On many OS distributions you can set it to start on boot with:
+```bash
+# Set docker to start on boot
+ sudo systemctl enable docker.service
+ sudo systemctl enable containerd.service
+```
+* See [Docker install here](https://docs.docker.com/engine/install/linux-postinstall/) for more information.
 
 #### Tips and Tricks
 
