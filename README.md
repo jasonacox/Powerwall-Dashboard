@@ -50,18 +50,18 @@ You will want to set your local timezone by editing `powerwall.yml`, `influxdb.s
 * Edit `powerwall.yml` and look for the section under `pypowerall` and update the following details for your Powerwall:
 
   ```yml
-              PW_PASSWORD: "password"
-              PW_EMAIL: "email@example.com"
-              PW_HOST: "192.168.91.1"
-              PW_TIMEZONE: "America/Los_Angeles"
-              PW_DEBUG: "yes"
+    PW_PASSWORD: "password"
+    PW_EMAIL: "email@example.com"
+    PW_HOST: "192.168.91.1"
+    PW_TIMEZONE: "America/Los_Angeles"
+    PW_DEBUG: "yes"
 
   ```
 
 * Start the docker containers
 
   ```bash
-      docker-compose -f powerwall.yml up -d
+    docker-compose -f powerwall.yml up -d
   ```
 
 ### InfluxDB
@@ -69,7 +69,7 @@ You will want to set your local timezone by editing `powerwall.yml`, `influxdb.s
 * Connect to the Influx database to import setup commands: 
 
   ```bash
-      docker exec -it influxdb influx -import -path=/var/lib/influxdb/influxdb.sql
+    docker exec -it influxdb influx -import -path=/var/lib/influxdb/influxdb.sql
   ```
 
 Note: the influxdb.sql file is set to use `America/Los_Angeles` as timezone. Use the `tz.sh` script or manually update the database commands above to replace `America/Los_Angeles` with your own timezone.
@@ -103,10 +103,10 @@ Note: the influxdb.sql file is set to use `America/Los_Angeles` as timezone. Use
 Check the logs of the services using:
 
 ```bash
-    docker logs -f pypowerwall
-    docker logs -f telegraf
-    docker logs -f influxdb
-    docker logs -f grafana
+  docker logs -f pypowerwall
+  docker logs -f telegraf
+  docker logs -f influxdb
+  docker logs -f grafana
 ```
 
 #### Missing String data?
