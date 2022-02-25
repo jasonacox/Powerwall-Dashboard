@@ -2,9 +2,9 @@
 
 Monitoring Dashboard for the Tesla Powerwall using Grafana, InfluxDB and Telegraf.
 
-![Dashboard](https://user-images.githubusercontent.com/836718/155044786-42fb2306-3a45-404e-95f7-04be2fd70a99.png)
+![Dashboard](https://user-images.githubusercontent.com/13752647/155657200-4309306d-84c1-40b7-8f4c-32ef0e8d2efe.png)
 ![Monthly](https://user-images.githubusercontent.com/836718/155044558-c693743e-8684-4ad9-a5c2-dd2006ad87a6.png)
-![Powerwall+](https://user-images.githubusercontent.com/836718/155044321-8974e505-b3de-436b-97ac-a2d7cb6ffcd0.png)
+![Powerwall+](https://user-images.githubusercontent.com/13752647/155657106-9dbfc9e8-206f-4fa0-8b47-5dd15e726bf0.png)
 
 This is based on the great work by [mihailescu2m](https://github.com/mihailescu2m/powerwall_monitor) but has been modified to use pypowerwall as a proxy to the Powerwall and includes solar String, Inverter and Powerwall Temperature graphs for Powerwall+ systems.
 
