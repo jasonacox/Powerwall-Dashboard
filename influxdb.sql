@@ -2,9 +2,9 @@
 # USE powerwall
 CREATE DATABASE powerwall
 CREATE RETENTION POLICY raw ON powerwall duration 3d replication 1
-ALTER RETENTION POLICY autogen ON powerwall duration 730d
-CREATE RETENTION POLICY strings ON powerwall duration 730d replication 1
-CREATE RETENTION POLICY pwtemps ON powerwall duration 730d replication 1
+ALTER RETENTION POLICY autogen ON powerwall duration 9125d
+CREATE RETENTION POLICY strings ON powerwall duration 9125d replication 1
+CREATE RETENTION POLICY pwtemps ON powerwall duration 9125d replication 1
 CREATE RETENTION POLICY kwh ON powerwall duration INF replication 1
 CREATE RETENTION POLICY daily ON powerwall duration INF replication 1
 CREATE RETENTION POLICY monthly ON powerwall duration INF replication 1
