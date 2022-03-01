@@ -23,7 +23,7 @@ echo "Creating InfluxDB Backup"
 cd ${DASHBOARD}
 mkdir -p influxdb/backups
 chmod g+w influxdb/backups
-docker exec -it influxdb influxd backup -database powerwall /var/lib/influxdb/backups
+docker exec influxdb influxd backup -database powerwall /var/lib/influxdb/backups
 
 # Backup Powerwall-Dashboard
 echo "Backing up Powerwall-Dashboard (influxdb grafana)"
