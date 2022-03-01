@@ -32,5 +32,6 @@ tar -zcvf ${BACKUP_FOLDER}/Powerwall-Dashboard.$STAMP.tgz influxdb grafana
 
 # Cleanup Old Backups
 echo "Cleaning up old backups"
+rm -rf ${DASHBOARD}/influxdb/backups/*        # Delete InfluxDB snapshots after backup
 find ${BACKUP_FOLDER}/Powerwall-Dashboard.*tgz -mtime +${KEEP} -type f -delete
 echo "Done"
