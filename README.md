@@ -96,7 +96,6 @@ Note: the influxdb.sql file is set to use `America/Los_Angeles` as timezone. Use
 
 * The database queries and dashboard are set to use `America/Los_Angeles` as the timezone. Remember to edit the database commands [influxdb.sql](influxdb/influxdb.sql), [powerwall.yml](powerwall.yml), and [dashboard.json](dashboard.json) to replace `America/Los_Angeles` with your own timezone.
 
-* InfluxDB does not run reliably on older models of Raspberry Pi, resulting in the Docker container terminating with `error 139`.  
 
 ### Troubleshooting Tips and Tricks
 
@@ -108,6 +107,10 @@ Check the logs of the services using:
   docker logs -f influxdb
   docker logs -f grafana
 ```
+
+* Docker terminating with `error 139`:  InfluxDB does not run reliably on older models of Raspberry Pi. 
+* Grafana Error: Invalid interval string, expecting a number followed by one of "Mwdhmsy" - This indicates that the Grafana setup for InfluxDB is missing the time unit, "s", in the "Min time interval" field:
+  - Min time interval: `5s`
 
 #### Missing String data?
 
