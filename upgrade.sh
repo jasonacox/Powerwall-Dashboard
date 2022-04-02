@@ -38,10 +38,12 @@ docker-compose -f powerwall.yml up -d
 
 # Display Final Instructions
 cat << EOF
-------------------[ Update Dashboard ]-----------------
+
+---------------[ Update Dashboard ]---------------
 Open Grafana at http://localhost:9000/ 
 
-* From 'Dashboard\Manage' (or 'Dashboard\Browse'), select 'Import', and upload 'dashboard.json' from
+From 'Dashboard\Manage' (or 'Dashboard\Browse'), 
+select 'Import', and upload 'dashboard.json' from
 EOF
 pwd
 
