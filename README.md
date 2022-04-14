@@ -1,6 +1,6 @@
 # Powerwall-Dashboard
 
-Monitoring Dashboard for the Tesla Powerwall using Grafana, InfluxDB and Telegraf.
+Monitoring Dashboard for the Tesla Powerwall using Grafana, InfluxDB, Telegraf and pyPowerwall.
 
 ![Dashboard](https://user-images.githubusercontent.com/13752647/155657200-4309306d-84c1-40b7-8f4c-32ef0e8d2efe.png)
 ![Monthly](https://user-images.githubusercontent.com/836718/155044558-c693743e-8684-4ad9-a5c2-dd2006ad87a6.png)
