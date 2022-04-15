@@ -13,9 +13,9 @@ CURRENT=`cat tz`
 NEW=$1
 
 # Replace TZ values
-sed -i .bak "s@${CURRENT}@${NEW}@g" powerwall.yml
-sed -i .bak "s@${CURRENT}@${NEW}@g" influxdb/influxdb.sql
-sed -i .bak "s@${CURRENT}@${NEW}@g" dashboard.json
+sed -i.bak "s@${CURRENT}@${NEW}@g" powerwall.yml
+sed -i.bak "s@${CURRENT}@${NEW}@g" influxdb/influxdb.sql
+sed -i.bak "s@${CURRENT}@${NEW}@g" dashboard.json
 
 # Record new TZ value
 echo "${NEW}" > tz
