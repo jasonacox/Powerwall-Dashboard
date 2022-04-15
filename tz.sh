@@ -16,6 +16,7 @@ NEW=$1
 sed -i.bak "s@${CURRENT}@${NEW}@g" powerwall.yml
 sed -i.bak "s@${CURRENT}@${NEW}@g" influxdb/influxdb.sql
 sed -i.bak "s@${CURRENT}@${NEW}@g" dashboard.json
+sed -i.bak "s@${CURRENT}@${NEW}@g" pypowerwall.env
 
 # Record new TZ value
 echo "${NEW}" > tz
