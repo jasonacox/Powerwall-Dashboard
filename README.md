@@ -30,13 +30,13 @@ Clone this repo on the host that will run the dashboard:
 
 ## Option 1 - Quick Start
 
-Run the interactive setup script that will ask you for your Powerwall details and Time Zone data.
+Run the interactive setup script that will ask you for your Powerwall details and Local Time Zone ([options](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)).
 
 ```bash
     ./setup.sh
 ```
 
-Jump to the **Grafana Setup** below to complete the setup.
+Follow the **Grafana Setup** instructions provided (or see below) to complete the setup.
 
 ## Option 2 - Manual Install
 
@@ -151,7 +151,7 @@ Since [pyPowerwall proxy](https://github.com/jasonacox/pypowerwall/tree/main/pro
 * Key power data in CSV format (grid, home, solar, battery, batterylevel): http://localhost:8675/csv
 
 **Data Retention and Backups**
-InfluxDB is configured to use a 25-year retention policy (see [influxdb.sql](../influxdb/influxdb.sql)).  It uses continuous queries to downsample Powerwall data and preserve disk space.  However, this does not safeguard the data from accidental deletion or corruption.  It is recommend that you set up a backup plan to snapshot the data for disaster recovery. See [backups](backups/) for some suggestions.
+InfluxDB is configured to use a infinite retention policy (see [influxdb.sql](../influxdb/influxdb.sql)).  It uses continuous queries to downsample Powerwall data and preserve disk space.  However, this does not safeguard the data from accidental deletion or corruption.  It is recommend that you set up a backup plan to snapshot the data for disaster recovery. See [backups](backups/) for some suggestions.
 
 ### Credits
 
