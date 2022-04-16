@@ -32,6 +32,20 @@ read -p 'Timezone (default America/Los_Angeles): ' TZ
 echo ""
 
 # Powerwall Credentials 
+# Powerwall Credentials 
+if [ -f ${ENV_FILE} ]; then
+    echo "Current Powerwall Credentials:"
+    echo ""
+    cat ${ENV_FILE}
+    echo ""
+    read -r -p "Update these credentials? [y/N] " response
+    if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+        rm ${ENV_FILE}
+    else
+        echo "Using existing ${ENV_FILE}."
+    fi
+fi
+
 if [ ! -f ${ENV_FILE} ]; then
     echo "Enter credentials for Powerwall..."
     read -p 'Password: ' PASSWORD
@@ -42,26 +56,6 @@ if [ ! -f ${ENV_FILE} ]; then
     echo "PW_HOST=${IP}" >> ${ENV_FILE}
     echo "PW_TIMEZONE=${TZ}" >> ${ENV_FILE}
     echo "PW_DEBUG=no" >> ${ENV_FILE}
-else
-    echo "Current Powerwall Credentials:"
-    echo ""
-    cat ${ENV_FILE}
-    echo ""
-    read -r -p "Update these credentials? [y/N] " response
-    if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]
-    then
-        echo "Using existing ${ENV_FILE}."
-    else
-        echo "Enter credentials for Powerwall..."
-        read -p 'Password: ' PASSWORD
-        read -p 'Email: ' EMAIL
-        read -p 'IP Address: ' IP
-        echo "PW_EMAIL=${EMAIL}" > ${ENV_FILE}
-        echo "PW_PASSWORD=${PASSWORD}" >> ${ENV_FILE}
-        echo "PW_HOST=${IP}" >> ${ENV_FILE}
-        echo "PW_TIMEZONE=${TZ}" >> ${ENV_FILE}
-        echo "PW_DEBUG=no" >> ${ENV_FILE}
-    fi
 fi
 
 echo ""
