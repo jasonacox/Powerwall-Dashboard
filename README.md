@@ -42,7 +42,7 @@ Jump to the **Grafana Setup** below to complete the setup.
 
 If you prefer, you can perform the same steps that `setup.sh` performs.
 
-You will want to set your local timezone by editing `powerwall.yml`, `influxdb.sql` and `dashboard.json` or you can use this handy `tz.sh` update script.  A list of timezones is available [here](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
+You will want to set your local timezone by editing `pypowerwall.env`, `influxdb.sql` and `dashboard.json` or you can use this handy `tz.sh` update script.  A list of timezones is available [here](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
 
   ```bash
     # Replace with your timezone
@@ -51,7 +51,7 @@ You will want to set your local timezone by editing `powerwall.yml`, `influxdb.s
 
 ### Docker Containers
 
-* Edit `powerwall.yml` and look for the section under `pypowerall` and update the following details for your Powerwall:
+* Edit `pypowerwall.env` and update the following details for your Powerwall:
 
   ```yml
     PW_PASSWORD: "password"
