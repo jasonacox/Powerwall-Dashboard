@@ -29,9 +29,17 @@ fi
 ENV_FILE="pypowerwall.env"
 
 read -p 'Timezone (default America/Los_Angeles): ' TZ
+echo ""
 
-# Replace Credentials 
-if grep -q changeme ${ENV_FILE}; then
+# Powerwall Credentials 
+echo "Current Powerwall Credentials:"
+cat ${ENV_FILE}
+echo ""
+read -r -p "Update these credentials? [Y/n] " response
+if [[ "$response" =~ ^([nN][oO]|[nN])$ ]]
+then
+    echo "Using existing ${ENV_FILE}."
+else
     echo "Enter credentials for Powerwall..."
     read -p 'Password: ' PASSWORD
     read -p 'Email: ' EMAIL
@@ -41,8 +49,6 @@ if grep -q changeme ${ENV_FILE}; then
     echo "PW_HOST=${IP}" >> ${ENV_FILE}
     echo "PW_TIMEZONE=${TZ}" >> ${ENV_FILE}
     echo "PW_DEBUG=no" >> ${ENV_FILE}
-else
-    echo "Using existing pypowerwall.env file."
 fi
 
 echo ""
