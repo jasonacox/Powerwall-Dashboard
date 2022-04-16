@@ -26,18 +26,24 @@ if ! docker-compose version > /dev/null 2>&1; then
     exit 1
 fi
 
-# Replace Credentials 
-echo "Enter credentials for Powerwall..."
-read -p 'Password: ' PASSWORD
-read -p 'Email: ' EMAIL
-read -p 'IP Address: ' IP
+ENV_FILE="pypowerwall.env"
+
 read -p 'Timezone (default America/Los_Angeles): ' TZ
 
+# Replace Credentials 
+if [ ! -f ${ENV_FILE} ]; then
+    echo "Enter credentials for Powerwall..."
+    read -p 'Password: ' PASSWORD
+    read -p 'Email: ' EMAIL
+    read -p 'IP Address: ' IP
+    echo "PW_EMAIL=${EMAIL}" > ${ENV_FILE}
+    echo "PW_PASSWORD=${PASSWORD}" >> ${ENV_FILE}
+    echo "PW_HOST=${IP}" >> ${ENV_FILE}
+    echo "PW_TIMEZONE=${TZ}" >> ${ENV_FILE}
+    echo "PW_DEBUG=no" >> ${ENV_FILE}
+fi
+
 echo ""
-echo "Updating..."
-sed -i.bak "s/password/${PASSWORD}/g" powerwall.yml
-sed -i.bak "s/email@example.com/${EMAIL}/g" powerwall.yml
-sed -i.bak "s/192.168.91.1/${IP}/g" powerwall.yml
 if [ -z "${TZ}" ]; then echo "Using default TZ"; else ./tz.sh "${TZ}"; fi
 echo "-----------------------------------------"
 

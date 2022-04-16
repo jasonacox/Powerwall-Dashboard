@@ -28,12 +28,8 @@ services:
             - target: 8675
               published: 8675
               mode: host
-        environment:
-            PW_PASSWORD: "password"
-            PW_EMAIL: "email@example.com"
-            PW_HOST: "192.168.91.1"
-            PW_TIMEZONE: "America/Los_Angeles"
-            PW_DEBUG: "no"
+        env_file:
+            - pypowerwall.env
 
     telegraf:
         image: telegraf:latest
