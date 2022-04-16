@@ -33,6 +33,7 @@ echo ""
 
 # Powerwall Credentials 
 echo "Current Powerwall Credentials:"
+echo ""
 cat ${ENV_FILE}
 echo ""
 read -r -p "Update these credentials? [Y/n] " response
