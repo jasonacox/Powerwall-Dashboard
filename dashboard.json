@@ -6124,7 +6124,7 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "query": "SELECT mean(\"PW3_PINV_VSplit1\") FROM \"raw\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "query": "SELECT mean(\"PW3_PINV_VSplit1\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
           "rawQuery": false,
           "refId": "J",
           "resultFormat": "time_series",
@@ -6163,7 +6163,7 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "query": "SELECT mean(\"PW3_PINV_VSplit2\") FROM \"raw\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "query": "SELECT mean(\"PW3_PINV_VSplit2\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
           "rawQuery": false,
           "refId": "K",
           "resultFormat": "time_series",
@@ -6202,7 +6202,7 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "query": "SELECT mean(\"PW3_PINV_VSplit2\") FROM \"raw\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "query": "SELECT mean(\"PW4_PINV_VSplit1\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
           "rawQuery": false,
           "refId": "L",
           "resultFormat": "time_series",
@@ -6241,7 +6241,7 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "query": "SELECT mean(\"PW3_PINV_VSplit2\") FROM \"raw\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "query": "SELECT mean(\"PW4_PINV_VSplit2\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
           "rawQuery": false,
           "refId": "N",
           "resultFormat": "time_series",
@@ -6280,7 +6280,7 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "query": "SELECT mean(\"PW3_PINV_VSplit2\") FROM \"raw\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "query": "SELECT mean(\"PW5_PINV_VSplit1\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
           "rawQuery": false,
           "refId": "O",
           "resultFormat": "time_series",
@@ -6319,7 +6319,7 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "query": "SELECT mean(\"PW3_PINV_VSplit2\") FROM \"raw\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "query": "SELECT mean(\"PW5_PINV_VSplit2\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
           "rawQuery": false,
           "refId": "P",
           "resultFormat": "time_series",
@@ -6358,7 +6358,7 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "query": "SELECT mean(\"PW3_PINV_VSplit2\") FROM \"raw\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "query": "SELECT mean(\"PW6_PINV_VSplit1\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
           "rawQuery": false,
           "refId": "Q",
           "resultFormat": "time_series",
@@ -6397,7 +6397,7 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "query": "SELECT mean(\"PW3_PINV_VSplit2\") FROM \"raw\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "query": "SELECT mean(\"PW6_PINV_VSplit2\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
           "rawQuery": false,
           "refId": "R",
           "resultFormat": "time_series",
@@ -6406,6 +6406,84 @@
               {
                 "params": [
                   "PW6_PINV_VSplit2"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Grid L1 SW",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "vitals",
+          "query": "SELECT mean(\"METER_Z_VL1G\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "S",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "METER_Z_VL1G"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Grid L2 SW",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "vitals",
+          "query": "SELECT mean(\"METER_Z_VL2G\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "T",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "METER_Z_VL2G"
                 ],
                 "type": "field"
               },
@@ -6490,5 +6568,5 @@
   "timezone": "browser",
   "title": "Powerwall",
   "uid": "RSDbqvRRz",
-  "version": 21
+  "version": 22
 }
