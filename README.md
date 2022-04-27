@@ -123,7 +123,7 @@ Check the logs of the services using:
 * String data only shows up for Tesla inverters as part of Powerwall+ systems.  Unfortunately, non-Tesla inverter data is not available via the Tesla API. If you find a way to pull this data, please submit an Issue or Pull Request to get it added.
 * The default dashboard and InfluxDB setup supports up to 4 Tesla Powerwall+ inverters. Support for more can be added by editing the [dashboard.json](dashboard.json) and [influxdb.sql](influxdb/influxdb.sql) files. Open an Issue and we can help (see [#2](https://github.com/jasonacox/Powerwall-Dashboard/issues/2)).
 
-#### Docker Errors
+#### Troubleshooting
 
 If you are getting permission errors running docker, or an error that it isn't installed:
 * Ensure docker is installed for your OS (run `docker version` to test)
@@ -139,6 +139,7 @@ If you are getting permission errors running docker, or an error that it isn't i
   sudo systemctl enable containerd.service
   ```
 * See [Docker install here](https://docs.docker.com/engine/install/linux-postinstall/) for more information.
+* Synology NAS - If you are having trouble getting this to work on a Synology NAS, view the resolution discovered in [Issue #22](https://github.com/jasonacox/Powerwall-Dashboard/issues/22).
 
 #### Tips and Tricks
 

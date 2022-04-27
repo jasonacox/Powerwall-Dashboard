@@ -1,5 +1,10 @@
 # RELEASE NOTES
 
+## v3.0.0 - Unreleased
+
+* Fix pypowerwall.env format and timezone bug in setup #23
+* Add check in setup.sh to ensure not running as root/sudo.
+
 ## v2.0.0 - Frequency and Voltage Graphs
 
 * Add graph
