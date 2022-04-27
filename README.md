@@ -32,12 +32,15 @@ Clone this repo on the host that will run the dashboard:
 
 Run the interactive setup script that will ask you for your Powerwall details and Local Time Zone ([options](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)).
 
-```bash
+  ```bash
     ./setup.sh
-```
+  ```
 
-Follow the **Grafana Setup** instructions provided (or see below) to complete the setup.
+  _If you get docker errors during the setup, see the [Docker Errors](https://github.com/jasonacox/Powerwall-Dashboard#docker-errors) section below._
 
+Follow the **[Grafana Setup](https://github.com/jasonacox/Powerwall-Dashboard#grafana-setup)** instructions provided (or see below) to complete the setup.
+ 
+ 
 ## Option 2 - Manual Install
 
 If you prefer, you can perform the same steps that `setup.sh` performs.
@@ -53,13 +56,12 @@ You will want to set your local timezone by editing `pypowerwall.env`, `influxdb
 
 * Rename `pypowerwall.sample` to `pypowerwall.env` and update the following details for your Powerwall:
 
-  ```yml
-    PW_PASSWORD: "password"
-    PW_EMAIL: "email@example.com"
-    PW_HOST: "192.168.91.1"
-    PW_TIMEZONE: "America/Los_Angeles"
-    PW_DEBUG: "no"
-
+  ```
+      PW_EMAIL=email@example.com
+      PW_PASSWORD=password
+      PW_HOST=192.168.91.1
+      PW_TIMEZONE=America/Los_Angeles
+      PW_DEBUG=no
   ```
 
 * Start the docker containers

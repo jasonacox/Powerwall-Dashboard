@@ -6,6 +6,17 @@
 echo "Powerwall Dashboard - SETUP"
 echo "-----------------------------------------"
 
+# Verify not running as root
+if [ "$EUID" -eq 0 ]; then 
+  echo "ERROR: Running this as root will cause permission issues."
+  echo ""
+  echo "Please ensure your local user in in the docker group and run without sudo."
+  echo "   sudo usermod -aG docker \$USER"
+  echo "   $0"
+  echo ""
+  exit 1
+fi
+
 # Service Running Helper Function
 running() {
     local url=${1:-http://localhost:80}
@@ -32,7 +43,6 @@ read -p 'Timezone (default America/Los_Angeles): ' TZ
 echo ""
 
 # Powerwall Credentials 
-# Powerwall Credentials 
 if [ -f ${ENV_FILE} ]; then
     echo "Current Powerwall Credentials:"
     echo ""
@@ -54,7 +64,7 @@ if [ ! -f ${ENV_FILE} ]; then
     echo "PW_EMAIL=${EMAIL}" > ${ENV_FILE}
     echo "PW_PASSWORD=${PASSWORD}" >> ${ENV_FILE}
     echo "PW_HOST=${IP}" >> ${ENV_FILE}
-    echo "PW_TIMEZONE=${TZ}" >> ${ENV_FILE}
+    echo "PW_TIMEZONE=America/Los_Angeles" >> ${ENV_FILE}
     echo "PW_DEBUG=no" >> ${ENV_FILE}
 fi
 
