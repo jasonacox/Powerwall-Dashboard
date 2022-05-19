@@ -327,8 +327,8 @@
           "format": "watt",
           "label": null,
           "logBase": 1,
-          "max": "9000",
-          "min": "-9000",
+          "max": null,
+          "min": null,
           "show": true
         },
         {
@@ -6568,5 +6568,5 @@
   "timezone": "browser",
   "title": "Powerwall",
   "uid": "RSDbqvRRz",
-  "version": 22
+  "version": 23
 }
