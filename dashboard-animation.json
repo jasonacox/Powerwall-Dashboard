@@ -1202,7 +1202,7 @@
       "fillGradient": 0,
       "gridPos": {
         "h": 5,
-        "w": 14,
+        "w": 9,
         "x": 0,
         "y": 15
       },
@@ -1473,8 +1473,8 @@
       "format": "kwatth",
       "gridPos": {
         "h": 5,
-        "w": 10,
-        "x": 14,
+        "w": 8,
+        "x": 9,
         "y": 15
       },
       "id": 43,
@@ -1601,10 +1601,305 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Self-powered",
+      "title": "Self-Powered",
       "transparent": true,
       "type": "grafana-piechart-panel",
       "valueName": "total"
+    },
+    {
+      "activePatternIndex": 3,
+      "datasource": null,
+      "defaultPattern": {
+        "bgColors": "green|gray|red",
+        "bgColors_overrides": "0->green|2->red|1->yellow",
+        "clickable_cells_link": "",
+        "col_name": "Value",
+        "decimals": "2",
+        "defaultBGColor": "#5794F2",
+        "defaultTextColor": "black",
+        "delimiter": ".",
+        "displayTemplate": "_value_",
+        "enable_bgColor": false,
+        "enable_bgColor_overrides": false,
+        "enable_clickable_cells": false,
+        "enable_textColor": false,
+        "enable_textColor_overrides": false,
+        "enable_time_based_thresholds": false,
+        "enable_transform": true,
+        "enable_transform_overrides": false,
+        "filter": {
+          "value_above": "",
+          "value_below": ""
+        },
+        "format": "kwatt",
+        "name": "Default Pattern",
+        "null_color": "darkred",
+        "null_textcolor": "black",
+        "null_value": "No data",
+        "pattern": "*",
+        "row_col_wrapper": "_",
+        "row_name": "_1_",
+        "textColors": "red|orange|green",
+        "textColors_overrides": "0->red|2->green|1->yellow",
+        "thresholds": "0",
+        "time_based_thresholds": [],
+        "tooltipTemplate": "Series : _series_ <br/>Row Name : _row_name_ <br/>Col Name : _col_name_ <br/>Value : _value_",
+        "transform_values": "No Usage | Using <div style=\"float: right;\">_value_</div>",
+        "transform_values_overrides": "0->down|1->up",
+        "valueName": "current"
+      },
+      "default_title_for_rows": "Metric",
+      "font_size": ".9rem",
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 18,
+        "y": 15
+      },
+      "hide_first_column": false,
+      "hide_headers": true,
+      "id": 49,
+      "options": {},
+      "patterns": [
+        {
+          "bgColors": "#B877D9 | gray | #F2495C",
+          "bgColors_overrides": "0->green|2->red|1->yellow",
+          "clickable_cells_link": "",
+          "col_name": "Value",
+          "decimals": "2",
+          "defaultBGColor": "",
+          "defaultTextColor": "",
+          "delimiter": ".",
+          "displayTemplate": "_value_",
+          "enable_bgColor": true,
+          "enable_bgColor_overrides": false,
+          "enable_clickable_cells": false,
+          "enable_textColor": true,
+          "enable_textColor_overrides": false,
+          "enable_time_based_thresholds": false,
+          "enable_transform": true,
+          "enable_transform_overrides": false,
+          "filter": {
+            "value_above": "",
+            "value_below": ""
+          },
+          "format": "kwatt",
+          "name": "Grid",
+          "null_color": "darkred",
+          "null_textcolor": "black",
+          "null_value": "No data",
+          "pattern": "http.Grid",
+          "row_col_wrapper": "_",
+          "row_name": "_1_",
+          "textColors": "white | white | white",
+          "textColors_overrides": "0->red|2->green|1->yellow",
+          "thresholds": "-0.09,0.09",
+          "time_based_thresholds": [],
+          "tooltipTemplate": "Series : _series_ <br/>Row Name : _row_name_ <br/>Col Name : _col_name_ <br/>Value : _value_",
+          "transform_values": "Exporting <div style=\"float: right;\">_value_</div> | Idle | Importing <div style=\"float: right;\">_value_</div>",
+          "transform_values_overrides": "0->down|1->up",
+          "valueName": "avg"
+        },
+        {
+          "bgColors": "#73BF69 | gray | #F2495C",
+          "bgColors_overrides": "0->green|2->red|1->yellow",
+          "clickable_cells_link": "",
+          "col_name": "Value",
+          "decimals": "2",
+          "defaultBGColor": "",
+          "defaultTextColor": "",
+          "delimiter": ".",
+          "displayTemplate": "_value_",
+          "enable_bgColor": true,
+          "enable_bgColor_overrides": false,
+          "enable_clickable_cells": false,
+          "enable_textColor": true,
+          "enable_textColor_overrides": false,
+          "enable_time_based_thresholds": false,
+          "enable_transform": true,
+          "enable_transform_overrides": false,
+          "filter": {
+            "value_above": "",
+            "value_below": ""
+          },
+          "format": "kwatt",
+          "name": "Battery",
+          "null_color": "darkred",
+          "null_textcolor": "black",
+          "null_value": "No data",
+          "pattern": "http.Battery",
+          "row_col_wrapper": "_",
+          "row_name": "_1_",
+          "textColors": "white | white | white",
+          "textColors_overrides": "0->red|2->green|1->yellow",
+          "thresholds": "-0.1,0.1",
+          "time_based_thresholds": [],
+          "tooltipTemplate": "Series : _series_ <br/>Row Name : _row_name_ <br/>Col Name : _col_name_ <br/>Value : _value_",
+          "transform_values": "Charging <div style=\"float: right;\">_value_</div> | Idle | Discharging <div style=\"float: right;\">_value_</div>",
+          "transform_values_overrides": "0->down|1->up",
+          "valueName": "avg"
+        },
+        {
+          "bgColors": "red|yellow",
+          "bgColors_overrides": "0->green|2->red|1->yellow",
+          "clickable_cells_link": "",
+          "col_name": "Value",
+          "decimals": "2",
+          "defaultBGColor": "#FADE2A",
+          "defaultTextColor": "black",
+          "delimiter": ".",
+          "displayTemplate": "_value_",
+          "enable_bgColor": false,
+          "enable_bgColor_overrides": false,
+          "enable_clickable_cells": false,
+          "enable_textColor": false,
+          "enable_textColor_overrides": false,
+          "enable_time_based_thresholds": false,
+          "enable_transform": true,
+          "enable_transform_overrides": false,
+          "filter": {
+            "value_above": "",
+            "value_below": ""
+          },
+          "format": "kwatt",
+          "name": "Solar",
+          "null_color": "darkred",
+          "null_textcolor": "black",
+          "null_value": "No data",
+          "pattern": "http.Solar",
+          "row_col_wrapper": "_",
+          "row_name": "_1_",
+          "textColors": "white|black",
+          "textColors_overrides": "0->red|2->green|1->yellow",
+          "thresholds": "0.1",
+          "time_based_thresholds": [],
+          "tooltipTemplate": "Series : _series_ <br/>Row Name : _row_name_ <br/>Col Name : _col_name_ <br/>Value : _value_",
+          "transform_values": "No Generation | Generating <div style=\"float: right;\">_value_</div>",
+          "transform_values_overrides": "0->down|1->up",
+          "valueName": "avg"
+        }
+      ],
+      "row_col_wrapper": "_",
+      "sorting_props": {
+        "col_index": -1,
+        "direction": "desc"
+      },
+      "targets": [
+        {
+          "groupBy": [],
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "raw",
+          "query": "SELECT last(\"battery_instant_power\")  / 1000 AS \"Powerwall\", last(\"solar_instant_power\")  / 1000 AS \"Solar\", last(\"load_instant_power\")  / 1000 AS \"Home\", last(\"site_instant_power\")  / 1000 AS \"Grid\" FROM \"raw\".\"http\" WHERE $timeFilter",
+          "rawQuery": false,
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "load_instant_power"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "last"
+              },
+              {
+                "params": [
+                  " / 1000"
+                ],
+                "type": "math"
+              },
+              {
+                "params": [
+                  "Home"
+                ],
+                "type": "alias"
+              }
+            ],
+            [
+              {
+                "params": [
+                  "solar_instant_power"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "last"
+              },
+              {
+                "params": [
+                  " / 1000"
+                ],
+                "type": "math"
+              },
+              {
+                "params": [
+                  "Solar"
+                ],
+                "type": "alias"
+              }
+            ],
+            [
+              {
+                "params": [
+                  "battery_instant_power"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "last"
+              },
+              {
+                "params": [
+                  " / 1000"
+                ],
+                "type": "math"
+              },
+              {
+                "params": [
+                  "Battery"
+                ],
+                "type": "alias"
+              }
+            ],
+            [
+              {
+                "params": [
+                  "site_instant_power"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "last"
+              },
+              {
+                "params": [
+                  " / 1000"
+                ],
+                "type": "math"
+              },
+              {
+                "params": [
+                  "Grid"
+                ],
+                "type": "alias"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Current State",
+      "transparent": true,
+      "type": "yesoreyeram-boomtable-panel"
     },
     {
       "collapsed": false,
@@ -6340,5 +6635,5 @@
   "timezone": "browser",
   "title": "Powerwall Power Flow",
   "uid": "RSabAvRRz",
-  "version": 2
+  "version": 3
 }
