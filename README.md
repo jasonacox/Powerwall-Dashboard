@@ -8,8 +8,11 @@ Monitoring Dashboard for the Tesla Powerwall using Grafana, InfluxDB, Telegraf a
 ![Powerwall+](https://user-images.githubusercontent.com/13752647/155657106-9dbfc9e8-206f-4fa0-8b47-5dd15e726bf0.png)
 ![FreqVoltage](https://user-images.githubusercontent.com/836718/161393960-87d6c8f1-2f00-4a5b-b201-3ced1fbb44bc.png)
 
+## Power Flow Animation
 
-This is based on the great work by [mihailescu2m](https://github.com/mihailescu2m/powerwall_monitor) but has been modified to use pypowerwall as a proxy to the Powerwall and includes solar String, Inverter and Powerwall Temperature graphs for Powerwall+ systems.
+An alternative [dashboard-animation.json](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/dashboard-animation.json) is also available. This pulls in the live power flows from the Powerwall web portal and embed those in the Grafana dashboard.
+
+![Animation](https://user-images.githubusercontent.com/836718/169710409-f4d8fb8b-784b-47ad-9f2a-3b1dedc56cac.png)
 
 ## Requirements
 
@@ -161,7 +164,7 @@ InfluxDB is configured to use a infinite retention policy (see [influxdb.sql](..
 
 ### Credits
 
-* This is based on the great work by mihailescu2m at [https://github.com/mihailescu2m/powerwall_monitor](https://github.com/mihailescu2m/powerwall_monitor).
+* This project is based on the great work by mihailescu2m at [https://github.com/mihailescu2m/powerwall_monitor](https://github.com/mihailescu2m/powerwall_monitor) and has been modified to use pypowerwall as a proxy to the Powerwall and includes solar String, Inverter and Powerwall Temperature graphs for Powerwall+ systems.
 * Grafana at https://github.com/grafana/grafana 
 * Telegraf at https://github.com/influxdata/telegraf
 * InfluxDB at https://github.com/influxdata/influxdb
