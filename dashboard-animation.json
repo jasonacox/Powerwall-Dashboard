@@ -49,7 +49,7 @@
       "fillGradient": 0,
       "gridPos": {
         "h": 10,
-        "w": 14,
+        "w": 16,
         "x": 0,
         "y": 1
       },
@@ -347,12 +347,12 @@
     },
     {
       "cacheTimeout": null,
-      "content": "<iframe id=\"frame\" src=\"/public/img/grafana_icon.svg\" width=\"500\" height=\"300\" frameBorder=\"0\">No</iframe>\n<script>\nvar pwurl = window.location.protocol + \"//\" + window.location.hostname + \":8675/\";\nconsole.log(pwurl);\ndocument.getElementById('frame').src = pwurl;\n</script>",
+      "content": "<div style=\"text-align: center\">\n<iframe id=\"frame\" src=\"/public/img/grafana_icon.svg\" width=\"400\" height=\"300\" frameBorder=\"0\">No</iframe>\n<script>\nvar pwurl = window.location.protocol + \"//\" + window.location.hostname + \":8675/\";\nconsole.log(pwurl);\ndocument.getElementById('frame').src = pwurl;\n</script>\n</div>",
       "datasource": null,
       "gridPos": {
-        "h": 10,
-        "w": 10,
-        "x": 14,
+        "h": 9,
+        "w": 8,
+        "x": 16,
         "y": 1
       },
       "id": 13,
@@ -6635,5 +6635,5 @@
   "timezone": "browser",
   "title": "Powerwall Power Flow",
   "uid": "RSabAvRRz",
-  "version": 3
+  "version": 4
 }
