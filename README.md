@@ -12,7 +12,7 @@ Monitoring Dashboard for the Tesla Powerwall using Grafana, InfluxDB, Telegraf a
 
 An alternative [dashboard-animation.json](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/dashboard-animation.json) is also available. This pulls in the live power flows from the Powerwall web portal and embeds that animation in the Grafana dashboard.
 
-![Animation](https://user-images.githubusercontent.com/836718/169710409-f4d8fb8b-784b-47ad-9f2a-3b1dedc56cac.png)
+![Animation](https://user-images.githubusercontent.com/836718/169719145-ad7d6266-8db6-493a-b393-82abcad4e106.png)
 
 ## Requirements
 
