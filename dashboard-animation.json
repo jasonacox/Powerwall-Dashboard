@@ -48,7 +48,7 @@
       "fill": 3,
       "fillGradient": 0,
       "gridPos": {
-        "h": 10,
+        "h": 12,
         "w": 16,
         "x": 0,
         "y": 1
@@ -350,7 +350,7 @@
       "content": "<div style=\"text-align: center\">\n<iframe id=\"frame\" src=\"/public/img/grafana_icon.svg\" width=\"400\" height=\"300\" frameBorder=\"0\">No</iframe>\n<script>\nvar pwurl = window.location.protocol + \"//\" + window.location.hostname + \":8675/\";\nconsole.log(pwurl);\ndocument.getElementById('frame').src = pwurl;\n</script>\n</div>",
       "datasource": null,
       "gridPos": {
-        "h": 9,
+        "h": 10,
         "w": 8,
         "x": 16,
         "y": 1
@@ -471,13 +471,148 @@
       "type": "text"
     },
     {
+      "cacheTimeout": null,
+      "colorBackground": false,
+      "colorPostfix": false,
+      "colorPrefix": false,
+      "colorValue": true,
+      "colors": [
+        "#FADE2A",
+        "#F2495C",
+        "#299c46"
+      ],
+      "datasource": null,
+      "decimals": null,
+      "description": "",
+      "format": "none",
+      "gauge": {
+        "maxValue": 100,
+        "minValue": 0,
+        "show": false,
+        "thresholdLabels": false,
+        "thresholdMarkers": true
+      },
+      "gridPos": {
+        "h": 2,
+        "w": 6,
+        "x": 17,
+        "y": 11
+      },
+      "hideTimeOverride": false,
+      "id": 53,
+      "interval": null,
+      "links": [],
+      "mappingType": 1,
+      "mappingTypes": [
+        {
+          "name": "value to text",
+          "value": 1
+        },
+        {
+          "name": "range to text",
+          "value": 2
+        }
+      ],
+      "maxDataPoints": 100,
+      "nullPointMode": "connected",
+      "nullText": null,
+      "options": {},
+      "postfix": "",
+      "postfixFontSize": "50%",
+      "prefix": "<font color=#B877D9>Grid Power:<font>",
+      "prefixFontSize": "70%",
+      "rangeMaps": [
+        {
+          "from": "null",
+          "text": "N/A",
+          "to": "null"
+        }
+      ],
+      "sparkline": {
+        "fillColor": "rgba(184, 119, 217, 0.66)",
+        "full": false,
+        "lineColor": "rgb(0, 0, 0)",
+        "show": false,
+        "ymax": 1,
+        "ymin": -1
+      },
+      "tableColumn": "",
+      "targets": [
+        {
+          "alias": "Grid Status",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "0"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "raw",
+          "query": "SELECT min(\"grid_status\") FROM \"raw\".\"http\" WHERE $timeFilter GROUP BY time($__interval) tz('America/Los_Angeles')",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "grid_status"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "sum"
+              }
+            ]
+          ],
+          "tags": [],
+          "tz": "America/Los_Angeles"
+        }
+      ],
+      "thresholds": "-1,1",
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Grid Status",
+      "transparent": true,
+      "type": "singlestat",
+      "valueFontSize": "70%",
+      "valueMaps": [
+        {
+          "op": "=",
+          "text": "On",
+          "value": "1"
+        },
+        {
+          "op": "=",
+          "text": "Off",
+          "value": "0"
+        },
+        {
+          "op": "=",
+          "text": "Syncing",
+          "value": "-1"
+        }
+      ],
+      "valueName": "current"
+    },
+    {
       "collapsed": false,
       "datasource": null,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 11
+        "y": 13
       },
       "id": 41,
       "panels": [],
@@ -507,7 +642,7 @@
         "h": 2,
         "w": 4,
         "x": 0,
-        "y": 12
+        "y": 14
       },
       "id": 5,
       "interval": "",
@@ -621,7 +756,7 @@
         "h": 2,
         "w": 4,
         "x": 4,
-        "y": 12
+        "y": 14
       },
       "id": 4,
       "interval": "",
@@ -736,7 +871,7 @@
         "h": 2,
         "w": 4,
         "x": 8,
-        "y": 12
+        "y": 14
       },
       "id": 8,
       "interval": "",
@@ -849,7 +984,7 @@
         "h": 2,
         "w": 4,
         "x": 12,
-        "y": 12
+        "y": 14
       },
       "id": 6,
       "interval": "",
@@ -962,7 +1097,7 @@
         "h": 2,
         "w": 4,
         "x": 16,
-        "y": 12
+        "y": 14
       },
       "id": 7,
       "interval": "",
@@ -1075,7 +1210,7 @@
         "h": 2,
         "w": 4,
         "x": 20,
-        "y": 12
+        "y": 14
       },
       "id": 9,
       "interval": "",
@@ -1172,7 +1307,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 14
+        "y": 16
       },
       "id": 47,
       "panels": [],
@@ -1204,7 +1339,7 @@
         "h": 5,
         "w": 9,
         "x": 0,
-        "y": 15
+        "y": 17
       },
       "hiddenSeries": false,
       "hideTimeOverride": true,
@@ -1475,7 +1610,7 @@
         "h": 5,
         "w": 8,
         "x": 9,
-        "y": 15
+        "y": 17
       },
       "id": 43,
       "interval": "",
@@ -1607,7 +1742,7 @@
       "valueName": "total"
     },
     {
-      "activePatternIndex": 3,
+      "activePatternIndex": 1,
       "datasource": null,
       "defaultPattern": {
         "bgColors": "green|gray|red",
@@ -1654,11 +1789,12 @@
         "h": 5,
         "w": 6,
         "x": 18,
-        "y": 15
+        "y": 17
       },
       "hide_first_column": false,
       "hide_headers": true,
       "id": 49,
+      "interval": "",
       "options": {},
       "patterns": [
         {
@@ -1790,7 +1926,7 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "raw",
-          "query": "SELECT last(\"battery_instant_power\")  / 1000 AS \"Powerwall\", last(\"solar_instant_power\")  / 1000 AS \"Solar\", last(\"load_instant_power\")  / 1000 AS \"Home\", last(\"site_instant_power\")  / 1000 AS \"Grid\" FROM \"raw\".\"http\" WHERE $timeFilter",
+          "query": "SELECT last(\"load_instant_power\")  / 1000 AS \"Home\", last(\"solar_instant_power\")  / 1000 AS \"Solar\", last(\"battery_instant_power\")  / 1000 AS \"Battery\", last(\"site_instant_power\")  / 1000 AS \"Grid\" FROM \"raw\".\"http\" WHERE $timeFilter",
           "rawQuery": false,
           "refId": "A",
           "resultFormat": "time_series",
@@ -1908,7 +2044,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 20
+        "y": 22
       },
       "id": 22,
       "panels": [],
@@ -1929,7 +2065,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 21
+        "y": 23
       },
       "hiddenSeries": false,
       "id": 24,
@@ -2054,7 +2190,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 21
+        "y": 23
       },
       "hiddenSeries": false,
       "id": 25,
@@ -2183,7 +2319,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 29
+        "y": 31
       },
       "hiddenSeries": false,
       "id": 26,
@@ -2309,7 +2445,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 29
+        "y": 31
       },
       "hiddenSeries": false,
       "id": 27,
@@ -2484,7 +2620,7 @@
         "h": 5,
         "w": 24,
         "x": 0,
-        "y": 37
+        "y": 39
       },
       "hiddenSeries": false,
       "id": 30,
@@ -2615,7 +2751,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 42
+        "y": 44
       },
       "id": 37,
       "panels": [],
@@ -2636,7 +2772,7 @@
         "h": 5,
         "w": 8,
         "x": 0,
-        "y": 43
+        "y": 45
       },
       "hiddenSeries": false,
       "id": 32,
@@ -3316,7 +3452,7 @@
         "h": 5,
         "w": 8,
         "x": 8,
-        "y": 43
+        "y": 45
       },
       "hiddenSeries": false,
       "id": 33,
@@ -3996,7 +4132,7 @@
         "h": 5,
         "w": 8,
         "x": 16,
-        "y": 43
+        "y": 45
       },
       "hiddenSeries": false,
       "id": 31,
@@ -4684,7 +4820,7 @@
         "h": 6,
         "w": 12,
         "x": 0,
-        "y": 48
+        "y": 50
       },
       "hiddenSeries": false,
       "id": 34,
@@ -4920,7 +5056,7 @@
         "h": 6,
         "w": 12,
         "x": 12,
-        "y": 48
+        "y": 50
       },
       "hiddenSeries": false,
       "id": 35,
@@ -5230,7 +5366,7 @@
         "h": 5,
         "w": 24,
         "x": 0,
-        "y": 54
+        "y": 56
       },
       "hiddenSeries": false,
       "id": 38,
@@ -5768,7 +5904,7 @@
         "h": 5,
         "w": 24,
         "x": 0,
-        "y": 59
+        "y": 61
       },
       "hiddenSeries": false,
       "id": 39,
@@ -6635,5 +6771,5 @@
   "timezone": "browser",
   "title": "Powerwall Power Flow",
   "uid": "RSabAvRRz",
-  "version": 4
+  "version": 7
 }
