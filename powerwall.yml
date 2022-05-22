@@ -65,7 +65,7 @@ services:
             GF_INSTALL_PLUGINS: "grafana-piechart-panel, natel-plotly-panel, blackmirror1-singlestat-math-panel, btplc-trend-box-panel, marcuscalidus-svg-panel, michaeldmoore-multistat-panel, yesoreyeram-boomtable-panel, ryantxu-ajax-panel, grafana-influxdb-flux-datasource, fetzerch-sunandmoon-datasource, andig-darksky-datasource, simpod-json-datasource"
             GF_ANALYTICS_CHECK_FOR_UPDATES: "false"
             GF_ANALYTICS_REPORTING_ENABLED: "false"
-            GF_PANES_DISABLE_SANITIZE_HTML: "true"
+            GF_PANELS_DISABLE_SANITIZE_HTML: "true"
         depends_on:
             - influxdb
 
