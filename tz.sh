@@ -15,7 +15,10 @@ NEW=$1
 # Replace TZ values
 sed -i.bak "s@${CURRENT}@${NEW}@g" powerwall.yml
 sed -i.bak "s@${CURRENT}@${NEW}@g" influxdb/influxdb.sql
-sed -i.bak "s@${CURRENT}@${NEW}@g" dashboard.json
+#sed -i.bak "s@${CURRENT}@${NEW}@g" dashboard.json
+for i in dashboard*.json; do
+    sed -i.bak "s@${CURRENT}@${NEW}@g" $i
+done
 sed -i.bak "s@${CURRENT}@${NEW}@g" pypowerwall.env
 
 # Record new TZ value
