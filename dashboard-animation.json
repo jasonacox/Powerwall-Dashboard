@@ -350,7 +350,7 @@
       "content": "<div style=\"text-align: center\">\n<iframe id=\"frame\" src=\"/public/img/grafana_icon.svg\" width=\"400\" height=\"300\" frameBorder=\"0\">No</iframe>\n<script>\nvar pwurl = window.location.protocol + \"//\" + window.location.hostname + \":8675/\";\nconsole.log(pwurl);\ndocument.getElementById('frame').src = pwurl;\n</script>\n</div>",
       "datasource": null,
       "gridPos": {
-        "h": 10,
+        "h": 9,
         "w": 8,
         "x": 16,
         "y": 1
@@ -471,72 +471,95 @@
       "type": "text"
     },
     {
-      "cacheTimeout": null,
-      "colorBackground": false,
-      "colorPostfix": false,
-      "colorPrefix": false,
-      "colorValue": true,
-      "colors": [
-        "#FADE2A",
-        "#F2495C",
-        "#299c46"
-      ],
-      "datasource": null,
-      "decimals": null,
-      "description": "",
-      "format": "none",
-      "gauge": {
-        "maxValue": 100,
-        "minValue": 0,
-        "show": false,
-        "thresholdLabels": false,
-        "thresholdMarkers": true
+      "alert": {
+        "alertRuleTags": {},
+        "conditions": [
+          {
+            "evaluator": {
+              "params": [
+                1
+              ],
+              "type": "lt"
+            },
+            "operator": {
+              "type": "and"
+            },
+            "query": {
+              "params": [
+                "A",
+                "10s",
+                "now"
+              ]
+            },
+            "reducer": {
+              "params": [],
+              "type": "avg"
+            },
+            "type": "query"
+          }
+        ],
+        "executionErrorState": "alerting",
+        "for": "1m",
+        "frequency": "1m",
+        "handler": 1,
+        "message": "Grid Offline",
+        "name": "Grid Status alert",
+        "noDataState": "no_data",
+        "notifications": []
       },
+      "aliasColors": {
+        "Home Usage": "blue"
+      },
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "decimals": 0,
+      "description": "",
+      "fill": 0,
+      "fillGradient": 2,
       "gridPos": {
-        "h": 2,
+        "h": 3,
         "w": 6,
         "x": 17,
-        "y": 11
+        "y": 10
       },
+      "hiddenSeries": false,
       "hideTimeOverride": false,
       "id": 53,
-      "interval": null,
-      "links": [],
-      "mappingType": 1,
-      "mappingTypes": [
-        {
-          "name": "value to text",
-          "value": 1
-        },
-        {
-          "name": "range to text",
-          "value": 2
-        }
-      ],
-      "maxDataPoints": 100,
-      "nullPointMode": "connected",
-      "nullText": null,
-      "options": {},
-      "postfix": "",
-      "postfixFontSize": "50%",
-      "prefix": "<font color=#B877D9>Grid Power:<font>",
-      "prefixFontSize": "70%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
-      "sparkline": {
-        "fillColor": "rgba(184, 119, 217, 0.66)",
-        "full": false,
-        "lineColor": "rgb(0, 0, 0)",
+      "interval": "",
+      "legend": {
+        "alignAsTable": false,
+        "avg": false,
+        "current": false,
+        "hideEmpty": false,
+        "hideZero": false,
+        "max": false,
+        "min": false,
+        "rightSide": false,
         "show": false,
-        "ymax": 1,
-        "ymin": -1
+        "total": false,
+        "values": false
       },
-      "tableColumn": "",
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [
+        {
+          "alias": "Grid Status",
+          "color": "#73BF69"
+        }
+      ],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
       "targets": [
         {
           "alias": "Grid Status",
@@ -579,31 +602,56 @@
           "tz": "America/Los_Angeles"
         }
       ],
-      "thresholds": "-1,1",
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Grid Status",
-      "transparent": true,
-      "type": "singlestat",
-      "valueFontSize": "70%",
-      "valueMaps": [
+      "thresholds": [
         {
-          "op": "=",
-          "text": "On",
-          "value": "1"
-        },
-        {
-          "op": "=",
-          "text": "Off",
-          "value": "0"
-        },
-        {
-          "op": "=",
-          "text": "Syncing",
-          "value": "-1"
+          "colorMode": "critical",
+          "fill": true,
+          "line": true,
+          "op": "lt",
+          "value": 1,
+          "yaxis": "left"
         }
       ],
-      "valueName": "current"
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Grid Status",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "transparent": true,
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "none",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": false
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": false
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     },
     {
       "collapsed": false,
@@ -6771,5 +6819,5 @@
   "timezone": "browser",
   "title": "Powerwall Power Flow",
   "uid": "RSabAvRRz",
-  "version": 7
+  "version": 8
 }
