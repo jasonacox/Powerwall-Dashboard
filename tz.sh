@@ -9,17 +9,25 @@ if [ $# -eq 0 ]
 fi
 
 # Current and New TZ values
+DEFAULT="America/Los_Angeles"
 CURRENT=`cat tz`
 NEW=$1
 
-# Replace TZ values
-sed -i.bak "s@${CURRENT}@${NEW}@g" powerwall.yml
-sed -i.bak "s@${CURRENT}@${NEW}@g" influxdb/influxdb.sql
-#sed -i.bak "s@${CURRENT}@${NEW}@g" dashboard.json
-for i in dashboard*.json; do
-    sed -i.bak "s@${CURRENT}@${NEW}@g" $i
-done
-sed -i.bak "s@${CURRENT}@${NEW}@g" pypowerwall.env
+# Replace TZ Function
+updatetz() {
+    local from=${1}
+    local to=${2}
+    sed -i.bak "s@${from}@${to}@g" powerwall.yml
+    sed -i.bak "s@${from}@${to}@g" influxdb/influxdb.sql
+    for i in dashboard*.json; do
+        sed -i.bak "s@${from}@${to}@g" $i
+    done
+    sed -i.bak "s@${from}@${to}@g" pypowerwall.env
+}
 
+# Replace TZ values
+updatetz "${CURRENT}" "${NEW}"
+updatetz "${DEFAULT}" "${NEW}"
+    
 # Record new TZ value
 echo "${NEW}" > tz
