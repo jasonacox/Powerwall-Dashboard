@@ -672,7 +672,7 @@
       "colorBackground": false,
       "colorValue": true,
       "colors": [
-        "#FADE2A",
+        "#5794F2",
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
@@ -690,6 +690,119 @@
         "h": 2,
         "w": 4,
         "x": 0,
+        "y": 14
+      },
+      "id": 4,
+      "interval": "",
+      "links": [],
+      "mappingType": 1,
+      "mappingTypes": [
+        {
+          "name": "value to text",
+          "value": 1
+        },
+        {
+          "name": "range to text",
+          "value": 2
+        }
+      ],
+      "maxDataPoints": 100,
+      "nullPointMode": "connected",
+      "nullText": null,
+      "options": {},
+      "postfix": "",
+      "postfixFontSize": "50%",
+      "prefix": "",
+      "prefixFontSize": "50%",
+      "rangeMaps": [
+        {
+          "from": "null",
+          "text": "N/A",
+          "to": "null"
+        }
+      ],
+      "sparkline": {
+        "fillColor": "rgba(31, 118, 189, 0.18)",
+        "full": false,
+        "lineColor": "rgb(31, 120, 193)",
+        "show": false,
+        "ymax": null,
+        "ymin": null
+      },
+      "tableColumn": "",
+      "targets": [
+        {
+          "groupBy": [],
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "autogen",
+          "query": "SELECT integral(\"load_instant_power\")  / 1000 / 3600 FROM \"http\" WHERE $timeFilter GROUP BY time(1h) tz('America/Los_Angeles')",
+          "rawQuery": false,
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "home"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "integral"
+              },
+              {
+                "params": [
+                  " / 1000 / 3600"
+                ],
+                "type": "math"
+              }
+            ]
+          ],
+          "tags": [],
+          "tz": "America/Los_Angeles"
+        }
+      ],
+      "thresholds": "",
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Home Usage",
+      "transparent": true,
+      "type": "singlestat",
+      "valueFontSize": "70%",
+      "valueMaps": [
+        {
+          "op": "=",
+          "text": "N/A",
+          "value": "null"
+        }
+      ],
+      "valueName": "total"
+    },
+    {
+      "cacheTimeout": null,
+      "colorBackground": false,
+      "colorValue": true,
+      "colors": [
+        "#FADE2A",
+        "rgba(237, 129, 40, 0.89)",
+        "#d44a3a"
+      ],
+      "datasource": null,
+      "decimals": 1,
+      "format": "kwatth",
+      "gauge": {
+        "maxValue": 100,
+        "minValue": 0,
+        "show": false,
+        "thresholdLabels": false,
+        "thresholdMarkers": true
+      },
+      "gridPos": {
+        "h": 2,
+        "w": 4,
+        "x": 4,
         "y": 14
       },
       "id": 5,
@@ -769,119 +882,6 @@
       "timeFrom": null,
       "timeShift": null,
       "title": "Solar Energy",
-      "transparent": true,
-      "type": "singlestat",
-      "valueFontSize": "70%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
-      "valueName": "total"
-    },
-    {
-      "cacheTimeout": null,
-      "colorBackground": false,
-      "colorValue": true,
-      "colors": [
-        "#5794F2",
-        "rgba(237, 129, 40, 0.89)",
-        "#d44a3a"
-      ],
-      "datasource": null,
-      "decimals": 1,
-      "format": "kwatth",
-      "gauge": {
-        "maxValue": 100,
-        "minValue": 0,
-        "show": false,
-        "thresholdLabels": false,
-        "thresholdMarkers": true
-      },
-      "gridPos": {
-        "h": 2,
-        "w": 4,
-        "x": 4,
-        "y": 14
-      },
-      "id": 4,
-      "interval": "",
-      "links": [],
-      "mappingType": 1,
-      "mappingTypes": [
-        {
-          "name": "value to text",
-          "value": 1
-        },
-        {
-          "name": "range to text",
-          "value": 2
-        }
-      ],
-      "maxDataPoints": 100,
-      "nullPointMode": "connected",
-      "nullText": null,
-      "options": {},
-      "postfix": "",
-      "postfixFontSize": "50%",
-      "prefix": "",
-      "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
-      "sparkline": {
-        "fillColor": "rgba(31, 118, 189, 0.18)",
-        "full": false,
-        "lineColor": "rgb(31, 120, 193)",
-        "show": false,
-        "ymax": null,
-        "ymin": null
-      },
-      "tableColumn": "",
-      "targets": [
-        {
-          "groupBy": [],
-          "measurement": "http",
-          "orderByTime": "ASC",
-          "policy": "autogen",
-          "query": "SELECT integral(\"load_instant_power\")  / 1000 / 3600 FROM \"http\" WHERE $timeFilter GROUP BY time(1h) tz('America/Los_Angeles')",
-          "rawQuery": false,
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "home"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "integral"
-              },
-              {
-                "params": [
-                  " / 1000 / 3600"
-                ],
-                "type": "math"
-              }
-            ]
-          ],
-          "tags": [],
-          "tz": "America/Los_Angeles"
-        }
-      ],
-      "thresholds": "",
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Home Usage",
       "transparent": true,
       "type": "singlestat",
       "valueFontSize": "70%",
@@ -1349,20 +1349,6 @@
       "valueName": "total"
     },
     {
-      "collapsed": false,
-      "datasource": null,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 16
-      },
-      "id": 47,
-      "panels": [],
-      "title": "Savings",
-      "type": "row"
-    },
-    {
       "aliasColors": {
         "battery": "green",
         "battery impact": "green",
@@ -1387,7 +1373,7 @@
         "h": 5,
         "w": 9,
         "x": 0,
-        "y": 17
+        "y": 16
       },
       "hiddenSeries": false,
       "hideTimeOverride": true,
@@ -1658,7 +1644,7 @@
         "h": 5,
         "w": 8,
         "x": 9,
-        "y": 17
+        "y": 16
       },
       "id": 43,
       "interval": "",
@@ -1837,7 +1823,7 @@
         "h": 5,
         "w": 6,
         "x": 18,
-        "y": 17
+        "y": 16
       },
       "hide_first_column": false,
       "hide_headers": true,
@@ -2092,7 +2078,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 22
+        "y": 21
       },
       "id": 22,
       "panels": [],
@@ -2113,7 +2099,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 23
+        "y": 22
       },
       "hiddenSeries": false,
       "id": 24,
@@ -2238,7 +2224,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 23
+        "y": 22
       },
       "hiddenSeries": false,
       "id": 25,
@@ -2367,7 +2353,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 31
+        "y": 30
       },
       "hiddenSeries": false,
       "id": 26,
@@ -2493,7 +2479,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 31
+        "y": 30
       },
       "hiddenSeries": false,
       "id": 27,
@@ -2668,7 +2654,7 @@
         "h": 5,
         "w": 24,
         "x": 0,
-        "y": 39
+        "y": 38
       },
       "hiddenSeries": false,
       "id": 30,
@@ -2799,7 +2785,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 44
+        "y": 43
       },
       "id": 37,
       "panels": [],
@@ -2820,7 +2806,7 @@
         "h": 5,
         "w": 8,
         "x": 0,
-        "y": 45
+        "y": 44
       },
       "hiddenSeries": false,
       "id": 32,
@@ -3500,7 +3486,7 @@
         "h": 5,
         "w": 8,
         "x": 8,
-        "y": 45
+        "y": 44
       },
       "hiddenSeries": false,
       "id": 33,
@@ -4180,7 +4166,7 @@
         "h": 5,
         "w": 8,
         "x": 16,
-        "y": 45
+        "y": 44
       },
       "hiddenSeries": false,
       "id": 31,
@@ -4868,7 +4854,7 @@
         "h": 6,
         "w": 12,
         "x": 0,
-        "y": 50
+        "y": 49
       },
       "hiddenSeries": false,
       "id": 34,
@@ -5104,7 +5090,7 @@
         "h": 6,
         "w": 12,
         "x": 12,
-        "y": 50
+        "y": 49
       },
       "hiddenSeries": false,
       "id": 35,
@@ -5414,7 +5400,7 @@
         "h": 5,
         "w": 24,
         "x": 0,
-        "y": 56
+        "y": 55
       },
       "hiddenSeries": false,
       "id": 38,
@@ -5952,7 +5938,7 @@
         "h": 5,
         "w": 24,
         "x": 0,
-        "y": 61
+        "y": 60
       },
       "hiddenSeries": false,
       "id": 39,
@@ -6819,5 +6805,5 @@
   "timezone": "browser",
   "title": "Powerwall Power Flow",
   "uid": "RSabAvRRz",
-  "version": 8
+  "version": 12
 }
