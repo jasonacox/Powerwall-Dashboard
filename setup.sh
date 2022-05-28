@@ -38,8 +38,10 @@ if ! docker-compose version > /dev/null 2>&1; then
 fi
 
 ENV_FILE="pypowerwall.env"
+CURRENT=`cat tz`
 
-read -p 'Timezone (default America/Los_Angeles): ' TZ
+echo "Timezone (leave blank for ${CURRENT})"
+read -p 'Enter Timezone: ' TZ
 echo ""
 
 # Powerwall Credentials 
@@ -69,7 +71,13 @@ if [ ! -f ${ENV_FILE} ]; then
 fi
 
 echo ""
-if [ -z "${TZ}" ]; then echo "Using default TZ"; else ./tz.sh "${TZ}"; fi
+if [ -z "${TZ}" ]; then 
+    echo "Using ${CURRENT} timezone..."; 
+    ./tz.sh "${CURRENT}";
+else 
+    echo "Setting ${TZ} timezone..."; 
+    ./tz.sh "${TZ}"; 
+fi
 echo "-----------------------------------------"
 
 # Build Docker
@@ -106,7 +114,7 @@ Follow these instructions for *Grafana Setup*:
 
 * From 'Configuration\Data Sources' add 'Sun and Moon' database with:
   - Name: 'Sun and Moon'
-  - Enter your latitude and longitude (some browsers will use your location)
+  - Enter your latitude and longitude (tool here: https://bit.ly/3wYNaI1 )
   - Click "Save & test" button
 
 * From 'Dashboard\Manage' (or 'Dashboard\Browse'), select 'Import', and upload 'dashboard.json' from
