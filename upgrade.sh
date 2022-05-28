@@ -16,9 +16,24 @@ else
     exit 
 fi
 
+# Remember Timezome and Reset to Default
+echo "Resetting Timezone to Default..."
+DEFAULT="America/Los_Angeles"
+TZ=`cat tz`
+if [ -z "${TZ}" ]; then 
+    TZ="America/Los_Angeles"
+fi
+./tz.sh "${DEFAULT}"
+
 # Pull from Github
+echo ""
 echo "Pull influxdb.sql, dashboard.json, telegraf.conf, and other changes..."
 git pull 
+
+# Set Timezone 
+echo ""
+echo "Setting Timezone back to ${TZ}..."
+./tz.sh "${TZ}"
 
 # Update Influxdb
 echo ""
