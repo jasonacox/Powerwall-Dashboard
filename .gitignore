@@ -1,2 +1,6 @@
 sandbox/
 *.bak
+grafana/grafana.db
+grafana/plugins/
+influxdb/meta/
+pypowerwall.env
