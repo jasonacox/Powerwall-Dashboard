@@ -332,11 +332,12 @@
           "show": true
         },
         {
+          "decimals": 0,
           "format": "percent",
           "label": null,
           "logBase": 1,
-          "max": "101",
-          "min": "0",
+          "max": "100",
+          "min": "-100",
           "show": true
         }
       ],
@@ -499,12 +500,12 @@
           }
         ],
         "executionErrorState": "alerting",
-        "for": "1m",
+        "for": "5m",
         "frequency": "1m",
         "handler": 1,
         "message": "Grid Offline",
         "name": "Grid Status alert",
-        "noDataState": "no_data",
+        "noDataState": "keep_state",
         "notifications": []
       },
       "aliasColors": {
@@ -608,8 +609,7 @@
           "fill": true,
           "line": true,
           "op": "lt",
-          "value": 1,
-          "yaxis": "left"
+          "value": 1
         }
       ],
       "timeFrom": null,
@@ -6805,5 +6805,5 @@
   "timezone": "browser",
   "title": "Powerwall Power Flow",
   "uid": "RSabAvRRz",
-  "version": 12
+  "version": 18
 }

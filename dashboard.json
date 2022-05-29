@@ -332,11 +332,12 @@
           "show": true
         },
         {
+          "decimals": 0,
           "format": "percent",
           "label": null,
           "logBase": 1,
-          "max": "101",
-          "min": "0",
+          "max": "100",
+          "min": "-100",
           "show": true
         }
       ],
@@ -6568,5 +6569,5 @@
   "timezone": "browser",
   "title": "Powerwall",
   "uid": "RSDbqvRRz",
-  "version": 24
+  "version": 25
 }
