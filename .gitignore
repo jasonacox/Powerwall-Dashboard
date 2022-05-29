@@ -3,4 +3,6 @@ sandbox/
 grafana/grafana.db
 grafana/plugins/
 influxdb/meta/
+influxdb/wal/
+influxdb/data/
 pypowerwall.env
