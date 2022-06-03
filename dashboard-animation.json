@@ -334,10 +334,10 @@
         {
           "decimals": 0,
           "format": "percent",
-          "label": null,
+          "label": "",
           "logBase": 1,
-          "max": "100",
-          "min": "-100",
+          "max": "101",
+          "min": "-101",
           "show": true
         }
       ],
@@ -6805,5 +6805,5 @@
   "timezone": "browser",
   "title": "Powerwall Power Flow",
   "uid": "RSabAvRRz",
-  "version": 18
+  "version": 19
 }
