@@ -143,6 +143,21 @@ If you are getting permission errors running docker, or an error that it isn't i
   ```
 * See [Docker install here](https://docs.docker.com/engine/install/linux-postinstall/) for more information.
 
+#### Savings Errors
+
+The savings estimates are based on a $0.19/kWh utility cost and net metering credit. You likely have a different value for this and can edit the queries in that panel to reflect your actual costs and credits.  To help, here are the variables used to calculate the savings:
+
+* `s` = kWh from solar (based on time frame selected)
+* `fp` = kWh from powerwall
+* `tp` = kWh to powerwall
+* `tg` = kWh to grid
+
+The equations that are used to compute the estimated savings:
+
+* `powerwall>home` = `fp` * `$/kWh`  [assumes all power to home from PW = savings]
+* `solar>home` = (`s` - `tp` - `tg`) * `$/kWh`  [assumes all solar not going to PW or grid is going to the home = savings]
+* `solar>grid` = `tg` * `$/kWh`  [assumes all power going to grid = savings]
+
 #### Synology NAS
 
 * If you are having trouble getting this to work on a Synology NAS, view the resolution discovered in [Issue #22](https://github.com/jasonacox/Powerwall-Dashboard/issues/22).
