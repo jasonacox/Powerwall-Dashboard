@@ -555,7 +555,8 @@
       "seriesOverrides": [
         {
           "alias": "Grid Status",
-          "color": "#73BF69"
+          "color": "#73BF69",
+          "nullPointMode": "connected"
         }
       ],
       "spaceLength": 10,
@@ -609,7 +610,8 @@
           "fill": true,
           "line": true,
           "op": "lt",
-          "value": 1
+          "value": 1,
+          "yaxis": "left"
         }
       ],
       "timeFrom": null,
@@ -6859,5 +6861,5 @@
   "timezone": "browser",
   "title": "Powerwall Power Flow",
   "uid": "RSabAvRRz",
-  "version": 23
+  "version": 24
 }
