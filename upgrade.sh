@@ -47,6 +47,12 @@ docker stop pypowerwall
 docker rm pypowerwall
 docker images | grep pypowerwall | awk '{print $3}' | xargs docker rmi -f
 
+# Delete telegraf for Upgrade
+echo ""
+echo "Delete and Upgrade telegraf to Latest"
+docker stop telegraf
+docker rm telegraf
+
 # Restart Stack
 echo "Restarting Powerwall-Dashboard stack..."
 docker-compose -f powerwall.yml up -d
