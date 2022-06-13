@@ -52,6 +52,7 @@ echo ""
 echo "Delete and Upgrade telegraf to Latest"
 docker stop telegraf
 docker rm telegraf
+docker images | grep telegraf | awk '{print $3}' | xargs docker rmi -f
 
 # Restart Stack
 echo "Restarting Powerwall-Dashboard stack..."
