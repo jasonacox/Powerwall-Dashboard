@@ -6842,7 +6842,7 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": null,
-      "decimals": 1,
+      "decimals": 2,
       "description": "",
       "fill": 0,
       "fillGradient": 0,
@@ -6881,6 +6881,30 @@
           "alias": "/Charge$/",
           "dashes": true,
           "fill": 1
+        },
+        {
+          "alias": "/^PW1/",
+          "color": "#37872D"
+        },
+        {
+          "alias": "/^PW2/",
+          "color": "#E0B400"
+        },
+        {
+          "alias": "/^PW3/",
+          "color": "#C4162A"
+        },
+        {
+          "alias": "/^PW4/",
+          "color": "#1F60C4"
+        },
+        {
+          "alias": "/^PW5/",
+          "color": "#FF9830"
+        },
+        {
+          "alias": "/^PW6/",
+          "color": "#8F3BB8"
         }
       ],
       "spaceLength": 10,
@@ -7404,5 +7428,5 @@
   "timezone": "browser",
   "title": "Powerwall Power Flow",
   "uid": "RSabAvRRz",
-  "version": 25
+  "version": 27
 }
