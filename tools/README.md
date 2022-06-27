@@ -13,10 +13,11 @@ If you have a great tool or trick that you think the community would enjoy, plea
 [PVoutput.org](https://pvoutput.org/) - PVOutput is a free service for sharing and comparing PV output data.
 
 Setup
-    * The [pvoutput.py](pvoutput.py) script here will pull the relevant energy production data from InfluxDB and publish this to PVoutput.org.  
-    * Sign up at [pvoutput.org](https://pvoutput.org/account.jsp) to get an API KEY - update the settings in the script with your API_SYSTEM_ID and API_KEY.
-    * Update the INFLUXDB_HOST in the script to the address of your Dashboard host (default = localhost) and INFLUXDB_TZ to your timezone.
-    * Run the script:
+
+* The [pvoutput.py](pvoutput.py) script here will pull the relevant energy production data from InfluxDB and publish this to PVoutput.org.  
+* Sign up at [pvoutput.org](https://pvoutput.org/account.jsp) to get an API KEY - update the settings in the script with your API_SYSTEM_ID and API_KEY.
+* Update the INFLUXDB_HOST in the script to the address of your Dashboard host (default = localhost) and INFLUXDB_TZ to your timezone.
+* Run the script:
     
     ```bash
     python3 pvoutput.py <option>
