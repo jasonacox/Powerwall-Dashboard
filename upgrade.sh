@@ -7,7 +7,7 @@ set -e
 if [ "$0" == "upgrade.sh" ]
   then
     # Grab latest upgrade script from github and run it
-    curl -L --output tmp.sh https://raw.githubusercontent.com/jasonacox/Powerwall-Dashboard/main/upgrade.sh
+    curl -sL --output tmp.sh https://raw.githubusercontent.com/jasonacox/Powerwall-Dashboard/main/upgrade.sh
     exec bash tmp.sh upgrade
 fi
 
