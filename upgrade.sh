@@ -82,3 +82,6 @@ pwd
 
 echo ""
 echo "Done"
+
+# Clean up temporary upgrade script
+rm -f tmp.sh
