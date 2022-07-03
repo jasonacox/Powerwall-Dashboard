@@ -1,5 +1,16 @@
 #!/bin/bash
 
+# Stop on Errors
+set -e
+
+# Because this file can be upgrade, don't use it to run the upgrade
+if [ "$0" == "upgrade.sh" ]
+  then
+    # Grab latest upgrade script from github and run it
+    curl -L --output tmp.sh https://raw.githubusercontent.com/jasonacox/Powerwall-Dashboard/main/upgrade.sh
+    exec bash tmp.sh upgrade
+fi
+
 echo "Upgrade Powerwall-Dashboard"
 echo "---------------------------"
 echo "This script will upgrade you to the latest version without"
