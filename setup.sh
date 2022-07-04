@@ -3,7 +3,17 @@
 # Interactive Setup Script for Powerwall Dashboard
 # by Jason Cox - 21 Jan 2022
 
-echo "Powerwall Dashboard - SETUP"
+# Stop on Errors
+set -e
+
+if [ ! -f VERSION ]; then
+  echo "ERROR: Missing VERSION file. Setup must run from installation directory."
+  echo ""
+  exit 1
+fi
+VERSION=`cat VERSION`
+
+echo "Powerwall Dashboard (v${VERSION}) - SETUP"
 echo "-----------------------------------------"
 
 # Verify not running as root
