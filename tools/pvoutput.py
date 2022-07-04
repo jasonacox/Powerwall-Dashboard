@@ -12,6 +12,7 @@
       with your API_SYSTEM_ID and API_KEY.
     * Update the INFLUXDB_HOST below to the address of your Dashboard host
       (default = localhost) and INFLUXDB_TZ for your timezone.
+    * Install the InfluxDB module:  pip install influxdb
     * Run this script:
         python3 pvoutput.py <option>
 
@@ -25,7 +26,10 @@ from datetime import date, timedelta
 import urllib.request, urllib.parse, urllib.error
 import http.client
 import sys
-from influxdb import InfluxDBClient
+try:
+    from influxdb import InfluxDBClient
+except:
+    sys.exit("ERROR: Missing python influxdb module. Run 'pip install influxdb'.")
 
 # PVoutput API Credentials
 API_SYSTEM_ID = "SYSTEM_ID_FROM_PVOUTPUT.ORG"
