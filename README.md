@@ -58,15 +58,17 @@ You will want to set your local timezone by editing `pypowerwall.env`, `influxdb
 
 ### Docker Containers
 
-* Rename `pypowerwall.sample` to `pypowerwall.env` and update the following details for your Powerwall:
+* Copy `pypowerwall.env.sample` to `pypowerwall.env` and update the following details for your Powerwall:
 
-  ```
+  ```bash
       PW_EMAIL=email@example.com
       PW_PASSWORD=password
       PW_HOST=192.168.91.1
       PW_TIMEZONE=America/Los_Angeles
       PW_DEBUG=no
   ```
+
+* Copy `grafana.env.sample` to `grafana.env` - you do not need to edit these defaults. However, there are optional settings for alert notifications and HTTPS.
 
 * Start the docker containers
 
@@ -111,6 +113,9 @@ Note: It can take a while for InfluxDB to start.  Also the influxdb.sql file is 
 
 * The database queries and dashboard are set to use `America/Los_Angeles` as the timezone. Remember to edit the database commands [influxdb.sql](influxdb/influxdb.sql), [powerwall.yml](powerwall.yml), and [dashboard.json](dashboard.json) to replace `America/Los_Angeles` with your own timezone.
 
+### Upgrading
+
+* The included `upgrade.sh` script will attempt to upgrade your installation to the latest Powerwall-Dashboard version without removing existing data. A backup is still recommended.
 
 ### Troubleshooting Tips and Tricks
 

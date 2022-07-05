@@ -4,7 +4,7 @@
 set -e
 
 # Set Globals
-VERSION="2.3.0"
+VERSION="2.4.0"
 CURRENT="Unknown"
 if [ -f VERSION ]; then
     CURRENT=`cat VERSION`
@@ -65,6 +65,11 @@ fi
 echo ""
 echo "Pull influxdb.sql, dashboard.json, telegraf.conf, and other changes..."
 git pull 
+
+# Create Grafana Settings if missing (required in 2.4.0)
+if [ ! -f ${GF_ENV_FILE} ]; then
+    cp "${GF_ENV_FILE}.sample" "${GF_ENV_FILE}"
+fi
 
 # Set Timezone 
 echo ""
