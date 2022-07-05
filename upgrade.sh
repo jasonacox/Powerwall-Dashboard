@@ -10,6 +10,14 @@ if [ -f VERSION ]; then
     CURRENT=`cat VERSION`
 fi
 
+# Service Running Helper Function
+running() {
+    local url=${1:-http://localhost:80}
+    local code=${2:-200}
+    local status=$(curl --head --location --connect-timeout 5 --write-out %{http_code} --silent --output /dev/null ${url})
+    [[ $status == ${code} ]]
+}
+
 # Because this file can be upgrade, don't use it to run the upgrade
 if [ "$0" != "tmp.sh" ]; then
     # Grab latest upgrade script from github and run it
@@ -80,6 +88,13 @@ echo "Setting Timezone back to ${TZ}..."
 ./tz.sh "${TZ}"
 
 # Update Influxdb
+echo "Waiting for InfluxDB to start..."
+until running http://localhost:8086/ping 204 2>/dev/null; do
+    printf '.'
+    sleep 5
+done
+echo " up!"
+sleep 2
 echo ""
 echo "Add downsample continuous queries to InfluxDB..."
 docker exec -it influxdb influx -import -path=/var/lib/influxdb/influxdb.sql
