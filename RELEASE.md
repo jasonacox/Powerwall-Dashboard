@@ -1,5 +1,10 @@
 # RELEASE NOTES
 
+## v2.4.3 - Upgrade Fixes
+
+* Externalize Grafana environment settings into `grafana.env` to allow for additional customizations.
+* Update and fixes to `setup.sh` and `upgrade.sh`.
+
 ## v2.3.0 - Bug Fixes
 
 * Fix pypowerwall.env format and timezone bug in setup #23
