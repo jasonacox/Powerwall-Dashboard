@@ -67,8 +67,8 @@ echo "Pull influxdb.sql, dashboard.json, telegraf.conf, and other changes..."
 git pull 
 
 # Create Grafana Settings if missing (required in 2.4.0)
-if [ ! -f ${GF_ENV_FILE} ]; then
-    cp "${GF_ENV_FILE}.sample" "${GF_ENV_FILE}"
+if [ ! -f grafana.env ]; then
+    cp "grafana.env.sample" "grafana.env"
 fi
 
 # Set Timezone 
