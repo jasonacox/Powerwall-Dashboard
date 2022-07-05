@@ -4,7 +4,7 @@
 set -e
 
 # Set Globals
-VERSION="2.4.2"
+VERSION="2.4.3"
 CURRENT="Unknown"
 if [ -f VERSION ]; then
     CURRENT=`cat VERSION`
@@ -17,11 +17,10 @@ if [ "$0" != "tmp.sh" ]; then
     exec bash tmp.sh upgrade
 fi
 
-# Check to see if an upgraded is available
+# Check to see if an upgrade is available
 if [ "$VERSION" == "$CURRENT" ]; then
-    echo "You already have the latest version (v${VERSION}), no upgrade available."
+    echo "WARNING: You already have the latest version (v${VERSION})."
     echo ""
-    exit 1
 fi
 
 echo "Upgrade Powerwall-Dashboard from ${CURRENT} to ${VERSION}"
