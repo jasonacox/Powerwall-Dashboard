@@ -70,6 +70,10 @@ if [ ! -f grafana.env ]; then
     cp "grafana.env.sample" "grafana.env"
 fi
 
+# Make sure stack is running
+echo "Start Powerwall-Dashboard stack..."
+docker-compose -f powerwall.yml up -d
+
 # Set Timezone 
 echo ""
 echo "Setting Timezone back to ${TZ}..."
