@@ -4,7 +4,7 @@
 set -e
 
 # Set Globals
-VERSION="2.4.1"
+VERSION="2.4.2"
 CURRENT="Unknown"
 if [ -f VERSION ]; then
     CURRENT=`cat VERSION`

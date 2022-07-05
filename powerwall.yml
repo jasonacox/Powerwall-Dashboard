@@ -59,7 +59,7 @@ services:
             - target: 9000
               published: 9000
               mode: host
-        environment:
+        env_file:
             - grafana.env
         depends_on:
             - influxdb
