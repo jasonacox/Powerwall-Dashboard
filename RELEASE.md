@@ -1,5 +1,10 @@
 # RELEASE NOTES
 
+## v2.4.4 - Dashboard Updates
+
+* Fixed Current State panel so it is not affected by different time range selections, and "No Data" issue by @mcbirse in https://github.com/jasonacox/Powerwall-Dashbsoard/pull/50
+* Made the power flow animation dashboard the default (`dashboard.json`). Original dashboard is still available as `dashboard-no-animation.json`.
+
 ## v2.4.3 - Upgrade Fixes
 
 * Externalize Grafana environment settings into `grafana.env` to allow for additional customizations.

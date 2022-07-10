@@ -2,18 +2,20 @@
 
 Monitoring Dashboard for the Tesla Powerwall using Grafana, InfluxDB, Telegraf and pyPowerwall.
 
-![Dashboard](https://user-images.githubusercontent.com/13752647/155657200-4309306d-84c1-40b7-8f4c-32ef0e8d2efe.png)
+![Animation](https://user-images.githubusercontent.com/836718/173971313-11ede1ea-8ed6-4750-8404-b57947723355.png)
 ![Monthly](https://user-images.githubusercontent.com/836718/155044558-c693743e-8684-4ad9-a5c2-dd2006ad87a6.png)
 ![Yearly](https://user-images.githubusercontent.com/836718/161393841-1349a93c-8876-4829-abc4-546bfe492d61.png)
 ![Powerwall+](https://user-images.githubusercontent.com/13752647/155657106-9dbfc9e8-206f-4fa0-8b47-5dd15e726bf0.png)
 ![FreqVoltage](https://user-images.githubusercontent.com/836718/161393960-87d6c8f1-2f00-4a5b-b201-3ced1fbb44bc.png)
 ![Powerwall Capacity](https://user-images.githubusercontent.com/836718/174494485-f901cb79-09ae-4674-88a5-7af00e89fb89.png)
 
-## Power Flow Animation
+## Dashboards
 
-An alternative [dashboard-animation.json](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/dashboard-animation.json) is also available. This pulls in the live power flows from the Powerwall web portal and embeds that animation in the Grafana dashboard.
+The default [dashboard.json](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/dashboard-animation.json) shown above, pulls in the live power flows from the Powerwall web portal and embeds that animation in the Grafana dashboard.
 
-![Animation](https://user-images.githubusercontent.com/836718/173971313-11ede1ea-8ed6-4750-8404-b57947723355.png)
+A non-animated version of the dashboard is also available using [dashboard-no-animation.json](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/dashboard-no-animation.json)
+
+![Dashboard](https://user-images.githubusercontent.com/13752647/155657200-4309306d-84c1-40b7-8f4c-32ef0e8d2efe.png)
 
 ## Requirements
 
@@ -104,10 +106,10 @@ Note: It can take a while for InfluxDB to start.  Also the influxdb.sql file is 
 
 * From `Dashboard\Manage` (or `Dashboard\Browse`), select `Import`, and upload one of the dashboard files below:
 
-  1. `dashboard.json` - Basic dashboard with the live trend graph, monthly power graphs and a Powerwall+ section that includes String data, temperature, voltage and frequency graphs.
-  2. `dashboard-animation.json` - Same as above but includes an animated power flow diagram between solar, grid, house and Powerwall.  It also includes a "grid status" graph below the animation to identify and track grid outages.
-  3. `dashboard-simple.json` - Similar to dashboard.json but without the Powerwall+ metrics.
-  4. `dashboard-grid.json` - Same as dashboard-animation.json but with a simple grid status instead of the trend data.
+  1. `dashboard.json` - Dashboard with the live trend graph, monthly power graphs, an animated power flow diagram and a Powerwall+ section that includes String data, temperature, voltage and frequency graphs. This also includes a "grid status" graph below the animation to identify and track grid outages.
+  2. `dashboard-no-animation.json` - Same as above but without the animated power flow diagram.  
+  3. `dashboard-simple.json` - Similar to above but without the Powerwall+ metrics.
+  4. `dashboard-grid.json` - Same as dashboard.json but with a simple grid status instead of the trend data.
 
 ### Notes
 
