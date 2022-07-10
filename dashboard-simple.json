@@ -989,8 +989,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "raw",
-          "query": "SELECT last(\"battery_instant_power\")  / 1000 AS \"Powerwall\", last(\"solar_instant_power\")  / 1000 AS \"Solar\", last(\"load_instant_power\")  / 1000 AS \"Home\", last(\"site_instant_power\")  / 1000 AS \"Grid\" FROM \"raw\".\"http\" WHERE $timeFilter",
-          "rawQuery": false,
+          "query": "SELECT last(\"battery_instant_power\")  / 1000 AS \"Powerwall\", last(\"solar_instant_power\")  / 1000 AS \"Solar\", last(\"load_instant_power\")  / 1000 AS \"Home\", last(\"site_instant_power\")  / 1000 AS \"Grid\" FROM \"raw\".\"http\" WHERE time >= now() - 1m",
+          "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -2379,5 +2379,5 @@
   "timezone": "browser",
   "title": "Powerwall",
   "uid": "RSDbqvRRz",
-  "version": 3
+  "version": 4
 }
