@@ -47,6 +47,27 @@ if ! docker-compose version > /dev/null 2>&1; then
     exit 1
 fi
 
+# Check for RPi Issue with Buster
+if [[ -f "/etc/os-release" ]]; then
+    OS_VER=`grep PRETTY /etc/os-release | cut -d= -f2 | cut -d\" -f2`
+    if [[ "$OS_VER" == "Raspbian GNU/Linux 10 (buster)" ]]
+    then
+        echo "WARNING: You are running ${OS_VER}"
+        echo "    This OS version has a bug in the libseccomp2 library that"
+        echo "    causes the pypowerwall container to fail."
+        echo "    See details: https://github.com/jasonacox/Powerwall-Dashboard/issues/56"
+        echo ""
+        read -r -p "Setup - Proceed? [y/N] " response
+        if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]
+        then
+            echo ""
+        else
+            echo "Cancel"
+            exit 1
+        fi
+    fi
+fi
+
 PW_ENV_FILE="pypowerwall.env"
 GF_ENV_FILE="grafana.env"
 CURRENT=`cat tz`
