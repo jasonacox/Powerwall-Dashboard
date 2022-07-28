@@ -1,5 +1,10 @@
 # RELEASE NOTES
 
+## v2.4.5 - pyPowerwall v0.6.0
+
+* Upgraded to pyPowerwall [v0.6.0](https://github.com/jasonacox/pypowerwall/releases/tag/v0.6.0) Proxy t17 - Persistent HTTP Connections
+* Added setup warning. Raspbian GNU/Linux 10 (buster) has a bug in the libseccomp2 library that causes the pypowerwall container to fail. See details an fix in #56
+
 ## v2.4.4 - Dashboard Updates
 
 * Fixed Current State panel so it is not affected by different time range selections, and "No Data" issue by @mcbirse in https://github.com/jasonacox/Powerwall-Dashbsoard/pull/50
