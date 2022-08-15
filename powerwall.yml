@@ -64,3 +64,25 @@ services:
         depends_on:
             - influxdb
 
+    weather411:
+        image: jasonacox/weather411:latest
+        container_name: weather411
+        hostname: weather411
+        restart: always
+        user: "1000:1000"
+        volumes:
+            - type: bind
+              source: ./weather
+              target: /var/lib/weather
+              read_only: true
+        ports:
+            - target: 8676
+              published: 8676
+              mode: host
+        environment:
+            - WEATHERCONF=/var/lib/weather/weather411.conf
+        depends_on:
+            - influxdb
+
+
+
