@@ -61,19 +61,21 @@ The `Dockerfile` here will allow you to containerize the proxy server for clean 
     docker run \
     -d \
     -p 8676:8676 \
+    -e WEATHERCONF='/var/lib/weather/weather411.conf' \
     --name weather411 \
+    -v ${PWD}:/var/lib/weather \
     --restart unless-stopped \
     weather411
     ```
 
-3. Test the Proxy
+3. Test the API
 
     ```bash
-    curl -i http://localhost:8676/soe
-    curl -i http://localhost:8676/aggregates
+    curl -i http://localhost:8676/temp
+    curl -i http://localhost:8676/stats
     ```
 
-    Browse to http://localhost:8676/ to see Powerwall web interface.
+    Browse to http://localhost:8676/ to see current weather conditions.
 
 
 ## Troubleshooting Help
@@ -93,5 +95,10 @@ docker start weather411
 
 ## Release Notes
 
+### 0.0.5 - Dockerized
+
+* Set up to run in docker and incorporated into Powerwall-Dashboard.
+
 ### 0.0.1 - Initial Release
+
 * Initial Release
