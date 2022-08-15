@@ -10,7 +10,45 @@ Docker: docker pull [jasonacox/weather411](https://hub.docker.com/r/jasonacox/we
 
 ## Quick Start
 
-1. Run the Docker Container to listen on port 8676. Update the `-e` values for your Powerwall.
+
+1. Create a `weather411.conf` file (`cp weather411.conf.sample weather411.conf`) and update with your specific location details:
+
+    * Enter your OpenWeatherMap API Key (APIKEY) You can get a free account and key at [OpenWeatherMap.org](https://openweathermap.org/). 
+    * Enter your GPS Latitude (LAT) and Longitude (LON).  To get your location, you can use [this tool](https://jasonacox.github.io/Powerwall-Dashboard/location.html).
+
+    ```python
+    [Weather411]
+    DEBUG = no
+
+    [API]
+    # Port to listen on for requests (default 8676)
+    ENABLE = yes
+    PORT = 8676
+
+    [OpenWeatherMap]
+    # Register and get APIKEY from OpenWeatherMap.org
+    APIKEY = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    # Enter your location in latitude and longitude 
+    LAT = xxx.xxxx
+    LON = yyy.yyyy
+    WAIT = 10
+    TIMEOUT = 10
+    # standard, metric or imperial 
+    UNITS = metric
+
+    [InfluxDB]
+    # Record data in InfluxDB server 
+    ENABLE = yes
+    HOST = influxdb
+    PORT = 8086
+    DB = powerwall
+    FIELD = weather
+    # Leave blank if not used
+    USERNAME = 
+    PASSWORD =
+    ```
+
+2. Run the Docker Container to listen on port 8676. Update the `-e` values for your Powerwall.
 
     ```bash
     docker run \
@@ -23,10 +61,12 @@ Docker: docker pull [jasonacox/weather411](https://hub.docker.com/r/jasonacox/we
     jasonacox/weather411
     ```
 
-2. Test the Proxy
+3. Test the API Service
+
+    Website of Current Weather: http://localhost:8676/
 
     ```bash
-    # Get Powerwall Data
+    # Get Current Weather Data
     curl -i http://localhost:8676/temp
     curl -i http://localhost:8676/all
     curl -i http://localhost:8676/conditions
