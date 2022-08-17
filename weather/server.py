@@ -71,11 +71,12 @@ from socketserver import ThreadingMixIn
 import configparser
 from influxdb import InfluxDBClient
 
-BUILD = "0.0.5"
+BUILD = "0.1.0"
 CLI = False
 LOADED = False
 CONFIG_LOADED = False
 CONFIGFILE = os.getenv("WEATHERCONF", "weather411.conf")
+URL = "https://api.openweathermap.org/data/2.5/weather"
 
 # Load Configuration File
 config = configparser.ConfigParser(allow_no_value=True)
@@ -139,14 +140,23 @@ raw = {}
 # Helper Functions
 def clearweather():
     global weather
-    weather = {"dt": 0, "temperature": None, "humidity": None,
-        "pressure": None, "clouds": None, "visibility": None,
-        "timezone": None, "wind_speed": None, "wind_deg": None,
+    weather = {
+        # header
+        "dt": 0, "name": None, "country": None, "id": None,
+        # basics
+        "temperature": None, "humidity": None, "pressure": None, 
+        "temp_min": None, "temp_max": None, "feels_like": None, 
+        "clouds": None, "visibility": None,
+        # wind
+        "wind_speed": None, "wind_deg": None, "wind_gust": None,
+        # conditions
         "weather_id": None, "weather_main": None,
         "weather_description": None, "weather_icon": None,
-        "rain1h": 0, "rain3h": 0, "sunrise": None, "sunset": None,
-        "feels_like": None, "dew_point": None}
-
+        # precipitation
+        "rain_1h": 0.0, "rain_3h": 0.0, "snow_1h": 0.0, "snow_3h": 0.0,
+        # time
+        "sunrise": None, "sunset": None, "tz": None, 
+        }
 
 def lookup(source, index, valtype='string'):
     # check source dict to see if index key exists
@@ -166,11 +176,10 @@ def fetchWeather():
     """
     Thread to poll for current weather conditions
     """
-    global running, weather, LOADED, raw, serverstats
+    global running, weather, LOADED, raw, serverstats, URL
     sys.stderr.write(" + fetchWeather thread\n")
-    URL = "https://api.openweathermap.org/data/2.5/onecall"
     URL = URL + "?lat=" + OWLAT + "&lon=" + OWLON + "&units=" + OWUNITS
-    URL = URL + "&exclude=minutely,hourly,daily&appid=" + OWKEY
+    URL = URL + "&appid=" + OWKEY
     nextupdate = time.time()
 
     # Time Loop to update current weather data
@@ -187,37 +196,45 @@ def fetchWeather():
                 raw = response.json()
                 clearweather()
                 try:
-                    if "current" in raw:
-                        data = raw['current']
-                        if 'dt' not in data or lastdt == data['dt']:
-                            # Data didn't update - skip rest and loop
-                            continue
-                        weather["dt"] = data['dt']
+                    if 'dt' not in raw or lastdt == raw['dt']:
+                        # Data didn't update - skip rest and loop
+                        continue
+                    weather["dt"] = raw['dt']
+                    if "main" in raw:
+                        data = raw["main"]
                         weather["temperature"] = lookup(data, 'temp', 'float')
-                        weather["humidity"] = lookup(data, 'humidity', 'int')
+                        weather["feels_like"] = lookup(data, 'feels_like', 'float')
+                        weather["temp_min"] = lookup(data, 'temp_min', 'float')
+                        weather["temp_max"] = lookup(data, 'temp_max', 'float')
                         weather["pressure"] = lookup(data, 'pressure', 'int')
-                        weather["clouds"] = lookup(data, 'clouds', 'int')
-                        weather["visibility"] = lookup(data, 'visibility', 'int')
-                        weather["wind_speed"] = lookup(data, 'wind_speed', 'float')
-                        weather["wind_deg"] = lookup(data, 'wind_deg', 'int')
-                        weather["wind_gust"] = lookup(data, 'wind_gust', 'float')
-                        weather["uvi"] = lookup(data, 'uvi', 'float')
+                        weather["humidity"] = lookup(data, 'humidity', 'int')
+                    weather["visibility"] = lookup(raw, 'visibility', 'int')
+                    if "wind" in raw:
+                        data = raw["wind"]
+                        weather["wind_speed"] = lookup(data, 'speed', 'float')
+                        weather["wind_deg"] = lookup(data, 'deg', 'int')
+                        weather["wind_gust"] = lookup(data, 'gust', 'float')
+                    if "clouds" in raw:
+                        weather["clouds"] = lookup(raw["clouds"], 'all', 'int')
+                    if "sys" in raw:
+                        data = raw["sys"]
+                        weather["country"] = lookup(data, 'country')
                         weather["sunrise"] = lookup(data, 'sunrise', 'int')
                         weather["sunset"] = lookup(data, 'sunset', 'int')
-                        weather["feels_like"] = lookup(data, 'feels_like', 'float')
-                        weather["dew_point"] = lookup(data, 'dew_point', 'float')
-                        if "weather" in data and len(data["weather"]) > 0:
-                            weather["weather_id"] = lookup(data["weather"][0], 'id', 'int')
-                            weather["weather_main"] = lookup(data["weather"][0], 'main')
-                            weather["weather_description"] = lookup(data["weather"][0], 'description')
-                            weather["weather_icon"] = lookup(data["weather"][0], 'icon')
-                    if "timezone" in raw:
-                        weather["timezone"] = lookup(raw, 'timezone')
+                    if "weather" in raw and len(raw["weather"]) > 0:
+                        weather["weather_id"] = lookup(raw["weather"][0], 'id', 'int')
+                        weather["weather_main"] = lookup(raw["weather"][0], 'main')
+                        weather["weather_description"] = lookup(raw["weather"][0], 'description')
+                        weather["weather_icon"] = lookup(raw["weather"][0], 'icon')
+                    weather["tz"] = lookup(raw, 'timezone', 'int')
+                    weather["id"] = lookup(raw, 'id', 'int')
+                    weather["name"] = lookup(raw, 'name')
                     if "rain" in raw:
-                        weather["rain1h"] = lookup(raw['rain'], 'rain.1h', 'float')
-                        weather["rain3h"] = lookup(raw['rain'], 'rain.3h', 'float')
-                    if "alerts" in raw and len(data["alerts"]) > 0:
-                        weather["alert"] = lookup(raw['alerts'][0], 'event')
+                        weather["rain_1h"] = lookup(raw['rain'], 'rain.1h', 'float')
+                        weather["rain_3h"] = lookup(raw['rain'], 'rain.3h', 'float')
+                    if "snow" in raw:
+                        weather["snow_1h"] = lookup(raw['snow'], 'snow.1h', 'float')
+                        weather["snow_3h"] = lookup(raw['snow'], 'snow.3h', 'float')
                 except:
                     log.debug("Data error in payload from OpenWeatherMap")
                     pass
@@ -276,7 +293,7 @@ class handler(BaseHTTPRequestHandler):
         return host
 
     def do_GET(self):
-        global weather, LOADED
+        global weather, LOADED, URL
         self.send_response(200)
         message = "Error"
         contenttype = 'application/json'
@@ -284,8 +301,10 @@ class handler(BaseHTTPRequestHandler):
         if self.path == '/':
             # Display friendly intro
             contenttype = 'text/html'
-            message = '<html>\n<head><meta http-equiv="refresh" content="5" />'
-            message = message + '</head>\n<body>\n<h1>Weather411 Server v%s</h1>\n\n' % BUILD
+            message = '<html>\n<head><meta http-equiv="refresh" content="5" />\n'
+            message += '<style>p, td, th { font-family: Helvetica, Arial, sans-serif; font-size: 10px;}</style>\n' 
+            message += '<style>h1 { font-family: Helvetica, Arial, sans-serif; font-size: 20px;}</style>\n' 
+            message += '</head>\n<body>\n<h1>Weather411 Server v%s</h1>\n\n' % BUILD
             if not LOADED:
                 message = message + "<p>Error: No weather data available</p>"
             else:
@@ -293,8 +312,8 @@ class handler(BaseHTTPRequestHandler):
                 for i in weather:
                     message = message + '<tr><td align ="right">%s</td><td align ="right">%s</td></tr>\n' % (i, weather[i])
                 message = message + "</table>\n"
-            message = message + '<p>Last update: %s</p>' % (
-                str(datetime.datetime.fromtimestamp(weather['dt'])))
+            message = message + '<p>Last data update: %s<br><font size=-2>From URL: %s</font></p>' % (
+                str(datetime.datetime.fromtimestamp(weather['dt'])), URL)
             message = message + '\n<p>Page refresh: %s</p>\n</body>\n</html>' % (
                 str(datetime.datetime.fromtimestamp(time.time())))
         elif self.path == '/stats':
@@ -311,14 +330,14 @@ class handler(BaseHTTPRequestHandler):
             result["local_time"] = str(datetime.datetime.fromtimestamp(ts))
             result["ts"] = ts
             result["utc"] = str(datetime.datetime.utcfromtimestamp(ts)) 
-            result["timezone"] = weather["timezone"]
+            result["tz"] = weather["tz"]
             message = json.dumps(result)
         elif self.path == '/temp':
             result["temperature"] = weather["temperature"]
             message = json.dumps(result)            
         elif self.path in ["/temperature","/humidity","/pressure","/visibility",
-                           "/clouds","/uvi","/sunrise","/sunset","/feels_like",
-                           "/dew_point","/alerts"]:
+                           "/clouds","/sunrise","/sunset","/feels_like",
+                           "/dew_point"]:
             i = self.path.split("/")[1]
             result[i] = weather[i]
             message = json.dumps(result)
@@ -327,9 +346,11 @@ class handler(BaseHTTPRequestHandler):
             result["wind_deg"] = weather['wind_deg']
             result["wind_gust"] = weather['wind_gust']
             message = json.dumps(result)
-        elif self.path == '/rain':
-            result["rain1h"] = weather['rain1h']
-            result["rain3h"] = weather['rain3h']
+        elif self.path in ['/rain', '/snow', '/precipitation']:
+            result["rain_1h"] = weather['rain_1h']
+            result["rain_3h"] = weather['rain_3h']
+            result["snow_1h"] = weather['snow_1h']
+            result["snow_3h"] = weather['snow_3h']            
             message = json.dumps(result)
         elif self.path == '/conditions' or self.path == '/weather':
             result["conditions"] = weather['weather_main']
@@ -398,10 +419,10 @@ if __name__ == "__main__":
             ('timezone','Temp','Humidity','Pressure','Cloud','Visibility') )
     try:
         while(True):
-            if CLI and 'timezone' in weather and weather['timezone'] is not None:
+            if CLI and 'name' in weather and weather['name'] is not None:
                 # weather report
                 print("   %15s | %4d | %8d | %8d | %5d | %10d" %
-                    (weather['timezone'], weather['temperature'], 
+                    (weather['name'], weather['temperature'], 
                     weather['humidity'], weather['pressure'], 
                     weather['cloudiness'], weather['visibility']),
                     end='\r')
