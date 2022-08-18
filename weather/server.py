@@ -10,9 +10,12 @@
  Weather Data Tool
     This tool will poll current weather conditions using OpenWeatherMap
     and then make it available via local API calls or optionally store 
-    it in InfluxDB.
+    it in InfluxDB.  Why 'weather411' you may ask? The 411 code was used
+    in the past to dial 'information' which could include weather data.
 
-    CONFIGURATION - On startup will look for a conf/weather411.conf file
+    OpenWeatherMap information: https://openweathermap.org/current 
+
+    CONFIGURATION FILE - On startup will look for weather411.conf
     which includes the following parameters:
 
         [Weather411]
@@ -41,6 +44,9 @@
         DB = powerwall
         FIELD = weather
 
+    ENVIRONMENTAL:
+        WEATHERCONF = "Path to weather411.conf file"
+
     The API service of Weather411 has the following functions:
         /           - Human friendly display of current weather conditions
         /json       - All current weather data in JSON format
@@ -50,7 +56,7 @@
         /visibility - Current visibility in meters (max = 10k)
         /wind       - Current speed (m/s), gust (m/s) and direction (degree)
         /clouds     - Cloudiness in %
-        /rain       - Rain volume in mm (last hour / 3 hour) 
+        /rain       - Precipitation volume in mm (last hour / 3 hour) [rain/snow]
         /time       - Current time in UTC
         /conditions - Current weather conditions (e.g. Clear)
 
@@ -71,7 +77,7 @@ from socketserver import ThreadingMixIn
 import configparser
 from influxdb import InfluxDBClient
 
-BUILD = "0.1.0"
+BUILD = "0.1.1"
 CLI = False
 LOADED = False
 CONFIG_LOADED = False
@@ -403,7 +409,7 @@ if __name__ == "__main__":
     sys.stderr.write("* Configuration Loaded [%s]\n" % CONFIGFILE)
     sys.stderr.write(" + Weather411 - Debug: %s, Activate API: %s, API Port: %s\n" 
         % (DEBUGMODE, API, APIPORT))
-    sys.stderr.write(" + OpenWeatherMap - Key: %s, Wait: %s, Units: %s\n   OpenWeatherMap - Lat: %s, Lon: %s, Timeout: %s\n"
+    sys.stderr.write(" + OpenWeatherMap - Key: %s, Wait: %s, Units: %s\n + OpenWeatherMap - Lat: %s, Lon: %s, Timeout: %s\n"
         % (OWKEY, OWWAIT, OWUNITS, OWLAT, OWLON, TIMEOUT))
     sys.stderr.write(" + InfluxDB - Enable: %s, Host: %s, Port: %s, DB: %s, Field: %s\n"
         % (INFLUX, IHOST, IPORT, IDB, IFIELD))

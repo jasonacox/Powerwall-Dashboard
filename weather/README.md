@@ -135,6 +135,14 @@ docker start weather411
 
 ## Release Notes
 
+### 0.1.1 - Unreleased
+
+* TBD - Minor Updates
+
+### 0.1.0 - Free Weather API Update
+
+* Moved from OpenWeatherMap /data/2.5/onecall to free /data/2.5/weather URI (see #51)
+
 ### 0.0.5 - Dockerized
 
 * Set up to run in docker and incorporated into Powerwall-Dashboard.
