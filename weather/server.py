@@ -342,8 +342,7 @@ class handler(BaseHTTPRequestHandler):
             result["temperature"] = weather["temperature"]
             message = json.dumps(result)            
         elif self.path in ["/temperature","/humidity","/pressure","/visibility",
-                           "/clouds","/sunrise","/sunset","/feels_like",
-                           "/dew_point"]:
+                           "/clouds","/sunrise","/sunset","/feels_like"]:
             i = self.path.split("/")[1]
             result[i] = weather[i]
             message = json.dumps(result)
