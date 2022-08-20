@@ -197,85 +197,91 @@ def fetchWeather():
             nextupdate = currentts + (60 * OWWAIT)
             if CLI:
                 print("\n")
-            response = requests.get(URL)
-            if response.status_code == 200:
-                raw = response.json()
-                clearweather()
-                try:
-                    if 'dt' not in raw or lastdt == raw['dt']:
-                        # Data didn't update - skip rest and loop
-                        continue
-                    weather["dt"] = raw['dt']
-                    if "main" in raw:
-                        data = raw["main"]
-                        weather["temperature"] = lookup(data, 'temp', 'float')
-                        weather["feels_like"] = lookup(data, 'feels_like', 'float')
-                        weather["temp_min"] = lookup(data, 'temp_min', 'float')
-                        weather["temp_max"] = lookup(data, 'temp_max', 'float')
-                        weather["pressure"] = lookup(data, 'pressure', 'int')
-                        weather["humidity"] = lookup(data, 'humidity', 'int')
-                    weather["visibility"] = lookup(raw, 'visibility', 'int')
-                    if "wind" in raw:
-                        data = raw["wind"]
-                        weather["wind_speed"] = lookup(data, 'speed', 'float')
-                        weather["wind_deg"] = lookup(data, 'deg', 'int')
-                        weather["wind_gust"] = lookup(data, 'gust', 'float')
-                    if "clouds" in raw:
-                        weather["clouds"] = lookup(raw["clouds"], 'all', 'int')
-                    if "sys" in raw:
-                        data = raw["sys"]
-                        weather["country"] = lookup(data, 'country')
-                        weather["sunrise"] = lookup(data, 'sunrise', 'int')
-                        weather["sunset"] = lookup(data, 'sunset', 'int')
-                    if "weather" in raw and len(raw["weather"]) > 0:
-                        weather["weather_id"] = lookup(raw["weather"][0], 'id', 'int')
-                        weather["weather_main"] = lookup(raw["weather"][0], 'main')
-                        weather["weather_description"] = lookup(raw["weather"][0], 'description')
-                        weather["weather_icon"] = lookup(raw["weather"][0], 'icon')
-                    weather["tz"] = lookup(raw, 'timezone', 'int')
-                    weather["id"] = lookup(raw, 'id', 'int')
-                    weather["name"] = lookup(raw, 'name')
-                    if "rain" in raw:
-                        weather["rain_1h"] = lookup(raw['rain'], 'rain.1h', 'float')
-                        weather["rain_3h"] = lookup(raw['rain'], 'rain.3h', 'float')
-                    if "snow" in raw:
-                        weather["snow_1h"] = lookup(raw['snow'], 'snow.1h', 'float')
-                        weather["snow_3h"] = lookup(raw['snow'], 'snow.3h', 'float')
-                except:
-                    log.debug("Data error in payload from OpenWeatherMap")
-                    pass
-
-                log.debug("Weather data loaded")
-                LOADED = True
-
-                if INFLUX:
-                    log.debug("Writing to InfluxDB")
+            try:
+                response = requests.get(URL)
+                if response.status_code == 200:
+                    raw = response.json()
+                    clearweather()
                     try:
-                        client = InfluxDBClient(host=IHOST,
-                            port=IPORT,
-                            username=IUSER,
-                            password=IPASS,
-                            database=IDB)
-                        output = [{}]
-                        output[0]["measurement"] = IFIELD
-                        output[0]["time"] = weather["dt"]
-                        output[0]["fields"] = {}
-                        for i in weather:
-                            output[0]["fields"][i] = weather[i]
-                        # print(output)
-                        if client.write_points(output, time_precision='s'):
-                            serverstats['influxdb'] += 1
-                        else:
-                            serverstats['influxdberrors'] += 1
-                        client.close()
+                        if 'dt' not in raw or lastdt == raw['dt']:
+                            # Data didn't update - skip rest and loop
+                            continue
+                        weather["dt"] = raw['dt']
+                        if "main" in raw:
+                            data = raw["main"]
+                            weather["temperature"] = lookup(data, 'temp', 'float')
+                            weather["feels_like"] = lookup(data, 'feels_like', 'float')
+                            weather["temp_min"] = lookup(data, 'temp_min', 'float')
+                            weather["temp_max"] = lookup(data, 'temp_max', 'float')
+                            weather["pressure"] = lookup(data, 'pressure', 'int')
+                            weather["humidity"] = lookup(data, 'humidity', 'int')
+                        weather["visibility"] = lookup(raw, 'visibility', 'int')
+                        if "wind" in raw:
+                            data = raw["wind"]
+                            weather["wind_speed"] = lookup(data, 'speed', 'float')
+                            weather["wind_deg"] = lookup(data, 'deg', 'int')
+                            weather["wind_gust"] = lookup(data, 'gust', 'float')
+                        if "clouds" in raw:
+                            weather["clouds"] = lookup(raw["clouds"], 'all', 'int')
+                        if "sys" in raw:
+                            data = raw["sys"]
+                            weather["country"] = lookup(data, 'country')
+                            weather["sunrise"] = lookup(data, 'sunrise', 'int')
+                            weather["sunset"] = lookup(data, 'sunset', 'int')
+                        if "weather" in raw and len(raw["weather"]) > 0:
+                            weather["weather_id"] = lookup(raw["weather"][0], 'id', 'int')
+                            weather["weather_main"] = lookup(raw["weather"][0], 'main')
+                            weather["weather_description"] = lookup(raw["weather"][0], 'description')
+                            weather["weather_icon"] = lookup(raw["weather"][0], 'icon')
+                        weather["tz"] = lookup(raw, 'timezone', 'int')
+                        weather["id"] = lookup(raw, 'id', 'int')
+                        weather["name"] = lookup(raw, 'name')
+                        if "rain" in raw:
+                            weather["rain_1h"] = lookup(raw['rain'], 'rain.1h', 'float')
+                            weather["rain_3h"] = lookup(raw['rain'], 'rain.3h', 'float')
+                        if "snow" in raw:
+                            weather["snow_1h"] = lookup(raw['snow'], 'snow.1h', 'float')
+                            weather["snow_3h"] = lookup(raw['snow'], 'snow.3h', 'float')
                     except:
-                        log.debug("Error writing to InfluxDB")
-                        sys.stderr.write("! Error writing to InfluxDB\n")
-                        serverstats['influxdberrors'] += 1
+                        log.debug("Data error in payload from OpenWeatherMap")
                         pass
-            else:
-                # showing the error message
-                log.debug("Error reaching OpenWeatherMap")
+
+                    log.debug("Weather data loaded")
+                    LOADED = True
+
+                    if INFLUX:
+                        log.debug("Writing to InfluxDB")
+                        try:
+                            client = InfluxDBClient(host=IHOST,
+                                port=IPORT,
+                                username=IUSER,
+                                password=IPASS,
+                                database=IDB)
+                            output = [{}]
+                            output[0]["measurement"] = IFIELD
+                            output[0]["time"] = weather["dt"]
+                            output[0]["fields"] = {}
+                            for i in weather:
+                                output[0]["fields"][i] = weather[i]
+                            # print(output)
+                            if client.write_points(output, time_precision='s'):
+                                serverstats['influxdb'] += 1
+                            else:
+                                serverstats['influxdberrors'] += 1
+                            client.close()
+                        except:
+                            log.debug("Error writing to InfluxDB")
+                            sys.stderr.write("! Error writing to InfluxDB\n")
+                            serverstats['influxdberrors'] += 1
+                            pass
+                else:
+                    # showing the error message
+                    log.debug("Bad response from OpenWeatherMap")
+                    sys.stderr.write("! Bad response from OpenWeatherMap\n")
+            except:
+                log.debug("Error fetching OpenWeatherMap")
+                sys.stderr.write("! Error fetching OpenWeatherMap\n")
+                pass
         time.sleep(5)
     sys.stderr.write('\r ! fetchWeather Exit\n')
 

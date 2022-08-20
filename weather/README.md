@@ -135,9 +135,9 @@ docker start weather411
 
 ## Release Notes
 
-### 0.1.1 - Unreleased
+### 0.1.1 - Error Handling
 
-* TBD - Minor Updates
+* Added additional error handling for pulling and processing OpenWeatherMap data.
 
 ### 0.1.0 - Free Weather API Update
 
