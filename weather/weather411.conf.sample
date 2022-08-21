@@ -8,7 +8,7 @@ PORT = 8676
 
 [OpenWeatherMap]
 # Register and get APIKEY from OpenWeatherMap.org
-APIKEY = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+APIKEY = aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 # Enter your location in latitude and longitude 
 LAT = xxx.xxxx
 LON = yyy.yyyy
