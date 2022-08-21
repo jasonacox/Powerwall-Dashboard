@@ -15,7 +15,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 3,
+  "id": 5,
   "links": [],
   "panels": [
     {
@@ -69,7 +69,7 @@
           "yaxis": 2
         },
         {
-          "alias": "Temperature (F)",
+          "alias": "Temperature",
           "color": "#FF9830",
           "fill": 0
         },
@@ -91,7 +91,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "alias": "Temperature (F)",
+          "alias": "Temperature",
           "groupBy": [
             {
               "params": [
@@ -125,12 +125,6 @@
               {
                 "params": [],
                 "type": "mean"
-              },
-              {
-                "params": [
-                  "* 1.8 + 32"
-                ],
-                "type": "math"
               }
             ]
           ],
@@ -243,12 +237,6 @@
               {
                 "params": [],
                 "type": "mean"
-              },
-              {
-                "params": [
-                  "* 1.8 + 32"
-                ],
-                "type": "math"
               }
             ]
           ],
@@ -275,7 +263,7 @@
       },
       "yaxes": [
         {
-          "format": "fahrenheit",
+          "format": "celsius",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -353,10 +341,6 @@
         {
           "alias": "Rain",
           "yaxis": 1
-        },
-        {
-          "alias": "Visibility",
-          "yaxis": 2
         },
         {
           "alias": "Wind",
@@ -482,7 +466,7 @@
           "tags": []
         },
         {
-          "alias": "Visibility",
+          "alias": "Visibility (K)",
           "groupBy": [
             {
               "params": [
@@ -514,6 +498,12 @@
               {
                 "params": [],
                 "type": "mean"
+              },
+              {
+                "params": [
+                  " / 1000"
+                ],
+                "type": "math"
               }
             ]
           ],
@@ -608,12 +598,12 @@
     "list": []
   },
   "time": {
-    "from": "now-24h",
+    "from": "now-7d",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "Weather",
   "uid": "_5Bqs7mRz",
-  "version": 23
+  "version": 7
 }
