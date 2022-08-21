@@ -117,6 +117,12 @@ else
     ./tz.sh "${TZ}"; 
 fi
 echo "-----------------------------------------"
+echo ""
+
+# Optional - Setup Weather Data
+if [ -f weather.sh ]; then
+    ./weather.sh setup
+fi
 
 # Build Docker
 echo "Running Docker-Compose..."

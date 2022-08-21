@@ -9,3 +9,4 @@ pypowerwall.env
 weather/upload.sh
 weather/uploadtest.sh
 weather/weather411.conf
+weather/weather411.conf.orig
