@@ -237,11 +237,11 @@ def fetchWeather():
                         weather["id"] = lookup(raw, 'id', 'int')
                         weather["name"] = lookup(raw, 'name')
                         if "rain" in raw:
-                            weather["rain_1h"] = lookup(raw['rain'], 'rain.1h', 'float')
-                            weather["rain_3h"] = lookup(raw['rain'], 'rain.3h', 'float')
+                            weather["rain_1h"] = lookup(raw['rain'], '1h', 'float')
+                            weather["rain_3h"] = lookup(raw['rain'], '3h', 'float')
                         if "snow" in raw:
-                            weather["snow_1h"] = lookup(raw['snow'], 'snow.1h', 'float')
-                            weather["snow_3h"] = lookup(raw['snow'], 'snow.3h', 'float')
+                            weather["snow_1h"] = lookup(raw['snow'], '1h', 'float')
+                            weather["snow_3h"] = lookup(raw['snow'], '3h', 'float')
                     except:
                         log.debug("Data error in payload from OpenWeatherMap")
                         pass
