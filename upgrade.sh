@@ -126,6 +126,13 @@ docker stop telegraf
 docker rm telegraf
 docker images | grep telegraf | awk '{print $3}' | xargs docker rmi -f
 
+# Delete weather411 for Upgrade
+echo ""
+echo "Delete and Upgrade weather411 to Latest"
+docker stop weather411
+docker rm weather411
+docker images | grep weather411 | awk '{print $3}' | xargs docker rmi -f
+
 # Restart Stack
 echo "Restarting Powerwall-Dashboard stack..."
 docker-compose -f powerwall.yml up -d
