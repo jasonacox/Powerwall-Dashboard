@@ -135,6 +135,10 @@ docker start weather411
 
 ## Release Notes
 
+### 0.1.2 - Snow and Rain Data
+
+* Fix rain and snow values not being retrieved (refer issue #42) by @mcbirse (PR #69)
+
 ### 0.1.1 - Error Handling
 
 * Added additional error handling for pulling and processing OpenWeatherMap data.
