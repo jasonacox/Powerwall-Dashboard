@@ -8,6 +8,7 @@ Monitoring Dashboard for the Tesla Powerwall using Grafana, InfluxDB, Telegraf a
 ![Powerwall+](https://user-images.githubusercontent.com/13752647/155657106-9dbfc9e8-206f-4fa0-8b47-5dd15e726bf0.png)
 ![FreqVoltage](https://user-images.githubusercontent.com/836718/161393960-87d6c8f1-2f00-4a5b-b201-3ced1fbb44bc.png)
 ![Powerwall Capacity](https://user-images.githubusercontent.com/836718/174494485-f901cb79-09ae-4674-88a5-7af00e89fb89.png)
+![Weather](https://user-images.githubusercontent.com/836718/187042740-0147d5fc-581f-4dbc-8c09-62ea6025c924.png)
 
 ## Dashboards
 
