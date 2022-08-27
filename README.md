@@ -199,6 +199,12 @@ Since [pyPowerwall proxy](https://github.com/jasonacox/pypowerwall/tree/main/pro
 * Powerwall battery level: http://localhost:8675/soe
 * Key power data in CSV format (grid, home, solar, battery, batterylevel): http://localhost:8675/csv
 
+Since [weather411](https://hub.docker.com/r/jasonacox/weather411) is part of this dashboard stack (if you set it up) you can query it to get current weather data from its built-in API.
+
+* Current stats of weather411 service: http://localhost:8676/stats
+* Current conditions: http://localhost:8676/
+* Current conditions in JSON: http://localhost:8676/json
+
 **Data Retention and Backups**
 InfluxDB is configured to use a infinite retention policy (see [influxdb.sql](../influxdb/influxdb.sql)).  It uses continuous queries to downsample Powerwall data and preserve disk space.  However, this does not safeguard the data from accidental deletion or corruption.  It is recommend that you set up a backup plan to snapshot the data for disaster recovery. See [backups](backups/) for some suggestions.
 
