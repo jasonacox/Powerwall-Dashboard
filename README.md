@@ -8,6 +8,7 @@ Monitoring Dashboard for the Tesla Powerwall using Grafana, InfluxDB, Telegraf a
 ![Powerwall+](https://user-images.githubusercontent.com/13752647/155657106-9dbfc9e8-206f-4fa0-8b47-5dd15e726bf0.png)
 ![FreqVoltage](https://user-images.githubusercontent.com/836718/161393960-87d6c8f1-2f00-4a5b-b201-3ced1fbb44bc.png)
 ![Powerwall Capacity](https://user-images.githubusercontent.com/836718/174494485-f901cb79-09ae-4674-88a5-7af00e89fb89.png)
+![Weather](https://user-images.githubusercontent.com/836718/187042740-0147d5fc-581f-4dbc-8c09-62ea6025c924.png)
 
 ## Dashboards
 
@@ -71,6 +72,17 @@ You will want to set your local timezone by editing `pypowerwall.env`, `influxdb
   ```
 
 * Copy `grafana.env.sample` to `grafana.env` - you do not need to edit these defaults. However, there are optional settings for alert notifications and HTTPS.
+
+* Optional: If you want to pull in local weather data, copy `weather/weather411.conf.sample` to `weather/weather411.conf` and edit the file to include your location ([Latitude and Longitude](https://jasonacox.github.io/Powerwall-Dashboard/location.html)) and your OpenWeatherMap API Key. To get a Key, you need to set up a free account at [openweathermap.org](https://home.openweathermap.org/users/sign_up). Make sure you check your email to verify account. API keys can take a few hours to activate.
+
+  ```conf
+      [OpenWeatherMap]
+      # Register and get APIKEY from OpenWeatherMap.org
+      APIKEY = aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+      # Enter your location in latitude and longitude 
+      LAT = xxx.xxxx
+      LON = yyy.yyyy
+  ```
 
 * Start the docker containers
 
@@ -186,6 +198,12 @@ Since [pyPowerwall proxy](https://github.com/jasonacox/pypowerwall/tree/main/pro
 * Powerwall strings: http://localhost:8675/strings
 * Powerwall battery level: http://localhost:8675/soe
 * Key power data in CSV format (grid, home, solar, battery, batterylevel): http://localhost:8675/csv
+
+Since [weather411](https://hub.docker.com/r/jasonacox/weather411) is part of this dashboard stack (if you set it up) you can query it to get current weather data from its built-in API.
+
+* Current stats of weather411 service: http://localhost:8676/stats
+* Current conditions: http://localhost:8676/
+* Current conditions in JSON: http://localhost:8676/json
 
 **Data Retention and Backups**
 InfluxDB is configured to use a infinite retention policy (see [influxdb.sql](../influxdb/influxdb.sql)).  It uses continuous queries to downsample Powerwall data and preserve disk space.  However, this does not safeguard the data from accidental deletion or corruption.  It is recommend that you set up a backup plan to snapshot the data for disaster recovery. See [backups](backups/) for some suggestions.

@@ -4,7 +4,7 @@
 set -e
 
 # Set Globals
-VERSION="2.4.5"
+VERSION="2.5.0"
 CURRENT="Unknown"
 if [ -f VERSION ]; then
     CURRENT=`cat VERSION`
@@ -76,6 +76,19 @@ git pull
 # Create Grafana Settings if missing (required in 2.4.0)
 if [ ! -f grafana.env ]; then
     cp "grafana.env.sample" "grafana.env"
+fi
+
+# Check to see if Weather Data is Available
+if [ ! -f weather/weather411.conf ]; then
+    echo "This version (${VERSION}) allows you to add local weather data."
+    echo ""
+    # Optional - Setup Weather Data
+    if [ -f weather.sh ]; then
+        ./weather.sh setup
+    else
+        echo "However, you are missing the weather.sh setup file. Skipping..."
+        echo ""
+    fi
 fi
 
 # Make sure stack is running

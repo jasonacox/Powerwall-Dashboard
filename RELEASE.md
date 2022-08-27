@@ -1,5 +1,10 @@
 # RELEASE NOTES
 
+
+## v2.5.0 - Weather Data
+
+* Adds local weather data from [OpenWeatherMap.org](https://openweathermap.org/) using the [jasonacox/weather411](https://hub.docker.com/r/jasonacox/weather411) container. #42 #51 
+
 ## v2.4.5 - pyPowerwall v0.6.0
 
 * Upgraded to pyPowerwall [v0.6.0](https://github.com/jasonacox/pypowerwall/releases/tag/v0.6.0) Proxy t17 - Persistent HTTP Connections
