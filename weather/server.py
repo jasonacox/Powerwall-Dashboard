@@ -77,7 +77,7 @@ from socketserver import ThreadingMixIn
 import configparser
 from influxdb import InfluxDBClient
 
-BUILD = "0.1.1"
+BUILD = "0.1.2"
 CLI = False
 LOADED = False
 CONFIG_LOADED = False
