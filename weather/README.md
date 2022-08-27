@@ -48,7 +48,7 @@ Docker: docker pull [jasonacox/weather411](https://hub.docker.com/r/jasonacox/we
     PASSWORD =
     ```
 
-2. Run the Docker Container to listen on port 8676. Update the `-e` values for your Powerwall.
+2. Run the Docker Container to listen on port 8676.
 
     ```bash
     docker run \
