@@ -141,6 +141,12 @@ echo "Setup InfluxDB Data for Powerwall..."
 docker exec -it influxdb influx -import -path=/var/lib/influxdb/influxdb.sql
 sleep 2
 
+# Restart weather411 to force a sample
+if [ -f weather/weather411.conf ]; then
+    echo "Fetching local weather..."
+    docker restart weather411
+fi
+
 # Display Final Instructions
 cat << EOF
 ------------------[ Final Setup Instructions ]-----------------
