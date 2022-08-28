@@ -44,6 +44,9 @@ INFLUXDB_PASS = ""
 INFLUXDB_DB = "powerwall"
 INFLUXDB_TZ = "America/Los_Angeles"
 
+# Weather Settings
+WEATHER_UNITS = "metric"  # metric, imperial or standard
+
 # Helper Functions
 def make_request(method, path, params=None):
     conn = http.client.HTTPConnection(API_HOST)
@@ -80,7 +83,7 @@ def make_request(method, path, params=None):
     es	    Export Shoulder	    No	number	    watt hours	
     eh	    Export High     	No	number	    watt hours	
 """
-def push_daily(date,  generated=None, exported=None, consumed=None, imported=None):
+def push_daily(date,  generated=None, exported=None, consumed=None, imported=None, tm=None, tx=None):
     
     path = '/service/r2/addoutput.jsp'
     params = {
@@ -94,6 +97,10 @@ def push_daily(date,  generated=None, exported=None, consumed=None, imported=Non
         params['c'] = consumed
     if imported:
         params['ip'] = imported  # using import peak - TODO expand for TOU
+    if tm:
+        params['tm'] = tm
+    if tx:
+        params['tx'] = tx
 
     params = urllib.parse.urlencode(params)
 
@@ -118,11 +125,12 @@ def get_influx(start=None, end=None):
     password = INFLUXDB_PASS
     dbname = INFLUXDB_DB
 
-    timeFilter = "time > '%s' AND time < '%s' tz('%s')" % (start, end, INFLUXDB_TZ)
-    query = 'SELECT sum("solar") * 1000 AS "generated", sum("to_grid") * 1000 AS "exported", sum("home") * 1000 AS "consumed", sum("from_grid") * 1000 AS "imported"  FROM "kwh"."http" WHERE %s' % (timeFilter)
-    
+    # Connect to influxDB
     client = InfluxDBClient(host, port, user, password, dbname)
+    timeFilter = "time > '%s' AND time < '%s' tz('%s')" % (start, end, INFLUXDB_TZ)
 
+    # Solar Data
+    query = 'SELECT sum("solar") * 1000 AS "generated", sum("to_grid") * 1000 AS "exported", sum("home") * 1000 AS "consumed", sum("from_grid") * 1000 AS "imported"  FROM "kwh"."http" WHERE %s' % (timeFilter)
     g = e = c = i = None
     result = client.query(query)
     for point in result.get_points():
@@ -130,7 +138,24 @@ def get_influx(start=None, end=None):
         e = int(point['exported'])
         c = int(point['consumed'])
         i = int(point['imported'])
-    return([g,e,c,i])
+
+    # Weather Data
+    query = 'SELECT min("temperature") AS "tm", max("temperature") AS "tx" FROM "autogen"."weather" WHERE %s' % (timeFilter)
+    tm = tx = None
+    result = client.query(query)
+    for point in result.get_points():
+        tm = float(point['tm'])
+        tx = float(point['tx'])
+    # Convert to Metric
+    if (WEATHER_UNITS == "imperial"):
+        tm = (5.0/9.0)*(tm-32.0) 
+        tx = (5.0/9.0)*(tx-32.0) 
+    if (WEATHER_UNITS == "standard"):
+        tm = tm - 273.15
+        tx = tx - 273.15
+
+    # Return Data
+    return([g,e,c,i,tm,tx])
 
 # MAIN
 
@@ -175,13 +200,17 @@ while x < e:
     day = x.strftime('%Y%m%d')
 
     print("%s: " % startday, end='')
-    [generated,exported,consumed,imported] = get_influx(startday, endday)
+    [generated,exported,consumed,imported,tm,tx] = get_influx(startday, endday)
     if generated is not None and exported < generated:
-        print("   Generated = %0.0f - Exported = %0.0f - Consumed = %0.0f - Imported = %0.0f" % (generated, exported, consumed, imported), end='')
-
-        # Push data to PVoutput
+        if tm is not None and tx is not None:
+            temprange = "- Temp = %0.1f / %0.1f" % (tm,tx)
+        else:
+            temprange = ""
+        print("   Generated = %0.0f - Exported = %0.0f - Consumed = %0.0f - Imported = %0.0f %s" % (generated, exported, consumed, imported, temprange), end='')
+        
+         # Push data to PVoutput
         day = x.strftime('%Y%m%d')
-        push_daily(day, generated, exported, consumed, imported)
+        push_daily(day, generated, exported, consumed, imported, tm, tx)
         print(" - Published")
     else:
         print("   No Data")
