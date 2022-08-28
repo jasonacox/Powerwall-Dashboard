@@ -107,7 +107,7 @@ if [ ! -f ${CONF_FILE} ]; then
         exit 0
     fi
     read -p 'Enter Longitude: ' LON
-    if [-z "${LON}" ]; then 
+    if [ -z "${LON}" ]; then 
         echo "ERROR: Valid coordinates are required. Exiting now."
         exit 0
     fi
