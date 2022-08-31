@@ -1,6 +1,10 @@
 # RELEASE NOTES
 
 
+## v2.5.2 - Bug Fix
+
+* Fix `upgrade.sh` to prevent sudo/root from running this script. #42
+
 ## v2.5.1 - Bug Fix
 
 * Fix bug in `weather.sh` that causes the script to error on location entry. #72

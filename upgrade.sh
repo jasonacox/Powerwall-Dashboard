@@ -4,10 +4,21 @@
 set -e
 
 # Set Globals
-VERSION="2.5.1"
+VERSION="2.5.2"
 CURRENT="Unknown"
 if [ -f VERSION ]; then
     CURRENT=`cat VERSION`
+fi
+
+# Verify not running as root
+if [ "$EUID" -eq 0 ]; then 
+  echo "ERROR: Running this as root will cause permission issues."
+  echo ""
+  echo "Please ensure your local user in in the docker group and run without sudo."
+  echo "   sudo usermod -aG docker \$USER"
+  echo "   $0"
+  echo ""
+  exit 1
 fi
 
 # Service Running Helper Function
