@@ -1,26 +1,104 @@
 {
+  "__inputs": [
+    {
+      "name": "DS_POWERWALL_INFLUXDB",
+      "label": "Powerwall InfluxDB",
+      "description": "",
+      "type": "datasource",
+      "pluginId": "influxdb",
+      "pluginName": "InfluxDB"
+    },
+    {
+      "name": "DS_SUN_AND MOON",
+      "label": "Sun and Moon",
+      "description": "",
+      "type": "datasource",
+      "pluginId": "fetzerch-sunandmoon-datasource",
+      "pluginName": "Sun and Moon"
+    }
+  ],
+  "__elements": {},
+  "__requires": [
+    {
+      "type": "datasource",
+      "id": "fetzerch-sunandmoon-datasource",
+      "name": "Sun and Moon",
+      "version": "0.2.1"
+    },
+    {
+      "type": "grafana",
+      "id": "grafana",
+      "name": "Grafana",
+      "version": "9.1.2"
+    },
+    {
+      "type": "panel",
+      "id": "grafana-piechart-panel",
+      "name": "Pie Chart (old)",
+      "version": "1.6.2"
+    },
+    {
+      "type": "panel",
+      "id": "graph",
+      "name": "Graph (old)",
+      "version": ""
+    },
+    {
+      "type": "datasource",
+      "id": "influxdb",
+      "name": "InfluxDB",
+      "version": "1.0.0"
+    },
+    {
+      "type": "panel",
+      "id": "stat",
+      "name": "Stat",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "text",
+      "name": "Text",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "yesoreyeram-boomtable-panel",
+      "name": "Boom Table",
+      "version": "1.4.1"
+    }
+  ],
   "annotations": {
     "list": [
       {
         "builtIn": 1,
-        "datasource": "-- Grafana --",
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
         "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
         "type": "dashboard"
       }
     ]
   },
   "editable": true,
-  "gnetId": null,
+  "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 1,
+  "id": null,
   "links": [],
+  "liveNow": false,
   "panels": [
     {
       "collapsed": false,
-      "datasource": null,
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -44,7 +122,16 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "-- Mixed --",
+      "datasource": {
+        "type": "datasource",
+        "uid": "-- Mixed --"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": []
+      },
       "fill": 3,
       "fillGradient": 0,
       "gridPos": {
@@ -69,16 +156,18 @@
       },
       "lines": true,
       "linewidth": 1,
-      "nullPointMode": "null",
+      "nullPointMode": "connected",
       "options": {
-        "dataLinks": []
+        "alertThreshold": true
       },
       "percentage": false,
+      "pluginVersion": "9.1.2",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
       "seriesOverrides": [
         {
+          "$$hashKey": "object:4331",
           "alias": "Charge",
           "bars": false,
           "fill": 0,
@@ -87,6 +176,7 @@
           "yaxis": 2
         },
         {
+          "$$hashKey": "object:4332",
           "alias": "Sun altitude",
           "dashLength": 1,
           "dashes": true,
@@ -94,6 +184,38 @@
           "hideTooltip": true,
           "legend": false,
           "spaceLength": 5,
+          "yaxis": 2
+        },
+        {
+          "$$hashKey": "object:4333",
+          "alias": "Temperature",
+          "color": "#FF9830",
+          "dashLength": 6,
+          "dashes": true,
+          "fill": 0,
+          "spaceLength": 2,
+          "yaxis": 2
+        },
+        {
+          "$$hashKey": "object:4334",
+          "alias": "Clouds",
+          "color": "rgb(255, 255, 255)",
+          "dashLength": 5,
+          "dashes": true,
+          "fill": 0,
+          "spaceLength": 6,
+          "yaxis": 2
+        },
+        {
+          "$$hashKey": "object:4335",
+          "alias": "Feels Like",
+          "color": "#F2CC0C",
+          "dashLength": 6,
+          "dashes": true,
+          "fill": 0,
+          "hideTooltip": true,
+          "legend": false,
+          "spaceLength": 2,
           "yaxis": 2
         }
       ],
@@ -103,7 +225,10 @@
       "targets": [
         {
           "alias": "Home Usage",
-          "datasource": "InfluxDB",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -138,7 +263,10 @@
         },
         {
           "alias": "Solar Energy",
-          "datasource": "InfluxDB",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -172,7 +300,10 @@
         },
         {
           "alias": "Powerwall",
-          "datasource": "InfluxDB",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -208,7 +339,10 @@
         },
         {
           "alias": "Grid Usage",
-          "datasource": "InfluxDB",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -250,7 +384,10 @@
         },
         {
           "alias": "Charge",
-          "datasource": "InfluxDB",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -297,15 +434,16 @@
           "tz": "America/Los_Angeles"
         },
         {
-          "datasource": "Sun and Moon",
+          "datasource": {
+            "type": "fetzerch-sunandmoon-datasource",
+            "uid": "${DS_SUN_AND MOON}"
+          },
           "refId": "F",
           "target": "sun_altitude"
         }
       ],
       "thresholds": [],
-      "timeFrom": null,
       "timeRegions": [],
-      "timeShift": null,
       "title": "Energy Usage",
       "tooltip": {
         "shared": true,
@@ -315,23 +453,20 @@
       "transparent": true,
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
       "yaxes": [
         {
-          "decimals": null,
+          "$$hashKey": "object:4420",
           "format": "watt",
-          "label": null,
+          "label": "",
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": true
         },
         {
+          "$$hashKey": "object:4421",
           "decimals": 0,
           "format": "percent",
           "label": "",
@@ -342,14 +477,10 @@
         }
       ],
       "yaxis": {
-        "align": true,
-        "alignLevel": null
+        "align": true
       }
     },
     {
-      "cacheTimeout": null,
-      "content": "<div style=\"text-align: center\">\n<iframe id=\"frame\" src=\"/public/img/grafana_icon.svg\" width=\"400\" height=\"300\" frameBorder=\"0\">No</iframe>\n<script>\nvar pwurl = window.location.protocol + \"//\" + window.location.hostname + \":8675/\";\nconsole.log(pwurl);\ndocument.getElementById('frame').src = pwurl;\n</script>\n</div>",
-      "datasource": null,
       "gridPos": {
         "h": 9,
         "w": 8,
@@ -358,9 +489,11 @@
       },
       "id": 13,
       "links": [],
-      "mode": "html",
-      "options": {},
-      "pluginVersion": "6.5.1",
+      "options": {
+        "content": "<div style=\"text-align: center\">\n<iframe id=\"frame\" src=\"/public/img/grafana_icon.svg\" width=\"400\" height=\"300\" frameBorder=\"0\">No</iframe>\n<script>\nvar pwurl = window.location.protocol + \"//\" + window.location.hostname + \":8675/\";\nconsole.log(pwurl);\ndocument.getElementById('frame').src = pwurl;\n</script>\n</div>",
+        "mode": "html"
+      },
+      "pluginVersion": "9.1.2",
       "targets": [
         {
           "alias": "From Solar",
@@ -465,8 +598,6 @@
           "tz": "America/Los_Angeles"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Power Flow",
       "transparent": true,
       "type": "text"
@@ -514,9 +645,18 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": null,
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_POWERWALL_INFLUXDB}"
+      },
       "decimals": 0,
       "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": []
+      },
       "fill": 0,
       "fillGradient": 2,
       "gridPos": {
@@ -546,14 +686,16 @@
       "linewidth": 2,
       "nullPointMode": "null",
       "options": {
-        "dataLinks": []
+        "alertThreshold": true
       },
       "percentage": false,
+      "pluginVersion": "9.1.2",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
       "seriesOverrides": [
         {
+          "$$hashKey": "object:1014",
           "alias": "Grid Status",
           "color": "#73BF69",
           "nullPointMode": "connected"
@@ -565,47 +707,19 @@
       "targets": [
         {
           "alias": "Grid Status",
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "0"
-              ],
-              "type": "fill"
-            }
-          ],
-          "measurement": "http",
-          "orderByTime": "ASC",
-          "policy": "raw",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "query": "SELECT min(\"grid_status\") FROM \"grid\".\"http\" WHERE $timeFilter GROUP BY time($__interval) tz('America/Los_Angeles')",
           "rawQuery": true,
           "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "grid_status"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "sum"
-              }
-            ]
-          ],
-          "tags": [],
-          "tz": "America/Los_Angeles"
+          "resultFormat": "time_series"
         }
       ],
       "thresholds": [
         {
+          "$$hashKey": "object:582",
           "colorMode": "critical",
           "fill": true,
           "line": true,
@@ -614,9 +728,7 @@
           "yaxis": "left"
         }
       ],
-      "timeFrom": null,
       "timeRegions": [],
-      "timeShift": null,
       "title": "Grid Status",
       "tooltip": {
         "shared": true,
@@ -626,38 +738,30 @@
       "transparent": true,
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
       "yaxes": [
         {
+          "$$hashKey": "object:562",
           "format": "none",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": false
         },
         {
+          "$$hashKey": "object:563",
           "format": "short",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": false
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     },
     {
       "collapsed": false,
-      "datasource": null,
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -670,23 +774,43 @@
       "type": "row"
     },
     {
-      "cacheTimeout": null,
-      "colorBackground": false,
-      "colorValue": true,
-      "colors": [
-        "#5794F2",
-        "rgba(237, 129, 40, 0.89)",
-        "#d44a3a"
-      ],
-      "datasource": null,
-      "decimals": 1,
-      "format": "kwatth",
-      "gauge": {
-        "maxValue": 100,
-        "minValue": 0,
-        "show": false,
-        "thresholdLabels": false,
-        "thresholdMarkers": true
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_POWERWALL_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 1,
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "kwatth"
+        },
+        "overrides": []
       },
       "gridPos": {
         "h": 2,
@@ -697,49 +821,32 @@
       "id": 4,
       "interval": "",
       "links": [],
-      "mappingType": 1,
-      "mappingTypes": [
-        {
-          "name": "value to text",
-          "value": 1
-        },
-        {
-          "name": "range to text",
-          "value": 2
-        }
-      ],
       "maxDataPoints": 100,
-      "nullPointMode": "connected",
-      "nullText": null,
-      "options": {},
-      "postfix": "",
-      "postfixFontSize": "50%",
-      "prefix": "",
-      "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
-      "sparkline": {
-        "fillColor": "rgba(31, 118, 189, 0.18)",
-        "full": false,
-        "lineColor": "rgb(31, 120, 193)",
-        "show": false,
-        "ymax": null,
-        "ymin": null
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
       },
-      "tableColumn": "",
+      "pluginVersion": "9.1.2",
       "targets": [
         {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [],
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "autogen",
-          "query": "SELECT integral(\"load_instant_power\")  / 1000 / 3600 FROM \"http\" WHERE $timeFilter GROUP BY time(1h) tz('America/Los_Angeles')",
-          "rawQuery": false,
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -766,40 +873,48 @@
           "tz": "America/Los_Angeles"
         }
       ],
-      "thresholds": "",
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Home Usage",
       "transparent": true,
-      "type": "singlestat",
-      "valueFontSize": "70%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
-      "valueName": "total"
+      "type": "stat"
     },
     {
-      "cacheTimeout": null,
-      "colorBackground": false,
-      "colorValue": true,
-      "colors": [
-        "#FADE2A",
-        "rgba(237, 129, 40, 0.89)",
-        "#d44a3a"
-      ],
-      "datasource": null,
-      "decimals": 1,
-      "format": "kwatth",
-      "gauge": {
-        "maxValue": 100,
-        "minValue": 0,
-        "show": false,
-        "thresholdLabels": false,
-        "thresholdMarkers": true
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_POWERWALL_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 1,
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "kwatth"
+        },
+        "overrides": []
       },
       "gridPos": {
         "h": 2,
@@ -810,50 +925,32 @@
       "id": 5,
       "interval": "",
       "links": [],
-      "mappingType": 1,
-      "mappingTypes": [
-        {
-          "name": "value to text",
-          "value": 1
-        },
-        {
-          "name": "range to text",
-          "value": 2
-        }
-      ],
       "maxDataPoints": 100,
-      "nullPointMode": "connected",
-      "nullText": null,
-      "options": {},
-      "postfix": "",
-      "postfixFontSize": "50%",
-      "prefix": "",
-      "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
-      "sparkline": {
-        "fillColor": "rgba(31, 118, 189, 0.18)",
-        "full": false,
-        "lineColor": "rgb(31, 120, 193)",
-        "show": false,
-        "ymax": null,
-        "ymin": null
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
       },
-      "tableColumn": "",
+      "pluginVersion": "9.1.2",
       "targets": [
         {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [],
-          "limit": "",
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "autogen",
-          "query": "SELECT integral(\"solar_instant_power\")  / 1000 / 3600 FROM \"http\" WHERE $timeFilter",
-          "rawQuery": false,
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -880,42 +977,48 @@
           "tz": "America/Los_Angeles"
         }
       ],
-      "thresholds": "",
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Solar Energy",
       "transparent": true,
-      "type": "singlestat",
-      "valueFontSize": "70%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
-      "valueName": "total"
+      "type": "stat"
     },
     {
-      "cacheTimeout": null,
-      "colorBackground": false,
-      "colorPostfix": false,
-      "colorPrefix": false,
-      "colorValue": true,
-      "colors": [
-        "#73BF69",
-        "rgba(237, 129, 40, 0.89)",
-        "#d44a3a"
-      ],
-      "datasource": null,
-      "decimals": 1,
-      "format": "kwatth",
-      "gauge": {
-        "maxValue": 100,
-        "minValue": 0,
-        "show": false,
-        "thresholdLabels": false,
-        "thresholdMarkers": true
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_POWERWALL_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 1,
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "0.0 kWh"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "kwatth"
+        },
+        "overrides": []
       },
       "gridPos": {
         "h": 2,
@@ -926,49 +1029,32 @@
       "id": 8,
       "interval": "",
       "links": [],
-      "mappingType": 1,
-      "mappingTypes": [
-        {
-          "name": "value to text",
-          "value": 1
-        },
-        {
-          "name": "range to text",
-          "value": 2
-        }
-      ],
       "maxDataPoints": 100,
-      "nullPointMode": "connected",
-      "nullText": null,
-      "options": {},
-      "postfix": "",
-      "postfixFontSize": "50%",
-      "prefix": "",
-      "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
-      "sparkline": {
-        "fillColor": "rgba(31, 118, 189, 0.18)",
-        "full": false,
-        "lineColor": "rgb(31, 120, 193)",
-        "show": false,
-        "ymax": null,
-        "ymin": null
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
       },
-      "tableColumn": "",
+      "pluginVersion": "9.1.2",
       "targets": [
         {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [],
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "autogen",
-          "query": "SELECT integral(\"battery_instant_power\")  / -1000 / 3600 FROM \"http\" WHERE (\"battery_instant_power\" <= 0) AND $timeFilter GROUP BY time(1h) tz('America/Los_Angeles')",
-          "rawQuery": false,
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -995,40 +1081,48 @@
           "tz": "America/Los_Angeles"
         }
       ],
-      "thresholds": "",
-      "timeFrom": null,
-      "timeShift": null,
       "title": "To Powerwall",
       "transparent": true,
-      "type": "singlestat",
-      "valueFontSize": "70%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "0.0 kWh",
-          "value": "null"
-        }
-      ],
-      "valueName": "total"
+      "type": "stat"
     },
     {
-      "cacheTimeout": null,
-      "colorBackground": false,
-      "colorValue": true,
-      "colors": [
-        "#73BF69",
-        "rgba(237, 129, 40, 0.89)",
-        "#d44a3a"
-      ],
-      "datasource": null,
-      "decimals": 1,
-      "format": "kwatth",
-      "gauge": {
-        "maxValue": 100,
-        "minValue": 0,
-        "show": false,
-        "thresholdLabels": false,
-        "thresholdMarkers": true
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_POWERWALL_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 1,
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "kwatth"
+        },
+        "overrides": []
       },
       "gridPos": {
         "h": 2,
@@ -1039,49 +1133,32 @@
       "id": 6,
       "interval": "",
       "links": [],
-      "mappingType": 1,
-      "mappingTypes": [
-        {
-          "name": "value to text",
-          "value": 1
-        },
-        {
-          "name": "range to text",
-          "value": 2
-        }
-      ],
       "maxDataPoints": 100,
-      "nullPointMode": "connected",
-      "nullText": null,
-      "options": {},
-      "postfix": "",
-      "postfixFontSize": "50%",
-      "prefix": "",
-      "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
-      "sparkline": {
-        "fillColor": "rgba(31, 118, 189, 0.18)",
-        "full": false,
-        "lineColor": "rgb(31, 120, 193)",
-        "show": false,
-        "ymax": null,
-        "ymin": null
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
       },
-      "tableColumn": "",
+      "pluginVersion": "9.1.2",
       "targets": [
         {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [],
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "autogen",
-          "query": "SELECT integral(\"battery_instant_power\")  / 1000 / 3600 FROM \"http\" WHERE (\"battery_instant_power\" > 0) AND $timeFilter tz('America/Los_Angeles')",
-          "rawQuery": false,
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -1108,40 +1185,48 @@
           "tz": "America/Los_Angeles"
         }
       ],
-      "thresholds": "",
-      "timeFrom": null,
-      "timeShift": null,
       "title": "From Powerwall",
       "transparent": true,
-      "type": "singlestat",
-      "valueFontSize": "70%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
-      "valueName": "total"
+      "type": "stat"
     },
     {
-      "cacheTimeout": null,
-      "colorBackground": false,
-      "colorValue": true,
-      "colors": [
-        "#B877D9",
-        "rgba(237, 129, 40, 0.89)",
-        "#F2495C"
-      ],
-      "datasource": null,
-      "decimals": 1,
-      "format": "kwatth",
-      "gauge": {
-        "maxValue": 100,
-        "minValue": 0,
-        "show": false,
-        "thresholdLabels": false,
-        "thresholdMarkers": true
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_POWERWALL_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 1,
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "kwatth"
+        },
+        "overrides": []
       },
       "gridPos": {
         "h": 2,
@@ -1152,49 +1237,32 @@
       "id": 7,
       "interval": "",
       "links": [],
-      "mappingType": 1,
-      "mappingTypes": [
-        {
-          "name": "value to text",
-          "value": 1
-        },
-        {
-          "name": "range to text",
-          "value": 2
-        }
-      ],
       "maxDataPoints": 100,
-      "nullPointMode": "connected",
-      "nullText": null,
-      "options": {},
-      "postfix": "",
-      "postfixFontSize": "50%",
-      "prefix": "",
-      "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
-      "sparkline": {
-        "fillColor": "rgba(31, 118, 189, 0.18)",
-        "full": false,
-        "lineColor": "rgb(31, 120, 193)",
-        "show": false,
-        "ymax": null,
-        "ymin": null
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
       },
-      "tableColumn": "",
+      "pluginVersion": "9.1.2",
       "targets": [
         {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [],
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "autogen",
-          "query": "SELECT integral(\"site_instant_power\",1m)  / -1000 / 3600 * 60 FROM \"http\" WHERE (\"site_instant_power\" < 0) AND $timeFilter GROUP BY time(1h) tz('America/Los_Angeles')",
-          "rawQuery": false,
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -1221,40 +1289,48 @@
           "tz": "America/Los_Angeles"
         }
       ],
-      "thresholds": "",
-      "timeFrom": null,
-      "timeShift": null,
       "title": "To Grid",
       "transparent": true,
-      "type": "singlestat",
-      "valueFontSize": "70%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
-      "valueName": "total"
+      "type": "stat"
     },
     {
-      "cacheTimeout": null,
-      "colorBackground": false,
-      "colorValue": true,
-      "colors": [
-        "#B877D9",
-        "rgba(237, 129, 40, 0.89)",
-        "#d44a3a"
-      ],
-      "datasource": null,
-      "decimals": 1,
-      "format": "kwatth",
-      "gauge": {
-        "maxValue": 100,
-        "minValue": 0,
-        "show": false,
-        "thresholdLabels": false,
-        "thresholdMarkers": true
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_POWERWALL_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 1,
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "kwatth"
+        },
+        "overrides": []
       },
       "gridPos": {
         "h": 2,
@@ -1265,49 +1341,32 @@
       "id": 9,
       "interval": "",
       "links": [],
-      "mappingType": 1,
-      "mappingTypes": [
-        {
-          "name": "value to text",
-          "value": 1
-        },
-        {
-          "name": "range to text",
-          "value": 2
-        }
-      ],
       "maxDataPoints": 100,
-      "nullPointMode": "connected",
-      "nullText": null,
-      "options": {},
-      "postfix": "",
-      "postfixFontSize": "50%",
-      "prefix": "",
-      "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
-      "sparkline": {
-        "fillColor": "rgba(31, 118, 189, 0.18)",
-        "full": false,
-        "lineColor": "rgb(31, 120, 193)",
-        "show": false,
-        "ymax": null,
-        "ymin": null
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
       },
-      "tableColumn": "",
+      "pluginVersion": "9.1.2",
       "targets": [
         {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [],
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "autogen",
-          "query": "SELECT integral(\"site_instant_power\", 1m)  / 1000 / 3600 * 60 FROM \"http\" WHERE (\"site_instant_power\" > 0) AND $timeFilter",
-          "rawQuery": false,
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -1334,21 +1393,9 @@
           "tz": "America/Los_Angeles"
         }
       ],
-      "thresholds": "",
-      "timeFrom": null,
-      "timeShift": null,
       "title": "From Grid",
       "transparent": true,
-      "type": "singlestat",
-      "valueFontSize": "70%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
-      "valueName": "total"
+      "type": "stat"
     },
     {
       "aliasColors": {
@@ -1363,12 +1410,20 @@
         "total": "blue"
       },
       "bars": true,
-      "cacheTimeout": null,
       "dashLength": 10,
       "dashes": false,
-      "datasource": null,
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_POWERWALL_INFLUXDB}"
+      },
       "decimals": 2,
       "description": "Estimated Savings",
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": []
+      },
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -1391,8 +1446,6 @@
         "min": false,
         "rightSide": true,
         "show": true,
-        "sort": null,
-        "sortDesc": null,
         "total": true,
         "values": true
       },
@@ -1401,10 +1454,10 @@
       "links": [],
       "nullPointMode": "null",
       "options": {
-        "dataLinks": []
+        "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "6.5.1",
+      "pluginVersion": "9.1.2",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -1415,167 +1468,54 @@
       "targets": [
         {
           "alias": "powerwall > home",
-          "groupBy": [
-            {
-              "params": [
-                "1h"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "none"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "measurement": "http",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT fp FROM (SELECT sum(\"from_pw\")  * 0.19 AS fp FROM kwh.http WHERE  $timeFilter tz('America/Los_Angeles'))\n",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
+          "query": "SELECT fp FROM (SELECT sum(\"from_pw\")  * 0.19 AS fp FROM kwh.http WHERE  $timeFilter tz('America/Los_Angeles'))",
           "rawQuery": true,
           "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "from_grid"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": []
+          "resultFormat": "time_series"
         },
         {
           "alias": "solar > home",
-          "groupBy": [
-            {
-              "params": [
-                "1h"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "none"
-              ],
-              "type": "fill"
-            }
-          ],
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "hide": false,
-          "measurement": "http",
-          "orderByTime": "ASC",
-          "policy": "default",
           "query": "SELECT s - (tp + tg) FROM (SELECT sum(\"solar\") * 0.19 AS s,  sum(\"to_pw\")  * 0.19 AS tp, sum(\"to_grid\") * 0.19 AS tg FROM kwh.http WHERE  $timeFilter tz('America/Los_Angeles'))\n",
           "rawQuery": true,
           "refId": "B",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "solar_instant_power"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              },
-              {
-                "params": [
-                  "/ 1000  * 0.358"
-                ],
-                "type": "math"
-              }
-            ]
-          ],
-          "tags": []
+          "resultFormat": "time_series"
         },
         {
           "alias": "solar > grid",
-          "groupBy": [],
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "hide": false,
-          "measurement": "http",
-          "orderByTime": "ASC",
-          "policy": "kwh",
           "query": "SELECT tg FROM (SELECT sum(\"to_pw\")  * 0.19 AS tp, sum(\"solar\") * 0.19 AS s, sum(\"to_grid\") * 0.19 AS tg FROM kwh.http WHERE  $timeFilter tz('America/Los_Angeles'))\n",
           "rawQuery": true,
           "refId": "C",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "from_pw"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [
-                  "  * 0.19"
-                ],
-                "type": "math"
-              }
-            ]
-          ],
-          "tags": [],
-          "tz": "America/Los_Angeles"
+          "resultFormat": "time_series"
         },
         {
           "alias": "total",
-          "groupBy": [
-            {
-              "params": [
-                "1h"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "none"
-              ],
-              "type": "fill"
-            }
-          ],
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "hide": false,
-          "measurement": "http",
-          "orderByTime": "ASC",
-          "policy": "default",
           "query": "SELECT tg + (s - tp - tg ) + fp FROM (SELECT sum(\"to_pw\")  * 0.19 AS tp, sum(\"solar\") * 0.19 AS s, sum(\"to_grid\") * 0.19 AS tg, sum(\"from_pw\") * 0.19 AS fp FROM kwh.http WHERE  $timeFilter tz('America/Los_Angeles'))\n",
           "rawQuery": true,
           "refId": "D",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "solar_instant_power"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              },
-              {
-                "params": [
-                  "/ 1000  * 0.358"
-                ],
-                "type": "math"
-              }
-            ]
-          ],
-          "tags": []
+          "resultFormat": "time_series"
         }
       ],
       "thresholds": [],
-      "timeFrom": null,
       "timeRegions": [],
-      "timeShift": null,
       "title": "Savings",
       "tooltip": {
         "shared": false,
@@ -1585,9 +1525,7 @@
       "transparent": true,
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "series",
-        "name": null,
         "show": false,
         "values": [
           "total"
@@ -1595,26 +1533,23 @@
       },
       "yaxes": [
         {
+          "$$hashKey": "object:1096",
           "decimals": 2,
           "format": "currencyUSD",
           "label": "",
           "logBase": 1,
-          "max": null,
           "min": "0",
           "show": true
         },
         {
+          "$$hashKey": "object:1097",
           "format": "short",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": false
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     },
     {
@@ -1634,12 +1569,14 @@
         "Total Usage": "#5794F2"
       },
       "breakPoint": "50%",
-      "cacheTimeout": null,
       "combine": {
         "label": "Others",
         "threshold": 0
       },
-      "datasource": null,
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_POWERWALL_INFLUXDB}"
+      },
       "fontSize": "100%",
       "format": "kwatth",
       "gridPos": {
@@ -1662,57 +1599,34 @@
       "links": [],
       "maxDataPoints": 3,
       "nullPointMode": "connected",
-      "options": {},
       "pieType": "donut",
       "pluginVersion": "6.5.1",
       "strokeWidth": "1",
       "targets": [
         {
           "alias": "From Solar",
-          "groupBy": [
-            {
-              "params": [
-                "1h"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "none"
-              ],
-              "type": "fill"
-            }
-          ],
-          "measurement": "http",
-          "orderByTime": "ASC",
-          "policy": "default",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "query": "SELECT  (1+from_solar/abs(from_solar))*from_solar/2  FROM (SELECT integral(solar)/1000/3600 - integral(to_pw)/1000/3600 - integral(to_grid)/1000/3600  AS from_solar FROM autogen.http WHERE  $timeFilter tz('America/Los_Angeles'))",
           "rawQuery": true,
           "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "solar_5m_power"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "integral"
-              }
-            ]
-          ],
-          "tags": [],
-          "tz": "America/Los_Angeles"
+          "resultFormat": "time_series"
         },
         {
           "alias": "From Powerwall",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "autogen",
+          "query": "SELECT mean(\"value\") FROM \"measurement\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "B",
           "resultFormat": "time_series",
           "select": [
@@ -1740,10 +1654,17 @@
         },
         {
           "alias": "From Grid",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "autogen",
+          "query": "SELECT mean(\"value\") FROM \"measurement\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "C",
           "resultFormat": "time_series",
           "select": [
@@ -1770,8 +1691,6 @@
           "tz": "America/Los_Angeles"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Self-Powered",
       "transparent": true,
       "type": "grafana-piechart-panel",
@@ -1779,7 +1698,10 @@
     },
     {
       "activePatternIndex": 1,
-      "datasource": null,
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_POWERWALL_INFLUXDB}"
+      },
       "defaultPattern": {
         "bgColors": "green|gray|red",
         "bgColors_overrides": "0->green|2->red|1->yellow",
@@ -1831,7 +1753,6 @@
       "hide_headers": true,
       "id": 49,
       "interval": "",
-      "options": {},
       "patterns": [
         {
           "bgColors": "#B877D9 | gray | #F2495C",
@@ -1958,124 +1879,22 @@
       },
       "targets": [
         {
-          "groupBy": [],
-          "measurement": "http",
-          "orderByTime": "ASC",
-          "policy": "raw",
-          "query": "SELECT last(\"load_instant_power\")  / 1000 AS \"Home\", last(\"solar_instant_power\")  / 1000 AS \"Solar\", last(\"battery_instant_power\")  / 1000 AS \"Battery\", last(\"site_instant_power\")  / 1000 AS \"Grid\" FROM \"raw\".\"http\" WHERE time >= now() - 1m",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
+          "query": "SELECT last(\"load_instant_power\")  / 1000 AS \"Home\", last(\"solar_instant_power\")  / 1000 AS \"Solar\", last(\"battery_instant_power\")  / 1000 AS \"Battery\", last(\"site_instant_power\")  / 1000 AS \"Grid\" FROM \"raw\".\"http\" WHERE time >= now() - 10m",
           "rawQuery": true,
           "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "load_instant_power"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "last"
-              },
-              {
-                "params": [
-                  " / 1000"
-                ],
-                "type": "math"
-              },
-              {
-                "params": [
-                  "Home"
-                ],
-                "type": "alias"
-              }
-            ],
-            [
-              {
-                "params": [
-                  "solar_instant_power"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "last"
-              },
-              {
-                "params": [
-                  " / 1000"
-                ],
-                "type": "math"
-              },
-              {
-                "params": [
-                  "Solar"
-                ],
-                "type": "alias"
-              }
-            ],
-            [
-              {
-                "params": [
-                  "battery_instant_power"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "last"
-              },
-              {
-                "params": [
-                  " / 1000"
-                ],
-                "type": "math"
-              },
-              {
-                "params": [
-                  "Battery"
-                ],
-                "type": "alias"
-              }
-            ],
-            [
-              {
-                "params": [
-                  "site_instant_power"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "last"
-              },
-              {
-                "params": [
-                  " / 1000"
-                ],
-                "type": "math"
-              },
-              {
-                "params": [
-                  "Grid"
-                ],
-                "type": "alias"
-              }
-            ]
-          ],
-          "tags": []
+          "resultFormat": "time_series"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Current State",
       "transparent": true,
       "type": "yesoreyeram-boomtable-panel"
     },
     {
       "collapsed": false,
-      "datasource": null,
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -2094,7 +1913,16 @@
       "bars": true,
       "dashLength": 10,
       "dashes": false,
-      "datasource": null,
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_POWERWALL_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": []
+      },
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -2118,9 +1946,10 @@
       "linewidth": 1,
       "nullPointMode": "null",
       "options": {
-        "dataLinks": []
+        "alertThreshold": true
       },
       "percentage": false,
+      "pluginVersion": "9.1.2",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -2131,6 +1960,10 @@
       "targets": [
         {
           "alias": "Home Usage",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -2148,8 +1981,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "kwh",
-          "query": "SELECT sum(\"home\") FROM \"kwh\".\"http\" WHERE $timeFilter GROUP BY time(1d) fill(0) tz('America/Los_Angeles')",
-          "rawQuery": false,
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -2173,7 +2004,6 @@
       "thresholds": [],
       "timeFrom": "1M",
       "timeRegions": [],
-      "timeShift": null,
       "title": "Home Usage",
       "tooltip": {
         "shared": true,
@@ -2183,33 +2013,26 @@
       "transparent": true,
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
       "yaxes": [
         {
+          "$$hashKey": "object:1250",
           "format": "kwatth",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": true
         },
         {
+          "$$hashKey": "object:1251",
           "format": "short",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": false
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     },
     {
@@ -2219,7 +2042,16 @@
       "bars": true,
       "dashLength": 10,
       "dashes": false,
-      "datasource": null,
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_POWERWALL_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": []
+      },
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -2243,9 +2075,10 @@
       "linewidth": 1,
       "nullPointMode": "null",
       "options": {
-        "dataLinks": []
+        "alertThreshold": true
       },
       "percentage": false,
+      "pluginVersion": "9.1.2",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -2256,6 +2089,10 @@
       "targets": [
         {
           "alias": "Solar Energy",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -2302,7 +2139,6 @@
       "thresholds": [],
       "timeFrom": "1M",
       "timeRegions": [],
-      "timeShift": null,
       "title": "Solar Energy",
       "tooltip": {
         "shared": true,
@@ -2312,33 +2148,26 @@
       "transparent": true,
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
       "yaxes": [
         {
+          "$$hashKey": "object:1324",
           "format": "kwatth",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": true
         },
         {
+          "$$hashKey": "object:1325",
           "format": "short",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": false
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     },
     {
@@ -2348,7 +2177,16 @@
       "bars": true,
       "dashLength": 10,
       "dashes": false,
-      "datasource": null,
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_POWERWALL_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": []
+      },
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -2372,9 +2210,10 @@
       "linewidth": 1,
       "nullPointMode": "null",
       "options": {
-        "dataLinks": []
+        "alertThreshold": true
       },
       "percentage": false,
+      "pluginVersion": "9.1.2",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -2385,6 +2224,10 @@
       "targets": [
         {
           "alias": "From Powerwall",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -2425,7 +2268,6 @@
       "thresholds": [],
       "timeFrom": "1M",
       "timeRegions": [],
-      "timeShift": null,
       "title": "From Powerwall",
       "tooltip": {
         "shared": true,
@@ -2435,33 +2277,26 @@
       "transparent": true,
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
       "yaxes": [
         {
+          "$$hashKey": "object:1398",
           "format": "kwatth",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": true
         },
         {
+          "$$hashKey": "object:1399",
           "format": "short",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": false
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     },
     {
@@ -2474,7 +2309,16 @@
       "bars": true,
       "dashLength": 10,
       "dashes": false,
-      "datasource": null,
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_POWERWALL_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": []
+      },
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -2498,14 +2342,16 @@
       "linewidth": 1,
       "nullPointMode": "null",
       "options": {
-        "dataLinks": []
+        "alertThreshold": true
       },
       "percentage": false,
+      "pluginVersion": "9.1.2",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
       "seriesOverrides": [
         {
+          "$$hashKey": "object:1472",
           "alias": "http.From Grid"
         }
       ],
@@ -2515,6 +2361,10 @@
       "targets": [
         {
           "alias": "From Grid",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -2532,8 +2382,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "kwh",
-          "query": "SELECT sum(\"from_grid\") FROM \"daily\".\"http\" WHERE $timeFilter GROUP BY time(1d) fill(0) tz('America/Los_Angeles')",
-          "rawQuery": false,
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -2555,6 +2403,10 @@
         },
         {
           "alias": "To Grid",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -2569,11 +2421,10 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "kwh",
-          "query": "SELECT sum(\"to_grid\")  * -1 FROM \"daily\".\"http\" WHERE $timeFilter GROUP BY time(1d) fill(0) tz('America/Los_Angeles')",
-          "rawQuery": false,
           "refId": "B",
           "resultFormat": "time_series",
           "select": [
@@ -2590,7 +2441,7 @@
               },
               {
                 "params": [
-                  " * -1"
+                  "* -1"
                 ],
                 "type": "math"
               }
@@ -2603,7 +2454,6 @@
       "thresholds": [],
       "timeFrom": "1M",
       "timeRegions": [],
-      "timeShift": null,
       "title": "Grid Usage",
       "tooltip": {
         "shared": true,
@@ -2613,33 +2463,26 @@
       "transparent": true,
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
       "yaxes": [
         {
+          "$$hashKey": "object:1477",
           "format": "kwatth",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": true
         },
         {
+          "$$hashKey": "object:1478",
           "format": "short",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": false
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     },
     {
@@ -2649,7 +2492,16 @@
       "bars": true,
       "dashLength": 10,
       "dashes": false,
-      "datasource": null,
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_POWERWALL_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": []
+      },
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -2675,18 +2527,21 @@
       "linewidth": 1,
       "nullPointMode": "null",
       "options": {
-        "dataLinks": []
+        "alertThreshold": true
       },
       "percentage": false,
+      "pluginVersion": "9.1.2",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
       "seriesOverrides": [
         {
+          "$$hashKey": "object:1551",
           "alias": "Solar Energy Year",
           "color": "#FADE2A"
         },
         {
+          "$$hashKey": "object:1552",
           "alias": "Home Usage",
           "bars": false,
           "color": "rgb(50, 116, 217)",
@@ -2701,6 +2556,10 @@
       "targets": [
         {
           "alias": "Solar Energy",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -2718,8 +2577,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "kwh",
-          "query": "SELECT sum(\"solar\") FROM \"kwh\".\"http\" WHERE (\"solar\" > 0) AND $timeFilter GROUP BY time(1d) fill(0) tz('America/Los_Angeles')",
-          "rawQuery": false,
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -2747,6 +2604,10 @@
         },
         {
           "alias": "Home Usage",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -2761,11 +2622,10 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "kwh",
-          "query": "SELECT sum(\"solar\") FROM \"kwh\".\"http\" WHERE (\"solar\" > 0) AND $timeFilter GROUP BY time(1d) fill(0) tz('America/Los_Angeles')",
-          "rawQuery": false,
           "refId": "B",
           "resultFormat": "time_series",
           "select": [
@@ -2795,7 +2655,6 @@
       "thresholds": [],
       "timeFrom": "12M",
       "timeRegions": [],
-      "timeShift": null,
       "title": "Solar Energy Year",
       "tooltip": {
         "shared": true,
@@ -2805,38 +2664,30 @@
       "transparent": true,
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
       "yaxes": [
         {
+          "$$hashKey": "object:1573",
           "format": "kwatth",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": true
         },
         {
+          "$$hashKey": "object:1574",
           "format": "short",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": false
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     },
     {
       "collapsed": false,
-      "datasource": null,
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -2855,7 +2706,16 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": null,
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_POWERWALL_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": []
+      },
       "fill": 0,
       "fillGradient": 0,
       "gridPos": {
@@ -2882,9 +2742,10 @@
       "linewidth": 1,
       "nullPointMode": "connected",
       "options": {
-        "dataLinks": []
+        "alertThreshold": true
       },
       "percentage": false,
+      "pluginVersion": "9.1.2",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -2895,6 +2756,10 @@
       "targets": [
         {
           "alias": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -2918,7 +2783,7 @@
             [
               {
                 "params": [
-                  "A_Voltage"
+                  "A_Volatage"
                 ],
                 "type": "field"
               },
@@ -2932,6 +2797,10 @@
         },
         {
           "alias": "B",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -2946,6 +2815,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
@@ -2969,6 +2839,10 @@
         },
         {
           "alias": "C",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -2983,6 +2857,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
@@ -3006,6 +2881,10 @@
         },
         {
           "alias": "D",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -3020,6 +2899,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
@@ -3043,6 +2923,10 @@
         },
         {
           "alias": "A1",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -3057,6 +2941,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
@@ -3080,6 +2965,10 @@
         },
         {
           "alias": "B1",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -3094,6 +2983,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
@@ -3117,6 +3007,10 @@
         },
         {
           "alias": "C1",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -3131,6 +3025,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
@@ -3154,6 +3049,10 @@
         },
         {
           "alias": "D1",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -3168,6 +3067,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
@@ -3191,6 +3091,10 @@
         },
         {
           "alias": "A2",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -3205,6 +3109,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
@@ -3228,6 +3133,10 @@
         },
         {
           "alias": "B2",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -3242,6 +3151,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
@@ -3251,7 +3161,7 @@
             [
               {
                 "params": [
-                  "B2_Voltage"
+                  "A_Volatage"
                 ],
                 "type": "field"
               },
@@ -3265,6 +3175,10 @@
         },
         {
           "alias": "C2",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -3279,6 +3193,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
@@ -3302,6 +3217,10 @@
         },
         {
           "alias": "D2",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -3316,6 +3235,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
@@ -3339,6 +3259,10 @@
         },
         {
           "alias": "A3",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -3353,6 +3277,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
@@ -3376,6 +3301,10 @@
         },
         {
           "alias": "B3",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -3390,6 +3319,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
@@ -3413,6 +3343,10 @@
         },
         {
           "alias": "C3",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -3427,6 +3361,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
@@ -3450,6 +3385,10 @@
         },
         {
           "alias": "D3",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -3464,6 +3403,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
@@ -3487,9 +3427,7 @@
         }
       ],
       "thresholds": [],
-      "timeFrom": null,
       "timeRegions": [],
-      "timeShift": null,
       "title": "String Voltage",
       "tooltip": {
         "shared": true,
@@ -3499,33 +3437,27 @@
       "transparent": true,
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
       "yaxes": [
         {
+          "$$hashKey": "object:1649",
           "format": "volt",
-          "label": null,
           "logBase": 1,
-          "max": null,
           "min": "0",
           "show": true
         },
         {
+          "$$hashKey": "object:1650",
           "format": "short",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": false
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     },
     {
@@ -3535,7 +3467,16 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": null,
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_POWERWALL_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": []
+      },
       "fill": 0,
       "fillGradient": 0,
       "gridPos": {
@@ -3545,7 +3486,7 @@
         "y": 44
       },
       "hiddenSeries": false,
-      "id": 33,
+      "id": 62,
       "interval": "",
       "legend": {
         "avg": false,
@@ -3562,9 +3503,10 @@
       "linewidth": 1,
       "nullPointMode": "connected",
       "options": {
-        "dataLinks": []
+        "alertThreshold": true
       },
       "percentage": false,
+      "pluginVersion": "9.1.2",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -3575,6 +3517,10 @@
       "targets": [
         {
           "alias": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -3612,6 +3558,10 @@
         },
         {
           "alias": "B",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -3626,6 +3576,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
@@ -3649,6 +3600,10 @@
         },
         {
           "alias": "C",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -3663,6 +3618,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
@@ -3686,6 +3642,10 @@
         },
         {
           "alias": "D",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -3700,6 +3660,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
@@ -3723,6 +3684,10 @@
         },
         {
           "alias": "A1",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -3737,6 +3702,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
@@ -3760,6 +3726,10 @@
         },
         {
           "alias": "B1",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -3774,6 +3744,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
@@ -3797,6 +3768,10 @@
         },
         {
           "alias": "C1",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -3811,6 +3786,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
@@ -3834,6 +3810,10 @@
         },
         {
           "alias": "D1",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -3848,6 +3828,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
@@ -3871,6 +3852,10 @@
         },
         {
           "alias": "A2",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -3885,6 +3870,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
@@ -3908,6 +3894,10 @@
         },
         {
           "alias": "B2",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -3922,6 +3912,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
@@ -3945,6 +3936,10 @@
         },
         {
           "alias": "C2",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -3959,6 +3954,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
@@ -3982,6 +3978,10 @@
         },
         {
           "alias": "D2",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -3996,6 +3996,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
@@ -4019,6 +4020,10 @@
         },
         {
           "alias": "A3",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -4033,6 +4038,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
@@ -4056,6 +4062,10 @@
         },
         {
           "alias": "B3",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -4070,6 +4080,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
@@ -4093,6 +4104,10 @@
         },
         {
           "alias": "C3",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -4107,6 +4122,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
@@ -4130,6 +4146,10 @@
         },
         {
           "alias": "D3",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -4144,6 +4164,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
@@ -4167,9 +4188,7 @@
         }
       ],
       "thresholds": [],
-      "timeFrom": null,
       "timeRegions": [],
-      "timeShift": null,
       "title": "String Current",
       "tooltip": {
         "shared": true,
@@ -4179,33 +4198,27 @@
       "transparent": true,
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
       "yaxes": [
         {
-          "format": "amp",
-          "label": null,
+          "$$hashKey": "object:1649",
+          "format": "volt",
           "logBase": 1,
-          "max": null,
-          "min": null,
+          "min": "0",
           "show": true
         },
         {
+          "$$hashKey": "object:1650",
           "format": "short",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": false
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     },
     {
@@ -4215,7 +4228,16 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": null,
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_POWERWALL_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": []
+      },
       "fill": 0,
       "fillGradient": 0,
       "gridPos": {
@@ -4225,11 +4247,13 @@
         "y": 44
       },
       "hiddenSeries": false,
-      "id": 31,
+      "id": 63,
       "interval": "",
       "legend": {
         "avg": false,
         "current": false,
+        "hideEmpty": false,
+        "hideZero": false,
         "max": true,
         "min": false,
         "show": true,
@@ -4240,9 +4264,10 @@
       "linewidth": 1,
       "nullPointMode": "connected",
       "options": {
-        "dataLinks": []
+        "alertThreshold": true
       },
       "percentage": false,
+      "pluginVersion": "9.1.2",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -4253,6 +4278,10 @@
       "targets": [
         {
           "alias": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -4290,6 +4319,10 @@
         },
         {
           "alias": "B",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -4304,6 +4337,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
@@ -4327,6 +4361,10 @@
         },
         {
           "alias": "C",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -4341,6 +4379,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
@@ -4364,6 +4403,10 @@
         },
         {
           "alias": "D",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -4378,6 +4421,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
@@ -4401,6 +4445,10 @@
         },
         {
           "alias": "A1",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -4415,6 +4463,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
@@ -4438,6 +4487,10 @@
         },
         {
           "alias": "B1",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -4452,6 +4505,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
@@ -4475,6 +4529,10 @@
         },
         {
           "alias": "C1",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -4513,6 +4571,10 @@
         },
         {
           "alias": "D1",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -4551,6 +4613,10 @@
         },
         {
           "alias": "A2",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -4589,6 +4655,10 @@
         },
         {
           "alias": "B2",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -4627,6 +4697,10 @@
         },
         {
           "alias": "C2",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -4665,6 +4739,10 @@
         },
         {
           "alias": "D2",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -4703,6 +4781,10 @@
         },
         {
           "alias": "A3",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -4741,6 +4823,10 @@
         },
         {
           "alias": "B3",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -4779,6 +4865,10 @@
         },
         {
           "alias": "C3",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -4817,6 +4907,10 @@
         },
         {
           "alias": "D3",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -4855,9 +4949,7 @@
         }
       ],
       "thresholds": [],
-      "timeFrom": null,
       "timeRegions": [],
-      "timeShift": null,
       "title": "String Power",
       "tooltip": {
         "shared": true,
@@ -4867,33 +4959,27 @@
       "transparent": true,
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
       "yaxes": [
         {
-          "format": "watt",
-          "label": null,
+          "$$hashKey": "object:1649",
+          "format": "volt",
           "logBase": 1,
-          "max": null,
-          "min": null,
+          "min": "0",
           "show": true
         },
         {
+          "$$hashKey": "object:1650",
           "format": "short",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": false
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     },
     {
@@ -4903,7 +4989,16 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": null,
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_POWERWALL_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": []
+      },
       "fill": 0,
       "fillGradient": 0,
       "gridPos": {
@@ -4928,9 +5023,10 @@
       "linewidth": 1,
       "nullPointMode": "connected",
       "options": {
-        "dataLinks": []
+        "alertThreshold": true
       },
       "percentage": false,
+      "pluginVersion": "9.1.2",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -4941,6 +5037,10 @@
       "targets": [
         {
           "alias": "Inverter1",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -4978,6 +5078,10 @@
         },
         {
           "alias": "Inverter2",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -4992,6 +5096,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
@@ -5015,6 +5120,10 @@
         },
         {
           "alias": "Inverter3",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -5029,6 +5138,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
@@ -5052,6 +5162,10 @@
         },
         {
           "alias": "Inverter4",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -5066,6 +5180,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
@@ -5089,9 +5204,7 @@
         }
       ],
       "thresholds": [],
-      "timeFrom": null,
       "timeRegions": [],
-      "timeShift": null,
       "title": "Inverter Power",
       "tooltip": {
         "shared": true,
@@ -5101,34 +5214,27 @@
       "transparent": true,
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
       "yaxes": [
         {
-          "decimals": null,
+          "$$hashKey": "object:1801",
           "format": "watt",
-          "label": null,
           "logBase": 1,
-          "max": null,
           "min": "0",
           "show": true
         },
         {
+          "$$hashKey": "object:1802",
           "format": "short",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": false
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     },
     {
@@ -5138,8 +5244,17 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": null,
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_POWERWALL_INFLUXDB}"
+      },
       "decimals": 1,
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": []
+      },
       "fill": 0,
       "fillGradient": 0,
       "gridPos": {
@@ -5164,9 +5279,10 @@
       "linewidth": 1,
       "nullPointMode": "connected",
       "options": {
-        "dataLinks": []
+        "alertThreshold": true
       },
       "percentage": false,
+      "pluginVersion": "9.1.2",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -5177,6 +5293,10 @@
       "targets": [
         {
           "alias": "Powerwall1",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -5214,6 +5334,10 @@
         },
         {
           "alias": "Powerwall2",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -5228,6 +5352,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pwtemps",
@@ -5251,6 +5376,10 @@
         },
         {
           "alias": "Powerwall3",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -5265,6 +5394,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pwtemps",
@@ -5288,6 +5418,10 @@
         },
         {
           "alias": "Powerwall4",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -5302,6 +5436,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pwtemps",
@@ -5325,6 +5460,10 @@
         },
         {
           "alias": "Powerwall5",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -5339,6 +5478,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pwtemps",
@@ -5362,6 +5502,10 @@
         },
         {
           "alias": "Powerwall6",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -5376,6 +5520,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pwtemps",
@@ -5399,9 +5544,7 @@
         }
       ],
       "thresholds": [],
-      "timeFrom": null,
       "timeRegions": [],
-      "timeShift": null,
       "title": "Powerwall Temps ",
       "tooltip": {
         "shared": true,
@@ -5411,33 +5554,26 @@
       "transparent": true,
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
       "yaxes": [
         {
+          "$$hashKey": "object:1877",
           "format": "celsius",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": true
         },
         {
+          "$$hashKey": "object:1878",
           "format": "short",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": false
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     },
     {
@@ -5447,9 +5583,18 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": null,
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_POWERWALL_INFLUXDB}"
+      },
       "decimals": 1,
       "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": []
+      },
       "fill": 0,
       "fillGradient": 0,
       "gridPos": {
@@ -5477,9 +5622,10 @@
       "linewidth": 1,
       "nullPointMode": "connected",
       "options": {
-        "dataLinks": []
+        "alertThreshold": true
       },
       "percentage": false,
+      "pluginVersion": "9.1.2",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -5490,6 +5636,10 @@
       "targets": [
         {
           "alias": "Home L1",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -5527,6 +5677,10 @@
         },
         {
           "alias": "Home L2",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -5541,10 +5695,11 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "refId": "E",
+          "refId": "B",
           "resultFormat": "time_series",
           "select": [
             [
@@ -5564,6 +5719,10 @@
         },
         {
           "alias": "Home L3",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -5582,7 +5741,7 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "refId": "G",
+          "refId": "C",
           "resultFormat": "time_series",
           "select": [
             [
@@ -5602,6 +5761,10 @@
         },
         {
           "alias": "Grid L1",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -5616,10 +5779,11 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "refId": "B",
+          "refId": "D",
           "resultFormat": "time_series",
           "select": [
             [
@@ -5639,6 +5803,10 @@
         },
         {
           "alias": "Grid L2",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -5653,10 +5821,11 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "refId": "F",
+          "refId": "E",
           "resultFormat": "time_series",
           "select": [
             [
@@ -5676,6 +5845,10 @@
         },
         {
           "alias": "Grid L3",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -5694,7 +5867,7 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "refId": "H",
+          "refId": "F",
           "resultFormat": "time_series",
           "select": [
             [
@@ -5714,6 +5887,10 @@
         },
         {
           "alias": "PW1",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -5728,10 +5905,11 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "refId": "C",
+          "refId": "G",
           "resultFormat": "time_series",
           "select": [
             [
@@ -5751,6 +5929,10 @@
         },
         {
           "alias": "PW2",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -5765,16 +5947,17 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "refId": "D",
+          "refId": "H",
           "resultFormat": "time_series",
           "select": [
             [
               {
                 "params": [
-                  "PW2_PINV_Fout"
+                  "PW2_PINV_FOUT"
                 ],
                 "type": "field"
               },
@@ -5788,6 +5971,10 @@
         },
         {
           "alias": "PW3",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -5802,6 +5989,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
@@ -5811,7 +5999,7 @@
             [
               {
                 "params": [
-                  "PW3_PINV_Fout"
+                  "PW3_PINV_FOUT"
                 ],
                 "type": "field"
               },
@@ -5825,6 +6013,10 @@
         },
         {
           "alias": "PW4",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -5839,6 +6031,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
@@ -5848,7 +6041,7 @@
             [
               {
                 "params": [
-                  "PW4_PINV_Fout"
+                  "PW4_PINV_FOUT"
                 ],
                 "type": "field"
               },
@@ -5862,6 +6055,10 @@
         },
         {
           "alias": "PW5",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -5876,6 +6073,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
@@ -5885,7 +6083,7 @@
             [
               {
                 "params": [
-                  "PW5_PINV_Fout"
+                  "PW5_PINV_FOUT"
                 ],
                 "type": "field"
               },
@@ -5899,6 +6097,10 @@
         },
         {
           "alias": "PW6",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -5913,6 +6115,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
@@ -5922,7 +6125,7 @@
             [
               {
                 "params": [
-                  "PW6_PINV_Fout"
+                  "PW6_PINV_FOUT"
                 ],
                 "type": "field"
               },
@@ -5936,9 +6139,7 @@
         }
       ],
       "thresholds": [],
-      "timeFrom": null,
       "timeRegions": [],
-      "timeShift": null,
       "title": "Frequency",
       "tooltip": {
         "shared": true,
@@ -5948,34 +6149,26 @@
       "transparent": true,
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
       "yaxes": [
         {
-          "decimals": null,
+          "$$hashKey": "object:1953",
           "format": "hertz",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": true
         },
         {
+          "$$hashKey": "object:1954",
           "format": "short",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": false
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     },
     {
@@ -5985,9 +6178,18 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": null,
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_POWERWALL_INFLUXDB}"
+      },
       "decimals": 1,
       "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": []
+      },
       "fill": 0,
       "fillGradient": 0,
       "gridPos": {
@@ -5997,7 +6199,7 @@
         "y": 60
       },
       "hiddenSeries": false,
-      "id": 39,
+      "id": 61,
       "interval": "",
       "legend": {
         "avg": false,
@@ -6015,23 +6217,24 @@
       "linewidth": 1,
       "nullPointMode": "connected",
       "options": {
-        "dataLinks": []
+        "alertThreshold": true
       },
       "percentage": false,
+      "pluginVersion": "9.1.2",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
-      "seriesOverrides": [
-        {
-          "alias": ""
-        }
-      ],
+      "seriesOverrides": [],
       "spaceLength": 10,
       "stack": false,
       "steppedLine": false,
       "targets": [
         {
           "alias": "Home L1",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -6069,6 +6272,10 @@
         },
         {
           "alias": "Home L2",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -6083,10 +6290,11 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "refId": "E",
+          "refId": "B",
           "resultFormat": "time_series",
           "select": [
             [
@@ -6106,6 +6314,10 @@
         },
         {
           "alias": "Home L3",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -6124,7 +6336,7 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "refId": "G",
+          "refId": "C",
           "resultFormat": "time_series",
           "select": [
             [
@@ -6144,6 +6356,10 @@
         },
         {
           "alias": "Grid L1",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -6158,10 +6374,11 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "refId": "B",
+          "refId": "D",
           "resultFormat": "time_series",
           "select": [
             [
@@ -6181,6 +6398,10 @@
         },
         {
           "alias": "Grid L2",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -6195,10 +6416,11 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "refId": "F",
+          "refId": "E",
           "resultFormat": "time_series",
           "select": [
             [
@@ -6218,6 +6440,10 @@
         },
         {
           "alias": "Grid L3",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -6236,7 +6462,7 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "refId": "H",
+          "refId": "F",
           "resultFormat": "time_series",
           "select": [
             [
@@ -6256,6 +6482,10 @@
         },
         {
           "alias": "PW1 L1",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -6270,10 +6500,11 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "refId": "C",
+          "refId": "G",
           "resultFormat": "time_series",
           "select": [
             [
@@ -6293,6 +6524,10 @@
         },
         {
           "alias": "PW1 L2",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -6307,10 +6542,11 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "refId": "M",
+          "refId": "H",
           "resultFormat": "time_series",
           "select": [
             [
@@ -6330,6 +6566,10 @@
         },
         {
           "alias": "PW2 L1",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -6344,10 +6584,11 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "refId": "D",
+          "refId": "I",
           "resultFormat": "time_series",
           "select": [
             [
@@ -6367,6 +6608,10 @@
         },
         {
           "alias": "PW2 L2",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -6381,10 +6626,11 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "refId": "I",
+          "refId": "J",
           "resultFormat": "time_series",
           "select": [
             [
@@ -6404,6 +6650,10 @@
         },
         {
           "alias": "PW3 L1",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -6418,12 +6668,11 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "query": "SELECT mean(\"PW3_PINV_VSplit1\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
-          "refId": "J",
+          "refId": "K",
           "resultFormat": "time_series",
           "select": [
             [
@@ -6443,6 +6692,10 @@
         },
         {
           "alias": "PW3 L2",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -6457,12 +6710,11 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "query": "SELECT mean(\"PW3_PINV_VSplit2\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
-          "refId": "K",
+          "refId": "L",
           "resultFormat": "time_series",
           "select": [
             [
@@ -6482,6 +6734,10 @@
         },
         {
           "alias": "PW4 L1",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -6496,12 +6752,11 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "query": "SELECT mean(\"PW4_PINV_VSplit1\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
-          "refId": "L",
+          "refId": "M",
           "resultFormat": "time_series",
           "select": [
             [
@@ -6521,6 +6776,10 @@
         },
         {
           "alias": "PW4 L2",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -6535,11 +6794,10 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "query": "SELECT mean(\"PW4_PINV_VSplit2\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "N",
           "resultFormat": "time_series",
           "select": [
@@ -6560,6 +6818,10 @@
         },
         {
           "alias": "PW5 L1",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -6574,11 +6836,10 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "query": "SELECT mean(\"PW5_PINV_VSplit1\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "O",
           "resultFormat": "time_series",
           "select": [
@@ -6599,6 +6860,10 @@
         },
         {
           "alias": "PW5 L2",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -6613,11 +6878,10 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "query": "SELECT mean(\"PW5_PINV_VSplit2\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "P",
           "resultFormat": "time_series",
           "select": [
@@ -6638,6 +6902,10 @@
         },
         {
           "alias": "PW6 L1",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -6652,11 +6920,10 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "query": "SELECT mean(\"PW6_PINV_VSplit1\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "Q",
           "resultFormat": "time_series",
           "select": [
@@ -6677,6 +6944,10 @@
         },
         {
           "alias": "PW6 L2",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -6691,11 +6962,10 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "query": "SELECT mean(\"PW6_PINV_VSplit2\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "R",
           "resultFormat": "time_series",
           "select": [
@@ -6713,90 +6983,10 @@
             ]
           ],
           "tags": []
-        },
-        {
-          "alias": "Grid L1 SW",
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "measurement": "http",
-          "orderByTime": "ASC",
-          "policy": "vitals",
-          "query": "SELECT mean(\"METER_Z_VL1G\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
-          "refId": "S",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "METER_Z_VL1G"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        },
-        {
-          "alias": "Grid L2 SW",
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "measurement": "http",
-          "orderByTime": "ASC",
-          "policy": "vitals",
-          "query": "SELECT mean(\"METER_Z_VL2G\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
-          "refId": "T",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "METER_Z_VL2G"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
         }
       ],
       "thresholds": [],
-      "timeFrom": null,
       "timeRegions": [],
-      "timeShift": null,
       "title": "Voltages",
       "tooltip": {
         "shared": true,
@@ -6806,34 +6996,26 @@
       "transparent": true,
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
       "yaxes": [
         {
-          "decimals": null,
-          "format": "volt",
-          "label": "",
+          "$$hashKey": "object:1953",
+          "format": "hertz",
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": true
         },
         {
+          "$$hashKey": "object:1954",
           "format": "short",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": false
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     },
     {
@@ -6841,9 +7023,18 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": null,
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_POWERWALL_INFLUXDB}"
+      },
       "decimals": 2,
       "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": []
+      },
       "fill": 0,
       "fillGradient": 0,
       "gridPos": {
@@ -6862,7 +7053,6 @@
         "min": true,
         "rightSide": true,
         "show": true,
-        "sideWidth": null,
         "total": false,
         "values": true
       },
@@ -6870,39 +7060,47 @@
       "linewidth": 1,
       "nullPointMode": "connected",
       "options": {
-        "dataLinks": []
+        "alertThreshold": true
       },
       "percentage": false,
+      "pluginVersion": "9.1.2",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
       "seriesOverrides": [
         {
+          "$$hashKey": "object:2414",
           "alias": "/Charge$/",
           "dashes": true,
           "fill": 1
         },
         {
+          "$$hashKey": "object:2415",
           "alias": "/^PW1/",
           "color": "#37872D"
         },
         {
+          "$$hashKey": "object:2416",
           "alias": "/^PW2/",
           "color": "#E0B400"
         },
         {
+          "$$hashKey": "object:2417",
           "alias": "/^PW3/",
           "color": "#C4162A"
         },
         {
+          "$$hashKey": "object:2418",
           "alias": "/^PW4/",
           "color": "#1F60C4"
         },
         {
+          "$$hashKey": "object:2419",
           "alias": "/^PW5/",
           "color": "#FF9830"
         },
         {
+          "$$hashKey": "object:2420",
           "alias": "/^PW6/",
           "color": "#8F3BB8"
         }
@@ -6913,6 +7111,10 @@
       "targets": [
         {
           "alias": "PW1",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -6950,6 +7152,10 @@
         },
         {
           "alias": "PW2",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -6964,6 +7170,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pod",
@@ -6987,6 +7194,10 @@
         },
         {
           "alias": "PW3",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -7001,6 +7212,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pod",
@@ -7024,6 +7236,10 @@
         },
         {
           "alias": "PW4",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -7038,6 +7254,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pod",
@@ -7061,6 +7278,10 @@
         },
         {
           "alias": "PW5",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -7075,6 +7296,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pod",
@@ -7098,6 +7320,10 @@
         },
         {
           "alias": "PW6",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -7112,6 +7338,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pod",
@@ -7135,6 +7362,10 @@
         },
         {
           "alias": "PW1 Charge",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -7149,6 +7380,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pod",
@@ -7172,6 +7404,10 @@
         },
         {
           "alias": "PW2 Charge",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -7186,6 +7422,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pod",
@@ -7209,6 +7446,10 @@
         },
         {
           "alias": "PW3 Charge",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -7223,6 +7464,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pod",
@@ -7246,6 +7488,10 @@
         },
         {
           "alias": "PW4 Charge",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -7260,6 +7506,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pod",
@@ -7283,6 +7530,10 @@
         },
         {
           "alias": "PW5 Charge",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -7297,6 +7548,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pod",
@@ -7320,6 +7572,10 @@
         },
         {
           "alias": "PW6 Charge",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_POWERWALL_INFLUXDB}"
+          },
           "groupBy": [
             {
               "params": [
@@ -7334,6 +7590,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pod",
@@ -7357,9 +7614,7 @@
         }
       ],
       "thresholds": [],
-      "timeFrom": null,
       "timeRegions": [],
-      "timeShift": null,
       "title": "Powerwall Capacity",
       "tooltip": {
         "shared": true,
@@ -7369,39 +7624,31 @@
       "transparent": true,
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
       "yaxes": [
         {
-          "decimals": null,
+          "$$hashKey": "object:2465",
           "format": "watth",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": true
         },
         {
+          "$$hashKey": "object:2466",
           "format": "short",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": true
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     }
   ],
   "refresh": "5m",
-  "schemaVersion": 21,
+  "schemaVersion": 37,
   "style": "dark",
   "tags": [],
   "templating": {
@@ -7427,6 +7674,7 @@
   },
   "timezone": "browser",
   "title": "Powerwall Power Flow",
-  "uid": "RSabAvRRz",
-  "version": 28
+  "uid": "RSabAvRRzUA",
+  "version": 3,
+  "weekStart": ""
 }
