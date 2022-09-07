@@ -915,7 +915,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "blue",
                 "value": null
               },
               {
@@ -949,6 +949,9 @@
           ],
           "fields": "",
           "values": false
+        },
+        "text": {
+          "valueSize": 30
         },
         "textMode": "auto"
       },
@@ -1019,7 +1022,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "yellow",
                 "value": null
               },
               {
@@ -1053,6 +1056,9 @@
           ],
           "fields": "",
           "values": false
+        },
+        "text": {
+          "valueSize": 30
         },
         "textMode": "auto"
       },
@@ -1158,6 +1164,9 @@
           "fields": "",
           "values": false
         },
+        "text": {
+          "valueSize": 30
+        },
         "textMode": "auto"
       },
       "pluginVersion": "9.1.2",
@@ -1262,6 +1271,9 @@
           "fields": "",
           "values": false
         },
+        "text": {
+          "valueSize": 30
+        },
         "textMode": "auto"
       },
       "pluginVersion": "9.1.2",
@@ -1331,7 +1343,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "purple",
                 "value": null
               },
               {
@@ -1365,6 +1377,9 @@
           ],
           "fields": "",
           "values": false
+        },
+        "text": {
+          "valueSize": 30
         },
         "textMode": "auto"
       },
@@ -1435,7 +1450,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "purple",
                 "value": null
               },
               {
@@ -1469,6 +1484,9 @@
           ],
           "fields": "",
           "values": false
+        },
+        "text": {
+          "valueSize": 30
         },
         "textMode": "auto"
       },
@@ -8318,6 +8336,12 @@
               {
                 "params": [],
                 "type": "mean"
+              },
+              {
+                "params": [
+                  " / 1000"
+                ],
+                "type": "math"
               }
             ]
           ],
@@ -8431,6 +8455,6 @@
   "timezone": "browser",
   "title": "Powerwall Power Flow",
   "uid": "RSabAvRRzU",
-  "version": 5,
+  "version": 3,
   "weekStart": ""
 }
