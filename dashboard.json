@@ -1878,7 +1878,7 @@
       "default_title_for_rows": "Metric",
       "font_size": ".9rem",
       "gridPos": {
-        "h": 5,
+        "h": 6,
         "w": 6,
         "x": 18,
         "y": 16
@@ -2033,7 +2033,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 21
+        "y": 22
       },
       "id": 22,
       "panels": [],
@@ -2063,7 +2063,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 22
+        "y": 23
       },
       "hiddenSeries": false,
       "id": 24,
@@ -2192,7 +2192,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 22
+        "y": 23
       },
       "hiddenSeries": false,
       "id": 25,
@@ -2327,7 +2327,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 30
+        "y": 31
       },
       "hiddenSeries": false,
       "id": 26,
@@ -2459,7 +2459,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 30
+        "y": 31
       },
       "hiddenSeries": false,
       "id": 27,
@@ -2642,7 +2642,7 @@
         "h": 5,
         "w": 24,
         "x": 0,
-        "y": 38
+        "y": 39
       },
       "hiddenSeries": false,
       "id": 30,
@@ -2826,7 +2826,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 43
+        "y": 44
       },
       "id": 37,
       "panels": [],
@@ -2856,7 +2856,7 @@
         "h": 5,
         "w": 8,
         "x": 0,
-        "y": 44
+        "y": 45
       },
       "hiddenSeries": false,
       "id": 32,
@@ -3617,7 +3617,7 @@
         "h": 5,
         "w": 8,
         "x": 8,
-        "y": 44
+        "y": 45
       },
       "hiddenSeries": false,
       "id": 62,
@@ -4378,7 +4378,7 @@
         "h": 5,
         "w": 8,
         "x": 16,
-        "y": 44
+        "y": 45
       },
       "hiddenSeries": false,
       "id": 63,
@@ -5139,7 +5139,7 @@
         "h": 6,
         "w": 12,
         "x": 0,
-        "y": 49
+        "y": 50
       },
       "hiddenSeries": false,
       "id": 34,
@@ -5395,7 +5395,7 @@
         "h": 6,
         "w": 12,
         "x": 12,
-        "y": 49
+        "y": 50
       },
       "hiddenSeries": false,
       "id": 35,
@@ -5735,7 +5735,7 @@
         "h": 5,
         "w": 24,
         "x": 0,
-        "y": 55
+        "y": 56
       },
       "hiddenSeries": false,
       "id": 38,
@@ -6320,7 +6320,8 @@
       "description": "",
       "fieldConfig": {
         "defaults": {
-          "links": []
+          "links": [],
+          "unit": "volt"
         },
         "overrides": []
       },
@@ -6330,7 +6331,7 @@
         "h": 5,
         "w": 24,
         "x": 0,
-        "y": 60
+        "y": 61
       },
       "hiddenSeries": false,
       "id": 61,
@@ -7137,7 +7138,7 @@
       "yaxes": [
         {
           "$$hashKey": "object:1953",
-          "format": "hertz",
+          "format": "volt",
           "logBase": 1,
           "show": true
         },
@@ -7175,7 +7176,7 @@
         "h": 5,
         "w": 24,
         "x": 0,
-        "y": 65
+        "y": 66
       },
       "hiddenSeries": false,
       "id": 55,
@@ -7786,7 +7787,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 70
+        "y": 71
       },
       "id": 57,
       "panels": [],
@@ -7818,7 +7819,7 @@
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 71
+        "y": 72
       },
       "hiddenSeries": false,
       "hideTimeOverride": false,
@@ -8104,7 +8105,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 77
+        "y": 78
       },
       "hiddenSeries": false,
       "hideTimeOverride": false,
@@ -8455,6 +8456,6 @@
   "timezone": "browser",
   "title": "Powerwall Power Flow",
   "uid": "RSabAvRRzU",
-  "version": 3,
+  "version": 4,
   "weekStart": ""
 }
