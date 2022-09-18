@@ -1,0 +1,30 @@
+[Weather411]
+DEBUG = no
+
+[API]
+# Port to listen on for requests (default 8676)
+ENABLE = yes
+PORT = 8676
+
+[OpenWeatherMap]
+# Register and get APIKEY from OpenWeatherMap.org
+APIKEY = 4f680a51db98904a84c8b5e62040348f
+# Enter your location in latitude and longitude 
+LAT = 34.1234567
+LON = -118.5553516
+WAIT = 10
+TIMEOUT = 10
+# standard, metric or imperial 
+UNITS = metric
+
+[InfluxDB]
+# Record data in InfluxDB server 
+ENABLE = yes
+HOST = influxdb
+PORT = 8086
+DB = powerwall
+FIELD = weather
+# Leave blank if not used
+USERNAME = 
+PASSWORD =
+
