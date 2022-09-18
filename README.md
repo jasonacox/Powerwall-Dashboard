@@ -167,6 +167,14 @@ If you are getting permission errors running docker, or an error that it isn't i
   sudo systemctl enable containerd.service
   ```
 * See [Docker install here](https://docs.docker.com/engine/install/linux-postinstall/) for more information.
+* If you have docker installed but get "ERROR: docker-compose is not available or not running" make sure it is in your PATH or if needed, install the docker-compose cli tool:
+  ```bash
+  # install
+  sudo pip3 install docker-compose
+
+  # test
+  docker-compose --version
+  ```
 
 #### Savings Errors
 
