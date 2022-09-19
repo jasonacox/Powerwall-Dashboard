@@ -1,8 +1,8 @@
 # RELEASE NOTES
 
-## v2.6.0 - Grafana 9 Upgrade
+## v2.6.0 - Grafana v9.1.2 Upgrade
 
-* Update dashboards and setup to use Grafana 9 by @techlover1 in https://github.com/jasonacox/Powerwall-Dashboard/pull/73
+* Update dashboards and setup to use Grafana v9.1.2 by @techlover1 in https://github.com/jasonacox/Powerwall-Dashboard/pull/73
 * Bug fix missing space in `weather.sh` by @mcbirse in https://github.com/jasonacox/Powerwall-Dashboard/pull/72
 
 ## v2.5.2 - Bug Fix
