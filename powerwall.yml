@@ -46,7 +46,7 @@ services:
             - pypowerwall
 
     grafana:
-        image: grafana/grafana:6.5.1-ubuntu
+        image: grafana/grafana:9.1.2-ubuntu
         container_name: grafana
         hostname: grafana
         restart: always

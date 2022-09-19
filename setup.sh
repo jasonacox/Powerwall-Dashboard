@@ -167,6 +167,6 @@ Follow these instructions for *Grafana Setup*:
   - Enter your latitude and longitude (tool here: https://bit.ly/3wYNaI1 )
   - Click "Save & test" button
 
-* From 'Dashboard\Manage' (or 'Dashboard\Browse'), select 'Import', and upload 'dashboard.json' from
+* From 'Dashboard\Browse', select 'New/Import', and upload 'dashboard.json' from
 EOF
 pwd
