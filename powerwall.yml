@@ -84,5 +84,3 @@ services:
         depends_on:
             - influxdb
 
-
-
