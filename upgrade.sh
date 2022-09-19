@@ -154,8 +154,8 @@ cat << EOF
 ---------------[ Update Dashboard ]---------------
 Open Grafana at http://localhost:9000/ 
 
-From 'Dashboard\Manage' (or 'Dashboard\Browse'), 
-select 'Import', and upload 'dashboard.json' from
+From 'Dashboard\Browse', 
+select 'New/Import', and upload 'dashboard.json' from
 EOF
 pwd
 
