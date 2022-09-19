@@ -3607,7 +3607,8 @@
       },
       "fieldConfig": {
         "defaults": {
-          "links": []
+          "links": [],
+	        "unit": "amp"
         },
         "overrides": []
       },
@@ -4339,7 +4340,7 @@
       "yaxes": [
         {
           "$$hashKey": "object:1649",
-          "format": "volt",
+          "format": "amp",
           "logBase": 1,
           "min": "0",
           "show": true
@@ -4368,7 +4369,8 @@
       },
       "fieldConfig": {
         "defaults": {
-          "links": []
+          "links": [],
+	        "unit": "watt"
         },
         "overrides": []
       },
@@ -5100,7 +5102,7 @@
       "yaxes": [
         {
           "$$hashKey": "object:1649",
-          "format": "volt",
+          "format": "watt",
           "logBase": 1,
           "min": "0",
           "show": true
@@ -8456,6 +8458,6 @@
   "timezone": "browser",
   "title": "Powerwall Power Flow",
   "uid": "RSabAvRRzU",
-  "version": 4,
+  "version": 40,
   "weekStart": ""
 }
