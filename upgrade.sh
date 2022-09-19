@@ -154,13 +154,16 @@ cat << EOF
 ---------------[ Update Dashboard ]---------------
 Open Grafana at http://localhost:9000/ 
 
-From 'Dashboard\Browse', 
-select 'New/Import', and upload 'dashboard.json' from
-EOF
-pwd
+From 'Dashboard/Browse', select 'New/Import', and
+upload 'dashboard.json' from the path below.  
 
-echo ""
-echo "Done"
+Please note, you may need to select data sources
+for 'InfluxDB' and 'Sun and Moon' via the 
+dropdowns and use 'Import (Overwrite)' button.  
+
+Use dashboard.json located in: ${PWD}
+
+EOF
 
 # Clean up temporary upgrade script
 rm -f tmp.sh
