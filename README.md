@@ -191,9 +191,10 @@ The equations that are used to compute the estimated savings:
 * `solar>home` = (`s` - `tp` - `tg`) * `$/kWh`  [assumes all solar not going to PW or grid is going to the home = savings]
 * `solar>grid` = `tg` * `$/kWh`  [assumes all power going to grid = savings]
 
-#### Synology NAS
+#### Synology NAS and Rootless Docker
 
-* If you are having trouble getting this to work on a Synology NAS, view the resolution discovered in [Issue #22](https://github.com/jasonacox/Powerwall-Dashboard/issues/22).
+* If you are having trouble getting this to work on a Synology NAS, view the resolution discovered in [Issue #22](https://github.com/jasonacox/Powerwall-Dashboard/issues/22) thanks to @jaydkay.
+* If you are running docker as a non-privileged (rootless) user, please some setup help [here](https://github.com/jasonacox/Powerwall-Dashboard/issues/22#issuecomment-1254699603) thanks to @BuongiornoTexas.
 
 #### Tips and Tricks
 
