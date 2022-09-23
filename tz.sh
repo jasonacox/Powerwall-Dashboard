@@ -1,5 +1,5 @@
 #!/bin/bash
-# Shell script to replace timezone values in powerwall.yml, influxdb.sql and dashboard.json
+# Shell script to replace timezone values in powerwall.yml, telegraf.conf, influxdb.sql and dashboard.json
 if [ $# -eq 0 ]
   then
     echo "ERROR: No timzezone supplied"
@@ -18,6 +18,7 @@ updatetz() {
     local from=${1}
     local to=${2}
     sed -i.bak "s@${from}@${to}@g" powerwall.yml
+    sed -i.bak "s@${from}@${to}@g" telegraf.conf
     sed -i.bak "s@${from}@${to}@g" influxdb/influxdb.sql
     for i in dashboard*.json; do
         sed -i.bak "s@${from}@${to}@g" $i
