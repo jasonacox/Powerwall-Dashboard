@@ -3271,7 +3271,7 @@
             [
               {
                 "params": [
-                  "A_Volatage"
+                  "A_Voltage"
                 ],
                 "type": "field"
               },
@@ -8434,6 +8434,6 @@
   "timezone": "browser",
   "title": "Powerwall Power Flow",
   "uid": "RSabAvRRzU",
-  "version": 41,
+  "version": 42,
   "weekStart": ""
 }
