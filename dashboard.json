@@ -1,8 +1,8 @@
 {
   "__inputs": [
     {
-      "name": "DS_POWERWALL_INFLUXDB",
-      "label": "Powerwall InfluxDB",
+      "name": "DS_INFLUXDB",
+      "label": "InfluxDB",
       "description": "",
       "type": "datasource",
       "pluginId": "influxdb",
@@ -222,7 +222,7 @@
           "alias": "Home Usage",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -260,7 +260,7 @@
           "alias": "Solar Energy",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -297,7 +297,7 @@
           "alias": "Powerwall",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -336,7 +336,7 @@
           "alias": "Grid Usage",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -381,7 +381,7 @@
           "alias": "Charge",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -440,7 +440,7 @@
           "alias": "Temperature",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -481,7 +481,7 @@
           "alias": "Clouds",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -522,7 +522,7 @@
           "alias": "Feels Like",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -763,7 +763,7 @@
       "dashes": false,
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_POWERWALL_INFLUXDB}"
+        "uid": "${DS_INFLUXDB}"
       },
       "decimals": 0,
       "description": "",
@@ -825,7 +825,7 @@
           "alias": "Grid Status",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "query": "SELECT min(\"grid_status\") FROM \"grid\".\"http\" WHERE $timeFilter GROUP BY time($__interval) tz('America/Los_Angeles')",
           "rawQuery": true,
@@ -892,7 +892,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_POWERWALL_INFLUXDB}"
+        "uid": "${DS_INFLUXDB}"
       },
       "fieldConfig": {
         "defaults": {
@@ -956,7 +956,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [],
           "measurement": "http",
@@ -995,7 +995,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_POWERWALL_INFLUXDB}"
+        "uid": "${DS_INFLUXDB}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1059,7 +1059,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [],
           "measurement": "http",
@@ -1098,7 +1098,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_POWERWALL_INFLUXDB}"
+        "uid": "${DS_INFLUXDB}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1162,7 +1162,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [],
           "measurement": "http",
@@ -1201,7 +1201,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_POWERWALL_INFLUXDB}"
+        "uid": "${DS_INFLUXDB}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1265,7 +1265,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [],
           "measurement": "http",
@@ -1304,7 +1304,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_POWERWALL_INFLUXDB}"
+        "uid": "${DS_INFLUXDB}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1368,7 +1368,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [],
           "measurement": "http",
@@ -1407,7 +1407,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_POWERWALL_INFLUXDB}"
+        "uid": "${DS_INFLUXDB}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1471,7 +1471,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [],
           "measurement": "http",
@@ -1524,7 +1524,7 @@
       "dashes": false,
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_POWERWALL_INFLUXDB}"
+        "uid": "${DS_INFLUXDB}"
       },
       "decimals": 2,
       "description": "Estimated Savings",
@@ -1580,7 +1580,7 @@
           "alias": "powerwall > home",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "query": "SELECT fp FROM (SELECT sum(\"from_pw\")  * 0.19 AS fp FROM kwh.http WHERE  $timeFilter tz('America/Los_Angeles'))",
           "rawQuery": true,
@@ -1591,7 +1591,7 @@
           "alias": "solar > home",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "hide": false,
           "query": "SELECT s - (tp + tg) FROM (SELECT sum(\"solar\") * 0.19 AS s,  sum(\"to_pw\")  * 0.19 AS tp, sum(\"to_grid\") * 0.19 AS tg FROM kwh.http WHERE  $timeFilter tz('America/Los_Angeles'))\n",
@@ -1603,7 +1603,7 @@
           "alias": "solar > grid",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "hide": false,
           "query": "SELECT tg FROM (SELECT sum(\"to_pw\")  * 0.19 AS tp, sum(\"solar\") * 0.19 AS s, sum(\"to_grid\") * 0.19 AS tg FROM kwh.http WHERE  $timeFilter tz('America/Los_Angeles'))\n",
@@ -1615,7 +1615,7 @@
           "alias": "total",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "hide": false,
           "query": "SELECT tg + (s - tp - tg ) + fp FROM (SELECT sum(\"to_pw\")  * 0.19 AS tp, sum(\"solar\") * 0.19 AS s, sum(\"to_grid\") * 0.19 AS tg, sum(\"from_pw\") * 0.19 AS fp FROM kwh.http WHERE  $timeFilter tz('America/Los_Angeles'))\n",
@@ -1685,7 +1685,7 @@
       },
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_POWERWALL_INFLUXDB}"
+        "uid": "${DS_INFLUXDB}"
       },
       "fontSize": "100%",
       "format": "kwatth",
@@ -1717,7 +1717,7 @@
           "alias": "From Solar",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "query": "SELECT  (1+from_solar/abs(from_solar))*from_solar/2  FROM (SELECT integral(solar)/1000/3600 - integral(to_pw)/1000/3600 - integral(to_grid)/1000/3600  AS from_solar FROM autogen.http WHERE  $timeFilter tz('America/Los_Angeles'))",
           "rawQuery": true,
@@ -1728,7 +1728,7 @@
           "alias": "From Powerwall",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [],
           "hide": false,
@@ -1766,7 +1766,7 @@
           "alias": "From Grid",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [],
           "hide": false,
@@ -1810,7 +1810,7 @@
       "activePatternIndex": 1,
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_POWERWALL_INFLUXDB}"
+        "uid": "${DS_INFLUXDB}"
       },
       "defaultPattern": {
         "bgColors": "green|gray|red",
@@ -1991,7 +1991,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "query": "SELECT last(\"load_instant_power\")  / 1000 AS \"Home\", last(\"solar_instant_power\")  / 1000 AS \"Solar\", last(\"battery_instant_power\")  / 1000 AS \"Battery\", last(\"site_instant_power\")  / 1000 AS \"Grid\" FROM \"raw\".\"http\" WHERE time >= now() - 10m",
           "rawQuery": true,
@@ -2025,7 +2025,7 @@
       "dashes": false,
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_POWERWALL_INFLUXDB}"
+        "uid": "${DS_INFLUXDB}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2072,7 +2072,7 @@
           "alias": "Home Usage",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -2154,7 +2154,7 @@
       "dashes": false,
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_POWERWALL_INFLUXDB}"
+        "uid": "${DS_INFLUXDB}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2201,7 +2201,7 @@
           "alias": "Solar Energy",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -2289,7 +2289,7 @@
       "dashes": false,
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_POWERWALL_INFLUXDB}"
+        "uid": "${DS_INFLUXDB}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2336,7 +2336,7 @@
           "alias": "From Powerwall",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -2421,7 +2421,7 @@
       "dashes": false,
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_POWERWALL_INFLUXDB}"
+        "uid": "${DS_INFLUXDB}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2473,7 +2473,7 @@
           "alias": "From Grid",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -2515,7 +2515,7 @@
           "alias": "To Grid",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -2604,7 +2604,7 @@
       "dashes": false,
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_POWERWALL_INFLUXDB}"
+        "uid": "${DS_INFLUXDB}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2668,7 +2668,7 @@
           "alias": "Solar Energy",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -2716,7 +2716,7 @@
           "alias": "Home Usage",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -2818,7 +2818,7 @@
       "dashes": false,
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_POWERWALL_INFLUXDB}"
+        "uid": "${DS_INFLUXDB}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2868,7 +2868,7 @@
           "alias": "A",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -2909,7 +2909,7 @@
           "alias": "B",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -2951,7 +2951,7 @@
           "alias": "C",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -2993,7 +2993,7 @@
           "alias": "D",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -3035,7 +3035,7 @@
           "alias": "A1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -3077,7 +3077,7 @@
           "alias": "B1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -3119,7 +3119,7 @@
           "alias": "C1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -3161,7 +3161,7 @@
           "alias": "D1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -3203,7 +3203,7 @@
           "alias": "A2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -3245,7 +3245,7 @@
           "alias": "B2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -3271,7 +3271,7 @@
             [
               {
                 "params": [
-                  "A_Voltage"
+                  "A_Volatage"
                 ],
                 "type": "field"
               },
@@ -3287,7 +3287,7 @@
           "alias": "C2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -3329,7 +3329,7 @@
           "alias": "D2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -3371,7 +3371,7 @@
           "alias": "A3",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -3413,7 +3413,7 @@
           "alias": "B3",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -3455,7 +3455,7 @@
           "alias": "C3",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -3497,7 +3497,7 @@
           "alias": "D3",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -3579,12 +3579,12 @@
       "dashes": false,
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_POWERWALL_INFLUXDB}"
+        "uid": "${DS_INFLUXDB}"
       },
       "fieldConfig": {
         "defaults": {
           "links": [],
-	        "unit": "amp"
+          "unit": "amp"
         },
         "overrides": []
       },
@@ -3630,7 +3630,7 @@
           "alias": "A",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -3671,7 +3671,7 @@
           "alias": "B",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -3713,7 +3713,7 @@
           "alias": "C",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -3755,7 +3755,7 @@
           "alias": "D",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -3797,7 +3797,7 @@
           "alias": "A1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -3839,7 +3839,7 @@
           "alias": "B1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -3881,7 +3881,7 @@
           "alias": "C1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -3923,7 +3923,7 @@
           "alias": "D1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -3965,7 +3965,7 @@
           "alias": "A2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -4007,7 +4007,7 @@
           "alias": "B2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -4049,7 +4049,7 @@
           "alias": "C2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -4091,7 +4091,7 @@
           "alias": "D2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -4133,7 +4133,7 @@
           "alias": "A3",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -4175,7 +4175,7 @@
           "alias": "B3",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -4217,7 +4217,7 @@
           "alias": "C3",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -4259,7 +4259,7 @@
           "alias": "D3",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -4341,12 +4341,12 @@
       "dashes": false,
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_POWERWALL_INFLUXDB}"
+        "uid": "${DS_INFLUXDB}"
       },
       "fieldConfig": {
         "defaults": {
           "links": [],
-	        "unit": "watt"
+          "unit": "watt"
         },
         "overrides": []
       },
@@ -4392,7 +4392,7 @@
           "alias": "A",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -4433,7 +4433,7 @@
           "alias": "B",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -4475,7 +4475,7 @@
           "alias": "C",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -4517,7 +4517,7 @@
           "alias": "D",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -4559,7 +4559,7 @@
           "alias": "A1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -4601,7 +4601,7 @@
           "alias": "B1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -4643,7 +4643,7 @@
           "alias": "C1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -4685,7 +4685,7 @@
           "alias": "D1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -4727,7 +4727,7 @@
           "alias": "A2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -4769,7 +4769,7 @@
           "alias": "B2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -4811,7 +4811,7 @@
           "alias": "C2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -4853,7 +4853,7 @@
           "alias": "D2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -4895,7 +4895,7 @@
           "alias": "A3",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -4937,7 +4937,7 @@
           "alias": "B3",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -4979,7 +4979,7 @@
           "alias": "C3",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -5021,7 +5021,7 @@
           "alias": "D3",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -5103,7 +5103,7 @@
       "dashes": false,
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_POWERWALL_INFLUXDB}"
+        "uid": "${DS_INFLUXDB}"
       },
       "fieldConfig": {
         "defaults": {
@@ -5151,7 +5151,7 @@
           "alias": "Inverter1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -5192,7 +5192,7 @@
           "alias": "Inverter2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -5234,7 +5234,7 @@
           "alias": "Inverter3",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -5276,7 +5276,7 @@
           "alias": "Inverter4",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -5358,7 +5358,7 @@
       "dashes": false,
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_POWERWALL_INFLUXDB}"
+        "uid": "${DS_INFLUXDB}"
       },
       "decimals": 1,
       "fieldConfig": {
@@ -5407,7 +5407,7 @@
           "alias": "Powerwall1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -5448,7 +5448,7 @@
           "alias": "Powerwall2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -5490,7 +5490,7 @@
           "alias": "Powerwall3",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -5532,7 +5532,7 @@
           "alias": "Powerwall4",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -5574,7 +5574,7 @@
           "alias": "Powerwall5",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -5616,7 +5616,7 @@
           "alias": "Powerwall6",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -5697,7 +5697,7 @@
       "dashes": false,
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_POWERWALL_INFLUXDB}"
+        "uid": "${DS_INFLUXDB}"
       },
       "decimals": 1,
       "description": "",
@@ -5750,7 +5750,7 @@
           "alias": "Home L1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -5791,7 +5791,7 @@
           "alias": "Home L2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -5833,7 +5833,7 @@
           "alias": "Home L3",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -5875,7 +5875,7 @@
           "alias": "Grid L1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -5917,7 +5917,7 @@
           "alias": "Grid L2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -5959,7 +5959,7 @@
           "alias": "Grid L3",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -6001,7 +6001,7 @@
           "alias": "PW1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -6043,7 +6043,7 @@
           "alias": "PW2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -6085,7 +6085,7 @@
           "alias": "PW3",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -6127,7 +6127,7 @@
           "alias": "PW4",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -6169,7 +6169,7 @@
           "alias": "PW5",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -6211,7 +6211,7 @@
           "alias": "PW6",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -6292,7 +6292,7 @@
       "dashes": false,
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_POWERWALL_INFLUXDB}"
+        "uid": "${DS_INFLUXDB}"
       },
       "decimals": 1,
       "description": "",
@@ -6346,7 +6346,7 @@
           "alias": "Home L1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -6387,7 +6387,7 @@
           "alias": "Home L2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -6429,7 +6429,7 @@
           "alias": "Home L3",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -6471,7 +6471,7 @@
           "alias": "Grid L1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -6513,7 +6513,7 @@
           "alias": "Grid L2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -6555,7 +6555,7 @@
           "alias": "Grid L3",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -6597,7 +6597,7 @@
           "alias": "PW1 L1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -6639,7 +6639,7 @@
           "alias": "PW1 L2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -6681,7 +6681,7 @@
           "alias": "PW2 L1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -6723,7 +6723,7 @@
           "alias": "PW2 L2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -6765,7 +6765,7 @@
           "alias": "PW3 L1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -6807,7 +6807,7 @@
           "alias": "PW3 L2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -6849,7 +6849,7 @@
           "alias": "PW4 L1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -6891,7 +6891,7 @@
           "alias": "PW4 L2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -6933,7 +6933,7 @@
           "alias": "PW5 L1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -6975,7 +6975,7 @@
           "alias": "PW5 L2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -7017,7 +7017,7 @@
           "alias": "PW6 L1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -7059,7 +7059,7 @@
           "alias": "PW6 L2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -7138,7 +7138,7 @@
       "dashes": false,
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_POWERWALL_INFLUXDB}"
+        "uid": "${DS_INFLUXDB}"
       },
       "decimals": 2,
       "description": "",
@@ -7226,7 +7226,7 @@
           "alias": "PW1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -7267,7 +7267,7 @@
           "alias": "PW2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -7309,7 +7309,7 @@
           "alias": "PW3",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -7351,7 +7351,7 @@
           "alias": "PW4",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -7393,7 +7393,7 @@
           "alias": "PW5",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -7435,7 +7435,7 @@
           "alias": "PW6",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -7477,7 +7477,7 @@
           "alias": "PW1 Charge",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -7519,7 +7519,7 @@
           "alias": "PW2 Charge",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -7561,7 +7561,7 @@
           "alias": "PW3 Charge",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -7603,7 +7603,7 @@
           "alias": "PW4 Charge",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -7645,7 +7645,7 @@
           "alias": "PW5 Charge",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -7687,7 +7687,7 @@
           "alias": "PW6 Charge",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -7782,7 +7782,7 @@
       "dashes": false,
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_POWERWALL_INFLUXDB}"
+        "uid": "${DS_INFLUXDB}"
       },
       "description": "",
       "fieldConfig": {
@@ -7864,7 +7864,7 @@
           "alias": "Temperature",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -7905,7 +7905,7 @@
           "alias": "Humidity (%)",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -7947,7 +7947,7 @@
           "alias": "Clouds (%)",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -7989,7 +7989,7 @@
           "alias": "Feels Like",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -8068,7 +8068,7 @@
       "dashes": false,
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_POWERWALL_INFLUXDB}"
+        "uid": "${DS_INFLUXDB}"
       },
       "description": "",
       "fieldConfig": {
@@ -8157,7 +8157,7 @@
           "alias": "Snow",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -8198,7 +8198,7 @@
           "alias": "Pressure",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -8240,7 +8240,7 @@
           "alias": "Rain",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -8282,7 +8282,7 @@
           "alias": "Visibility (K)",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -8330,7 +8330,7 @@
           "alias": "Wind",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_POWERWALL_INFLUXDB}"
+            "uid": "${DS_INFLUXDB}"
           },
           "groupBy": [
             {
@@ -8434,6 +8434,6 @@
   "timezone": "browser",
   "title": "Powerwall Power Flow",
   "uid": "RSabAvRRzU",
-  "version": 42,
+  "version": 1,
   "weekStart": ""
 }
