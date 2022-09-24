@@ -1,5 +1,9 @@
 # RELEASE NOTES
 
+## v2.6.1 - Month and Year Tag Fix
+
+* Add timezone to telegraf so tags are localized by @mcbirse in https://github.com/jasonacox/Powerwall-Dashboard/pull/81
+
 ## v2.6.0 - Grafana v9.1.2 Upgrade
 
 * Update dashboards and setup to use Grafana v9.1.2 by @techlover1 in https://github.com/jasonacox/Powerwall-Dashboard/pull/73
