@@ -118,6 +118,7 @@ if [ ! -f weather/weather411.conf ]; then
 fi
 
 # Make sure stack is running
+echo ""
 echo "Start Powerwall-Dashboard stack..."
 docker-compose -f powerwall.yml up -d
 
@@ -127,6 +128,7 @@ echo "Setting Timezone back to ${TZ}..."
 ./tz.sh "${TZ}"
 
 # Update Influxdb
+echo ""
 echo "Waiting for InfluxDB to start..."
 until running http://localhost:8086/ping 204 2>/dev/null; do
     printf '.'
@@ -160,6 +162,7 @@ docker rm weather411
 docker images | grep weather411 | awk '{print $3}' | xargs docker rmi -f
 
 # Restart Stack
+echo ""
 echo "Restarting Powerwall-Dashboard stack..."
 docker-compose -f powerwall.yml up -d
 
