@@ -1,5 +1,9 @@
 # RELEASE NOTES
 
+## v2.6.2 - Current State Panel "No Data" Fix
+
+* Fix bug in yesoreyeram-boomtable-panel that causes random "No data" errors in table. This uses the v1.5.0-alpha.3 boomtable by @yesoreyeram. #49
+
 ## v2.6.1 - Month and Year Tag Fix
 
 * Add timezone to telegraf so tags are localized by @mcbirse in https://github.com/jasonacox/Powerwall-Dashboard/pull/81
