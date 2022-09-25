@@ -83,13 +83,14 @@ fi
 echo ""
 echo "Pull influxdb.sql, dashboard.json, telegraf.conf, and other changes..."
 git pull 
+echo ""
 
 # Create Grafana Settings if missing (required in 2.4.0)
 if [ ! -f grafana.env ]; then
     cp "grafana.env.sample" "grafana.env"
 fi
 
-# Check for latest Grafana settings
+# Check for latest Grafana settings (required in 2.6.2)
 if ! grep -q "yesoreyeram-boomtable-panel-1.5.0-alpha.3.zip" grafana.env; then
   echo "Your Grafana envrionmental settings are outdated."
     read -r -p "Upgrade grafana.env? [y/N] " response
