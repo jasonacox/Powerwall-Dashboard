@@ -89,6 +89,20 @@ if [ ! -f grafana.env ]; then
     cp "grafana.env.sample" "grafana.env"
 fi
 
+# Check for latest Grafana settings
+if ! grep -q "yesoreyeram-boomtable-panel-1.5.0-alpha.3.zip" grafana.env; then
+  echo "Your Grafana envrionmental settings are outdated."
+    read -r -p "Upgrade grafana.env? [y/N] " response
+    if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]
+    then
+        cp "grafana.env" "grafana.env.bak"
+        cp "grafana.env.sample" "grafana.env"
+        echo "Updated"
+    else
+        echo "No Change"
+    fi
+fi
+
 # Check to see if Weather Data is Available
 if [ ! -f weather/weather411.conf ]; then
     echo "This version (${VERSION}) allows you to add local weather data."
