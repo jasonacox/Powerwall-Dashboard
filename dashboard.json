@@ -1,73 +1,4 @@
 {
-  "__inputs": [
-    {
-      "name": "DS_INFLUXDB",
-      "label": "InfluxDB",
-      "description": "",
-      "type": "datasource",
-      "pluginId": "influxdb",
-      "pluginName": "InfluxDB"
-    },
-    {
-      "name": "DS_SUN_AND MOON",
-      "label": "Sun and Moon",
-      "description": "",
-      "type": "datasource",
-      "pluginId": "fetzerch-sunandmoon-datasource",
-      "pluginName": "Sun and Moon"
-    }
-  ],
-  "__elements": {},
-  "__requires": [
-    {
-      "type": "datasource",
-      "id": "fetzerch-sunandmoon-datasource",
-      "name": "Sun and Moon",
-      "version": "0.2.1"
-    },
-    {
-      "type": "grafana",
-      "id": "grafana",
-      "name": "Grafana",
-      "version": "9.1.2"
-    },
-    {
-      "type": "panel",
-      "id": "grafana-piechart-panel",
-      "name": "Pie Chart (old)",
-      "version": "1.6.2"
-    },
-    {
-      "type": "panel",
-      "id": "graph",
-      "name": "Graph (old)",
-      "version": ""
-    },
-    {
-      "type": "datasource",
-      "id": "influxdb",
-      "name": "InfluxDB",
-      "version": "1.0.0"
-    },
-    {
-      "type": "panel",
-      "id": "stat",
-      "name": "Stat",
-      "version": ""
-    },
-    {
-      "type": "panel",
-      "id": "text",
-      "name": "Text",
-      "version": ""
-    },
-    {
-      "type": "panel",
-      "id": "yesoreyeram-boomtable-panel",
-      "name": "Boom Table",
-      "version": "1.4.1"
-    }
-  ],
   "annotations": {
     "list": [
       {
@@ -93,7 +24,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": null,
+  "id": 12,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -111,112 +42,434 @@
       "type": "row"
     },
     {
-      "aliasColors": {
-        "Charge": "red",
-        "Grid Usage": "purple",
-        "Home Usage": "blue",
-        "Powerwall": "green",
-        "Solar Energy": "yellow",
-        "Sun altitude": "rgb(192, 192, 192)"
-      },
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
       "datasource": {
         "type": "datasource",
         "uid": "-- Mixed --"
       },
       "fieldConfig": {
         "defaults": {
-          "links": []
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": true,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 30,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "watt"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Charge"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Grid Usage"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Home Usage"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Powerwall"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Solar Energy"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Sun altitude"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "rgb(192, 192, 192)",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Charge"
+            },
+            "properties": [
+              {
+                "id": "custom.drawStyle",
+                "value": "line"
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 0
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 0
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 2
+              },
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "min",
+                "value": -101
+              },
+              {
+                "id": "max",
+                "value": 101
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Sun altitude"
+            },
+            "properties": [
+              {
+                "id": "custom.fillOpacity",
+                "value": 10
+              },
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "min",
+                "value": -101
+              },
+              {
+                "id": "max",
+                "value": 101
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    1,
+                    5
+                  ],
+                  "fill": "dash"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Temperature"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#FF9830",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 0
+              },
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "min",
+                "value": -101
+              },
+              {
+                "id": "max",
+                "value": 101
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    6,
+                    2
+                  ],
+                  "fill": "dash"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Clouds"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "rgb(255, 255, 255)",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 0
+              },
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "min",
+                "value": -101
+              },
+              {
+                "id": "max",
+                "value": 101
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    5,
+                    6
+                  ],
+                  "fill": "dash"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Feels Like"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#F2CC0C",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 0
+              },
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "min",
+                "value": -101
+              },
+              {
+                "id": "max",
+                "value": 101
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    6,
+                    2
+                  ],
+                  "fill": "dash"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Grid Down"
+            },
+            "properties": [
+              {
+                "id": "custom.axisPlacement",
+                "value": "hidden"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "min",
+                "value": 0
+              },
+              {
+                "id": "max",
+                "value": 30
+              },
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": true,
+                  "tooltip": true,
+                  "viz": false
+                }
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 24
+              },
+              {
+                "id": "custom.spanNulls",
+                "value": 120000
+              }
+            ]
+          }
+        ]
       },
-      "fill": 3,
-      "fillGradient": 0,
       "gridPos": {
         "h": 12,
         "w": 16,
         "x": 0,
         "y": 1
       },
-      "hiddenSeries": false,
       "id": 2,
       "interval": "",
-      "legend": {
-        "alignAsTable": false,
-        "avg": false,
-        "current": false,
-        "max": true,
-        "min": false,
-        "rightSide": false,
-        "show": true,
-        "total": false,
-        "values": true
-      },
-      "lines": true,
-      "linewidth": 1,
-      "nullPointMode": "connected",
       "options": {
-        "alertThreshold": true
-      },
-      "percentage": false,
-      "pluginVersion": "9.1.2",
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [
-        {
-          "alias": "Charge",
-          "bars": false,
-          "fill": 0,
-          "lines": true,
-          "linewidth": 2,
-          "yaxis": 2
+        "legend": {
+          "calcs": [
+            "max"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
         },
-        {
-          "alias": "Sun altitude",
-          "dashLength": 1,
-          "dashes": true,
-          "fill": 1,
-          "hideTooltip": true,
-          "legend": false,
-          "spaceLength": 5,
-          "yaxis": 2
-        },
-        {
-          "alias": "Temperature",
-          "color": "#FF9830",
-          "dashLength": 6,
-          "dashes": true,
-          "fill": 0,
-          "spaceLength": 2,
-          "yaxis": 2
-        },
-        {
-          "alias": "Clouds",
-          "color": "rgb(255, 255, 255)",
-          "dashLength": 5,
-          "dashes": true,
-          "fill": 0,
-          "spaceLength": 6,
-          "yaxis": 2
-        },
-        {
-          "alias": "Feels Like",
-          "color": "#F2CC0C",
-          "dashLength": 6,
-          "dashes": true,
-          "fill": 0,
-          "hideTooltip": true,
-          "legend": false,
-          "spaceLength": 2,
-          "yaxis": 2
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
         }
-      ],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
+      },
+      "pluginVersion": "9.1.2",
       "targets": [
         {
           "alias": "Home Usage",
@@ -227,7 +480,7 @@
           "groupBy": [
             {
               "params": [
-                "5m"
+                "$__interval"
               ],
               "type": "time"
             }
@@ -253,8 +506,7 @@
               }
             ]
           ],
-          "tags": [],
-          "tz": "America/Los_Angeles"
+          "tags": []
         },
         {
           "alias": "Solar Energy",
@@ -265,7 +517,7 @@
           "groupBy": [
             {
               "params": [
-                "5m"
+                "$__interval"
               ],
               "type": "time"
             }
@@ -290,8 +542,7 @@
               }
             ]
           ],
-          "tags": [],
-          "tz": "America/Los_Angeles"
+          "tags": []
         },
         {
           "alias": "Powerwall",
@@ -311,7 +562,7 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "autogen",
-          "query": "SELECT mean(from_pw) - mean(to_pw) FROM autogen.http WHERE $timeFilter GROUP BY time(5m) tz('America/Los_Angeles')",
+          "query": "SELECT mean(from_pw) - mean(to_pw) FROM autogen.http WHERE $timeFilter GROUP BY time($__interval) ",
           "rawQuery": true,
           "refId": "C",
           "resultFormat": "time_series",
@@ -356,7 +607,7 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT mean(from_grid) - mean(to_grid) FROM autogen.http WHERE $timeFilter GROUP BY time(5m) tz('America/Los_Angeles')",
+          "query": "SELECT mean(from_grid) - mean(to_grid) FROM autogen.http WHERE $timeFilter GROUP BY time($__interval) ",
           "rawQuery": true,
           "refId": "D",
           "resultFormat": "time_series",
@@ -386,7 +637,7 @@
           "groupBy": [
             {
               "params": [
-                "5m"
+                "$__interval"
               ],
               "type": "time"
             },
@@ -425,8 +676,7 @@
               }
             ]
           ],
-          "tags": [],
-          "tz": "America/Los_Angeles"
+          "tags": []
         },
         {
           "datasource": {
@@ -558,43 +808,54 @@
             ]
           ],
           "tags": []
-        }
-      ],
-      "thresholds": [],
-      "timeRegions": [],
-      "title": "Energy Usage",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "transparent": true,
-      "type": "graph",
-      "xaxis": {
-        "mode": "time",
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "watt",
-          "label": "",
-          "logBase": 1,
-          "show": true
         },
         {
-          "decimals": 0,
-          "format": "percent",
-          "label": "",
-          "logBase": 1,
-          "max": "101",
-          "min": "-101",
-          "show": true
+          "alias": "Grid Down",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT min(\"grid_status\") +1  FROM \"grid\".\"http\" WHERE grid_status = 0 and $timeFilter GROUP BY time($__interval) ",
+          "rawQuery": true,
+          "refId": "J",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
         }
       ],
-      "yaxis": {
-        "align": true
-      }
+      "title": "Energy Usage",
+      "transparent": true,
+      "type": "timeseries"
     },
     {
       "gridPos": {
@@ -984,8 +1245,7 @@
               }
             ]
           ],
-          "tags": [],
-          "tz": "America/Los_Angeles"
+          "tags": []
         }
       ],
       "title": "Home Usage",
@@ -1087,8 +1347,7 @@
               }
             ]
           ],
-          "tags": [],
-          "tz": "America/Los_Angeles"
+          "tags": []
         }
       ],
       "title": "Solar Energy",
@@ -1190,8 +1449,7 @@
               }
             ]
           ],
-          "tags": [],
-          "tz": "America/Los_Angeles"
+          "tags": []
         }
       ],
       "title": "To Powerwall",
@@ -1293,8 +1551,7 @@
               }
             ]
           ],
-          "tags": [],
-          "tz": "America/Los_Angeles"
+          "tags": []
         }
       ],
       "title": "From Powerwall",
@@ -1396,8 +1653,7 @@
               }
             ]
           ],
-          "tags": [],
-          "tz": "America/Los_Angeles"
+          "tags": []
         }
       ],
       "title": "To Grid",
@@ -1499,8 +1755,7 @@
               }
             ]
           ],
-          "tags": [],
-          "tz": "America/Los_Angeles"
+          "tags": []
         }
       ],
       "title": "From Grid",
@@ -8434,6 +8689,6 @@
   "timezone": "browser",
   "title": "Powerwall Power Flow",
   "uid": "RSabAvRRzU",
-  "version": 1,
+  "version": 6,
   "weekStart": ""
 }
