@@ -24,6 +24,7 @@ services:
         container_name: pypowerwall
         hostname: pypowerwall
         restart: always
+        user: "1000:1000"
         ports:
             - target: 8675
               published: 8675
@@ -36,6 +37,7 @@ services:
         container_name: telegraf
         hostname: telegraf
         restart: always
+        user: "1000:1000"
         volumes:
             - type: bind
               source: ./telegraf.conf
