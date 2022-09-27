@@ -4,7 +4,7 @@
 set -e
 
 # Set Globals
-VERSION="2.6.2"
+VERSION="2.6.3"
 CURRENT="Unknown"
 if [ -f VERSION ]; then
     CURRENT=`cat VERSION`
@@ -99,6 +99,8 @@ if ! grep -q "yesoreyeram-boomtable-panel-1.5.0-alpha.3.zip" grafana.env; then
         cp "grafana.env" "grafana.env.bak"
         cp "grafana.env.sample" "grafana.env"
         echo "Updated"
+        docker stop grafana
+        docker rm grafana
     else
         echo "No Change"
     fi
