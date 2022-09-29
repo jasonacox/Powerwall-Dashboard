@@ -116,12 +116,13 @@ Note: It can take a while for InfluxDB to start.  Also the influxdb.sql file is 
   - Enter your latitude and longitude. You can use this [web page](https://jasonacox.github.io/Powerwall-Dashboard/location.html) to find your GPS location if you don't know).
   - Click "Save & test" button
 
-* From `Dashboard\Browse` select `New/Import`, and upload one of the dashboard files below:
+* From `Dashboard\Browse` select `New/Import`, and upload one of the dashboard files below (in [dashboards folder](https://github.com/jasonacox/Powerwall-Dashboard/tree/main/dashboards)):
 
   1. `dashboard.json` - Dashboard with the live trend graph, monthly power graphs, an animated power flow diagram and a Powerwall+ section that includes String data, temperature, voltage and frequency graphs. This also includes a "grid status" graph below the animation to identify and track grid outages.
-  2. `dashboard-no-animation.json` - Same as above but without the animated power flow diagram.  
-  3. `dashboard-simple.json` - Similar to above but without the Powerwall+ metrics.
-  4. `dashboard-grid.json` - Same as dashboard.json but with a simple grid status instead of the trend data.
+  2. `dashboard-new.json` - Same as above but updated with new Grafana 9 time series graph with "grid outage" data on main energy usage graph.
+  3. `dashboard-no-animation.json` - Same as above but without the animated power flow diagram.  
+  4. `dashboard-simple.json` - Similar to above but without the Powerwall+ metrics.
+  5. `dashboard-grid.json` - Same as dashboard.json but with a simple grid status instead of the trend data.
 
 ### Notes
 
