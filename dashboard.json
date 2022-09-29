@@ -261,6 +261,14 @@
                   "fixedColor": "rgb(192, 192, 192)",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": true,
+                  "tooltip": true,
+                  "viz": false
+                }
               }
             ]
           },
@@ -361,7 +369,7 @@
               },
               {
                 "id": "unit",
-                "value": "percent"
+                "value": "none"
               },
               {
                 "id": "decimals",
@@ -384,6 +392,10 @@
                   ],
                   "fill": "dash"
                 }
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "hidden"
               }
             ]
           },
@@ -473,6 +485,14 @@
                     2
                   ],
                   "fill": "dash"
+                }
+              },
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": true,
+                  "tooltip": true,
+                  "viz": false
                 }
               }
             ]
@@ -8764,6 +8784,6 @@
   "timezone": "browser",
   "title": "Powerwall Power Flow",
   "uid": "RSabAvRRzU",
-  "version": 6,
+  "version": 8,
   "weekStart": ""
 }
