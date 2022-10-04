@@ -4,7 +4,7 @@
 set -e
 
 # Set Globals
-VERSION="2.6.3"
+VERSION="2.6.4"
 CURRENT="Unknown"
 if [ -f VERSION ]; then
     CURRENT=`cat VERSION`
@@ -82,7 +82,9 @@ fi
 # Pull from Github
 echo ""
 echo "Pull influxdb.sql, dashboard.json, telegraf.conf, and other changes..."
-git pull 
+echo ""
+git stash
+git pull --rebase
 echo ""
 
 # Create Grafana Settings if missing (required in 2.4.0)

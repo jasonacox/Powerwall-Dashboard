@@ -1,10 +1,19 @@
 # RELEASE NOTES
 
-## v2.6.2 - Current State Panel "No Data" Fix
+## v2.6.4 - Upgrade Fix
+
+* Upgrade issue identified in #85 that keeps files from updating (upgrade fails). New method will stash and rebase all but non-tracked files (e.g. `grafana.env` and `pypowerwall.env` local config files).
+
+## v2.6.3 - Dashboard Updates
+
+* Converts the "Energy Usage" graph to a new Grafana 9 time series graph - dashboard.json by @youzer-name in https://github.com/jasonacox/Powerwall-Dashboard/pull/86
+* Add timezone to telegraf so tags are localized by @mcbirse in https://github.com/jasonacox/Powerwall-Dashboard/pull/81
+
+## v2.6.2 - Current State Panel "No Data" Fix (No Archive)
 
 * Fix bug in yesoreyeram-boomtable-panel that causes random "No data" errors in table. This uses the v1.5.0-alpha.3 boomtable by @yesoreyeram. #49
 
-## v2.6.1 - Month and Year Tag Fix
+## v2.6.1 - Month and Year Tag Fix (No Archive)
 
 * Add timezone to telegraf so tags are localized by @mcbirse in https://github.com/jasonacox/Powerwall-Dashboard/pull/81
 * Fix dashboard.json bugs and update the rest of dashboard-*.json files for Grafana v9.
