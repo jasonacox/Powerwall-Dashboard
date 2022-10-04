@@ -11,9 +11,19 @@ if [ "$EUID" -ne 0 ]
 fi
 
 # Set values for your environment 
-BACKUP_FOLDER="/backup"                       # Destination folder for backups
-DASHBOARD="/home/user/Powerwall-Dashboard"    # Location of Dashboard to backup
+DASHBOARD="/home/user/Powerwall-Dashboard" # Location of Dashboard to backup
+BACKUP_FOLDER="${DASHBOARD}/backups"          # Destination folder for backups
 KEEP="5"                                      # Days to keep backup
+
+# Check to see if direcotry exists
+if [ ! -d "${DASHBOARD}" ]; then
+  echo "Dashboard directory ${DASHBOARD} does not exist."
+  exit
+fi
+if [ ! -d "${BACKUP_FOLDER}" ]; then
+  echo "Backup directory ${BACKUP_FOLDER} does not exist."
+  exit
+fi
 
 # Timestamp for Backup Filename
 STAMP=$(date '+%Y-%m-%d')
