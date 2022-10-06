@@ -1,5 +1,10 @@
 # RELEASE NOTES
 
+## TBD
+
+* Update `backup.sh` to validate directories before starting backup process #85
+* Fix panel size for Animation to prevent scroll/clipping of data #98
+
 ## v2.6.4 - Upgrade Fix
 
 * Upgrade issue identified in #85 that keeps files from updating (upgrade fails). New method will stash and rebase all but non-tracked files (e.g. `grafana.env` and `pypowerwall.env` local config files).
