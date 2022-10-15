@@ -23,7 +23,7 @@ A non-animated version of the dashboard is also available using [dashboard-no-an
 The host system will require:
 
 * docker
-* docker-compose
+* docker-compose (works with docker compose (v2) as well)
 * You should not need to run `sudo` to install this tool. See [Docker Errors](https://github.com/jasonacox/Powerwall-Dashboard#docker-errors) below for help.
 * TCP ports: 8086 (InfluxDB), 8675 (pyPowerwall), and 9000 (Grafana)
 
@@ -52,6 +52,8 @@ Follow the **[Grafana Setup](https://github.com/jasonacox/Powerwall-Dashboard#gr
 
 If you prefer, you can perform the same steps that `setup.sh` performs.
 
+A Manual install is mandatory if you are running a non-standard docker installation (e.g. rootless), or if you want to monitor custom measurements.
+
 You will want to set your local timezone by editing `pypowerwall.env`, `telegraf.conf`, `influxdb.sql` and `dashboard.json` or you can use this handy `tz.sh` update script.  A list of timezones is available [here](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
 
   ```bash
@@ -71,6 +73,10 @@ You will want to set your local timezone by editing `pypowerwall.env`, `telegraf
       PW_DEBUG=no
   ```
 
+* Copy `compose.env.sample` to `compose.env` - you do not need to edit these defaults unless you are running a non-standard install such as docker rootless.
+
+* Copy `telegraf.local.sample` to `telegraf.local`. If you want to monitor custom measurements for your site (most users don't need this), add the required telegraf.conf TOML entries to this file. Once created, this file is not overwritten by upgrades or future runs of setup.sh. 
+
 * Copy `grafana.env.sample` to `grafana.env` - you do not need to edit these defaults. However, there are optional settings for alert notifications and HTTPS.
 
 * Optional: If you want to pull in local weather data, copy `weather/weather411.conf.sample` to `weather/weather411.conf` and edit the file to include your location ([Latitude and Longitude](https://jasonacox.github.io/Powerwall-Dashboard/location.html)) and your OpenWeatherMap API Key. To get a Key, you need to set up a free account at [openweathermap.org](https://home.openweathermap.org/users/sign_up). Make sure you check your email to verify account. API keys can take a few hours to activate.
@@ -84,10 +90,10 @@ You will want to set your local timezone by editing `pypowerwall.env`, `telegraf
       LON = yyy.yyyy
   ```
 
-* Start the docker containers
+* Start the docker containers with the utility docker-compose script
 
   ```bash
-    docker-compose -f powerwall.yml up -d
+    compose-dash.sh up -d
   ```
 
 ### InfluxDB
