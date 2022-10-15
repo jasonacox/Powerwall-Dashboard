@@ -52,7 +52,7 @@ Follow the **[Grafana Setup](https://github.com/jasonacox/Powerwall-Dashboard#gr
 
 If you prefer, you can perform the same steps that `setup.sh` performs.
 
-A Manual install is mandatory if you are running a non-standard docker installation (e.g. rootless), or if you want to monitor custom measurements.
+Note: some manual configuration is required if you are running a non-standard docker installation (e.g. rootless), or if you want to monitor custom measurements.
 
 You will want to set your local timezone by editing `pypowerwall.env`, `telegraf.conf`, `influxdb.sql` and `dashboard.json` or you can use this handy `tz.sh` update script.  A list of timezones is available [here](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
 
