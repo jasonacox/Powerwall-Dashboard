@@ -50,9 +50,9 @@ echo "Done"
 Naturally, whatever backup plan you decide to do, make sure you test it. Copy the backup to another VM or box, install Powerwall-Dashboard and restore the backup to see if it all comes back up without any data loss.
 
 1. Install a fresh instance of Powerwall-Dashboard per [Setup instructions](https://github.com/jasonacox/Powerwall-Dashboard#setup).
-2. Stop containers
+2. Stop containers using convenience script in Powerwall-Dashboard root folder
     ```bash
-    docker-compose -f powerwall.yml stop
+    ./compose-dash.sh stop
     ```
 3. Restore backup files
     ```bash
@@ -61,5 +61,5 @@ Naturally, whatever backup plan you decide to do, make sure you test it. Copy th
     ```
 4. Start containers
     ```bash
-    docker-compose -f powerwall.yml start
+    ./compose-dash.sh start
     ```

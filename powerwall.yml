@@ -38,11 +38,22 @@ services:
         hostname: telegraf
         restart: always
         user: "1000:1000"
+        command: [
+            "telegraf", 
+            "--config",  
+            "/etc/telegraf/telegraf.conf", 
+            "--config-directory",
+            "/etc/telegraf/telegraf.d"
+        ]
         volumes:
             - type: bind
               source: ./telegraf.conf
               target: /etc/telegraf/telegraf.conf
               read_only: true
+            - type: bind
+              source: ./telegraf.local
+              target: /etc/telegraf/telegraf.d/local.conf
+              read_only: true            
         depends_on:
             - influxdb
             - pypowerwall
@@ -52,7 +63,7 @@ services:
         container_name: grafana
         hostname: grafana
         restart: always
-        user: "1000:1000"
+        user: "${GRAFANAUSER}"
         volumes:
             - type: bind
               source: ./grafana
