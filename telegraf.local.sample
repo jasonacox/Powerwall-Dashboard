@@ -1,0 +1,21 @@
+# Sample file for local telegraf configurations.
+# Most users will not need to use this, but it can be used for development
+# or monitoring non standard measurement data.
+#
+# The local configuration file should be named "telegraf.local".
+# Upgrade.sh does not modify this file.
+# 
+# The following sample adds some power and energy data from the solar meter
+# as a measurement called "solarmeter" (used in a three phase monitoring example)
+
+#[[inputs.http]]
+#      urls = [
+#              "http://pypowerwall:8675/api/meters/solar"
+#      ]
+#      name_override = "solarmeter"
+#      method = "GET"
+#      insecure_skip_verify = true
+#      timeout = "4s"
+#      data_format = "json"
+#      json_query = "0.Cached_readings"
+#      fieldpass = ["instant_power", "real_power_?", "energy_??ported"]

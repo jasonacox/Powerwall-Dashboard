@@ -4,8 +4,10 @@
 set -e
 
 # Set Globals
-VERSION="2.6.4"
+VERSION="2.6.5"
 CURRENT="Unknown"
+COMPOSE_ENV_FILE="compose.env"
+TELEGRAF_LOCAL="telegraf.local"
 if [ -f VERSION ]; then
     CURRENT=`cat VERSION`
 fi
@@ -108,6 +110,16 @@ if ! grep -q "yesoreyeram-boomtable-panel-1.5.0-alpha.3.zip" grafana.env; then
     fi
 fi
 
+# Silently create default docker compose env file if needed.
+if [ ! -f ${COMPOSE_ENV_FILE} ]; then
+    cp "${COMPOSE_ENV_FILE}.sample" "${COMPOSE_ENV_FILE}"
+fi
+
+# Create default telegraf local file if needed.
+if [ ! -f ${TELEGRAF_LOCAL} ]; then
+    cp "${TELEGRAF_LOCAL}.sample" "${TELEGRAF_LOCAL}"
+fi
+
 # Check to see if Weather Data is Available
 if [ ! -f weather/weather411.conf ]; then
     echo "This version (${VERSION}) allows you to add local weather data."
@@ -124,7 +136,7 @@ fi
 # Make sure stack is running
 echo ""
 echo "Start Powerwall-Dashboard stack..."
-docker-compose -f powerwall.yml up -d
+. compose-dash.sh up -d
 
 # Set Timezone 
 echo ""
@@ -168,7 +180,7 @@ docker images | grep weather411 | awk '{print $3}' | xargs docker rmi -f
 # Restart Stack
 echo ""
 echo "Restarting Powerwall-Dashboard stack..."
-docker-compose -f powerwall.yml up -d
+. compose-dash.sh up -d
 
 # Display Final Instructions
 cat << EOF

@@ -35,17 +35,7 @@ running() {
     [[ $status == ${code} ]]
 }
 
-# Docker Dependency Check
-if ! docker info > /dev/null 2>&1; then
-    echo "ERROR: docker is not available or not runnning."
-    echo "This script requires docker, please install and try again."
-    exit 1
-fi
-if ! docker-compose version > /dev/null 2>&1; then
-    echo "ERROR: docker-compose is not available or not runnning."
-    echo "This script requires docker-compose, please install and try again."
-    exit 1
-fi
+# Docker Dependency Check - moved to compose-dash.sh 14/10/2022
 
 # Check for RPi Issue with Buster
 if [[ -f "/etc/os-release" ]]; then
@@ -69,6 +59,8 @@ if [[ -f "/etc/os-release" ]]; then
 fi
 
 PW_ENV_FILE="pypowerwall.env"
+COMPOSE_ENV_FILE="compose.env"
+TELEGRAF_LOCAL="telegraf.local"
 GF_ENV_FILE="grafana.env"
 CURRENT=`cat tz`
 
@@ -108,6 +100,16 @@ if [ ! -f ${GF_ENV_FILE} ]; then
     cp "${GF_ENV_FILE}.sample" "${GF_ENV_FILE}"
 fi
 
+# Create default docker compose env file if needed.
+if [ ! -f ${COMPOSE_ENV_FILE} ]; then
+    cp "${COMPOSE_ENV_FILE}.sample" "${COMPOSE_ENV_FILE}"
+fi
+
+# Create default telegraf local file if needed.
+if [ ! -f ${TELEGRAF_LOCAL} ]; then
+    cp "${TELEGRAF_LOCAL}.sample" "${TELEGRAF_LOCAL}"
+fi
+
 echo ""
 if [ -z "${TZ}" ]; then 
     echo "Using ${CURRENT} timezone..."; 
@@ -124,9 +126,8 @@ if [ -f weather.sh ]; then
     ./weather.sh setup
 fi
 
-# Build Docker
-echo "Running Docker-Compose..."
-docker-compose -f powerwall.yml up -d
+# Build Docker in current environment
+. compose-dash.sh up -d
 echo "-----------------------------------------"
 
 # Set up Influx
