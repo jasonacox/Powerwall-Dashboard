@@ -128,7 +128,7 @@ if [ -f weather.sh ]; then
 fi
 
 # Build Docker in current environment
-. compose-dash.sh up -d
+./compose-dash.sh up -d
 echo "-----------------------------------------"
 
 # Set up Influx
