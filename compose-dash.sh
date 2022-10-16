@@ -22,12 +22,11 @@ fi
 echo "Running Docker Compose..."  
 if docker-compose version > /dev/null 2>&1; then
     # Build Docker (v1)
-    echo "    [DEBUG] docker-compose --env-file ./compose.env -f powerwall.yml ${1} ${2}"
-    docker-compose --env-file ./compose.env -f powerwall.yml $1 $2
+    # docker-compose --env-file ./compose.env -f powerwall.yml $1 $2
+    export $(grep -v '^#' compose.env | xargs) && docker-compose -f powerwall.yml $1 $2
 else
     if docker compose version > /dev/null 2>&1; then
         # Build Docker (v2)
-        echo "    [DEBUG] docker compose --env-file ./compose.env -f powerwall.yml ${1} ${2}"
         docker compose --env-file ./compose.env -f powerwall.yml $1 $2
     else
         echo "ERROR: docker-compose/docker compose is not available or not runnning."
