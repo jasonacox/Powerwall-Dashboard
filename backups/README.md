@@ -52,7 +52,7 @@ Naturally, whatever backup plan you decide to do, make sure you test it. Copy th
 1. Install a fresh instance of Powerwall-Dashboard per [Setup instructions](https://github.com/jasonacox/Powerwall-Dashboard#setup).
 2. Stop containers using convenience script in Powerwall-Dashboard root folder
     ```bash
-    compose-dash.sh stop
+    ./compose-dash.sh stop
     ```
 3. Restore backup files
     ```bash
@@ -61,5 +61,5 @@ Naturally, whatever backup plan you decide to do, make sure you test it. Copy th
     ```
 4. Start containers
     ```bash
-    compose-dash.sh start
+    ./compose-dash.sh start
     ```

@@ -93,7 +93,7 @@ You will want to set your local timezone by editing `pypowerwall.env`, `telegraf
 * Start the docker containers with the utility docker-compose script
 
   ```bash
-    compose-dash.sh up -d
+    ./compose-dash.sh up -d
   ```
 
 ### InfluxDB
