@@ -1,7 +1,8 @@
 # RELEASE NOTES
 
-## TBD
+## v2.6.5 - Upgrade pyPowerwall Proxy t18
 
+* Upgrade to pyPowerwall Proxy t18 with enhanced error handling and logging
 * Update `backup.sh` to validate directories before starting backup process #85
 * Fix panel size for Animation to prevent scroll/clipping of data #98
 

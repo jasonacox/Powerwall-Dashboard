@@ -100,6 +100,7 @@ if [ ! -f ${PW_ENV_FILE} ]; then
     echo "PW_PASSWORD=${PASSWORD}" >> ${PW_ENV_FILE}
     echo "PW_HOST=${IP}" >> ${PW_ENV_FILE}
     echo "PW_TIMEZONE=America/Los_Angeles" >> ${PW_ENV_FILE}
+    echo "TZ=America/Los_Angeles" >> ${PW_ENV_FILE}
     echo "PW_DEBUG=no" >> ${PW_ENV_FILE}
 fi
 

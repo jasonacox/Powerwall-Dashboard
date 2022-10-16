@@ -121,6 +121,13 @@ if [ ! -f weather/weather411.conf ]; then
     fi
 fi
 
+# Check to see that TZ is set in pypowerwall
+if ! grep -q "TZ=" pypowerwall.env; then
+    echo "Your pypowerwall envrionmental settings are missing TZ."
+    echo "Adding..."
+    echo "TZ=America/Los_Angeles" >> pypowerwall.env
+fi
+
 # Make sure stack is running
 echo ""
 echo "Start Powerwall-Dashboard stack..."
