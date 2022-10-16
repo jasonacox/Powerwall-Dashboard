@@ -143,7 +143,7 @@ fi
 # Make sure stack is running
 echo ""
 echo "Start Powerwall-Dashboard stack..."
-. compose-dash.sh up -d
+./compose-dash.sh up -d
 
 # Set Timezone 
 echo ""
@@ -187,7 +187,7 @@ docker images | grep weather411 | awk '{print $3}' | xargs docker rmi -f
 # Restart Stack
 echo ""
 echo "Restarting Powerwall-Dashboard stack..."
-. compose-dash.sh up -d
+./compose-dash.sh up -d
 
 # Display Final Instructions
 cat << EOF
