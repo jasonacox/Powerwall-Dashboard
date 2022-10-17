@@ -46,7 +46,7 @@ if docker-compose version > /dev/null 2>&1; then
 else
     if docker compose version > /dev/null 2>&1; then
         # Build Docker (v2)
-    docker compose -f powerwall.yml $1 $2
+        docker compose -f powerwall.yml $1 $2
     else
         echo "ERROR: docker-compose/docker compose is not available or not runnning."
         echo "This script requires docker-compose or docker compose."
