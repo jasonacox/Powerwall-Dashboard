@@ -399,7 +399,7 @@ def get_power_history(start, end):
                 timestamp = isoparse(d['timestamp']).astimezone(utctz)
                 # Save data point when within start/end range only
                 if timestamp >= start and timestamp <= end:
-                    # Calculate power usage values (TODO: check 'home' power usage calculation is correct during VPP event - NOTE: response includes 'grid_services_power')
+                    # Calculate power usage values
                     home = d['solar_power'] + d['battery_power'] + d['grid_power']
                     solar = d['solar_power']
                     from_pw = d['battery_power'] if d['battery_power'] > 0 else 0
