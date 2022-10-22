@@ -306,20 +306,28 @@ def tesla_login(email):
         for battery in tesla.battery_list():
             try:
                 # Retrieve site id and name, site timezone and install date
-                data = battery.api('SITE_CONFIG')['response']
-                if args.debug: print(data)
                 siteid = battery['energy_site_id']
-                sitename = data['site_name']
-                sitetimezone = data['installation_time_zone']
-                siteinstdate = isoparse(data['installation_date'])
+                if args.debug: print(f"Get SITE_CONFIG for Site ID {siteid}")
+                data = battery.api('SITE_CONFIG')
+                if args.debug: print(data)
+                if isinstance(data, teslapy.JsonDict) and 'response' in data:
+                    sitename = data['response']['site_name']
+                    sitetimezone = data['response']['installation_time_zone']
+                    siteinstdate = isoparse(data['response']['installation_date'])
+                else:
+                    sys.exit(f"ERROR: Failed to retrieve SITE_CONFIG - unknown response: {data}")
             except Exception as err:
                 sys.exit(f"ERROR: Failed to retrieve SITE_CONFIG - {err}")
 
             try:
                 # Retrieve site current time
-                data = battery.api('SITE_DATA')['response']
+                if args.debug: print(f"Get SITE_DATA for Site ID {siteid}")
+                data = battery.api('SITE_DATA')
                 if args.debug: print(data)
-                sitetime = isoparse(data['timestamp'])
+                if isinstance(data, teslapy.JsonDict) and 'response' in data:
+                    sitetime = isoparse(data['response']['timestamp'])
+                else:
+                    sitetime = "No 'live status' returned"
             except Exception as err:
                 sys.exit(f"ERROR: Failed to retrieve SITE_DATA - {err}")
 
@@ -399,7 +407,7 @@ def get_power_history(start, end):
                 timestamp = isoparse(d['timestamp']).astimezone(utctz)
                 # Save data point when within start/end range only
                 if timestamp >= start and timestamp <= end:
-                    # Calculate power usage values (TODO: check 'home' power usage calculation is correct during VPP event - NOTE: response includes 'grid_services_power')
+                    # Calculate power usage values
                     home = d['solar_power'] + d['battery_power'] + d['grid_power']
                     solar = d['solar_power']
                     from_pw = d['battery_power'] if d['battery_power'] > 0 else 0
@@ -891,8 +899,11 @@ if start >= end:
 print(f"Running for period: [{start.astimezone(influxtz)}] - [{end.astimezone(influxtz)}] ({str(end - start)}s)\n")
 
 # Limit start/end between install date and site current time
+if isinstance(site['time'], str):
+    sitetime = datetime.now(tz=influxtz).astimezone(utctz).replace(microsecond=0)
+else:
+    sitetime = site['time'].astimezone(utctz)
 siteinstdate = site['instdate'].astimezone(utctz)
-sitetime = site['time'].astimezone(utctz)
 if start < siteinstdate:
     start = siteinstdate
 if end > sitetime - timedelta(minutes=2):
