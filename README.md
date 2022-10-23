@@ -43,9 +43,8 @@ Run the interactive setup script that will ask you for your Powerwall details an
     ./setup.sh
   ```
 
-  _If you get docker errors during the setup, see the [Docker Errors](https://github.com/jasonacox/Powerwall-Dashboard#docker-errors) section below._
-  
-  _For Windows 11 users, see the [Windows 11 Instructions](https://github.com/jasonacox/Powerwall-Dashboard#windows-11-instructions) below._
+  * _If you get docker errors during the setup, see the [Docker Errors](https://github.com/jasonacox/Powerwall-Dashboard#docker-errors) section below._
+  * _For Windows 11 users, see the [Windows 11 Instructions](https://github.com/jasonacox/Powerwall-Dashboard#windows-11-instructions) below._
 
 Follow the **[Grafana Setup](https://github.com/jasonacox/Powerwall-Dashboard#grafana-setup)** instructions provided (or see below) to complete the setup.
  
@@ -205,7 +204,7 @@ The equations that are used to compute the estimated savings:
 * If you are having trouble getting this to work on a Synology NAS, view the resolution discovered in [Issue #22](https://github.com/jasonacox/Powerwall-Dashboard/issues/22) thanks to @jaydkay.
 * If you are running docker as a non-privileged (rootless) user, please some setup help [here](https://github.com/jasonacox/Powerwall-Dashboard/issues/22#issuecomment-1254699603) thanks to @BuongiornoTexas.
 
-#### Windows 11 Instruction
+#### Windows 11 Instructions
 
 Installing Powerwall-Dashboard on a Windows 11 host requires some additional setup. Install and Setup using administrator PowerShell or Windows Command Prompt:
 
