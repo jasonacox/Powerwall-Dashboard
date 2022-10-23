@@ -9,10 +9,13 @@ This script, [pvoutput.py](https://github.com/jasonacox/Powerwall-Dashboard/blob
 To use the script:
 * Sign up at [pvoutput.org](https://pvoutput.org/account.jsp) to get an API KEY - update the settings in the script with your API_SYSTEM_ID and API_KEY.
 * Update the INFLUXDB_HOST in the script to the address of your Dashboard host (default = localhost) and INFLUXDB_TZ to your timezone.
-* Install the InfluxDB module:  `pip install influxdb`
-* Run the script:
+* Install the InfluxDB module and run the script:
 
 ```bash
+# Install required python modules
+pip install influxdb
+
+# Run the script
 python3 pvoutput.py 
 ```
 It will run an interactive mode:
