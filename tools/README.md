@@ -12,11 +12,10 @@ This is a command line tool to retrieve Powerwall history data from the Tesla Cl
 
 ## PVoutput Export Tool
 
-Several in the community publish their solar production data to [PVoutput.org](https://pvoutput.org/), a free service for publicly sharing and comparing PV output data.  This tool export the solar data from Powerwall-Dashboard and publishes it to PVoutput.
+This is a command line tool to publish your solar production data to [PVoutput.org](https://pvoutput.org/), a free service for publicly sharing and comparing PV output data.
 
 * [Details and Instructions](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/tools/pvoutput/)
 * Script: [pvoutput.py](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/tools/pvoutput/pvoutput.py)
-
 
 ## NodeRed
 
