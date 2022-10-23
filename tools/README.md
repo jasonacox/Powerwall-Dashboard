@@ -4,7 +4,7 @@ This directory contains a list of tools discovered or developed by the community
 
 ## Tesla History Import Tool
 
-This is a command line tool to retrieve Powerwall history data from the Tesla Cloud and import that into the Powerwall-Dashboard.
+This is a command line tool to import Powerwall history data from the Tesla Cloud into Powerwall-Dashboard.
 
 * Author: [@mcbirse](https://github.com/mcbirse) - see issue [#12](https://github.com/jasonacox/Powerwall-Dashboard/issues/12) if you have any questions or find problems.
 * [Details and Instructions](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/tools/tesla-history/)
