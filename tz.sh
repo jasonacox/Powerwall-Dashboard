@@ -24,6 +24,12 @@ updatetz() {
         sed -i.bak "s@${from}@${to}@g" $i
     done
     sed -i.bak "s@${from}@${to}@g" pypowerwall.env
+    if [ -d "dashboards" ] 
+     then
+        for i in dashboards/*.json; do
+            sed -i.bak "s@${from}@${to}@g" $i
+        done
+    fi
 }
 
 # Replace TZ values
