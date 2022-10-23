@@ -16,7 +16,6 @@ This could be useful for instance to import data from before you started using P
 To use the script:
 - Install the required python modules: 
   ```bash
-  # Install required python modules
   pip install python-dateutil teslapy influxdb
   ```
 - Follow the steps below
