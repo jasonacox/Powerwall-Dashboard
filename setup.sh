@@ -140,7 +140,7 @@ done
 echo " up!"
 sleep 2
 echo "Setup InfluxDB Data for Powerwall..."
-docker exec -it influxdb influx -import -path=/var/lib/influxdb/influxdb.sql
+docker exec --tty influxdb sh -c "influx -import -path=/var/lib/influxdb/influxdb.sql"
 sleep 2
 
 # Restart weather411 to force a sample
