@@ -1,10 +1,9 @@
 # RELEASE NOTES
 
-## v2.6.6 - Add Windows 11 Compatibility
+## v2.6.6 - History Import Tool & Windows 11 Compatibility
 
-* Adjusted `setup.sh` and `upgrade.sh` to work with Windows 11 OS. #63
-* Added Windows 11 Instructions. #63
-* Added tool to retrieve history data from Tesla cloud by @mcbirse in https://github.com/jasonacox/Powerwall-Dashboard/pull/99 and  https://github.com/jasonacox/Powerwall-Dashboard/pull/108 - see https://github.com/jasonacox/Powerwall-Dashboard/tree/main/tools#tesla-historypy 
+* Added tool to import history data from Tesla cloud by @mcbirse in https://github.com/jasonacox/Powerwall-Dashboard/pull/99 and  https://github.com/jasonacox/Powerwall-Dashboard/pull/108 - see https://github.com/jasonacox/Powerwall-Dashboard/tree/main/tools#tesla-historypy and  https://github.com/jasonacox/Powerwall-Dashboard/issues/12
+* Adjusted  instructions, `setup.sh` and `upgrade.sh` to work with Windows 11 OS. #63
 * Minor QoL enhancements by @BuongiornoTexas in https://github.com/jasonacox/Powerwall-Dashboard/pull/105 - Closes #96
 
 ## v2.6.5 - Upgrade pyPowerwall Proxy t18
