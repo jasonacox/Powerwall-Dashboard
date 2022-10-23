@@ -1,6 +1,6 @@
 # Additional Tools
 
-This directory contains a list of tips, tricks and tools discovered or developed by the community to make the most of your Powerwall Dashboard data.
+This directory contains a list of tools discovered or developed by the community to make the most of your Powerwall Dashboard.
 
 ## Submit a Tool
 
@@ -8,18 +8,18 @@ If you have a great tool or trick that you think the community would enjoy, plea
 
 ## Tesla History Import Tool
 
-This is a command line tool to retrieve Powerwall history data from the Tesla Cloud used by the Tesla App.  It will import that data into InfluxDB of Powerwall-Dashboard.
+This is a command line tool to retrieve Powerwall history data from the Tesla Cloud used by the Tesla App and import that into the Powerwall-Dashboard.
 
-* Author: @mcbirse - see issue [#12](https://github.com/jasonacox/Powerwall-Dashboard/issues/12) if you have any questions or find problems.
-* [README](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/tools/tesla-history/)
-* [tesla-history.py](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/tools/tesla-history/tesla-history.py
+* Author: [@mcbirse](https://github.com/mcbirse) - see issue [#12](https://github.com/jasonacox/Powerwall-Dashboard/issues/12) if you have any questions or find problems.
+* [Details and Instructions](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/tools/tesla-history/)
+* Script:[tesla-history.py](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/tools/tesla-history/tesla-history.py)
 
 ## PVoutput Export Tool
 
 Several in the community publish their solar production data to [PVoutput.org](https://pvoutput.org/), a free service for publicly sharing and comparing PV output data.  This tool export the solar data from Powerwall-Dashboard and publishes it to PVoutput.
 
-* [README](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/tools/pvoutput/)
-* [pvoutput.py](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/tools/pvoutput/pvoutput.py
+* [Details and Instructions](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/tools/pvoutput/)
+* Script: [pvoutput.py](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/tools/pvoutput/pvoutput.py)
 
 
 ## NodeRed
