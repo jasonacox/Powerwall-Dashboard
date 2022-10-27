@@ -962,7 +962,7 @@
       "id": 13,
       "links": [],
       "options": {
-        "content": "<div style=\"text-align: center\">\n<iframe id=\"frame\" src=\"/public/img/grafana_icon.svg\" width=\"400\" height=\"300\" frameBorder=\"0\">No</iframe>\n<script>\nvar pwurl = window.location.protocol + \"//\" + window.location.hostname + \":8675/\";\nconsole.log(pwurl);\ndocument.getElementById('frame').src = pwurl;\n</script>\n</div>",
+        "content": "<div style=\"text-align: center\">\n<iframe id=\"frame\" src=\"/public/img/grafana_icon.svg\" width=\"100%\" height=\"300\" frameBorder=\"0\">No</iframe>\n<script>\nvar pwurl = window.location.protocol + \"//\" + window.location.hostname + \":8675/\";\nconsole.log(pwurl);\ndocument.getElementById('frame').src = pwurl;\n</script>\n</div>",
         "mode": "html"
       },
       "pluginVersion": "9.1.2",
