@@ -36,6 +36,11 @@
     - For more usage options, run without arguments or --help:
         python3 tesla-history.py --help
 """
+import sys
+import os
+import argparse
+import configparser
+import time
 from datetime import datetime, timedelta
 try:
     from dateutil.relativedelta import relativedelta
@@ -43,11 +48,6 @@ try:
     from dateutil import tz
 except:
     sys.exit("ERROR: Missing python dateutil module. Run 'pip install python-dateutil'.")
-import time
-import sys
-import os
-import argparse
-import configparser
 try:
     import teslapy
 except:
