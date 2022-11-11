@@ -17,6 +17,16 @@ This is a command line tool to publish your solar production data to [PVoutput.o
 * [Details and Instructions](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/tools/pvoutput/)
 * Script: [pvoutput.py](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/tools/pvoutput/pvoutput.py)
 
+## Fix Month Tags Tool
+
+Prior to Powerwall-Dashboard v2.6.3, "month" tags of InfluxDB data were based on UTC only, resulting in data points with incorrect month tags for the local timezone.
+
+This command line tool can be used to search InfluxDB for incorrect month tags for your timezone and correct the data. A backup is recommended before use.
+
+* Author: [@mcbirse](https://github.com/mcbirse)
+* [Details and Instructions](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/tools/fixmonthtags/)
+* Script: [fixmonthtags.py](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/tools/fixmonthtags/fixmonthtags.py)
+
 ## NodeRed
 
 Several in the community use NodeRed to help automate usage of their Solar and Powerwall data.
