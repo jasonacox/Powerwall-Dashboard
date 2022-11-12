@@ -162,6 +162,27 @@ rplist = []
 taglist = []
 months = []
 
+# Helper Functions
+def lpr(value):
+    """
+    Return Line Protocol formatted string for InfluxDB field values based on the data type
+    """
+    if type(value) is int:
+        rv = f"{value}i"
+    elif type(value) is str:
+        rv = value.replace('"', '\\"')
+        rv = f'"{rv}"'
+    else:
+        rv = str(value)
+    return rv
+
+def esc(value):
+    """
+    Return Line Protocol escaped string for InfluxDB tag key/values and field keys
+    """
+    return str(value).replace(',', '\\,').replace('=', '\\=').replace(' ', '\\ ')
+
+# InfluxDB Functions
 def search_influx(remove=False):
     """
     Search InfluxDB for incorrect month tags for the configured timezone
@@ -252,20 +273,15 @@ def search_influx(remove=False):
                         if key == 'time' or value is None:
                             continue
                         if key in taglist:
-                            if key == 'month':
-                                # Set month tag to correct value for the timezone
-                                value = timestamp.strftime('%b')
-                            if key == 'year':
-                                # Set year tag to correct value for the timezone
-                                value = timestamp.year
-                            # Save tag values
-                            tags += f",{key}={value}"
+                            if key not in ('month', 'year'):
+                                # Save other tag values
+                                tags += f",{esc(key)}={esc(value)}"
                         else:
                             # Save data values
-                            data += f",{key}={value}"
+                            data += f",{esc(key)}={lpr(value)}"
 
                     # Save the corrected data point values
-                    newpoint = f"http{tags} {data[1:]} {str(int(timestamp.timestamp()))}"
+                    newpoint = f"http,month={timestamp.strftime('%b')},year={timestamp.year}{tags} {data[1:]} {str(int(timestamp.timestamp()))}"
                     if rp not in datapoints:
                         datapoints[rp] = []
                     datapoints[rp].append(newpoint)
