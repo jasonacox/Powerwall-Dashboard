@@ -1,7 +1,10 @@
 # RELEASE NOTES
 
-## v2.6.7 - No Released
+## v2.6.7 - Add Powerwall Firmware Version
 
+* Add Powerwall Firmware version to Power-Flow animation. #112
+* Fix Self-Powered calculations to factor in Grid charging of Powerwall. #135
+* Upgrade to pyPowerwall Proxy t22 to better handle Powerwall Firmware updates. This introduces no-cache headers and hopefully eliminates the need for proxy restart. #112
 * Fix timezone script (tz.sh) to process file in the dashboards folder. https://github.com/jasonacox/Powerwall-Dashboard/issues/63
 
 ## v2.6.6 - History Import Tool & Windows 11 Compatibility
