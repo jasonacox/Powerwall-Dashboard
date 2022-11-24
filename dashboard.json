@@ -2069,7 +2069,7 @@
             "type": "influxdb",
             "uid": "${DS_INFLUXDB}"
           },
-          "query": "SELECT  (1+from_solar/abs(from_solar))*from_solar/2  FROM (SELECT integral(solar)/1000/3600 - integral(to_pw)/1000/3600 - integral(to_grid)/1000/3600  AS from_solar FROM autogen.http WHERE  $timeFilter tz('America/Los_Angeles'))",
+          "query": "SELECT  (1+from_solar/abs(from_solar))*from_solar/2  FROM (SELECT integral(solar)/1000/3600 - (integral(to_pw) - integral(grid_to_pw))/1000/3600  - integral(to_grid)/1000/3600  AS from_solar FROM (SELECT from_solar, solar, to_pw, to_grid, ((from_grid - home - solar) + ABS((from_grid - home - solar))) / 2 AS grid_to_pw FROM autogen.http WHERE  $timeFilter tz('America/Los_Angeles')))",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series"
@@ -2123,8 +2123,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "autogen",
-          "query": "SELECT mean(\"value\") FROM \"measurement\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
+          "query": "SELECT (integral(from_grid) - integral(grid_to_pw))/1000/3600  AS from_grid FROM (SELECT from_grid, ((from_grid - home - solar) + ABS((from_grid - home - solar))) / 2 AS grid_to_pw FROM autogen.http WHERE  $timeFilter tz('America/Los_Angeles'))",
+          "rawQuery": true,
           "refId": "C",
           "resultFormat": "time_series",
           "select": [
