@@ -10,6 +10,14 @@ This is a command line tool to import Powerwall history data from the Tesla Clou
 * [Details and Instructions](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/tools/tesla-history/)
 * Script: [tesla-history.py](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/tools/tesla-history/tesla-history.py)
 
+## Weather History Import Tool
+
+This is a command line tool to import weather history data from OpenWeatherMap into Powerwall-Dashboard.
+
+* Author: [@mcbirse](https://github.com/mcbirse) - see discussion [#146](https://github.com/jasonacox/Powerwall-Dashboard/discussions/146) if you have any questions or find problems.
+* [Details and Instructions](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/tools/weather-history/)
+* Script: [weather-history.py](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/tools/weather-history/weather-history.py)
+
 ## PVoutput Export Tool
 
 This is a command line tool to publish your solar production data to [PVoutput.org](https://pvoutput.org/), a free service for publicly sharing and comparing PV output data.
