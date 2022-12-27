@@ -1,11 +1,16 @@
 # RELEASE NOTES
 
-## v2.6.7 - Add Powerwall Firmware Version
+## v2.6.7 - History Tools and Powerwall Firmware Version
 
 * Add Powerwall Firmware version to Power-Flow animation. #112
 * Fix Self-Powered calculations to factor in Grid charging of Powerwall. #135
 * Upgrade to pyPowerwall Proxy t22 to better handle Powerwall Firmware updates. This introduces no-cache headers and hopefully eliminates the need for proxy restart. #112
 * Fix timezone script (tz.sh) to process file in the dashboards folder. https://github.com/jasonacox/Powerwall-Dashboard/issues/63
+* Eliminate horizontal scrollbars on iPhone. by @cwagz in https://github.com/jasonacox/Powerwall-Dashboard/pull/114
+* Updated animation and yearly image by @cwagz in https://github.com/jasonacox/Powerwall-Dashboard/pull/117
+* Tesla History Tool - Fix bug with error output when dateutil is missing by @mcbirse in https://github.com/jasonacox/Powerwall-Dashboard/pull/123
+* Fix Month Tool - Added tool to fix incorrect month tags of InfluxDB by @mcbirse in https://github.com/jasonacox/Powerwall-Dashboard/pull/124 and https://github.com/jasonacox/Powerwall-Dashboard/pull/126
+* Weather History Tool - Added tool to retrieve weather history data by @mcbirse in https://github.com/jasonacox/Powerwall-Dashboard/pull/147
 
 ## v2.6.6 - History Import Tool & Windows 11 Compatibility
 
