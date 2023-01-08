@@ -11,3 +11,4 @@ weather/uploadtest.sh
 weather/weather411.conf
 weather/weather411.conf.orig
 .DS_Store
+/.vs

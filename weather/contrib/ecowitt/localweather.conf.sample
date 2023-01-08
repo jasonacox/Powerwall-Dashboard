@@ -1,0 +1,32 @@
+[LocalWeather]
+DEBUG = no
+
+[API]
+# Port to listen on for requests (default 8686)
+ENABLE = yes
+PORT = 8686 # Different Port to Weather 411 so they can co-exist
+
+[Ecowitt]
+# Set your APIKEY and APPLICATION_KEY from https://www.ecowitt.net/user/index
+APIKEY = xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+APPLICATION_KEY = XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Set the MAC address for the specific station you want to query
+MAC = 01:23:45:67:89:AB
+
+WAIT = 1
+TIMEOUT = 10
+
+# standard, metric or imperial 
+UNITS = metric
+
+[InfluxDB]
+# Record data in InfluxDB server 
+ENABLE = yes
+HOST = influxdb
+PORT = 8086
+DB = powerwall
+FIELD = localweather
+# Leave blank if not used
+USERNAME = 
+PASSWORD =
