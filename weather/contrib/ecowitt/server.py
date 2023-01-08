@@ -380,7 +380,7 @@ class handler(BaseHTTPRequestHandler):
             message = json.dumps(result)
         elif self.path == '/wind':
             result["wind_speed"] = weather['wind_speed']
-            result["wind_direction"] = weather['wind_direction']
+            result["wind_deg"] = weather['wind_deg']
             result["wind_gust"] = weather['wind_gust']
             message = json.dumps(result)
         elif self.path == '/solar':
