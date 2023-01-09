@@ -1,4 +1,10 @@
-# Weather411 Server
+# Weather Service
+
+This folder contains tools to add current local weather data to your Powerwall Dashboard. 
+* Weather411 - This script uses OpenWeatherMap to determine your area weather. The details are below.
+* Community Contributed - If you have your own local weather station or want to add another weather service, there is a way to add that data as well. See the example [Ecowitt service](https://github.com/jasonacox/Powerwall-Dashboard/tree/main/weather/contrib/ecowitt) by @BJReplay in the [contrib/](https://github.com/jasonacox/Powerwall-Dashboard/tree/main/weather/contrib) folder.
+
+## Weather411 Server
 
 ![Docker Pulls](https://img.shields.io/docker/pulls/jasonacox/weather411)
 
