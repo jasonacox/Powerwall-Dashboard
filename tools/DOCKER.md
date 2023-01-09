@@ -51,10 +51,14 @@ cd Powerwall-Dashboard/
 
 ## Windows
 
-Options:
+Installing Powerwall-Dashboard on a Windows 11 host requires some additional setup. Install and Setup using administrator PowerShell or Windows Command Prompt:
 
-* WSL 2 ([Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/install)) - Instructions: https://docs.docker.com/desktop/windows/wsl/ 
-* VirtualBox (see Ubuntu instructions)
+* Install WSL ([Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/install)) (wsl --install) with an OS (recommend Ubuntu)
+* Install *Git for Windows* (https://gitforwindows.org/)
+* Install *Docker Desktop* for Windows (https://www.docker.com/)
+* From *Git Bash* prompt, Clone repo (`git clone https://github.com/jasonacox/Powerwall-Dashboard.git`)
+* Run `cd Powerwall-Dashboard`
+* Run `./setup.sh`
 
 ## Raspberry Pi - Raspbian OS
 
@@ -83,9 +87,12 @@ sudo systemctl enable containerd.service
 sudo pip3 install docker-compose
 ```
 
-## Synology NAS
+## Synology NAS and Rootless Docker
 
-...
+Docker is available on the Synology NAS devices.
+
+* If you are having trouble getting this to work on a Synology NAS, view the resolution discovered in [Issue #22](https://github.com/jasonacox/Powerwall-Dashboard/issues/22) thanks to @jaydkay.
+* If you are running docker as a non-privileged (rootless) user, please some setup help [here](https://github.com/jasonacox/Powerwall-Dashboard/issues/22#issuecomment-1254699603) thanks to @BuongiornoTexas.
 
 ## Others
 
