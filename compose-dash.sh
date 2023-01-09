@@ -35,6 +35,11 @@ if ! docker info > /dev/null 2>&1; then
 fi
 
 # Load enviroment variables for compose
+if [ ! -f "compose.env" ]; then
+    echo "ERROR: Missing compose.env file."
+    echo "Please run setup.sh or copy compose.env.sample to compose.env."
+    exit 1
+fi
 set -a
 . compose.env
 set +a
