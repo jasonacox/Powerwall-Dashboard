@@ -22,7 +22,7 @@ A non-animated version of the dashboard is also available using [dashboard-no-an
 
 The host system will require:
 
-* docker
+* docker ([install help](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/tools/DOCKER.md))
 * docker-compose (works with docker compose (v2) as well)
 * You should not need to run `sudo` to install this tool. See [Docker Errors](https://github.com/jasonacox/Powerwall-Dashboard#docker-errors) below for help.
 * TCP ports: 8086 (InfluxDB), 8675 (pyPowerwall), and 9000 (Grafana)
