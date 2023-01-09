@@ -35,7 +35,20 @@ running() {
     [[ $status == ${code} ]]
 }
 
-# Docker Dependency Check - moved to compose-dash.sh 14/10/2022
+# Docker Dependency Check 
+if ! docker info > /dev/null 2>&1; then
+    echo "ERROR: docker is not available or not runnning."
+    echo "This script requires docker, please install and try again."
+    exit 1
+fi
+if ! docker-compose version > /dev/null 2>&1; then
+    if ! docker compose version > /dev/null 2>&1; then
+        echo "ERROR: docker-compose is not available or not runnning."
+        echo "This script requires docker-compose or docker compose."
+        echo "Please install and try again."
+        exit 1
+    fi
+fi
 
 # Check for RPi Issue with Buster
 if [[ -f "/etc/os-release" ]]; then
