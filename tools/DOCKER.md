@@ -10,7 +10,7 @@ If you plan to use a VirtualBox virtual machine to host your Ubuntu server:
 
 * Oracle VM [VirtualBox](https://www.virtualbox.org/wiki/Downloads) - Download [Ubuntu 22.10](https://releases.ubuntu.com/kinetic/) Server ISO - Create VM 
 * Changed Network mode to "Bridged Adapter" (allows VM to get its own DHCP IP on the local LAN)
-* Standard install and activated SSH so I can remote in (ssh in to VM)
+* Standard install and activated SSH so you can remote in (ssh in to VM)
 
 Docker Install
 
