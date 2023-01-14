@@ -1,17 +1,17 @@
 #!/bin/bash
 #
-# Backup Script for Powerwall Dashboard
+# Backup Script for Powerwall Dashboard Data
 #   https://github.com/jasonacox/Powerwall-Dashboard
 #   by Jason Cox - 27 Feb 2022 
 
-# Daily Backup for Powerwall-Dashboard
+# Daily Backup for Powerwall-Dashboard Data
 if [ "$EUID" -ne 0 ]
   then echo "Must run as root"
   exit
 fi
 
 # Set values for your environment 
-DASHBOARD="/home/user/Powerwall-Dashboard" # Location of Dashboard to backup
+DASHBOARD="/home/user/Powerwall-Dashboard"    # Location of Dashboard to backup
 BACKUP_FOLDER="${DASHBOARD}/backups"          # Destination folder for backups
 KEEP="5"                                      # Days to keep backup
 
@@ -35,10 +35,10 @@ mkdir -p influxdb/backups
 chmod g+w influxdb/backups
 docker exec influxdb influxd backup -database powerwall /var/lib/influxdb/backups
 
-# Backup Powerwall-Dashboard
-echo "Backing up Powerwall-Dashboard (influxdb grafana)"
+# Backup Powerwall-Dashboard Data
+echo "Backing up Powerwall-Dashboard Data (influxdb)"
 cd  ${DASHBOARD}
-tar -zcvf ${BACKUP_FOLDER}/Powerwall-Dashboard.$STAMP.tgz influxdb grafana 
+tar -zcvf ${BACKUP_FOLDER}/Powerwall-Dashboard.$STAMP.tgz influxdb 
 
 # Cleanup Old Backups
 echo "Cleaning up old backups"
