@@ -15,7 +15,7 @@
 
     Ecowitt API information: http://doc.ecowitt.net/web/#/apiv3en?page_id=17
 
-    CONFIGURATION FILE - On startup will look for localweather.conf
+    CONFIGURATION FILE - On startup will look for ecowitt.conf
     which includes the following parameters:
 
         [LocalWeather]
@@ -83,11 +83,11 @@ from socketserver import ThreadingMixIn
 import configparser
 from influxdb import InfluxDBClient
 
-BUILD = "0.0.2"
+BUILD = "0.0.4"
 CLI = False
 LOADED = False
 CONFIG_LOADED = False
-CONFIGFILE = os.getenv("WEATHERCONF", "localweather.conf")
+CONFIGFILE = os.getenv("WEATHERCONF", "ecowitt.conf")
 URL = "https://api.ecowitt.net/api/v3/device/real_time"
 
 # Load Configuration File
@@ -154,26 +154,21 @@ def clearweather():
     global weather
     weather = {
         # header
-        "dt": 0, "name": None, "country": None, "id": None,
+        "dt": 0, 
         # basics
-        "temperature": None, "temperature": None, "pressure": None, 
-        "temp_min": None, "temp_max": None, "feels_like": None, "app_temp": None, 
-        "clouds": None, "visibility": None,
-        # wind
-        "wind_speed": None, "wind_deg": None, "wind_gust": None,
-        # conditions
-        "weather_id": None, "weather_main": None,
-        "weather_description": None, "weather_icon": None,
-        # precipitation
-        "rain_1h": 0.0, "rain_3h": None, "snow_1h": None, "snow_3h": None, "rain_24h": 0.0,
-        # time
-        "sunrise": None, "sunset": None, "tz": None, 
-        # solar_and_uvi
-        "solar": 0.0, "uvi": 0, 
+        "temperature": None, "feels_like": None, "app_temp": None, "dew_point": None, "humidity": None, 
         # indoor
         "inside_temp": None, "inside_humidity": None, 
+        # solar_and_uvi
+        "solar": 0.0, "uvi": 0, 
+        # precipitation
+        "rain_1h": 0.0, "rain_24h": 0.0,
+        # wind
+        "wind_speed": None, "wind_deg": None, "wind_gust": None,
+        # pressure
+        "pressure": None, 
         # AQI
-        "pm25": None, "pm25aqi": None, "pm10": None, "pm10aqi": None, "co2": None,
+        "co2": None, "pm25": None, "pm25aqi": None, "pm10": None, "pm10aqi": None, 
         }
 
 def lookup(source, index, valtype='string'):
@@ -237,23 +232,31 @@ def fetchWeather():
                             weather["temperature"] = getvalue(data, 'temperature', 'float')
                             weather["feels_like"] = getvalue(data, 'feels_like', 'float')
                             weather["app_temp"] = getvalue(data, 'app_temp', 'float')
+                            weather["dew_point"] = getvalue(data, 'dew_point', 'float')
                             weather["humidity"] = getvalue(data, 'humidity', 'float')
-                        if "pressure" in datapayload:
-                            data = datapayload["pressure"]
-                            weather["pressure"] = getvalue(data, 'absolute', 'float')
+                        if "indoor" in datapayload:
+                            data = datapayload["indoor"]
+                            weather["inside_temp"] = getvalue(data, 'temperature', 'float')
+                            weather["inside_humidity"] = getvalue(data, 'humidity', 'float')
+                        if "solar_and_uvi" in datapayload:
+                            data = datapayload["solar_and_uvi"]
+                            weather["solar"] = getvalue(data, 'solar', 'float')
+                            weather["uvi"] = getvalue(data, 'uvi', 'int')
+                        if "rainfall" in datapayload:
+                            data = datapayload["rainfall"]
+                            weather["rain_1h"] = getvalue(data, 'hourly', 'float')
+                            weather["rain_24h"] = getvalue(data, 'daily', 'float')
                         if "wind" in datapayload:
                             data = datapayload["wind"]
                             weather["wind_speed"] = getvalue(data, 'wind_speed', 'float')
                             weather["wind_deg"] = getvalue(data, 'wind_direction', 'int')
                             weather["wind_gust"] = getvalue(data, 'wind_gust', 'float')
-                        if "rainfall" in datapayload:
-                            data = datapayload["rainfall"]
-                            weather["hourly"] = getvalue(data, 'hourly', 'float')
-                            weather["daily"] = getvalue(data, 'daily', 'float')
-                        if "solar_and_uvi" in datapayload:
-                            data = datapayload["solar_and_uvi"]
-                            weather["solar"] = getvalue(data, 'solar', 'float')
-                            weather["uvi"] = getvalue(data, 'uvi', 'int')
+                        if "pressure" in datapayload:
+                            data = datapayload["pressure"]
+                            weather["pressure"] = getvalue(data, 'absolute', 'float')
+                        if "co2_aqi_combo" in datapayload:
+                            data = datapayload["co2_aqi_combo"]
+                            weather["co2"] = getvalue(data, 'co2', 'int')
                         if "pm25_aqi_combo" in datapayload:
                             data = datapayload["pm25_aqi_combo"]
                             weather["pm25"] = getvalue(data, 'pm25', 'int')
@@ -262,13 +265,6 @@ def fetchWeather():
                             data = datapayload["pm10_aqi_combo"]
                             weather["pm10"] = getvalue(data, 'pm10', 'int')
                             weather["pm10aqi"] = getvalue(data, 'real_time_aqi', 'int')
-                        if "co2_aqi_combo" in datapayload:
-                            data = datapayload["co2_aqi_combo"]
-                            weather["co2"] = getvalue(data, 'co2', 'int')
-                        if "indoor" in datapayload:
-                            data = datapayload["indoor"]
-                            weather["inside_temp"] = getvalue(data, 'temperature', 'float')
-                            weather["inside_humidity"] = getvalue(data, 'humidity', 'float')
                     except:
                         log.debug("Data error in payload from Ecowitt")
                         pass
@@ -374,7 +370,7 @@ class handler(BaseHTTPRequestHandler):
         elif self.path == '/temp':
             result["temperature"] = weather["temperature"]
             message = json.dumps(result)            
-        elif self.path in ["/temperature","/humidity","/pressure","/feels_like","/app_temp"]:
+        elif self.path in ["/temperature","/humidity","/pressure","/feels_like","/app_temp","/dew_point"]:
             i = self.path.split("/")[1]
             result[i] = weather[i]
             message = json.dumps(result)
@@ -402,15 +398,7 @@ class handler(BaseHTTPRequestHandler):
             message = json.dumps(result)            
         elif self.path in ['/rain', '/precipitation']:
             result["rain_1h"] = weather['rain_1h']
-            result["rain_3h"] = weather['rain_3h']
-            result["snow_1h"] = weather['snow_1h']
-            result["snow_3h"] = weather['snow_3h']            
             result["rain_24h"] = weather['rain_24h']
-            message = json.dumps(result)
-        elif self.path == '/conditions' or self.path == '/weather':
-            result["conditions"] = weather['weather_main']
-            result["weather_description"] = weather['weather_description']
-            result["weather_icon"] = weather['weather_icon']
             message = json.dumps(result)
         else:
             # Error
@@ -474,12 +462,11 @@ if __name__ == "__main__":
             ('timezone','Temp','Humidity','Pressure','Cloud','Visibility') )
     try:
         while(True):
-            if CLI and 'name' in weather and weather['name'] is not None:
+            if CLI:
                 # weather report
-                print("   %15s | %4d | %8d | %8d | %5d | %10d" %
-                    (weather['name'], weather['temperature'], 
-                    weather['humidity'], weather['pressure'], 
-                    weather['cloudiness'], weather['visibility']),
+                print(" %4d | %8d | %8d " %
+                    (weather['temperature'], 
+                    weather['humidity'], weather['pressure']),
                     end='\r')
             time.sleep(2)
     except (KeyboardInterrupt, SystemExit):

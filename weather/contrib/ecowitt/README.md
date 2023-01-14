@@ -143,7 +143,7 @@ The `Dockerfile` here will allow you to containerize the proxy server for clean 
     --name ecowitt \
     -v ${PWD}:/var/lib/weather \
     --restart unless-stopped \
-    ecowitt
+    jasonacox/ecowitt
     ```
 
 3. Test the API
@@ -172,6 +172,16 @@ docker start ecowitt
 ```
 
 ## Release Notes
+
+### 0.0.4 - Third Release 
+
+* Fix to Rainfall Data
+* Fix to Humidity Data
+* Add Dew Point to Weather Data
+* Change default name of conf file
+* Correct Name of config file comment in server.py
+* Fix Build Your Own instructions in README (incorrect container name)
+* Remove redundant data
 
 ### 0.0.3 - Second Release 
 
