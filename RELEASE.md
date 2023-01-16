@@ -1,5 +1,12 @@
 # RELEASE NOTES
 
+## v2.7.0 - PyPowerwall t24 and Ecowitt Weather Support
+
+* [[Ecowitt Weather](https://github.com/jasonacox/Powerwall-Dashboard/tree/main/weather/contrib/ecowitt#ecowitt-local-weather-server)] Added Ecowitt local weather station data import service and dashboard by @BJReplay in https://github.com/jasonacox/Powerwall-Dashboard/pull/150 https://github.com/jasonacox/Powerwall-Dashboard/pull/151 https://github.com/jasonacox/Powerwall-Dashboard/pull/153 https://github.com/jasonacox/Powerwall-Dashboard/pull/157
+* [[Tesla History Tool](https://github.com/jasonacox/Powerwall-Dashboard/tree/main/tools/tesla-history#tesla-history-import-tool)] Revise error handling of SITE_DATA request by @mcbirse in https://github.com/jasonacox/Powerwall-Dashboard/pull/156
+* [[Ecowitt Weather History Tool](https://github.com/jasonacox/Powerwall-Dashboard/tree/main/tools/ecowitt-weather-history#ecowitt-weather-history-import-tool)] Added Ecowitt Weather History Tool by @BJReplay in https://github.com/jasonacox/Powerwall-Dashboard/pull/159
+* [[pyPowerwall Proxy](https://github.com/jasonacox/pypowerwall/tree/main/proxy#pypowerwall-proxy-server)] Upgraded to pyPowerwall Proxy t24 which moves to Python 3.10 and adds /alerts/pw for easier alert history tracking by @DerickJohnson in https://github.com/jasonacox/pypowerwall/pull/26
+
 ## v2.6.7 - History Tools and Powerwall Firmware Version
 
 * Add Powerwall Firmware version to Power-Flow animation. #112
