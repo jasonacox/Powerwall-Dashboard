@@ -49,7 +49,7 @@ On first use, it is recommended to use the `--setup` option. This will create th
 python3 ecowitt-weather-history.py --setup
 ```
 
-Initial configuration defaults will be sourced from the ecowitt config file, when found. If the location of this file is different, it can be specified with the `--ecowitt` option.
+Initial configuration defaults will be sourced from the ecowitt config file, when found. If the location of this file is different, it can be specified with the `--ecoconf` option.
 
 Setup will then run in an interactive mode. The example below shows the config creation:
 
@@ -72,7 +72,7 @@ Powerwall Dashboard graphs.
 API Key: [xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx]
 APP Key: [xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx]
 MAC: [XX:XX:XX:XX:XX:XX]
-Units - M)etric, I)mperial or S)tandard: [M]
+Units - M)etric or I)mperial: [M]
 
 InfluxDB Setup
 --------------
