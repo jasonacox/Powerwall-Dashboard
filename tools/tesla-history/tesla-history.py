@@ -324,12 +324,9 @@ def tesla_login(email):
                 if args.debug: print(f"Get SITE_DATA for Site ID {siteid}")
                 data = battery.api('SITE_DATA')
                 if args.debug: print(data)
-                if isinstance(data, teslapy.JsonDict) and 'response' in data:
-                    sitetime = isoparse(data['response']['timestamp'])
-                else:
-                    sitetime = "No 'live status' returned"
-            except Exception as err:
-                sys.exit(f"ERROR: Failed to retrieve SITE_DATA - {err}")
+                sitetime = isoparse(data['response']['timestamp'])
+            except:
+                sitetime = "No 'live status' returned"
 
             # Add site if site id not already in the list
             if siteid not in sitelist:

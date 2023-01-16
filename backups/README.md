@@ -9,20 +9,32 @@ Backup the Powerwall-Dashboard folder. In that folder are two important folders:
 * influxdb - This is the folder for the database that stores the metrics.
 * grafana - This is the folder for the dashboard which holds your setup and customization.
 
+The following shows an example of how to migrate the data (influxdb) from one system to another (see backup.sh):
+
 ## Backup Example
 
 ```bash
 #!/bin/bash
-# Daily Backup for Powerwall-Dashboard
+# Daily Backup for Powerwall-Dashboard Data
 if [ "$EUID" -ne 0 ]
   then echo "Must run as root"
   exit
 fi
 
 # Set values for your environment 
-BACKUP_FOLDER="/backup"                       # Destination folder for backups
 DASHBOARD="/home/user/Powerwall-Dashboard"    # Location of Dashboard to backup
+BACKUP_FOLDER="${DASHBOARD}/backups"          # Destination folder for backups
 KEEP="5"                                      # Days to keep backup
+
+# Check to see if direcotry exists
+if [ ! -d "${DASHBOARD}" ]; then
+  echo "Dashboard directory ${DASHBOARD} does not exist."
+  exit
+fi
+if [ ! -d "${BACKUP_FOLDER}" ]; then
+  echo "Backup directory ${BACKUP_FOLDER} does not exist."
+  exit
+fi
 
 # Timestamp for Backup Filename
 STAMP=$(date '+%Y-%m-%d')
@@ -32,15 +44,16 @@ echo "Creating InfluxDB Backup"
 cd ${DASHBOARD}
 mkdir -p influxdb/backups
 chmod g+w influxdb/backups
-docker exec -it influxdb influxd backup -database powerwall /var/lib/influxdb/backups
+docker exec influxdb influxd backup -database powerwall /var/lib/influxdb/backups
 
-# Backup Powerwall-Dashboard
-echo "Backing up Powerwall-Dashboard (influxdb grafana)"
+# Backup Powerwall-Dashboard Data
+echo "Backing up Powerwall-Dashboard Data (influxdb)"
 cd  ${DASHBOARD}
-tar -zcvf ${BACKUP_FOLDER}/Powerwall-Dashboard.$STAMP.tgz influxdb grafana 
+tar -zcvf ${BACKUP_FOLDER}/Powerwall-Dashboard.$STAMP.tgz influxdb 
 
 # Cleanup Old Backups
 echo "Cleaning up old backups"
+rm -rf ${DASHBOARD}/influxdb/backups/*        # Delete InfluxDB snapshots after backup
 find ${BACKUP_FOLDER}/Powerwall-Dashboard.*tgz -mtime +${KEEP} -type f -delete
 echo "Done"
 ```
