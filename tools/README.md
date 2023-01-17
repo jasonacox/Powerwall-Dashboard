@@ -18,6 +18,14 @@ This is a command line tool to import weather history data from OpenWeatherMap i
 * [Details and Instructions](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/tools/weather-history/)
 * Script: [weather-history.py](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/tools/weather-history/weather-history.py)
 
+## Ecowitt Weather History Import Tool
+
+This is a command line tool to import weather history data from the Ecowitt API into Powerwall-Dashboard.
+
+* Author: [@BJReplay](https://github.com/BJReplay) - see discussion [#145](https://github.com/jasonacox/Powerwall-Dashboard/discussions/145) if you have any questions or find problems.
+* [Details and Instructions](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/tools/ecowitt-weather-history/)
+* Script: [ecowitt-weather-history.py](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/tools/ecowitt-weather-history/ecowitt-weather-history.py)
+
 ## PVoutput Export Tool
 
 This is a command line tool to publish your solar production data to [PVoutput.org](https://pvoutput.org/), a free service for publicly sharing and comparing PV output data.
