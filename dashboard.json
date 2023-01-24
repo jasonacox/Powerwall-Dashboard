@@ -2965,7 +2965,7 @@
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
-        "h": 5,
+        "h": 6,
         "w": 24,
         "x": 0,
         "y": 40
@@ -2979,7 +2979,8 @@
         "current": false,
         "max": false,
         "min": false,
-        "show": false,
+        "rightSide": true,
+        "show": true,
         "total": false,
         "values": false
       },
@@ -2997,14 +2998,23 @@
       "seriesOverrides": [
         {
           "$$hashKey": "object:1551",
-          "alias": "Solar Energy Year",
+          "alias": "Solar",
           "color": "#FADE2A"
         },
         {
           "$$hashKey": "object:1552",
-          "alias": "Home Usage",
+          "alias": "Home",
           "bars": false,
           "color": "rgb(50, 116, 217)",
+          "fill": 0,
+          "lines": true,
+          "steppedLine": true
+        },
+        {
+          "$$hashKey": "object:161",
+          "alias": "Grid",
+          "bars": false,
+          "color": "rgb(184, 119, 217)",
           "fill": 0,
           "lines": true,
           "steppedLine": true
@@ -3015,7 +3025,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "alias": "Solar Energy",
+          "alias": "Solar",
           "datasource": {
             "type": "influxdb",
             "uid": "${DS_INFLUXDB}"
@@ -3063,7 +3073,7 @@
           "tz": "America/Los_Angeles"
         },
         {
-          "alias": "Home Usage",
+          "alias": "Home",
           "datasource": {
             "type": "influxdb",
             "uid": "${DS_INFLUXDB}"
@@ -3105,6 +3115,57 @@
           "tags": [
             {
               "key": "home",
+              "operator": ">",
+              "value": "0"
+            }
+          ],
+          "tz": "America/Los_Angeles"
+        },
+        {
+          "alias": "Grid",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "1d"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "0"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "kwh",
+          "query": "SELECT sum(\"from_grid\") - sum(\"to_grid\") as \"grid\" FROM \"kwh\".\"http\" WHERE $timeFilter GROUP BY time(1d) fill(0) tz('America/Los_Angeles')",
+          "rawQuery": true,
+          "refId": "C",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "from_grid"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "sum"
+              }
+            ]
+          ],
+          "tags": [
+            {
+              "key": "from_grid",
               "operator": ">",
               "value": "0"
             }
@@ -3152,7 +3213,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 45
+        "y": 46
       },
       "id": 37,
       "panels": [],
@@ -3182,7 +3243,7 @@
         "h": 5,
         "w": 8,
         "x": 0,
-        "y": 46
+        "y": 47
       },
       "hiddenSeries": false,
       "id": 32,
@@ -3944,7 +4005,7 @@
         "h": 5,
         "w": 8,
         "x": 8,
-        "y": 46
+        "y": 47
       },
       "hiddenSeries": false,
       "id": 62,
@@ -4706,7 +4767,7 @@
         "h": 5,
         "w": 8,
         "x": 16,
-        "y": 46
+        "y": 47
       },
       "hiddenSeries": false,
       "id": 63,
@@ -5467,7 +5528,7 @@
         "h": 6,
         "w": 12,
         "x": 0,
-        "y": 51
+        "y": 52
       },
       "hiddenSeries": false,
       "id": 34,
@@ -5723,7 +5784,7 @@
         "h": 6,
         "w": 12,
         "x": 12,
-        "y": 51
+        "y": 52
       },
       "hiddenSeries": false,
       "id": 35,
@@ -6063,7 +6124,7 @@
         "h": 5,
         "w": 24,
         "x": 0,
-        "y": 57
+        "y": 58
       },
       "hiddenSeries": false,
       "id": 38,
@@ -6659,7 +6720,7 @@
         "h": 5,
         "w": 24,
         "x": 0,
-        "y": 62
+        "y": 63
       },
       "hiddenSeries": false,
       "id": 61,
@@ -7504,7 +7565,7 @@
         "h": 5,
         "w": 24,
         "x": 0,
-        "y": 67
+        "y": 68
       },
       "hiddenSeries": false,
       "id": 55,
@@ -8115,7 +8176,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 72
+        "y": 73
       },
       "id": 57,
       "panels": [],
@@ -8147,7 +8208,7 @@
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 73
+        "y": 74
       },
       "hiddenSeries": false,
       "hideTimeOverride": false,
@@ -8433,7 +8494,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 79
+        "y": 80
       },
       "hiddenSeries": false,
       "hideTimeOverride": false,
@@ -8784,6 +8845,6 @@
   "timezone": "browser",
   "title": "Powerwall Power Flow",
   "uid": "RSabAvRRzV",
-  "version": 13,
+  "version": 15,
   "weekStart": ""
 }
