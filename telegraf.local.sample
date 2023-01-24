@@ -19,3 +19,32 @@
 #      data_format = "json"
 #      json_query = "0.Cached_readings"
 #      fieldpass = ["instant_power", "real_power_?", "energy_??ported"]
+
+# Example starlark processor using to rewrite alert data to new_alert (1) and
+# remember alerts even if they disappear (0) - see Issue #158
+#
+# [[processors.starlark]]
+# source = '''
+# state = {
+#         "last": {}
+# }
+# def dict_union(x, y):
+#         z = {}
+#         z.update(x)
+#         z.update(y)
+#         return z
+# def apply(metric):
+#         url = metric.tags.get("url")
+#         last = state["last"]
+#         if url and url  == "http://pypowerwall:8675/alerts/pw":
+#                 base = {x: 0 for x in metric.fields.keys()} #For updating existing total key set
+#                 current = {x: 1 for x in metric.fields.keys()} #Currently flagging keys
+#                 result = dict_union(last,current)
+#                 state["last"] = dict_union(last, base)
+#                 new_metric = Metric("all_alerts")
+#                 for k, v in result.items():
+#                         new_metric.fields[str(k)] = v
+#                 return new_metric
+#         else:
+#                 return metric
+# '''
