@@ -1,5 +1,10 @@
 # RELEASE NOTES
 
+## v2.7.1 - Powerwall Alert Data and Panel
+
+* Add Powerwall Alert data to dashboard - Credit to @DerickJohnson in https://github.com/jasonacox/Powerwall-Dashboard/issues/158
+* Updated Tools and Contrib READMEs by @BJReplay in https://github.com/jasonacox/Powerwall-Dashboard/pull/160
+
 ## v2.7.0 - PyPowerwall t24 and Ecowitt Weather Support
 
 * [[Ecowitt Weather](https://github.com/jasonacox/Powerwall-Dashboard/tree/main/weather/contrib/ecowitt#ecowitt-local-weather-server)] Added Ecowitt local weather station data import service and dashboard by @BJReplay in https://github.com/jasonacox/Powerwall-Dashboard/pull/150 https://github.com/jasonacox/Powerwall-Dashboard/pull/151 https://github.com/jasonacox/Powerwall-Dashboard/pull/153 https://github.com/jasonacox/Powerwall-Dashboard/pull/157
