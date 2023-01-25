@@ -3,12 +3,12 @@
 Monitoring Dashboard for the Tesla Powerwall using Grafana, InfluxDB, Telegraf and pyPowerwall.
 
 ![Animation](https://user-images.githubusercontent.com/13752647/198901193-6f5d3f34-3ef6-4d6d-95ff-892a3763541b.png)
-![Monthly](https://user-images.githubusercontent.com/836718/155044558-c693743e-8684-4ad9-a5c2-dd2006ad87a6.png)
-![Yearly](https://user-images.githubusercontent.com/13752647/198901205-c19ddb8b-7505-4b93-9606-bd1c8f46ba04.png)
-![Powerwall+](https://user-images.githubusercontent.com/13752647/155657106-9dbfc9e8-206f-4fa0-8b47-5dd15e726bf0.png)
-![FreqVoltage](https://user-images.githubusercontent.com/836718/161393960-87d6c8f1-2f00-4a5b-b201-3ced1fbb44bc.png)
-![Powerwall Capacity](https://user-images.githubusercontent.com/836718/174494485-f901cb79-09ae-4674-88a5-7af00e89fb89.png)
-![Weather](https://user-images.githubusercontent.com/836718/187042740-0147d5fc-581f-4dbc-8c09-62ea6025c924.png)
+![Monthly](https://user-images.githubusercontent.com/836718/214475577-2a633228-4db0-41b8-8738-51642222f462.png)
+![Yearly](https://user-images.githubusercontent.com/836718/214475014-4ba090dd-bca8-475f-bbdc-6d80ad5afbb0.png)
+![Powerwall+](https://user-images.githubusercontent.com/836718/214475810-bc5748fd-5a6f-4fd7-869b-88ba3f06346c.png)
+![FreqVoltage](https://user-images.githubusercontent.com/836718/214475204-d049c0c8-1b2c-4fb7-b015-0a638a33adde.png)
+![Alerts](https://user-images.githubusercontent.com/836718/214474307-9c85de97-3730-4e2c-a4a1-0173be3e0ea1.png)
+![Weather](https://user-images.githubusercontent.com/836718/214474825-75686470-03a9-41cc-b827-f54dc323f93e.png)
 
 ## Dashboards
 
