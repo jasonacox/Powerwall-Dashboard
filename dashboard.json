@@ -6116,7 +6116,7 @@
         "type": "influxdb",
         "uid": "${DS_INFLUXDB}"
       },
-      "decimals": 1,
+      "decimals": 3,
       "description": "",
       "fieldConfig": {
         "defaults": {
