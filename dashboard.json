@@ -6486,7 +6486,7 @@
             [
               {
                 "params": [
-                  "PW2_PINV_FOUT"
+                  "PW2_PINV_Fout"
                 ],
                 "type": "field"
               },
@@ -6528,7 +6528,7 @@
             [
               {
                 "params": [
-                  "PW3_PINV_FOUT"
+                  "PW3_PINV_Fout"
                 ],
                 "type": "field"
               },
@@ -6570,7 +6570,7 @@
             [
               {
                 "params": [
-                  "PW4_PINV_FOUT"
+                  "PW4_PINV_Fout"
                 ],
                 "type": "field"
               },
@@ -6612,7 +6612,7 @@
             [
               {
                 "params": [
-                  "PW5_PINV_FOUT"
+                  "PW5_PINV_Fout"
                 ],
                 "type": "field"
               },
@@ -6654,7 +6654,7 @@
             [
               {
                 "params": [
-                  "PW6_PINV_FOUT"
+                  "PW6_PINV_Fout"
                 ],
                 "type": "field"
               },
@@ -9356,6 +9356,6 @@
   "timezone": "browser",
   "title": "Powerwall Power Flow",
   "uid": "RSabAvRRzV",
-  "version": 19,
+  "version": 20,
   "weekStart": ""
 }
