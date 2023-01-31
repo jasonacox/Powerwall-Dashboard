@@ -6865,7 +6865,7 @@
               "type": "fill"
             }
           ],
-          "hide": false,
+          "hide": true,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
@@ -9356,6 +9356,6 @@
   "timezone": "browser",
   "title": "Powerwall Power Flow",
   "uid": "RSabAvRRzV",
-  "version": 18,
+  "version": 19,
   "weekStart": ""
 }
