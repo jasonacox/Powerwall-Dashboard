@@ -6486,7 +6486,7 @@
             [
               {
                 "params": [
-                  "PW2_PINV_FOUT"
+                  "PW2_PINV_Fout"
                 ],
                 "type": "field"
               },
@@ -6528,7 +6528,7 @@
             [
               {
                 "params": [
-                  "PW3_PINV_FOUT"
+                  "PW3_PINV_Fout"
                 ],
                 "type": "field"
               },
@@ -6570,7 +6570,7 @@
             [
               {
                 "params": [
-                  "PW4_PINV_FOUT"
+                  "PW4_PINV_Fout"
                 ],
                 "type": "field"
               },
@@ -6612,7 +6612,7 @@
             [
               {
                 "params": [
-                  "PW5_PINV_FOUT"
+                  "PW5_PINV_Fout"
                 ],
                 "type": "field"
               },
@@ -6654,7 +6654,7 @@
             [
               {
                 "params": [
-                  "PW6_PINV_FOUT"
+                  "PW6_PINV_Fout"
                 ],
                 "type": "field"
               },
@@ -6779,9 +6779,12 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
+          "query": "SELECT mean(\"ISLAND_VL1N_Load\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -6866,6 +6869,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
+          "query": "SELECT mean(\"ISLAND_VL3N_Load\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "C",
           "resultFormat": "time_series",
           "select": [
@@ -6908,13 +6913,15 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
+          "query": "SELECT mean(\"METER_X_VL1N\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "D",
           "resultFormat": "time_series",
           "select": [
             [
               {
                 "params": [
-                  "METER_X_VL1N"
+                  "ISLAND_VL1N_Main"
                 ],
                 "type": "field"
               },
@@ -6956,7 +6963,7 @@
             [
               {
                 "params": [
-                  "METER_X_VL2N"
+                  "ISLAND_VL2N_Main"
                 ],
                 "type": "field"
               },
@@ -6992,13 +6999,15 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
+          "query": "SELECT mean(\"METER_X_VL3N\") FROM \"vitals\".\"http\" WHERE \"METER_X_VL3N\" > 0 AND $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "F",
           "resultFormat": "time_series",
           "select": [
             [
               {
                 "params": [
-                  "METER_X_VL3N"
+                  "ISLAND_VL3N_Main"
                 ],
                 "type": "field"
               },
@@ -7034,6 +7043,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
+          "query": "SELECT mean(\"PW1_PINV_VSplit1\") FROM \"vitals\".\"http\" WHERE \"ISLAND_VL1N_Load\" < 200.0 AND  $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": true,
           "refId": "G",
           "resultFormat": "time_series",
           "select": [
@@ -7076,6 +7087,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
+          "query": "SELECT mean(\"PW1_PINV_VSplit2\") FROM \"vitals\".\"http\" WHERE \"ISLAND_VL1N_Load\" < 200.0 AND $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": true,
           "refId": "H",
           "resultFormat": "time_series",
           "select": [
@@ -7118,6 +7131,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
+          "query": "SELECT mean(\"PW2_PINV_VSplit1\") FROM \"vitals\".\"http\" WHERE \"ISLAND_VL1N_Load\" < 200.0 AND  $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": true,
           "refId": "I",
           "resultFormat": "time_series",
           "select": [
@@ -7160,6 +7175,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
+          "query": "SELECT mean(\"PW2_PINV_VSplit2\") FROM \"vitals\".\"http\" WHERE \"ISLAND_VL1N_Load\" < 200.0 AND  $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": true,
           "refId": "J",
           "resultFormat": "time_series",
           "select": [
@@ -7202,6 +7219,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
+          "query": "SELECT mean(\"PW3_PINV_VSplit1\") FROM \"vitals\".\"http\" WHERE \"ISLAND_VL1N_Load\" < 200.0 AND  $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": true,
           "refId": "K",
           "resultFormat": "time_series",
           "select": [
@@ -7244,6 +7263,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
+          "query": "SELECT mean(\"PW3_PINV_VSplit2\") FROM \"vitals\".\"http\" WHERE \"ISLAND_VL1N_Load\" < 200.0 AND  $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": true,
           "refId": "L",
           "resultFormat": "time_series",
           "select": [
@@ -7286,6 +7307,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
+          "query": "SELECT mean(\"PW4_PINV_VSplit1\") FROM \"vitals\".\"http\" WHERE \"ISLAND_VL1N_Load\" < 200.0 AND $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": true,
           "refId": "M",
           "resultFormat": "time_series",
           "select": [
@@ -7328,6 +7351,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
+          "query": "SELECT mean(\"PW4_PINV_VSplit2\") FROM \"vitals\".\"http\" WHERE \"ISLAND_VL1N_Load\" < 200.0 AND  $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": true,
           "refId": "N",
           "resultFormat": "time_series",
           "select": [
@@ -7370,6 +7395,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
+          "query": "SELECT mean(\"PW5_PINV_VSplit1\") FROM \"vitals\".\"http\" WHERE \"ISLAND_VL1N_Load\" < 200.0 AND  $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": true,
           "refId": "O",
           "resultFormat": "time_series",
           "select": [
@@ -7412,6 +7439,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
+          "query": "SELECT mean(\"PW5_PINV_VSplit2\") FROM \"vitals\".\"http\" WHERE \"ISLAND_VL1N_Load\" < 200.0 AND $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": true,
           "refId": "P",
           "resultFormat": "time_series",
           "select": [
@@ -7454,6 +7483,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
+          "query": "SELECT mean(\"PW6_PINV_VSplit1\") FROM \"vitals\".\"http\" WHERE \"ISLAND_VL1N_Load\" < 200.0 AND $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": true,
           "refId": "Q",
           "resultFormat": "time_series",
           "select": [
@@ -7496,7 +7527,273 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
+          "query": "SELECT mean(\"PW6_PINV_VSplit2\") FROM \"vitals\".\"http\" WHERE \"ISLAND_VL1N_Load\" < 200.0 AND  $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": true,
           "refId": "R",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "PW6_PINV_VSplit2"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "PW1",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "vitals",
+          "query": "SELECT mean(\"PW1_PINV_VSplit1\") +  mean(\"PW1_PINV_VSplit2\")  FROM \"vitals\".\"http\" WHERE \"ISLAND_VL1N_Load\" > 200.0 AND  $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": true,
+          "refId": "S",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "PW6_PINV_VSplit2"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "PW2",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "vitals",
+          "query": "SELECT mean(\"PW2_PINV_VSplit1\") +  mean(\"PW2_PINV_VSplit2\")  FROM \"vitals\".\"http\" WHERE \"ISLAND_VL1N_Load\" > 200.0 AND  $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": true,
+          "refId": "T",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "PW6_PINV_VSplit2"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "PW3",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "vitals",
+          "query": "SELECT mean(\"PW3_PINV_VSplit1\") +  mean(\"PW3_PINV_VSplit2\")  FROM \"vitals\".\"http\" WHERE \"ISLAND_VL1N_Load\" > 200.0 AND  $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": true,
+          "refId": "U",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "PW6_PINV_VSplit2"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "PW4",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "vitals",
+          "query": "SELECT mean(\"PW4_PINV_VSplit1\") +  mean(\"PW4_PINV_VSplit2\")  FROM \"vitals\".\"http\" WHERE \"ISLAND_VL1N_Load\" > 200.0 AND  $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": true,
+          "refId": "V",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "PW6_PINV_VSplit2"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "PW5",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "vitals",
+          "query": "SELECT mean(\"PW5_PINV_VSplit1\") +  mean(\"PW5_PINV_VSplit2\")  FROM \"vitals\".\"http\" WHERE \"ISLAND_VL1N_Load\" > 200.0 AND  $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": true,
+          "refId": "W",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "PW6_PINV_VSplit2"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "PW6",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "vitals",
+          "query": "SELECT mean(\"PW6_PINV_VSplit1\") +  mean(\"PW6_PINV_VSplit2\")  FROM \"vitals\".\"http\" WHERE \"ISLAND_VL1N_Load\" > 200.0 AND  $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": true,
+          "refId": "X",
           "resultFormat": "time_series",
           "select": [
             [
@@ -9059,6 +9356,6 @@
   "timezone": "browser",
   "title": "Powerwall Power Flow",
   "uid": "RSabAvRRzV",
-  "version": 16,
+  "version": 21,
   "weekStart": ""
 }

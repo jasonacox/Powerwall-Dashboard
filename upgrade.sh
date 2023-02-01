@@ -4,7 +4,7 @@
 set -e
 
 # Set Globals
-VERSION="2.7.1"
+VERSION="2.8.0"
 CURRENT="Unknown"
 COMPOSE_ENV_FILE="compose.env"
 TELEGRAF_LOCAL="telegraf.local"
@@ -162,6 +162,15 @@ sleep 2
 echo ""
 echo "Add downsample continuous queries to InfluxDB..."
 docker exec --tty influxdb sh -c "influx -import -path=/var/lib/influxdb/influxdb.sql"
+cd influxdb
+for f in run-once*.sql; do 
+    if [ ! -f "${f}.done" ]; then
+        echo "Executing single run query $f file..."; 
+        docker exec --tty influxdb sh -c "influx -import -path=/var/lib/influxdb/${f}"
+        echo "OK" > "${f}.done"
+    fi
+done
+cd ..
 
 # Delete pyPowerwall for Upgrade
 echo ""
