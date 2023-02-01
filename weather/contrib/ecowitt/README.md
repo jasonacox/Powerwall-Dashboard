@@ -85,27 +85,27 @@ Docker: docker pull [jasonacox/ecowitt](https://hub.docker.com/r/jasonacox/ecowi
     Add into powerwall.yml in your Powerwall-Dashboard folder
 
     ```yaml
-    ecowitt:
-        # Uncomment next line to build locally
-        # build: ./weather/contrib/ecowitt
-        image: jasonacox/ecowitt:latest
-        container_name: ecowitt
-        hostname: ecowitt
-        restart: always
-        user: "1000:1000"
-        volumes:
-            - type: bind
-              source: ./weather/contrib/ecowitt
-              target: /var/lib/ecowitt
-              read_only: true
-        ports:
-            - target: 8686
-              published: 8686
-              mode: host
-        environment:
-            - WEATHERCONF=/var/lib/ecowitt/ecowitt.conf
-        depends_on:
-            - influxdb
+        ecowitt:
+            # Uncomment next line to build locally
+            # build: ./weather/contrib/ecowitt
+            image: jasonacox/ecowitt:latest
+            container_name: ecowitt
+            hostname: ecowitt
+            restart: always
+            user: "1000:1000"
+            volumes:
+                - type: bind
+                  source: ./weather/contrib/ecowitt
+                  target: /var/lib/ecowitt
+                  read_only: true
+            ports:
+                - target: 8686
+                  published: 8686
+                  mode: host
+            environment:
+                - WEATHERCONF=/var/lib/ecowitt/ecowitt.conf
+            depends_on:
+                - influxdb
     ```
 
     Optionally remove the weather411 section if you're not going to be running both Weather 411 and Local Weather
