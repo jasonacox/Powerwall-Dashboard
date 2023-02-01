@@ -1,11 +1,11 @@
 # DDL
-# Powerwall-Dashboard v6.5.1
+# Powerwall-Dashboard v2.8.0
 # 
-# Version 6.5.1 moved from using METER_X_VLxN to ISLAND_VLxN_Main for Grid Voltage. This script
+# Version 2.8.0 moved from using METER_X_VLxN to ISLAND_VLxN_Main for Grid Voltage. This script
 # will transfer the METER_X_VLxN data to ISLAND_VLxN_Main and will resample the raw data.
 # This only needs to run once.
 #
-# docker exec --tty influxdb sh -c "influx -import -path=/var/lib/influxdb/run-once-6.5.1.sql"
+# docker exec --tty influxdb sh -c "influx -import -path=/var/lib/influxdb/run-once-2.8.0.sql"
 #
 # USE powerwall
 CREATE DATABASE powerwall

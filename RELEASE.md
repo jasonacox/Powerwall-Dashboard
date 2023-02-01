@@ -1,10 +1,9 @@
 # RELEASE NOTES
 
+## v2.8.0 - Grid Voltage Upgrade
 
-## v2.7.2 - Grid Voltage Upgrade
-
-* Switch to using `ISLAND_VLxN_Main` data for Grid voltage (versus `METER_x_VLxN` data from Powerwall+ systems) as discovered in https://github.com/jasonacox/Powerwall-Dashboard/pull/165
-* Add logic to Voltage panel to sum Powerwall L1 and L2 voltages for 230V grid users.
+* Now using `ISLAND_VLxN_Main` data for Grid voltage (instead of `METER_x_VLxN`) as this appears to be more common across systems. Upgrade script executes a run-once query to copy historic data over.
+* Added logic to Voltage panel to sum Powerwall L1 and L2 voltages for 230V grid users thanks to @longzheng in https://github.com/jasonacox/Powerwall-Dashboard/pull/165 
 
 ## v2.7.1 - Powerwall Alert Data and Panel
 
