@@ -155,6 +155,16 @@ sleep 2
 echo "Setup InfluxDB Data for Powerwall..."
 docker exec --tty influxdb sh -c "influx -import -path=/var/lib/influxdb/influxdb.sql"
 sleep 2
+# Execute Run-Once queries for initial setup.
+cd influxdb
+for f in run-once*.sql; do 
+    if [ ! -f "${f}.done" ]; then
+        echo "Executing single run query $f file..."; 
+        docker exec --tty influxdb sh -c "influx -import -path=/var/lib/influxdb/${f}"
+        echo "OK" > "${f}.done"
+    fi
+done
+cd ..
 
 # Restart weather411 to force a sample
 if [ -f weather/weather411.conf ]; then
