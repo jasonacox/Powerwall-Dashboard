@@ -1,9 +1,15 @@
 # RELEASE NOTES
 
+## v2.8.1 - Backup Reserve
+
+* Add Powerwall backup reserve setting (%) to Energy Usage graph thanks to @mp09 in https://github.com/jasonacox/Powerwall-Dashboard/issues/174
+
 ## v2.8.0 - Grid Voltage Upgrade
 
-* Now using `ISLAND_VLxN_Main` data for Grid voltage (instead of `METER_x_VLxN`) as this appears to be more common across systems. Upgrade script executes a run-once query to copy historic data over.
+* Now using `ISLAND_VLxN_Main` data for Grid voltage (instead of `METER_x_VLxN`) as this appears to be more common across systems. Upgrade script executes a run-once query to copy historic data over. https://github.com/jasonacox/Powerwall-Dashboard/pull/167
 * Added logic to Voltage panel to sum Powerwall L1 and L2 voltages for 230V grid users thanks to @longzheng in https://github.com/jasonacox/Powerwall-Dashboard/pull/165 
+* Change frequency panel to 3 decimal places by @longzheng in https://github.com/jasonacox/Powerwall-Dashboard/pull/163
+* Update README.md - Indent powerwall.yml snippet so that it can be cut and pasted directly into powerwall.yml by @BJReplay in https://github.com/jasonacox/Powerwall-Dashboard/pull/168
 
 ## v2.7.1 - Powerwall Alert Data and Panel
 
