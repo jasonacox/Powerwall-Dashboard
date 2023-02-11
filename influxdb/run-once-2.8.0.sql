@@ -10,6 +10,6 @@
 # USE powerwall
 CREATE DATABASE powerwall
 # Use METER data from vitals as ISLAND data to fill history
-SELECT METER_X_VL1N AS ISLAND_VL1N_Main, METER_X_VL2N AS ISLAND_VL2N_Main, METER_X_VL3N AS ISLAND_VL3N_Main INTO powerwall.vitals.:MEASUREMENT FROM (SELECT METER_X_VL1N, METER_X_VL2N, METER_X_VL3N FROM powerwall.vitals.http)
+SELECT METER_X_VL1N AS ISLAND_VL1N_Main, METER_X_VL2N AS ISLAND_VL2N_Main, METER_X_VL3N AS ISLAND_VL3N_Main INTO powerwall.vitals.:MEASUREMENT FROM (SELECT METER_X_VL1N, METER_X_VL2N, METER_X_VL3N FROM powerwall.vitals.http GROUP BY month, year) GROUP BY month, year
 # User current ISLAND from raw data - same as cq_vitals7
 SELECT mean(ISLAND_VL1N_Main) AS ISLAND_VL1N_Main, mean(ISLAND_VL2N_Main) AS ISLAND_VL2N_Main, mean(ISLAND_VL3N_Main) AS ISLAND_VL3N_Main INTO powerwall.vitals.:MEASUREMENT FROM (SELECT ISLAND_VL1N_Main, ISLAND_VL2N_Main, ISLAND_VL3N_Main FROM powerwall.raw.http) GROUP BY time(15s), month, year fill(linear)
