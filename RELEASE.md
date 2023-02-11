@@ -1,5 +1,11 @@
 # RELEASE NOTES
 
+## v2.8.2 - Bug Fix Grid Voltage Data Migration
+
+* Grid Voltage Upgrade - This will fix the run-once script so tags are also copied with historic data by @mcbirse in https://github.com/jasonacox/Powerwall-Dashboard/pull/177
+
+Note: For anyone that already upgraded to 2.8.0 or later, there is an option to fix the untagged data by running the [Fix Month Tags Tool](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/tools/fixmonthtags/). Thanks to @mcbirse for spotting this issue, submitting the fix and the great `fixmonthtags` tool!
+
 ## v2.8.1 - Backup Reserve
 
 * Add Powerwall backup reserve setting (%) to Energy Usage graph thanks to @mp09 in https://github.com/jasonacox/Powerwall-Dashboard/issues/174
