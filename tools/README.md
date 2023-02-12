@@ -43,6 +43,13 @@ This command line tool can be used to search InfluxDB for incorrect month tags f
 * [Details and Instructions](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/tools/fixmonthtags/)
 * Script: [fixmonthtags.py](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/tools/fixmonthtags/fixmonthtags.py)
 
+## MySQL Connector
+
+This includes step-by-step set of instructions and scripts for adding MySQL to the Powerwall Dashboard, including the monthly charts and time of use pricing.
+
+* Author: [@youzer-name](https://github.com/youzer-name) and Collaborator: [@BJReplay](https://github.com/BJReplay) - Join discussion [#82](https://github.com/jasonacox/Powerwall-Dashboard/discussions/82) if you have any questions or find problems.
+* [Details and Instructions](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/tools/mysql/)
+
 ## NodeRed
 
 Several in the community use NodeRed to help automate usage of their Solar and Powerwall data.
