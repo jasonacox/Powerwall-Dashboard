@@ -1,5 +1,10 @@
 # RELEASE NOTES
 
+## v2.8.3 - Added Dashboard Meters
+
+* Added "Net Grid Usage" meter by @wreiske and "% Solar Powered" meter by @jasonacox in https://github.com/jasonacox/Powerwall-Dashboard/issues/179 
+* Dashboard archived and versioned in [./dashboards](https://github.com/jasonacox/Powerwall-Dashboard/tree/main/dashboards)
+
 ## v2.8.2 - Bug Fix Grid Voltage Data Migration
 
 * Grid Voltage Upgrade - This will fix the run-once script so tags are also copied with historic data by @mcbirse in https://github.com/jasonacox/Powerwall-Dashboard/pull/177
