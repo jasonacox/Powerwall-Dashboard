@@ -8,5 +8,4 @@
 # docker exec --tty influxdb sh -c "influx -import -path=/var/lib/influxdb/run-once-2.8.3.sql"
 #
 # USE powerwall
-CREATE DATABASE powerwall
 SELECT * INTO "powerwall"."alerts"."alerts" FROM "powerwall"."raw"."alerts" GROUP BY *
