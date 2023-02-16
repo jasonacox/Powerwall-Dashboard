@@ -1,9 +1,10 @@
 # RELEASE NOTES
 
-## v2.8.3 - Added Dashboard Meters
+## v2.8.3 - New Dashboard Meters
 
 * Added "Net Grid Usage" meter by @wreiske and "% Solar Powered" meter by @jasonacox in https://github.com/jasonacox/Powerwall-Dashboard/issues/179 
 * Dashboard archived and versioned in [./dashboards](https://github.com/jasonacox/Powerwall-Dashboard/tree/main/dashboards)
+* Moved Alert Data from 3 day retention policy to separate "alerts" infinite (INF) retention policy.
 
 ## v2.8.2 - Bug Fix Grid Voltage Data Migration
 
