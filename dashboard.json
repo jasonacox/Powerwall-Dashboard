@@ -8952,7 +8952,7 @@
             "uid": "${DS_INFLUXDB}"
           },
           "hide": false,
-          "query": "SELECT *::field from raw.alerts where $timeFilter",
+          "query": "SELECT *::field from alerts.alerts where $timeFilter",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "table"
@@ -9637,6 +9637,6 @@
   "timezone": "browser",
   "title": "Powerwall Power Flow",
   "uid": "RSabAvRRzV",
-  "version": 23,
+  "version": 24,
   "weekStart": ""
 }
