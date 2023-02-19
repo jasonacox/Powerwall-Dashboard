@@ -8804,7 +8804,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "FWUpdateSucceeded"
+              "options": "max_FWUpdateSucceeded"
             },
             "properties": [
               {
@@ -8824,7 +8824,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "SystemConnectedToGrid"
+              "options": "max_SystemConnectedToGrid"
             },
             "properties": [
               {
@@ -8844,7 +8844,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "GridCodesWrite"
+              "options": "max_GridCodesWrite"
             },
             "properties": [
               {
@@ -8864,7 +8864,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "PodCommissionTime"
+              "options": "max_PodCommissionTime"
             },
             "properties": [
               {
@@ -8884,7 +8884,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "ScheduledIslandContactorOpen"
+              "options": "max_ScheduledIslandContactorOpen"
             },
             "properties": [
               {
@@ -8904,7 +8904,7 @@
           {
             "matcher": {
               "id": "byRegexp",
-              "options": "PVS.*MciString.*"
+              "options": "max_PVS.*MciString.*"
             },
             "properties": [
               {
@@ -8959,6 +8959,15 @@
         }
       ],
       "title": "Alerts",
+      "transformations": [
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "max_(.*)",
+            "renamePattern": "$1"
+          }
+        }
+      ],
       "transparent": true,
       "type": "state-timeline"
     },
