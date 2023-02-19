@@ -21,3 +21,5 @@ DROP CONTINUOUS QUERY cq_vitals7 ON powerwall
 DROP CONTINUOUS QUERY cq_grid ON powerwall
 DROP CONTINUOUS QUERY cq_pod1 ON powerwall
 DROP CONTINUOUS QUERY cq_pod2 ON powerwall
+DROP CONTINUOUS QUERY cq_pod3 ON powerwall
+DROP CONTINUOUS QUERY cq_alerts ON powerwall

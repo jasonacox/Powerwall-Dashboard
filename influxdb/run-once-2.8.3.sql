@@ -10,4 +10,4 @@
 # USE powerwall
 CREATE DATABASE powerwall
 # Copy alert data from raw into alerts
-SELECT * INTO "powerwall"."alerts"."alerts" FROM "powerwall"."raw"."alerts" GROUP BY *
+SELECT max(*) INTO "powerwall"."alerts"."alerts" FROM "powerwall"."raw"."alerts" GROUP BY time(1m), month, year
