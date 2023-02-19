@@ -1357,7 +1357,7 @@
       },
       "gridPos": {
         "h": 2,
-        "w": 3,
+        "w": 4,
         "x": 0,
         "y": 15
       },
@@ -1459,8 +1459,8 @@
       },
       "gridPos": {
         "h": 2,
-        "w": 3,
-        "x": 3,
+        "w": 4,
+        "x": 4,
         "y": 15
       },
       "id": 5,
@@ -1529,113 +1529,6 @@
         "type": "influxdb",
         "uid": "${DS_INFLUXDB}"
       },
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "decimals": 1,
-          "mappings": [
-            {
-              "options": {
-                "match": "null",
-                "result": {
-                  "text": "N/A"
-                }
-              },
-              "type": "special"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "yellow",
-                "value": null
-              }
-            ]
-          },
-          "unit": "percentunit"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 2,
-        "w": 3,
-        "x": 6,
-        "y": 15
-      },
-      "id": 70,
-      "interval": "",
-      "links": [],
-      "maxDataPoints": 100,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [
-            "sum"
-          ],
-          "fields": "/^SolarPowered$/",
-          "values": false
-        },
-        "text": {
-          "valueSize": 30
-        },
-        "textMode": "auto"
-      },
-      "pluginVersion": "9.1.2",
-      "targets": [
-        {
-          "alias": "SolarPowered",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "groupBy": [],
-          "hide": false,
-          "measurement": "http",
-          "orderByTime": "ASC",
-          "policy": "autogen",
-          "query": "SELECT (home - from_grid) / home FROM \n  (SELECT integral(\"home\")  AS home, integral(\"from_grid\")  AS from_grid \n      FROM \"autogen\".\"http\" WHERE $timeFilter)",
-          "rawQuery": true,
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "solar"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "integral"
-              },
-              {
-                "params": [
-                  " / 1000 / 3600"
-                ],
-                "type": "math"
-              }
-            ]
-          ],
-          "tags": []
-        }
-      ],
-      "title": "% Solar Powered",
-      "transparent": true,
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1668,8 +1561,8 @@
       },
       "gridPos": {
         "h": 2,
-        "w": 3,
-        "x": 9,
+        "w": 4,
+        "x": 8,
         "y": 15
       },
       "id": 8,
@@ -1770,7 +1663,7 @@
       },
       "gridPos": {
         "h": 2,
-        "w": 3,
+        "w": 4,
         "x": 12,
         "y": 15
       },
@@ -1872,8 +1765,8 @@
       },
       "gridPos": {
         "h": 2,
-        "w": 3,
-        "x": 15,
+        "w": 4,
+        "x": 16,
         "y": 15
       },
       "id": 7,
@@ -1974,8 +1867,8 @@
       },
       "gridPos": {
         "h": 2,
-        "w": 3,
-        "x": 18,
+        "w": 4,
+        "x": 20,
         "y": 15
       },
       "id": 9,
@@ -2036,111 +1929,6 @@
         }
       ],
       "title": "From Grid",
-      "transparent": true,
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "decimals": 1,
-          "mappings": [
-            {
-              "options": {
-                "match": "null",
-                "result": {
-                  "text": "N/A"
-                }
-              },
-              "type": "special"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "purple",
-                "value": null
-              }
-            ]
-          },
-          "unit": "kwatth"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 2,
-        "w": 3,
-        "x": 21,
-        "y": 15
-      },
-      "id": 69,
-      "interval": "",
-      "links": [],
-      "maxDataPoints": 100,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [
-            "sum"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "text": {
-          "valueSize": 30
-        },
-        "textMode": "auto"
-      },
-      "pluginVersion": "9.1.2",
-      "targets": [
-        {
-          "alias": "",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "groupBy": [],
-          "measurement": "http",
-          "orderByTime": "ASC",
-          "policy": "autogen",
-          "query": "SELECT (integral(\"from_grid\") - integral(\"to_grid\"))   / 1000 / 3600 FROM \"autogen\".\"http\" WHERE $timeFilter",
-          "rawQuery": true,
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "from_grid"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "integral"
-              },
-              {
-                "params": [
-                  " / 1000 / 3600"
-                ],
-                "type": "math"
-              }
-            ]
-          ],
-          "tags": []
-        }
-      ],
-      "title": "Net Grid Usage",
       "transparent": true,
       "type": "stat"
     },
@@ -8804,7 +8592,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "max_FWUpdateSucceeded"
+              "options": "FWUpdateSucceeded"
             },
             "properties": [
               {
@@ -8824,7 +8612,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "max_SystemConnectedToGrid"
+              "options": "SystemConnectedToGrid"
             },
             "properties": [
               {
@@ -8844,7 +8632,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "max_GridCodesWrite"
+              "options": "GridCodesWrite"
             },
             "properties": [
               {
@@ -8864,7 +8652,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "max_PodCommissionTime"
+              "options": "PodCommissionTime"
             },
             "properties": [
               {
@@ -8884,7 +8672,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "max_ScheduledIslandContactorOpen"
+              "options": "ScheduledIslandContactorOpen"
             },
             "properties": [
               {
@@ -8904,7 +8692,7 @@
           {
             "matcher": {
               "id": "byRegexp",
-              "options": "max_PVS.*MciString.*"
+              "options": "PVS.*MciString.*"
             },
             "properties": [
               {
@@ -8952,22 +8740,13 @@
             "uid": "${DS_INFLUXDB}"
           },
           "hide": false,
-          "query": "SELECT *::field from alerts.alerts where $timeFilter",
+          "query": "SELECT *::field from raw.alerts where $timeFilter",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "table"
         }
       ],
       "title": "Alerts",
-      "transformations": [
-        {
-          "id": "renameByRegex",
-          "options": {
-            "regex": "max_(.*)",
-            "renamePattern": "$1"
-          }
-        }
-      ],
       "transparent": true,
       "type": "state-timeline"
     },
@@ -9646,6 +9425,6 @@
   "timezone": "browser",
   "title": "Powerwall Power Flow",
   "uid": "RSabAvRRzV",
-  "version": 24,
+  "version": 22,
   "weekStart": ""
 }
