@@ -72,17 +72,6 @@ else
     exit 
 fi
 
-# Preserve Customised powerwall.yml?
-read -r -p "Do you want to preserve a customised powerwall.yml (only for specialised users)? [y/N] " response
-if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]
-then
-    echo "preseving powerwall.yml"
-    cp "powerwall.yml" "powerwall.yml.restore"
-else
-    echo "Replacing powerwall.yml with standard as part of upgrade"
-fi
-
-
 # Remember Timezome and Reset to Default
 echo "Resetting Timezone to Default..."
 DEFAULT="America/Los_Angeles"
@@ -150,12 +139,6 @@ if ! grep -q "TZ=" pypowerwall.env; then
     echo "Adding..."
     echo "TZ=America/Los_Angeles" >> pypowerwall.env
 fi
-
-if [ -f powerwall.yml.preserve ]; then
-    echo "restoring preserved powerwall.yml"
-    cp "powerwall.yml.restore" "powerwall.yml"
-fi
-
 
 # Make sure stack is running
 echo ""
