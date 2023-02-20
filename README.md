@@ -53,7 +53,7 @@ Follow the **[Grafana Setup](https://github.com/jasonacox/Powerwall-Dashboard#gr
 
 If you prefer, you can perform the same steps that `setup.sh` performs.
 
-Note: some manual configuration is required if you are running a non-standard docker installation (e.g. rootless), or if you want to monitor custom measurements.
+Note: some manual configuration is required if you are running a non-standard docker installation (e.g. rootless). Also, ensure that the `conf`, `env` and `sql` files are readable by the docker services (e.g. `chmod 644`).
 
 You will want to set your local timezone by editing `pypowerwall.env`, `telegraf.conf`, `influxdb.sql` and `dashboard.json` or you can use this handy `tz.sh` update script.  A list of timezones is available [here](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
 
@@ -203,6 +203,7 @@ The equations that are used to compute the estimated savings:
 
 * If you are having trouble getting this to work on a Synology NAS, view the resolution discovered in [Issue #22](https://github.com/jasonacox/Powerwall-Dashboard/issues/22) thanks to @jaydkay.
 * If you are running docker as a non-privileged (rootless) user, please some setup help [here](https://github.com/jasonacox/Powerwall-Dashboard/issues/22#issuecomment-1254699603) thanks to @BuongiornoTexas.
+* Most of the issues running the Dashboard on Synology NAS are related to user or file permission issues. Ensure that the `conf`, `env` and `sql` files are readable by the docker services (most can be set `chmod 644`).
 
 #### Windows 11 Instructions
 
