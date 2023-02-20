@@ -63,15 +63,6 @@ if [ ! -f ${ENV_FILE} ]; then
 fi
 
 # Verify Upgrade
-echo "If you have customised your powerwall.yml file, you can preseve it through the upgrade"
-echo "This feature is only for advanced users who know what they are doing and have reviewed"
-echo "any changes in the powerwall.yml file before starting this upgrade."
-echo "If you thing you might want to do this, but have not reviewed your file, cancel the"
-echo "upgrade at the next step, and review your powerwall.yml file for any changes first."
-echo ""
-echo "This feature can be ignore by most users."
-echo ""
-echo ""
 read -r -p "Upgrade - Proceed? [y/N] " response
 if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]
 then
@@ -82,11 +73,11 @@ else
 fi
 
 # Preserve Customised powerwall.yml?
-read -r -p "Do you want to preserve your customised powerwall.yml? [y/N] " response
+read -r -p "Do you want to preserve a customised powerwall.yml (only for specialised users)? [y/N] " response
 if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]
 then
-    echo "Copy powerwall.yml to powerwall.yml.preserve"
-    cp "powerwall.yml" "powerwall.yml.preserve"
+    echo "preseving powerwall.yml"
+    cp "powerwall.yml" "powerwall.yml.restore"
 else
     echo "Replacing powerwall.yml with standard as part of upgrade"
 fi
@@ -161,8 +152,8 @@ if ! grep -q "TZ=" pypowerwall.env; then
 fi
 
 if [ -f powerwall.yml.preserve ]; then
-    echo "Restoring preserved powerwall.yml"
-    cp "powerwall.yml.preserve" "powerwall.yml"
+    echo "restoring preserved powerwall.yml"
+    cp "powerwall.yml.restore" "powerwall.yml"
 fi
 
 
