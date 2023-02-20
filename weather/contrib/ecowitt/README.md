@@ -82,9 +82,12 @@ Docker: docker pull [jasonacox/ecowitt](https://hub.docker.com/r/jasonacox/ecowi
 
 4. Incorporate into Powerwall-Dashboard
 
-    Add into powerwall.yml in your Powerwall-Dashboard folder
+    Save the following into a file called powerwall.extend.yml in your Powerwall-Dashboard folder
 
     ```yaml
+    version: "3.5"
+
+    services:
         ecowitt:
             # Uncomment next line to build locally
             # build: ./weather/contrib/ecowitt
@@ -108,7 +111,7 @@ Docker: docker pull [jasonacox/ecowitt](https://hub.docker.com/r/jasonacox/ecowi
                 - influxdb
     ```
 
-    Optionally remove the weather411 section if you're not going to be running both Weather 411 and Local Weather
+    Then restart the services using compose-dash.sh and the new component will be picked up:
 
     ```bash
     ./compose-dash.sh stop
@@ -172,6 +175,10 @@ docker start ecowitt
 ```
 
 ## Release Notes
+
+### 0.0.4.1 
+
+* Change to docker compose instructions to work with modified comppose-dash
 
 ### 0.0.4 - Third Release 
 

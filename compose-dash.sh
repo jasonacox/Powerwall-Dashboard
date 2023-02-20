@@ -44,14 +44,22 @@ set -a
 . compose.env
 set +a
 
+# Docker Compose Extension Check
+if [ -f "powerwall.extend.yml" ]; then
+    echo "Including powerwall.extend.yml"
+    pwextend="-f powerwall.extend.yml"
+else
+    pwextend=""
+fi
+
 echo "Running Docker Compose..."  
 if docker-compose version > /dev/null 2>&1; then
     # Build Docker (v1)
-    docker-compose -f powerwall.yml $1 $2
+    docker-compose -f powerwall.yml $pwextend $1 $2
 else
     if docker compose version > /dev/null 2>&1; then
         # Build Docker (v2)
-        docker compose -f powerwall.yml $1 $2
+        docker compose -f powerwall.yml $pwextend $1 $2
     else
         echo "ERROR: docker-compose/docker compose is not available or not runnning."
         echo "This script requires docker-compose or docker compose."
