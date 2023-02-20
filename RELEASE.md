@@ -1,8 +1,13 @@
 # RELEASE NOTES
 
+## v2.8.4 - Custom Docker Compose Support
+
+* Added support for extending docker-compose setup via `powerwall.extend.yml` by @BJReplay in https://github.com/jasonacox/Powerwall-Dashboard/pull/186
+* Renamed `backup.sh` to `backup.sh.sample` to allow local settings changes without impacting upgrade by @BJReplay in https://github.com/jasonacox/Powerwall-Dashboard/pull/186
+
 ## v2.8.3 - New Dashboard Meters
 
-* Added "Net Grid Usage" meter by @wreiske and "% Solar Powered" meter by @jasonacox in https://github.com/jasonacox/Powerwall-Dashboard/issues/179 
+* Added "Net Grid Usage" meter by @wreiske and "% Solar Powered" meter by @jasonacox in https://github.com/jasonacox/Powerwall-Dashboard/issues/179 https://github.com/jasonacox/Powerwall-Dashboard/pull/181
 * Dashboard archived and versioned in [./dashboards](https://github.com/jasonacox/Powerwall-Dashboard/tree/main/dashboards)
 * Moved Alert Data from 3 day retention policy to separate "alerts" infinite (INF) retention policy.
 
