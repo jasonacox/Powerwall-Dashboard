@@ -1,5 +1,15 @@
 # RELEASE NOTES
 
+## v2.8.5 - Verify Tool for Setup
+
+* Added `verify.sh` tool to test setup and operation of the main components for the Dashboard (pypowerwall, telegraf, influxdb, grafana, weather411) by @jasonacox as raised in https://github.com/jasonacox/Powerwall-Dashboard/issues/187
+
+```bash
+./verify.sh # optional: -no-color 
+```
+
+<img width="545" alt="image" src="https://user-images.githubusercontent.com/836718/220232810-5766a38d-05ab-4982-bae9-2dd92d0e4990.png">
+
 ## v2.8.4 - Custom Docker Compose Support
 
 * Added support for extending docker-compose setup via `powerwall.extend.yml` by @BJReplay in https://github.com/jasonacox/Powerwall-Dashboard/pull/186
