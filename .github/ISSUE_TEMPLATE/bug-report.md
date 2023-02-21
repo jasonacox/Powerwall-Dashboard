@@ -2,13 +2,13 @@
 name: Bug Report
 about: Create a report to help us improve the Dashboard
 title: ''
-labels: bug
+labels: ''
 assignees: ''
 
 ---
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+**Problem**
+A clear and concise description of the problem or bug.
 
 **To Reproduce**
 Please paste a screenshot or steps to reproduce the behavior:

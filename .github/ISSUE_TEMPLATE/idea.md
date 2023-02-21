@@ -2,15 +2,15 @@
 name: Idea
 about: Suggest an idea, feature or enhancement for this project
 title: ''
-labels: enhancement
+labels: ''
 assignees: ''
 
 ---
 
-**Is your request related to a problem? Please describe.**
+**Problem**
 A clear and concise description of the problem.
 
-**Describe the enhancement**
+**Enhancement**
 A clear and concise description of what you would like to see.
 
 **Additional context**
