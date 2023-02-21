@@ -2,7 +2,7 @@
 name: Idea
 about: Suggest an idea, feature or enhancement for this project
 title: ''
-labels: ''
+labels: enhancement
 assignees: ''
 
 ---
