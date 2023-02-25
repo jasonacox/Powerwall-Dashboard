@@ -40,6 +40,7 @@ Clone this repo on the host that will run the dashboard:
 Run the interactive setup script that will ask you for your Powerwall details and Local Time Zone ([options](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)).
 
   ```bash
+    cd Powerwall-Dashboard
     ./setup.sh
   ```
 
@@ -167,6 +168,11 @@ If you are getting permission errors running docker, or an error that it isn't i
   ```bash
   # Add your user to docker group
   sudo usermod -aG docker $USER
+  ```
+* If the above step hasn't worked, and you get an error trying to run `docker info` like `permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock`:
+  ```bash
+  # Grant permissions to the docker daemon socket
+  sudo chmod 666 /var/run/docker.sock
   ```
 * If you can't access the dashboard after a reboot, that means that docker was not set to start on reboot. On many OS distributions you can set it to start on boot with:
   ```bash
