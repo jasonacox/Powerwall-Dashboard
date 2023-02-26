@@ -75,9 +75,10 @@ import os
 from http.server import BaseHTTPRequestHandler, HTTPServer, ThreadingHTTPServer
 from socketserver import ThreadingMixIn 
 import configparser
-from influxdb import InfluxDBClient
+from influxdb_client import WritePrecision, InfluxDBClient, Point
+from influxdb_client.client.write_api import SYNCHRONOUS
 
-BUILD = "0.1.2"
+BUILD = "0.2.0"
 CLI = False
 LOADED = False
 CONFIG_LOADED = False
@@ -108,6 +109,8 @@ if os.path.exists(CONFIGFILE):
     IPORT = int(config["InfluxDB"]["PORT"])
     IUSER = config["InfluxDB"]["USERNAME"]
     IPASS = config["InfluxDB"]["PASSWORD"]
+    ITOKEN = config["InfluxDB"]["TOKEN"]
+    IORG = config["InfluxDB"]["ORG"]
     IDB = config["InfluxDB"]["DB"]
     IFIELD = config["InfluxDB"]["FIELD"]
 
@@ -252,19 +255,28 @@ def fetchWeather():
                     if INFLUX:
                         log.debug("Writing to InfluxDB")
                         try:
-                            client = InfluxDBClient(host=IHOST,
-                                port=IPORT,
-                                username=IUSER,
-                                password=IPASS,
-                                database=IDB)
+                            if ITOKEN == "":
+                                # Influx 1.8
+                                client = InfluxDBClient(
+                                    url="http://%s:%s" % (IHOST,IPORT),
+                                    username=IUSER,
+                                    password=IPASS,
+                                    database=IDB)
+                            else :
+                                # Influx 2.x
+                                client = InfluxDBClient(
+                                    url="http://%s:%s" % (IHOST,IPORT),
+                                    token=ITOKEN,
+                                    org=IORG)
                             output = [{}]
                             output[0]["measurement"] = IFIELD
-                            output[0]["time"] = weather["dt"]
+                            output[0]["time"] = datetime.utcfromtimestamp(weather["dt"])
                             output[0]["fields"] = {}
                             for i in weather:
                                 output[0]["fields"][i] = weather[i]
                             # print(output)
-                            if client.write_points(output, time_precision='s'):
+                            write_api = client.write_api(write_options=SYNCHRONOUS)
+                            if write_api.write(IDB,IORG,output):
                                 serverstats['influxdb'] += 1
                             else:
                                 serverstats['influxdberrors'] += 1

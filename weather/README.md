@@ -141,6 +141,10 @@ docker start weather411
 
 ## Release Notes
 
+### 0.2.0 - Upgrade InfluxDB Client
+
+* Upgrade end of life `influxdb` client library to `influxdb-client` (refer discussion #191 and issue #195)
+
 ### 0.1.2 - Snow and Rain Data
 
 * Fix rain and snow values not being retrieved (refer issue #42) by @mcbirse (PR #69)
