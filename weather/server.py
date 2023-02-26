@@ -69,7 +69,7 @@ import logging
 import json
 import requests
 import resource
-import datetime
+from datetime import datetime
 import sys
 import os
 from http.server import BaseHTTPRequestHandler, HTTPServer, ThreadingHTTPServer
@@ -109,10 +109,11 @@ if os.path.exists(CONFIGFILE):
     IPORT = int(config["InfluxDB"]["PORT"])
     IUSER = config["InfluxDB"]["USERNAME"]
     IPASS = config["InfluxDB"]["PASSWORD"]
-    ITOKEN = config["InfluxDB"]["TOKEN"]
-    IORG = config["InfluxDB"]["ORG"]
     IDB = config["InfluxDB"]["DB"]
     IFIELD = config["InfluxDB"]["FIELD"]
+    # Check for InfluxDB 2.x settings
+    ITOKEN = config.get('InfluxDB', 'TOKEN', fallback="") 
+    IORG = config.get('InfluxDB', 'ORG', fallback="") 
 
 else:
     # No config file - Display Error
@@ -337,9 +338,9 @@ class handler(BaseHTTPRequestHandler):
                     message = message + '<tr><td align ="right">%s</td><td align ="right">%s</td></tr>\n' % (i, weather[i])
                 message = message + "</table>\n"
             message = message + '<p>Last data update: %s<br><font size=-2>From URL: %s</font></p>' % (
-                str(datetime.datetime.fromtimestamp(weather['dt'])), URL)
+                str(datetime.fromtimestamp(weather['dt'])), URL)
             message = message + '\n<p>Page refresh: %s</p>\n</body>\n</html>' % (
-                str(datetime.datetime.fromtimestamp(time.time())))
+                str(datetime.fromtimestamp(time.time())))
         elif self.path == '/stats':
             # Give Internal Stats
             serverstats['ts'] = int(time.time())
@@ -351,9 +352,9 @@ class handler(BaseHTTPRequestHandler):
             message = json.dumps(raw)
         elif self.path == '/time':
             ts = time.time()
-            result["local_time"] = str(datetime.datetime.fromtimestamp(ts))
+            result["local_time"] = str(datetime.fromtimestamp(ts))
             result["ts"] = ts
-            result["utc"] = str(datetime.datetime.utcfromtimestamp(ts)) 
+            result["utc"] = str(datetime.utcfromtimestamp(ts)) 
             result["tz"] = weather["tz"]
             message = json.dumps(result)
         elif self.path == '/temp':
