@@ -43,6 +43,13 @@
         PORT = 8086
         DB = powerwall
         FIELD = weather
+        # Auth - Leave blank if not used
+        USERNAME =
+        PASSWORD =
+        # Auth - Influx 2.x - Leave blank if not used
+        TOKEN =
+        ORG =
+        URL =
 
     ENVIRONMENTAL:
         WEATHERCONF = "Path to weather411.conf file"
@@ -69,15 +76,16 @@ import logging
 import json
 import requests
 import resource
-import datetime
+from datetime import datetime
 import sys
 import os
 from http.server import BaseHTTPRequestHandler, HTTPServer, ThreadingHTTPServer
 from socketserver import ThreadingMixIn 
 import configparser
-from influxdb import InfluxDBClient
+from influxdb_client import InfluxDBClient
+from influxdb_client.client.write_api import SYNCHRONOUS
 
-BUILD = "0.1.2"
+BUILD = "0.2.0"
 CLI = False
 LOADED = False
 CONFIG_LOADED = False
@@ -110,7 +118,13 @@ if os.path.exists(CONFIGFILE):
     IPASS = config["InfluxDB"]["PASSWORD"]
     IDB = config["InfluxDB"]["DB"]
     IFIELD = config["InfluxDB"]["FIELD"]
+    # Check for InfluxDB 2.x settings
+    ITOKEN = config.get('InfluxDB', 'TOKEN', fallback="") 
+    IORG = config.get('InfluxDB', 'ORG', fallback="") 
+    IURL = config.get('InfluxDB', 'URL', fallback="") 
 
+    if ITOKEN != "" and IURL == "":
+        IURL = "http://%s:%s" % (IHOST, IPORT)
 else:
     # No config file - Display Error
     sys.stderr.write("Weather411 Server %s\nERROR: No config file. Fix and restart.\n" % BUILD)
@@ -252,22 +266,29 @@ def fetchWeather():
                     if INFLUX:
                         log.debug("Writing to InfluxDB")
                         try:
-                            client = InfluxDBClient(host=IHOST,
-                                port=IPORT,
-                                username=IUSER,
-                                password=IPASS,
-                                database=IDB)
+                            if ITOKEN == "":
+                                # Influx 1.8
+                                client = InfluxDBClient(
+                                    url="http://%s:%s" % (IHOST,IPORT),
+                                    username=IUSER,
+                                    password=IPASS,
+                                    database=IDB)
+                            else :
+                                # Influx 2.x
+                                client = InfluxDBClient(
+                                    url=IURL,
+                                    token=ITOKEN,
+                                    org=IORG)
                             output = [{}]
                             output[0]["measurement"] = IFIELD
-                            output[0]["time"] = weather["dt"]
+                            output[0]["time"] = datetime.utcfromtimestamp(weather["dt"])
                             output[0]["fields"] = {}
                             for i in weather:
                                 output[0]["fields"][i] = weather[i]
                             # print(output)
-                            if client.write_points(output, time_precision='s'):
-                                serverstats['influxdb'] += 1
-                            else:
-                                serverstats['influxdberrors'] += 1
+                            write_api = client.write_api(write_options=SYNCHRONOUS)
+                            write_api.write(IDB,IORG,output)
+                            serverstats['influxdb'] += 1
                             client.close()
                         except:
                             log.debug("Error writing to InfluxDB")
@@ -325,9 +346,9 @@ class handler(BaseHTTPRequestHandler):
                     message = message + '<tr><td align ="right">%s</td><td align ="right">%s</td></tr>\n' % (i, weather[i])
                 message = message + "</table>\n"
             message = message + '<p>Last data update: %s<br><font size=-2>From URL: %s</font></p>' % (
-                str(datetime.datetime.fromtimestamp(weather['dt'])), URL)
+                str(datetime.fromtimestamp(weather['dt'])), URL)
             message = message + '\n<p>Page refresh: %s</p>\n</body>\n</html>' % (
-                str(datetime.datetime.fromtimestamp(time.time())))
+                str(datetime.fromtimestamp(time.time())))
         elif self.path == '/stats':
             # Give Internal Stats
             serverstats['ts'] = int(time.time())
@@ -339,9 +360,9 @@ class handler(BaseHTTPRequestHandler):
             message = json.dumps(raw)
         elif self.path == '/time':
             ts = time.time()
-            result["local_time"] = str(datetime.datetime.fromtimestamp(ts))
+            result["local_time"] = str(datetime.fromtimestamp(ts))
             result["ts"] = ts
-            result["utc"] = str(datetime.datetime.utcfromtimestamp(ts)) 
+            result["utc"] = str(datetime.utcfromtimestamp(ts)) 
             result["tz"] = weather["tz"]
             message = json.dumps(result)
         elif self.path == '/temp':
@@ -418,6 +439,9 @@ if __name__ == "__main__":
         % (OWKEY, OWWAIT, OWUNITS, OWLAT, OWLON, TIMEOUT))
     sys.stderr.write(" + InfluxDB - Enable: %s, Host: %s, Port: %s, DB: %s, Field: %s\n"
         % (INFLUX, IHOST, IPORT, IDB, IFIELD))
+    if ITOKEN != "" or IORG != "":
+        sys.stderr.write(" + InfluxDB - URL: %s, Org: %s, Token: %s\n"
+            % (IURL, IORG, ITOKEN))
     
     # Start threads
     sys.stderr.write("* Starting threads\n")

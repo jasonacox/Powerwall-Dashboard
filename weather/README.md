@@ -16,7 +16,6 @@ Docker: docker pull [jasonacox/weather411](https://hub.docker.com/r/jasonacox/we
 
 ## Quick Start
 
-
 1. Create a `weather411.conf` file (`cp weather411.conf.sample weather411.conf`) and update with your specific location details:
 
     * Enter your OpenWeatherMap API Key (APIKEY) You can get a free account and key at [OpenWeatherMap.org](https://openweathermap.org/). 
@@ -49,9 +48,13 @@ Docker: docker pull [jasonacox/weather411](https://hub.docker.com/r/jasonacox/we
     PORT = 8086
     DB = powerwall
     FIELD = weather
-    # Leave blank if not used
-    USERNAME = 
+    # Auth - Leave blank if not used
+    USERNAME =
     PASSWORD =
+    # Influx 2.x - Leave blank if not used
+    TOKEN =
+    ORG =
+    URL =
     ```
 
 2. Run the Docker Container to listen on port 8676.
@@ -140,6 +143,10 @@ docker start weather411
 ```
 
 ## Release Notes
+
+### 0.2.0 - Upgrade InfluxDB Client
+
+* Upgrade end of life `influxdb` client library to `influxdb-client` (refer discussion #191 and issue #195), providing support for InfluxDB 1.8 and 2.x.
 
 ### 0.1.2 - Snow and Rain Data
 
