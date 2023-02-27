@@ -82,7 +82,7 @@ import logging
 import json
 import requests
 import resource
-import datetime
+from datetime import datetime
 import sys
 import os
 from http.server import BaseHTTPRequestHandler, HTTPServer, ThreadingHTTPServer
@@ -370,9 +370,9 @@ class handler(BaseHTTPRequestHandler):
                     message = message + '<tr><td align ="right">%s</td><td align ="right">%s</td></tr>\n' % (i, weather[i])
                 message = message + "</table>\n"
             message = message + '<p>Last data update: %s<br><font size=-2>From URL: %s</font></p>' % (
-                str(datetime.datetime.fromtimestamp(int(weather['dt']))), URL)
+                str(datetime.fromtimestamp(int(weather['dt']))), URL)
             message = message + '\n<p>Page refresh: %s</p>\n</body>\n</html>' % (
-                str(datetime.datetime.fromtimestamp(time.time())))
+                str(datetime.fromtimestamp(time.time())))
         elif self.path == '/stats':
             # Give Internal Stats
             serverstats['ts'] = int(time.time())
@@ -384,7 +384,7 @@ class handler(BaseHTTPRequestHandler):
             message = json.dumps(raw)
         elif self.path == '/time':
             ts = time.time()
-            result["local_time"] = str(datetime.datetime.fromtimestamp(ts))
+            result["local_time"] = str(datetime.fromtimestamp(ts))
             result["ts"] = ts
             result["utc"] = str(datetime.utcfromtimestamp(ts)) 
             message = json.dumps(result)
@@ -471,7 +471,10 @@ if __name__ == "__main__":
         % (ECOKEY, ECOWAIT, ECOUNITS, ECOAPP, TIMEOUT))
     sys.stderr.write(" + InfluxDB - Enable: %s, Host: %s, Port: %s, DB: %s, Field: %s\n"
         % (INFLUX, IHOST, IPORT, IDB, IFIELD))
-    
+    if ITOKEN != "" or IORG != "":
+        sys.stderr.write(" + InfluxDB - URL: %s, Org: %s, Token: %s\n"
+            % (IURL, IORG, ITOKEN))
+
     # Start threads
     sys.stderr.write("* Starting threads\n")
     thread_fetchWeather.start()
