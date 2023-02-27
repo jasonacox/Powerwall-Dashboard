@@ -277,10 +277,8 @@ def fetchWeather():
                                 output[0]["fields"][i] = weather[i]
                             # print(output)
                             write_api = client.write_api(write_options=SYNCHRONOUS)
-                            if write_api.write(IDB,IORG,output):
-                                serverstats['influxdb'] += 1
-                            else:
-                                serverstats['influxdberrors'] += 1
+                            write_api.write(IDB,IORG,output)
+                            serverstats['influxdb'] += 1
                             client.close()
                         except:
                             log.debug("Error writing to InfluxDB")
