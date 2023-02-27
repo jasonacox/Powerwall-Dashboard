@@ -75,7 +75,7 @@ import os
 from http.server import BaseHTTPRequestHandler, HTTPServer, ThreadingHTTPServer
 from socketserver import ThreadingMixIn 
 import configparser
-from influxdb_client import WritePrecision, InfluxDBClient, Point
+from influxdb_client import InfluxDBClient
 from influxdb_client.client.write_api import SYNCHRONOUS
 
 BUILD = "0.2.0"
@@ -431,6 +431,9 @@ if __name__ == "__main__":
         % (OWKEY, OWWAIT, OWUNITS, OWLAT, OWLON, TIMEOUT))
     sys.stderr.write(" + InfluxDB - Enable: %s, Host: %s, Port: %s, DB: %s, Field: %s\n"
         % (INFLUX, IHOST, IPORT, IDB, IFIELD))
+    if ITOKEN != "" or IORG != "":
+        sys.stderr.write(" + InfluxDB - Org: %s, Token: %s\n"
+            % (IORG, ITOKEN))
     
     # Start threads
     sys.stderr.write("* Starting threads\n")
