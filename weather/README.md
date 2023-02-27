@@ -48,9 +48,6 @@ Docker: docker pull [jasonacox/weather411](https://hub.docker.com/r/jasonacox/we
     PORT = 8086
     DB = powerwall
     FIELD = weather
-    # Leave blank if not used
-    USERNAME = 
-    PASSWORD =
     # Auth - Leave blank if not used
     USERNAME =
     PASSWORD =
