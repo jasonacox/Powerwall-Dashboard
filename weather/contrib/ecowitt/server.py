@@ -130,7 +130,7 @@ if os.path.exists(CONFIGFILE):
     IURL = config.get('InfluxDB', 'URL', fallback="") 
 
     if ITOKEN != "" and IURL == "":
-    IURL = "http://%s:%s" % (IHOST, IPORT)
+        IURL = "http://%s:%s" % (IHOST, IPORT)
 else:
     # No config file - Display Error
     sys.stderr.write("LocalWeather Server %s\nERROR: No config file. Fix and restart.\n" % BUILD)
@@ -370,9 +370,9 @@ class handler(BaseHTTPRequestHandler):
                     message = message + '<tr><td align ="right">%s</td><td align ="right">%s</td></tr>\n' % (i, weather[i])
                 message = message + "</table>\n"
             message = message + '<p>Last data update: %s<br><font size=-2>From URL: %s</font></p>' % (
-                str(datetime.fromtimestamp(int(weather['dt']))), URL)
+                str(datetime.datetime.fromtimestamp(int(weather['dt']))), URL)
             message = message + '\n<p>Page refresh: %s</p>\n</body>\n</html>' % (
-                str(datetime.fromtimestamp(time.time())))
+                str(datetime.datetime.fromtimestamp(time.time())))
         elif self.path == '/stats':
             # Give Internal Stats
             serverstats['ts'] = int(time.time())
@@ -384,7 +384,7 @@ class handler(BaseHTTPRequestHandler):
             message = json.dumps(raw)
         elif self.path == '/time':
             ts = time.time()
-            result["local_time"] = str(datetime.fromtimestamp(ts))
+            result["local_time"] = str(datetime.datetime.fromtimestamp(ts))
             result["ts"] = ts
             result["utc"] = str(datetime.utcfromtimestamp(ts)) 
             message = json.dumps(result)
