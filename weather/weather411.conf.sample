@@ -27,7 +27,8 @@ FIELD = weather
 # Auth - Leave blank if not used
 USERNAME =
 PASSWORD =
-# Auth - Influx 2.x - Leave blank if not used
+# Influx 2.x - Leave blank if not used
 TOKEN =
 ORG =
+URL =
 

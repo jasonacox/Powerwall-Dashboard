@@ -43,6 +43,13 @@
         PORT = 8086
         DB = powerwall
         FIELD = weather
+        # Auth - Leave blank if not used
+        USERNAME =
+        PASSWORD =
+        # Auth - Influx 2.x - Leave blank if not used
+        TOKEN =
+        ORG =
+        URL =
 
     ENVIRONMENTAL:
         WEATHERCONF = "Path to weather411.conf file"
@@ -114,7 +121,10 @@ if os.path.exists(CONFIGFILE):
     # Check for InfluxDB 2.x settings
     ITOKEN = config.get('InfluxDB', 'TOKEN', fallback="") 
     IORG = config.get('InfluxDB', 'ORG', fallback="") 
+    IURL = config.get('InfluxDB', 'URL', fallback="") 
 
+    if ITOKEN != "" and IURL == "":
+        IURL = "http://%s:%s" % (IHOST, IPORT)
 else:
     # No config file - Display Error
     sys.stderr.write("Weather411 Server %s\nERROR: No config file. Fix and restart.\n" % BUILD)
@@ -266,7 +276,7 @@ def fetchWeather():
                             else :
                                 # Influx 2.x
                                 client = InfluxDBClient(
-                                    url="http://%s:%s" % (IHOST,IPORT),
+                                    url=IURL,
                                     token=ITOKEN,
                                     org=IORG)
                             output = [{}]
@@ -430,8 +440,8 @@ if __name__ == "__main__":
     sys.stderr.write(" + InfluxDB - Enable: %s, Host: %s, Port: %s, DB: %s, Field: %s\n"
         % (INFLUX, IHOST, IPORT, IDB, IFIELD))
     if ITOKEN != "" or IORG != "":
-        sys.stderr.write(" + InfluxDB - Org: %s, Token: %s\n"
-            % (IORG, ITOKEN))
+        sys.stderr.write(" + InfluxDB - URL: %s, Org: %s, Token: %s\n"
+            % (IURL, IORG, ITOKEN))
     
     # Start threads
     sys.stderr.write("* Starting threads\n")
