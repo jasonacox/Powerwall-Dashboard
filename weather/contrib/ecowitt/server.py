@@ -47,6 +47,13 @@
         PORT = 8086
         DB = powerwall
         FIELD = ecowitt
+        # Auth - Leave blank if not used
+        USERNAME =
+        PASSWORD =
+        # Auth - Influx 2.x - Leave blank if not used
+        TOKEN =
+        ORG =
+        URL =
 
     ENVIRONMENTAL:
         LOCALWEATHERCONF = "Path to localweather.conf file"
@@ -81,9 +88,10 @@ import os
 from http.server import BaseHTTPRequestHandler, HTTPServer, ThreadingHTTPServer
 from socketserver import ThreadingMixIn 
 import configparser
-from influxdb import InfluxDBClient
+from influxdb_client import InfluxDBClient
+from influxdb_client.client.write_api import SYNCHRONOUS
 
-BUILD = "0.0.4"
+BUILD = "0.1.0"
 CLI = False
 LOADED = False
 CONFIG_LOADED = False
@@ -116,7 +124,13 @@ if os.path.exists(CONFIGFILE):
     IPASS = config["InfluxDB"]["PASSWORD"]
     IDB = config["InfluxDB"]["DB"]
     IFIELD = config["InfluxDB"]["FIELD"]
+    # Check for InfluxDB 2.x settings
+    ITOKEN = config.get('InfluxDB', 'TOKEN', fallback="") 
+    IORG = config.get('InfluxDB', 'ORG', fallback="") 
+    IURL = config.get('InfluxDB', 'URL', fallback="") 
 
+    if ITOKEN != "" and IURL == "":
+    IURL = "http://%s:%s" % (IHOST, IPORT)
 else:
     # No config file - Display Error
     sys.stderr.write("LocalWeather Server %s\nERROR: No config file. Fix and restart.\n" % BUILD)
@@ -275,11 +289,19 @@ def fetchWeather():
                     if INFLUX:
                         log.debug("Writing to InfluxDB")
                         try:
-                            client = InfluxDBClient(host=IHOST,
-                                port=IPORT,
-                                username=IUSER,
-                                password=IPASS,
-                                database=IDB)
+                            if ITOKEN == "":
+                                # Influx 1.8
+                                client = InfluxDBClient(host=IHOST,
+                                    port=IPORT,
+                                    username=IUSER,
+                                    password=IPASS,
+                                    database=IDB)
+                            else:
+                                # Influx 2.x
+                                client = InfluxDBClient(
+                                    url=IURL,
+                                    token=ITOKEN,
+                                    org=IORG)
                             output = [{}]
                             output[0]["measurement"] = IFIELD
                             output[0]["time"] = int(currentts)
@@ -288,10 +310,9 @@ def fetchWeather():
                                 output[0]["fields"][i] = weather[i]
                             log.debug(output)
                             # print(output)
-                            if client.write_points(output, time_precision='s'):
-                                serverstats['influxdb'] += 1
-                            else:
-                                serverstats['influxdberrors'] += 1
+                            write_api = client.write_api(write_options=SYNCHRONOUS)
+                            write_api.write(IDB,IORG,output)
+                            serverstats['influxdb'] += 1
                             client.close()
                         except:
                             log.debug("Error writing to InfluxDB")
@@ -349,9 +370,9 @@ class handler(BaseHTTPRequestHandler):
                     message = message + '<tr><td align ="right">%s</td><td align ="right">%s</td></tr>\n' % (i, weather[i])
                 message = message + "</table>\n"
             message = message + '<p>Last data update: %s<br><font size=-2>From URL: %s</font></p>' % (
-                str(datetime.datetime.fromtimestamp(int(weather['dt']))), URL)
+                str(datetime.fromtimestamp(int(weather['dt']))), URL)
             message = message + '\n<p>Page refresh: %s</p>\n</body>\n</html>' % (
-                str(datetime.datetime.fromtimestamp(time.time())))
+                str(datetime.fromtimestamp(time.time())))
         elif self.path == '/stats':
             # Give Internal Stats
             serverstats['ts'] = int(time.time())
@@ -363,9 +384,9 @@ class handler(BaseHTTPRequestHandler):
             message = json.dumps(raw)
         elif self.path == '/time':
             ts = time.time()
-            result["local_time"] = str(datetime.datetime.fromtimestamp(ts))
+            result["local_time"] = str(datetime.fromtimestamp(ts))
             result["ts"] = ts
-            result["utc"] = str(datetime.datetime.utcfromtimestamp(ts)) 
+            result["utc"] = str(datetime.utcfromtimestamp(ts)) 
             message = json.dumps(result)
         elif self.path == '/temp':
             result["temperature"] = weather["temperature"]

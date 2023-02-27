@@ -27,6 +27,10 @@ HOST = influxdb
 PORT = 8086
 DB = powerwall
 FIELD = localweather
-# Leave blank if not used
-USERNAME = 
+# Auth - Leave blank if not used
+USERNAME =
 PASSWORD =
+# Influx 2.x - Leave blank if not used
+TOKEN =
+ORG =
+URL =

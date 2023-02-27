@@ -46,9 +46,13 @@ Docker: docker pull [jasonacox/ecowitt](https://hub.docker.com/r/jasonacox/ecowi
     PORT = 8086
     DB = powerwall
     FIELD = localweather
-    # Leave blank if not used
-    USERNAME = 
+    # Auth - Leave blank if not used
+    USERNAME =
     PASSWORD =
+    # Influx 2.x - Leave blank if not used
+    TOKEN =
+    ORG =
+    URL =
 
 2. Run the Docker Container to listen on port 8686.
 
@@ -176,9 +180,13 @@ docker start ecowitt
 
 ## Release Notes
 
+### 0.2.0 - Upgrade InfluxDB Client 
+
+* Upgrade end of life `influxdb` client library to `influxdb-client`, providing support for InfluxDB 1.8 and 2.x.
+
 ### 0.0.4.1 
 
-* Change to docker compose instructions to work with modified comppose-dash
+* Change to docker compose instructions to work with modified compose-dash
 
 ### 0.0.4 - Third Release 
 
