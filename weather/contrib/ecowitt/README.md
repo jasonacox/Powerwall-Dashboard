@@ -181,6 +181,10 @@ docker start ecowitt
 
 ## Release Notes
 
+### 0.2.1 - Upgrade InfluxDB Client 
+
+* Upgrade end of life `influxdb` client library to `influxdb-client`, providing support for InfluxDB 1.8 and 2.x.  Add Verify Support.
+
 ### 0.2.0 - Upgrade InfluxDB Client 
 
 * Upgrade end of life `influxdb` client library to `influxdb-client`, providing support for InfluxDB 1.8 and 2.x.

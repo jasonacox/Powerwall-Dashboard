@@ -91,7 +91,7 @@ import configparser
 from influxdb_client import InfluxDBClient
 from influxdb_client.client.write_api import SYNCHRONOUS
 
-BUILD = "0.1.0"
+BUILD = "0.2.0"
 CLI = False
 LOADED = False
 CONFIG_LOADED = False
