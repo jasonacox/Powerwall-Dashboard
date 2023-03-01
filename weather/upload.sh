@@ -1,5 +1,6 @@
 #!/bin/bash
-CONTAINER="${PWD##*/}"
+#CONTAINER="${PWD##*/}"
+CONTAINER="weather411"
 echo "Build and Push jasonacox/${CONTAINER} to DockerHub"
 echo ""
 

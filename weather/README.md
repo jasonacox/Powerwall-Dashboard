@@ -144,6 +144,10 @@ docker start weather411
 
 ## Release Notes
 
+### 0.2.1 - Bug Fix for User/Pass
+
+* Fix access to InfluxDB where username and password and configured and required.  Impacts by InfluxDB v1 and v2. Issue reported by @sumnerboy12 in #199.
+
 ### 0.2.0 - Upgrade InfluxDB Client
 
 * Upgrade end of life `influxdb` client library to `influxdb-client` (refer discussion #191 and issue #195), providing support for InfluxDB 1.8 and 2.x.
