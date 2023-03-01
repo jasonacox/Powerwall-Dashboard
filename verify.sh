@@ -243,7 +243,7 @@ echo -e "${dim} - Version: ${subbold}$VER"
 echo -e ""
 
 # ecowitt
-echo -e "${bold}Checking ecowitt${dim}"
+echo -e "${bold}Checking ecowitt${dim} (optional component - OK if missing)"
 echo -e "----------------------------------------------------------------------------"
 CONTAINER="ecowitt"
 VER=$UKN
