@@ -23,7 +23,8 @@ Docker: docker pull [jasonacox/ecowitt](https://hub.docker.com/r/jasonacox/ecowi
     [API]
     # Port to listen on for requests (default 8686)
     ENABLE = yes
-    PORT = 8686 # Different Port to Weather 411 so they can co-exist
+    # Different Port to Weather 411 so they can co-exist
+    PORT = 8686
 
     [Ecowitt]
     # Set your APIKEY and APPLICATION_KEY from https://www.ecowitt.net/user/index
