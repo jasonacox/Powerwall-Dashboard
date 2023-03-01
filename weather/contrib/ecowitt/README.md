@@ -181,6 +181,10 @@ docker start ecowitt
 
 ## Release Notes
 
+### 0.2.2 - Bug Fix for User/Pass
+
+* Fix access to InfluxDB where username and password and configured and required.  Impacts by InfluxDB v1 and v2. Issue reported by @sumnerboy12 in #199.
+
 ### 0.2.1 - Upgrade InfluxDB Client 
 
 * Upgrade end of life `influxdb` client library to `influxdb-client`, providing support for InfluxDB 1.8 and 2.x.  Add Verify Support.

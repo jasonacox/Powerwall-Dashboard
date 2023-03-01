@@ -91,7 +91,7 @@ import configparser
 from influxdb_client import InfluxDBClient
 from influxdb_client.client.write_api import SYNCHRONOUS
 
-BUILD = "0.2.1"
+BUILD = "0.2.2"
 CLI = False
 LOADED = False
 CONFIG_LOADED = False
@@ -293,14 +293,16 @@ def fetchWeather():
                                 # Influx 1.8
                                 client = InfluxDBClient(
                                     url="http://%s:%s" % (IHOST,IPORT),
-                                    username=IUSER,
-                                    password=IPASS,
+                                    token="%s:%s" % (IUSER,IPASS),
+                                    org='-',
                                     database=IDB)
-                            else:
+                            else :
                                 # Influx 2.x
                                 client = InfluxDBClient(
                                     url=IURL,
                                     token=ITOKEN,
+                                    username=IUSER,
+                                    password=IPASS,
                                     org=IORG)
                             output = [{}]
                             output[0]["measurement"] = IFIELD
@@ -469,8 +471,8 @@ if __name__ == "__main__":
         % (DEBUGMODE, API, APIPORT))
     sys.stderr.write(" + Ecowitt - Key: %s, Wait: %s, Units: %s\n + Ecowitt - App: %s, Timeout: %s\n"
         % (ECOKEY, ECOWAIT, ECOUNITS, ECOAPP, TIMEOUT))
-    sys.stderr.write(" + InfluxDB - Enable: %s, Host: %s, Port: %s, DB: %s, Field: %s\n"
-        % (INFLUX, IHOST, IPORT, IDB, IFIELD))
+    sys.stderr.write(" + InfluxDB - Enable: %s, Host: %s, Port: %s, DB: %s, Field: %s, User: %s, Pass: %s\n"
+        % (INFLUX, IHOST, IPORT, IDB, IFIELD, IUSER, '*'*len(IPASS)))
     if ITOKEN != "" or IORG != "":
         sys.stderr.write(" + InfluxDB - URL: %s, Org: %s, Token: %s\n"
             % (IURL, IORG, ITOKEN))
