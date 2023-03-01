@@ -125,9 +125,9 @@ if os.path.exists(CONFIGFILE):
     IDB = config["InfluxDB"]["DB"]
     IFIELD = config["InfluxDB"]["FIELD"]
     # Check for InfluxDB 2.x settings
-    ITOKEN = config.get('InfluxDB', 'TOKEN', fallback="") 
-    IORG = config.get('InfluxDB', 'ORG', fallback="") 
-    IURL = config.get('InfluxDB', 'URL', fallback="") 
+    ITOKEN = config.get('InfluxDB', 'TOKEN', fallback="")
+    IORG = config.get('InfluxDB', 'ORG', fallback="")
+    IURL = config.get('InfluxDB', 'URL', fallback="")
 
     if ITOKEN != "" and IURL == "":
         IURL = "http://%s:%s" % (IHOST, IPORT)
@@ -291,8 +291,8 @@ def fetchWeather():
                         try:
                             if ITOKEN == "":
                                 # Influx 1.8
-                                client = InfluxDBClient(host=IHOST,
-                                    port=IPORT,
+                                client = InfluxDBClient(
+                                    url="http://%s:%s" % (IHOST,IPORT),
                                     username=IUSER,
                                     password=IPASS,
                                     database=IDB)
@@ -304,7 +304,7 @@ def fetchWeather():
                                     org=IORG)
                             output = [{}]
                             output[0]["measurement"] = IFIELD
-                            output[0]["time"] = int(currentts)
+                            output[0]["time"] = datetime.utcfromtimestamp(currentts)
                             output[0]["fields"] = {}
                             for i in weather:
                                 output[0]["fields"][i] = weather[i]
@@ -482,8 +482,8 @@ if __name__ == "__main__":
     sys.stderr.flush()
     
     if CLI:
-        print("   %15s | %4s | %8s | %8s | %5s | %10s" %
-            ('timezone','Temp','Humidity','Pressure','Cloud','Visibility') )
+        print(" %4s | %8s | %8s " %
+            ('Temp','Humidity','Pressure') )
     try:
         while(True):
             if CLI:
