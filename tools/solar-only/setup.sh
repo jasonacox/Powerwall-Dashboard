@@ -6,12 +6,12 @@
 # Stop on Errors
 set -e
 
-if [ ! -f VERSION ]; then
+if [ ! -f ../../VERSION ]; then
   echo "ERROR: Missing VERSION file. Setup must run from installation directory."
   echo ""
   exit 1
 fi
-VERSION=`cat VERSION`
+VERSION=`cat ../../VERSION`
 
 echo "Tesla Solar Dashboard (v${VERSION}) - SETUP"
 echo "-----------------------------------------"
