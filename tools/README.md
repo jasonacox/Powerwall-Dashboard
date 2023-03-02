@@ -55,3 +55,9 @@ This includes step-by-step set of instructions and scripts for adding MySQL to t
 Several in the community use NodeRed to help automate usage of their Solar and Powerwall data.
 
 * [NodeRed.org](https://nodered.org/) - Low-code programming for event-driven applications
+
+## Solar Only Systems
+
+This is a tool for Tesla Solar owners who don't have a Powerwall to get a similar dashboard for their systems. This folder contains a setup using the `tesla-history` script developed by @mcbirse.
+
+* [Solar Only Setup](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/tools/solar-only/)
