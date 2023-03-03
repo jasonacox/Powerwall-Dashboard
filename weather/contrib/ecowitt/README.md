@@ -23,7 +23,8 @@ Docker: docker pull [jasonacox/ecowitt](https://hub.docker.com/r/jasonacox/ecowi
     [API]
     # Port to listen on for requests (default 8686)
     ENABLE = yes
-    PORT = 8686 # Different Port to Weather 411 so they can co-exist
+    # Different Port to Weather 411 so they can co-exist
+    PORT = 8686
 
     [Ecowitt]
     # Set your APIKEY and APPLICATION_KEY from https://www.ecowitt.net/user/index
@@ -46,9 +47,13 @@ Docker: docker pull [jasonacox/ecowitt](https://hub.docker.com/r/jasonacox/ecowi
     PORT = 8086
     DB = powerwall
     FIELD = localweather
-    # Leave blank if not used
-    USERNAME = 
+    # Auth - Leave blank if not used
+    USERNAME =
     PASSWORD =
+    # Influx 2.x - Leave blank if not used
+    TOKEN =
+    ORG =
+    URL =
 
 2. Run the Docker Container to listen on port 8686.
 
@@ -176,9 +181,21 @@ docker start ecowitt
 
 ## Release Notes
 
+### 0.2.2 - Bug Fix for User/Pass
+
+* Fix access to InfluxDB where username and password and configured and required.  Impacts by InfluxDB v1 and v2. Issue reported by @sumnerboy12 in #199.
+
+### 0.2.1 - Upgrade InfluxDB Client 
+
+* Upgrade end of life `influxdb` client library to `influxdb-client`, providing support for InfluxDB 1.8 and 2.x.  Add Verify Support.
+
+### 0.2.0 - Upgrade InfluxDB Client 
+
+* Upgrade end of life `influxdb` client library to `influxdb-client`, providing support for InfluxDB 1.8 and 2.x.
+
 ### 0.0.4.1 
 
-* Change to docker compose instructions to work with modified comppose-dash
+* Change to docker compose instructions to work with modified compose-dash
 
 ### 0.0.4 - Third Release 
 

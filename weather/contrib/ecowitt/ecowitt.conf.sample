@@ -4,7 +4,8 @@ DEBUG = no
 [API]
 # Port to listen on for requests (default 8686)
 ENABLE = yes
-PORT = 8686 # Different Port to Weather 411 so they can co-exist
+# Different Port to Weather 411 so they can co-exist
+PORT = 8686
 
 [Ecowitt]
 # Set your APIKEY and APPLICATION_KEY from https://www.ecowitt.net/user/index
@@ -27,6 +28,11 @@ HOST = influxdb
 PORT = 8086
 DB = powerwall
 FIELD = localweather
-# Leave blank if not used
-USERNAME = 
+# Auth - Leave blank if not used
+USERNAME =
 PASSWORD =
+# Influx 2.x - Leave blank if not used
+TOKEN =
+ORG =
+URL =
+

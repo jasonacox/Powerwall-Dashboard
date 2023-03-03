@@ -241,3 +241,44 @@ else
 fi
 echo -e "${dim} - Version: ${subbold}$VER"
 echo -e ""
+
+if [ -f powerwall.extend.yml ]; then
+    # ecowitt
+    echo -e "${bold}Checking ecowitt${dim} (optional component - OK if missing)"
+    echo -e "----------------------------------------------------------------------------"
+    CONTAINER="ecowitt"
+    VER=$UKN
+    ECOWITT=$UKN
+    ENV_FILE="weather/contrib/ecowitt/ecowitt.conf"
+    PORT="8686"
+    echo -e -n "${dim} - Config File ${ENV_FILE}: "
+    if [ ! -f ${ENV_FILE} ]; then
+        echo -e "${alertdim}Missing - ecowitt not set up"
+    else
+        echo -e $GOOD
+    fi
+    echo -e -n "${dim} - Container ($CONTAINER): "
+    RUNNING=$(docker inspect --format="{{.State.Running}}" $CONTAINER 2>/dev/null)
+    if [ "$RUNNING" = "true" ]; then
+        echo -e $GOOD
+        echo -e -n "${dim} - Service (port $PORT): "
+        if running http://localhost:$PORT/stats 200 0 2>/dev/null;  then
+            echo -e $GOOD
+            VER=`curl --silent http://localhost:$PORT/stats | awk '{print $2" "$3" "$4}' | cut -d\" -f 2 2>/dev/null`
+            # check connection with ecowitt
+            if running http://localhost:$PORT/temp 200 0 2>/dev/null;  then
+                WEATHER=`curl --silent http://localhost:$PORT/temp 2>/dev/null`
+            fi
+            echo -e "${dim} - Weather: ${subbold}${WEATHER}"
+        else
+            echo -e "${alert}ERROR: Not Listening - Logs:${alertdim}"
+            echo -e "---"
+            docker logs weather411 2>&1 | tail -11
+            echo -e "---${normal}"
+        fi
+    else
+        echo -e "${alert}ERROR: Stopped${normal}"
+    fi
+    echo -e "${dim} - Version: ${subbold}$VER"
+    echo -e ""
+fi
