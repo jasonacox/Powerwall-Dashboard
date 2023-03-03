@@ -1,5 +1,11 @@
 # RELEASE NOTES
 
+## v2.8.6 - Weather Updates
+
+* Weather411 v0.2.0 - Upgrade InfluxDB Client to support InfluxDB 1.8 and 2.x by @jasonacox in https://github.com/jasonacox/Powerwall-Dashboard/pull/196 closes https://github.com/jasonacox/Powerwall-Dashboard/issues/195 re: https://github.com/jasonacox/Powerwall-Dashboard/discussions/191#discussioncomment-5112333
+* README Improvements by @BJReplay in https://github.com/jasonacox/Powerwall-Dashboard/pull/192
+* Ecowitt Weather v0.2.2 - Upgrade InfluxDB Client to support InfluxDB 1.8 and 2.x by @BJReplay in https://github.com/jasonacox/Powerwall-Dashboard/pull/200
+
 ## v2.8.5 - Verify Tool for Setup
 
 * Added `verify.sh` tool to test setup and operation of the main components for the Dashboard (pypowerwall, telegraf, influxdb, grafana, weather411) by @jasonacox as raised in https://github.com/jasonacox/Powerwall-Dashboard/issues/187
