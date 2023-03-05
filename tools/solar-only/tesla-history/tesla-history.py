@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
- Command line tool to retrieve Powerwall history data by date/time period from
+ Command line tool to retrieve Powerwall or Solar history data by date/time period from
  Tesla Owner API (Tesla cloud) and import into InfluxDB of Powerwall-Dashboard.
 
  Author: Michael Birse (for Powerwall-Dashboard by Jason A. Cox)
@@ -49,7 +49,7 @@ try:
 except:
     sys.exit("ERROR: Missing python dateutil module. Run 'pip install python-dateutil'.")
 try:
-    import teslapy
+    from teslapy import Tesla, Retry, JsonDict, Battery, SolarPanel
 except:
     sys.exit("ERROR: Missing python teslapy module. Run 'pip install teslapy'.")
 try:
@@ -63,7 +63,7 @@ CONFIGNAME = CONFIGFILE = f"{SCRIPTNAME}.conf"
 AUTHFILE = f"{SCRIPTNAME}.auth"
 
 # Parse command line arguments
-parser = argparse.ArgumentParser(description='Import Powerwall history data from Tesla Owner API (Tesla cloud) into InfluxDB')
+parser = argparse.ArgumentParser(description='Import Powerwall or Solar history data from Tesla Owner API (Tesla cloud) into InfluxDB')
 parser.add_argument('-l', '--login', action="store_true", help='login to Tesla account only and save auth token (do not get history)')
 parser.add_argument('-t', '--test', action="store_true", help='enable test mode (do not import into InfluxDB)')
 parser.add_argument('-d', '--debug', action="store_true", help='enable debug output (print raw responses from Tesla cloud)')
@@ -268,10 +268,10 @@ def tesla_login(email):
     print("-" * 40)
 
     # Create retry instance for use after successful login
-    retry = teslapy.Retry(total=2, status_forcelist=(500, 502, 503, 504), backoff_factor=10)
+    retry = Retry(total=2, status_forcelist=(500, 502, 503, 504), backoff_factor=10)
 
     # Create Tesla instance
-    tesla = teslapy.Tesla(email, cache_file=TAUTH)
+    tesla = Tesla(email, cache_file=TAUTH)
 
     if not tesla.authorized:
         # Login to Tesla account and cache token
@@ -287,7 +287,7 @@ def tesla_login(email):
         print("\nAfter login, paste the URL of the 'Page Not Found' webpage below.\n")
 
         tesla.close()
-        tesla = teslapy.Tesla(email, retry=retry, state=state, code_verifier=code_verifier, cache_file=TAUTH)
+        tesla = Tesla(email, retry=retry, state=state, code_verifier=code_verifier, cache_file=TAUTH)
 
         if not tesla.authorized:
             try:
@@ -298,19 +298,19 @@ def tesla_login(email):
     else:
         # Enable retries
         tesla.close()
-        tesla = teslapy.Tesla(email, retry=retry, cache_file=TAUTH)
+        tesla = Tesla(email, retry=retry, cache_file=TAUTH)
 
     sitelist = {}
     try:
         # Get list of Tesla Energy sites
-        for battery in tesla.battery_list():
+        for site in tesla.battery_list() + tesla.solar_list():
             try:
                 # Retrieve site id and name, site timezone and install date
-                siteid = battery['energy_site_id']
+                siteid = site['energy_site_id']
                 if args.debug: print(f"Get SITE_CONFIG for Site ID {siteid}")
-                data = battery.api('SITE_CONFIG')
+                data = site.api('SITE_CONFIG')
                 if args.debug: print(data)
-                if isinstance(data, teslapy.JsonDict) and 'response' in data:
+                if isinstance(data, JsonDict) and 'response' in data:
                     sitename = data['response']['site_name']
                     sitetimezone = data['response']['installation_time_zone']
                     siteinstdate = isoparse(data['response']['installation_date'])
@@ -319,10 +319,16 @@ def tesla_login(email):
             except Exception as err:
                 sys.exit(f"ERROR: Failed to retrieve SITE_CONFIG - {err}")
 
+            # Determine type of Tesla Energy site
+            if isinstance(site, Battery):
+                sitetype = f"Powerwall x{data['response']['battery_count']}"
+            elif isinstance(site, SolarPanel):
+                sitetype = "Solar"
+
             try:
                 # Retrieve site current time
                 if args.debug: print(f"Get SITE_DATA for Site ID {siteid}")
-                data = battery.api('SITE_DATA')
+                data = site.api('SITE_DATA')
                 if args.debug: print(data)
                 sitetime = isoparse(data['response']['timestamp'])
             except:
@@ -331,7 +337,8 @@ def tesla_login(email):
             # Add site if site id not already in the list
             if siteid not in sitelist:
                 sitelist[siteid] = {}
-                sitelist[siteid]['battery'] = battery
+                sitelist[siteid]['site'] = site
+                sitelist[siteid]['type'] = sitetype
                 sitelist[siteid]['name'] = sitename
                 sitelist[siteid]['timezone'] = sitetimezone
                 sitelist[siteid]['instdate'] = siteinstdate
@@ -343,6 +350,7 @@ def tesla_login(email):
     for siteid in sitelist:
         if (args.site is None) or (args.site not in sitelist) or (siteid == args.site):
             print(f"      Site ID: {siteid}")
+            print(f"    Site type: {sitelist[siteid]['type']}")
             print(f"    Site name: {sitelist[siteid]['name']}")
             print(f"     Timezone: {sitelist[siteid]['timezone']}")
             print(f"    Installed: {sitelist[siteid]['instdate']}")
@@ -373,7 +381,7 @@ def get_power_history(start, end):
             time.sleep(TDELAY)
             try:
                 # Retrieve current day 'power' history ('power' data returned in 5 minute intervals)
-                power = battery.get_calendar_history_data(kind='power', end_date=day.replace(tzinfo=sitetz).isoformat())
+                power = site.get_calendar_history_data(kind='power', end_date=day.replace(tzinfo=sitetz).isoformat())
                 if args.debug: print(power)
                 """ Example 'time_series' response:
                 {
@@ -385,15 +393,16 @@ def get_power_history(start, end):
                     "generator_power": 0
                 }
                 """
-                # Retrieve current day 'soe' history ('soe' data returned in 15 minute intervals)
-                soe = battery.get_calendar_history_data(kind='soe', end_date=day.replace(tzinfo=sitetz).isoformat())
-                if args.debug: print(soe)
-                """ Example 'time_series' response:
-                {
-                    "timestamp": "2022-04-18T12:00:00+10:00",
-                    "soe": 67
-                }
-                """
+                if isinstance(site, Battery):
+                    # Retrieve current day 'soe' history ('soe' data returned in 15 minute intervals)
+                    soe = site.get_calendar_history_data(kind='soe', end_date=day.replace(tzinfo=sitetz).isoformat())
+                    if args.debug: print(soe)
+                    """ Example 'time_series' response:
+                    {
+                        "timestamp": "2022-04-18T12:00:00+10:00",
+                        "soe": 67
+                    }
+                    """
             except Exception as err:
                 sys.exit(f"ERROR: Failed to retrieve history data - {err}")
 
@@ -446,7 +455,7 @@ def get_backup_history(start, end):
         time.sleep(TDELAY)
         try:
             # Retrieve full backup event history
-            backup = battery.get_history_data(kind='backup')
+            backup = site.get_history_data(kind='backup')
             if args.debug: print(backup)
             """ Example 'events' response (event duration in ms):
             {
@@ -839,10 +848,10 @@ if len(sitelist) > 1 and args.site is None:
 
 # Get site from sitelist
 if args.site is None:
-    site = sitelist[list(sitelist.keys())[0]]
+    siteinfo = sitelist[list(sitelist.keys())[0]]
 else:
     if args.site in sitelist:
-        site = sitelist[args.site]
+        siteinfo = sitelist[args.site]
     else:
         sys.exit(f'ERROR: Site ID "{args.site}" not found')
 
@@ -871,9 +880,9 @@ else:
             s = datetime.today().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=1)
             e = datetime.today().replace(hour=23, minute=59, second=59, microsecond=0) - timedelta(days=1)
 
-# Get site battery and timezones
-battery = site['battery']
-sitetimezone = site['timezone']
+# Get site info and timezones
+site = siteinfo['site']
+sitetimezone = siteinfo['timezone']
 sitetz = tz.gettz(sitetimezone)
 influxtz = tz.gettz(ITZ)
 utctz = tz.tzutc()
@@ -896,11 +905,11 @@ if start >= end:
 print(f"Running for period: [{start.astimezone(influxtz)}] - [{end.astimezone(influxtz)}] ({str(end - start)}s)\n")
 
 # Limit start/end between install date and site current time
-if isinstance(site['time'], str):
+if type(siteinfo['time']) is str:
     sitetime = datetime.now(tz=influxtz).astimezone(utctz).replace(microsecond=0)
 else:
-    sitetime = site['time'].astimezone(utctz)
-siteinstdate = site['instdate'].astimezone(utctz)
+    sitetime = siteinfo['time'].astimezone(utctz)
+siteinstdate = siteinfo['instdate'].astimezone(utctz)
 if start < siteinstdate:
     start = siteinstdate
 if end > sitetime - timedelta(minutes=2):
@@ -922,19 +931,23 @@ if args.remove:
     print("Done.")
     sys.exit()
 elif args.force:
-    # Retrieve history data between start and end date/time (skip search for gaps)
+    # Retrieve power history data between start and end date/time (skip search for gaps)
     get_power_history(start, end)
     print()
-    get_backup_history(start, end)
-    print()
+
+    if isinstance(site, Battery):
+        # Retrieve backup history data between start and end date/time (skip search for gaps)
+        get_backup_history(start, end)
+        print()
 else:
     # Search InfluxDB for power usage data gaps
     powergaps = search_influx(start, end, 'power usage')
     print() if powergaps else print("* None found\n")
 
-    # Search InfluxDB for grid status data gaps
-    gridgaps = search_influx(start, end, 'grid status')
-    print() if gridgaps else print("* None found\n")
+    if isinstance(site, Battery):
+        # Search InfluxDB for grid status data gaps
+        gridgaps = search_influx(start, end, 'grid status')
+        print() if gridgaps else print("* None found\n")
 
     if not (powergaps or gridgaps):
         print("Done.")
