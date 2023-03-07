@@ -70,7 +70,6 @@ parser.add_argument('-d', '--debug', action="store_true", help='enable debug out
 group = parser.add_argument_group('advanced options')
 group.add_argument('--config', help=f'specify an alternate config file (default: {CONFIGNAME})')
 group.add_argument('--site', type=int, help='site id (required for Tesla accounts with multiple energy sites)')
-group.add_argument('--ignoretz', action="store_true", help='ignore timezone difference between Tesla cloud and InfluxDB')
 group.add_argument('--force', action="store_true", help='force import for date/time range (skip search for data gaps)')
 group.add_argument('--remove', action="store_true", help='remove imported data from InfluxDB for date/time range')
 group = parser.add_argument_group('date/time range options')
@@ -219,6 +218,7 @@ else:
 # Global Variables
 powerdata = []
 eventdata = []
+sitetz = None
 power = None
 soe = None
 backup = None
@@ -365,9 +365,20 @@ def get_power_history(start, end):
 
     Adds data points to 'powerdata' in InfluxDB Line Protocol format with tag source='cloud'
     """
-    global dayloaded, power, soe
+    global sitetz, dayloaded, power, soe
 
     print(f"Retrieving data for gap: [{start.astimezone(influxtz)}] - [{end.astimezone(influxtz)}] ({str(end - start)}s)")
+
+    if not sitetz:
+        # Retrieve timezone used for history data
+        try:
+            data = site.get_calendar_history_data(kind='power', end_date=sitetime.isoformat())
+            if args.debug: print(data)
+            sitetz = tz.gettz(data['installation_time_zone'])
+            if sitetz is None:
+                sys.exit(f"ERROR: Invalid timezone for history data - {data['installation_time_zone']}")
+        except Exception as err:
+            sys.exit(f"ERROR: Failed to retrieve timezone of history data - {err}")
 
     # Set time to end of day for daily calendar history data retrieval
     day = start.astimezone(sitetz).replace(hour=23, minute=59, second=59, tzinfo=None)
@@ -882,18 +893,12 @@ else:
 
 # Get site info and timezones
 site = siteinfo['site']
-sitetimezone = siteinfo['timezone']
-sitetz = tz.gettz(sitetimezone)
 influxtz = tz.gettz(ITZ)
 utctz = tz.tzutc()
 
-# Check InfluxDB and site timezones are valid
+# Check InfluxDB timezone is valid
 if influxtz is None:
     sys.exit(f"ERROR: Invalid timezone - {ITZ}")
-if sitetz is None:
-    sys.exit(f"ERROR: Invalid timezone - {sitetimezone}")
-if influxtz != sitetz and not args.ignoretz:
-    sys.exit(f'ERROR: InfluxDB timezone "{ITZ}" does not match site timezone "{sitetimezone}"')
 
 # Check start/end datetimes are valid for the configured timezone and convert to aware datetime
 start = check_datetime(s, 'start', influxtz).astimezone(utctz)
