@@ -3,6 +3,7 @@
 ## v2.8.7 - Preserve Peaks in Graphs
 
 * Update Live Monitoring graph queries for Dashboard to use `max()` instead of `mean()` for Solar, Home, Grid and Powerwall to preserve peaks across all time filters as raised in https://github.com/jasonacox/Powerwall-Dashboard/issues/203
+* Update pyPowerwall proxy service to v0.6.1 Proxy t24 (see https://github.com/jasonacox/pypowerwall/releases/tag/v0.6.1)
 
 ## v2.8.6 - Weather Updates
 
