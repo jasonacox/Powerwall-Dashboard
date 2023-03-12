@@ -4,19 +4,25 @@
 
 This dashboard graphs min(), mean() and max() values for the Solar, Home, Grid and Powerwall series.  The Bright line is mean with spikes showing up as a translucent shade of the primary color.
 
-dashboard-min-mean-max.json
+[dashboard-min-mean-max.json](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/dashboards/dashboard-min-mean-max.json)
+
+<img width="863" alt="image" src="https://user-images.githubusercontent.com/836718/224519614-76dcab24-deb3-42fe-a0ba-9f4837af7ee8.png">
+
 
 ## No Animation
 
 This dashboard provides the original time series "Live Monitoring" graph but removes the Powerwall flow animation panel.
 
-dashboard-no-animation.json
+[dashboard-no-animation.json](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/dashboards/dashboard-no-animation.json)
+
+<img width="864" alt="image" src="https://user-images.githubusercontent.com/836718/224519662-f29a044a-34d8-4d1f-9220-bebfe7172cd3.png">
+
 
 ## Simple
 
-This dashboard provides a basic time series graph and meter data without any of the Powerwall+ or extended data.
+Similar to the above, this dashboard provides a basic time series graph and meter data but without any of the Powerwall+ or extended data.
 
-dashboard-simple.json
+[dashboard-simple.json](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/dashboards/dashboard-simple.json)
 
 ## Submit Your Dashboard
 
