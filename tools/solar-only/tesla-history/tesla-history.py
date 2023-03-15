@@ -70,6 +70,7 @@ parser.add_argument('-d', '--debug', action="store_true", help='enable debug out
 group = parser.add_argument_group('advanced options')
 group.add_argument('--config', help=f'specify an alternate config file (default: {CONFIGNAME})')
 group.add_argument('--site', type=int, help='site id (required for Tesla accounts with multiple energy sites)')
+group.add_argument('--reserve', type=int, help='also search for backup reserve percent data gaps and set to value')
 group.add_argument('--force', action="store_true", help='force import for date/time range (skip search for data gaps)')
 group.add_argument('--remove', action="store_true", help='remove imported data from InfluxDB for date/time range')
 group = parser.add_argument_group('date/time range options')
@@ -89,6 +90,8 @@ if (args.start and not args.end) or (args.end and not args.start):
     parser.error("both arguments --start and --end are required")
 if not args.login and not ((args.start and args.end) or (args.today or args.yesterday)):
     parser.error("missing arguments: --start/end or --today/yesterday")
+if args.reserve is not None and (args.reserve < 0 or args.reserve > 100):
+    parser.error(f"argument --reserve: invalid value: '{args.reserve}'")
 
 if args.config:
     # Use alternate config file if specified
@@ -218,12 +221,15 @@ else:
 # Global Variables
 powerdata = []
 eventdata = []
+reservedata = []
 sitetz = None
+tzname = None
 power = None
 soe = None
 backup = None
 dayloaded = None
 eventsloaded = False
+reserveloaded = False
 
 # Helper Functions
 def check_datetime(dt, name, newtz):
@@ -255,6 +261,15 @@ def check_datetime(dt, name, newtz):
                 f'   --{name} "{dt.replace(fold=1)}"'
         )
     return dt
+
+def lookup(data, keylist):
+    """
+    Search data for list of keys and return the first matching key's value if found, otherwise return None
+    """
+    for key in keylist:
+        if key in data:
+            return data[key]
+    return None
 
 # Tesla Functions
 def tesla_login(email):
@@ -304,24 +319,42 @@ def tesla_login(email):
     try:
         # Get list of Tesla Energy sites
         for site in tesla.battery_list() + tesla.solar_list():
+            if args.debug: print(site)
+
+            # Retrieve site id and name
+            siteid = lookup(site, ['energy_site_id'])
+            sitename = lookup(site, ['site_name'])
+            sitetimezone = None
+            siteinstdate = None
+
+            if siteid is None:
+                print("ERROR: Failed to retrieve Site ID")
+                continue
             try:
-                # Retrieve site id and name, site timezone and install date
-                siteid = site['energy_site_id']
+                # Retrieve site name, site timezone and install date
                 if args.debug: print(f"Get SITE_CONFIG for Site ID {siteid}")
                 data = site.api('SITE_CONFIG')
                 if args.debug: print(data)
                 if isinstance(data, JsonDict) and 'response' in data:
-                    sitename = data['response']['site_name']
-                    sitetimezone = data['response']['installation_time_zone']
-                    siteinstdate = isoparse(data['response']['installation_date'])
-                else:
-                    sys.exit(f"ERROR: Failed to retrieve SITE_CONFIG - unknown response: {data}")
+                    d = data['response']
+                    if sitename is None:
+                        sitename = lookup(d, ['site_name'])
+                    sitetimezone = lookup(d, ['installation_time_zone', 'time_zone_offset'])
+                    if type(sitetimezone) is int:
+                        sitetimezone = f"UTC{int(sitetimezone / 60):+}"
+                    try:
+                        siteinstdate = isoparse(lookup(d, ['installation_date']))
+                    except:
+                        siteinstdate = datetime.fromtimestamp(0)
             except Exception as err:
-                sys.exit(f"ERROR: Failed to retrieve SITE_CONFIG - {err}")
+                print(f"WARNING: Failed to retrieve SITE_CONFIG - {err}")
 
             # Determine type of Tesla Energy site
             if isinstance(site, Battery):
-                sitetype = f"Powerwall x{data['response']['battery_count']}"
+                try:
+                    sitetype = f"Powerwall x{data['response']['battery_count']}"
+                except:
+                    sitetype = "Powerwall"
             elif isinstance(site, SolarPanel):
                 sitetype = "Solar"
 
@@ -365,20 +398,43 @@ def get_power_history(start, end):
 
     Adds data points to 'powerdata' in InfluxDB Line Protocol format with tag source='cloud'
     """
-    global sitetz, dayloaded, power, soe
-
-    print(f"Retrieving data for gap: [{start.astimezone(influxtz)}] - [{end.astimezone(influxtz)}] ({str(end - start)}s)")
+    global sitetz, tzname, dayloaded, power, soe
 
     if not sitetz:
-        # Retrieve timezone used for history data
         try:
-            data = site.get_calendar_history_data(kind='power', end_date=sitetime.isoformat())
-            if args.debug: print(data)
-            sitetz = tz.gettz(data['installation_time_zone'])
+            # Retrieve current history data to determine site timezone
+            data = site.get_calendar_history_data(kind='power', end_date=sitetime.replace(second=59).isoformat())
+
+            # Attempt to get history data for alternative dates if no data was returned for current time
+            if not data:
+                data = site.get_calendar_history_data(kind='power', end_date=(sitetime - timedelta(days=1)).replace(second=59).isoformat())
+            if not data:
+                data = site.get_calendar_history_data(kind='power', end_date=end.replace(second=59).isoformat())
+            if not data:
+                data = site.get_calendar_history_data(kind='power', end_date=start.replace(second=59).isoformat())
+            if not data:
+                sys.exit("ERROR: Failed to retrieve history data")
+            if args.debug:
+                print(data)
+
+            # Get timezone name or offset from history data
+            tzdata = lookup(data, ['installation_time_zone', 'time_zone_offset'])
+
+            if type(tzdata) is int:
+                # Set site timezone from timezone offset
+                tzname = f"UTC{int(tzdata / 60):+}"
+                sitetz = tz.tzoffset(tzname, tzdata * 60)
+            else:
+                # Set site timezone from timezone name
+                tzname = tzdata
+                sitetz = tz.gettz(tzname)
+
             if sitetz is None:
-                sys.exit(f"ERROR: Invalid timezone for history data - {data['installation_time_zone']}")
+                sys.exit(f"ERROR: Invalid timezone for history data - {tzdata}")
         except Exception as err:
-            sys.exit(f"ERROR: Failed to retrieve timezone of history data - {err}")
+            sys.exit(f"ERROR: Failed to retrieve timezone from history data - {err}")
+
+    print(f"Retrieving data for gap: [{start.astimezone(influxtz)}] - [{end.astimezone(influxtz)}] ({str(end - start)}s)")
 
     # Set time to end of day for daily calendar history data retrieval
     day = start.astimezone(sitetz).replace(hour=23, minute=59, second=59, tzinfo=None)
@@ -388,7 +444,7 @@ def get_power_history(start, end):
     while day <= endday:
         # Get this day's history if not already loaded
         if day != dayloaded:
-            print(f"* Loading daily history: [{day.strftime('%Y-%m-%d')}]")
+            print(f"* Loading daily history: [{day.strftime('%Y-%m-%d')}] ({tzname})")
             time.sleep(TDELAY)
             try:
                 # Retrieve current day 'power' history ('power' data returned in 5 minute intervals)
@@ -524,12 +580,46 @@ def get_backup_history(start, end):
         point += str(int(timestamp.timestamp()))
         eventdata.append(point)
 
+def set_reserve_history(start, end):
+    """
+    Create backup reserve percent history between start and end date/time
+
+    Adds data points to 'reservedata' in InfluxDB Line Protocol format with tag source='cloud'
+    """
+    global reserveloaded
+
+    if not reserveloaded:
+        print(f"Setting missing backup reserve percent history to '{args.reserve}'")
+        reserveloaded = True
+
+    print(f"* Creating reserve pct data: [{start.astimezone(influxtz)}] - [{end.astimezone(influxtz)}] ({str(end - start)}s)")
+
+    # Create baseline backup_reserve_percent=RESERVE points aligned to minute intervals for full start/end range
+    reservepct = []
+    timestamp = start.replace(second=0)
+    while timestamp <= end:
+        respoint = {}
+        respoint['time'] = timestamp
+        respoint['backup_reserve_percent'] = float(args.reserve)
+        reservepct.append(respoint)
+        timestamp += timedelta(minutes=1)
+
+    # Create backup reserve percent data for import to InfluxDB
+    for respoint in reservepct:
+        timestamp = respoint['time']
+        backup_reserve_percent = respoint['backup_reserve_percent']
+
+        # Save data point values
+        point = f"http,source=cloud,month={timestamp.astimezone(influxtz).strftime('%b')},year={timestamp.astimezone(influxtz).year} backup_reserve_percent={backup_reserve_percent} "
+        point += str(int(timestamp.timestamp()))
+        reservedata.append(point)
+
 # InfluxDB Functions
 def search_influx(start, end, datatype):
     """
     Search InfluxDB for missing data points between start and end date/time
 
-    Returns a list of start/end datetime ranges for the 'datatype' ('power' or 'grid')
+    Returns a list of start/end datetime ranges for the 'datatype' ('power' or 'grid' or 'reserve')
     """
     print(f"Searching InfluxDB for data gaps ({datatype})")
 
@@ -539,6 +629,9 @@ def search_influx(start, end, datatype):
         maxgap = timedelta(minutes=5)
     elif 'grid' in datatype:
         query = f"SELECT grid_status FROM grid.http WHERE time >= '{start.isoformat()}' AND time <= '{end.isoformat()}'"
+        maxgap = timedelta(minutes=1)
+    elif 'reserve' in datatype:
+        query = f"SELECT backup_reserve_percent FROM pod.http WHERE time >= '{start.isoformat()}' AND time <= '{end.isoformat()}'"
         maxgap = timedelta(minutes=1)
 
     try:
@@ -612,6 +705,7 @@ def remove_influx(start, end):
     # Query definitions (sanity check data points before and after delete)
     power = f"SELECT * FROM autogen.http WHERE source='cloud' AND time >= '{start.isoformat()}' AND time <= '{end.isoformat()}'"
     grid = f"SELECT * FROM grid.http WHERE source='cloud' AND time >= '{start.isoformat()}' AND time <= '{end.isoformat()}'"
+    reserve = f"SELECT * FROM pod.http WHERE source='cloud' AND time >= '{start.isoformat()}' AND time <= '{end.isoformat()}'"
     delete = f"DELETE FROM http WHERE source='cloud' AND time >= '{start.isoformat()}' AND time <= '{end.isoformat()}'"
 
     periods = []
@@ -661,8 +755,15 @@ def remove_influx(start, end):
         # Get number of data points returned
         ptsgrid = len(list(result.get_points()))
 
+        # Execute query for backup reserve percent data
+        query = reserve
+        result = client.query(query)
+
+        # Get number of data points returned
+        ptsreserve = len(list(result.get_points()))
+
         # Total number of data points to be removed
-        ptstotal = ptspower + ptsgrid
+        ptstotal = ptspower + ptsgrid + ptsreserve
 
         if ptstotal == 0:
             print("* No data points found\n")
@@ -693,8 +794,15 @@ def remove_influx(start, end):
         # Get number of data points returned
         ptsgridnow = len(list(result.get_points()))
 
+        # Execute query after delete for backup reserve percent data
+        query = reserve
+        result = client.query(query)
+
+        # Get number of data points returned
+        ptsreservenow = len(list(result.get_points()))
+
         # Total number of data points after delete (should be zero)
-        ptstotalnow = ptspowernow + ptsgridnow
+        ptstotalnow = ptspowernow + ptsgridnow + ptsreservenow
         print(f"* {ptstotal - ptstotalnow} of {ptstotal} data points removed\n")
 
         if periods:
@@ -706,7 +814,7 @@ def remove_influx(start, end):
 
 def write_influx():
     """
-    Write 'powerdata' and 'eventdata' Line Protocol format data points to InfluxDB
+    Write 'powerdata', 'eventdata' and 'reservedata' Line Protocol format data points to InfluxDB
     """
     if args.test:
         print("Writing to InfluxDB (*** skipped - test mode enabled ***)")
@@ -716,6 +824,7 @@ def write_influx():
     try:
         client.write_points(powerdata, time_precision='s', batch_size=10000, protocol='line')
         client.write_points(eventdata, time_precision='s', batch_size=10000, retention_policy='grid', protocol='line')
+        client.write_points(reservedata, time_precision='s', batch_size=10000, retention_policy='pod', protocol='line')
     except Exception as err:
         sys.exit(f"ERROR: Failed to write to InfluxDB: {err}")
 
@@ -928,7 +1037,7 @@ try:
 except Exception as err:
     sys.exit(f"ERROR: Failed to connect to InfluxDB: {err}")
 
-powergaps = gridgaps = None
+powergaps = gridgaps = reservegaps = None
 
 if args.remove:
     # Remove imported data from InfluxDB between start and end date/time
@@ -944,6 +1053,10 @@ elif args.force:
         # Retrieve backup history data between start and end date/time (skip search for gaps)
         get_backup_history(start, end)
         print()
+
+    if args.reserve is not None:
+        set_reserve_history(start, end)
+        print()
 else:
     # Search InfluxDB for power usage data gaps
     powergaps = search_influx(start, end, 'power usage')
@@ -954,7 +1067,12 @@ else:
         gridgaps = search_influx(start, end, 'grid status')
         print() if gridgaps else print("* None found\n")
 
-    if not (powergaps or gridgaps):
+    if args.reserve is not None:
+        # Search InfluxDB for backup reserve percent data gaps
+        reservegaps = search_influx(start, end, 'backup reserve percent')
+        print() if reservegaps else print("* None found\n")
+
+    if not (powergaps or gridgaps or reservegaps):
         print("Done.")
         sys.exit()
 
@@ -970,7 +1088,13 @@ else:
             get_backup_history(period['start'], period['end'])
         print()
 
-if not (powerdata or eventdata):
+    if reservegaps:
+        # Set backup reserve percent history for each gap period
+        for period in reservegaps:
+            set_reserve_history(period['start'], period['end'])
+        print()
+
+if not (powerdata or eventdata or reservedata):
     sys.exit("ERROR: No data returned for this date/time range")
 
 # Write data points to InfluxDB
