@@ -341,7 +341,8 @@ def tesla_login(email):
                         sitename = lookup(d, ['site_name'])
                     sitetimezone = lookup(d, ['installation_time_zone', 'time_zone_offset'])
                     if type(sitetimezone) is int:
-                        sitetimezone = f"UTC{int(sitetimezone / 60):+}"
+                        offset = datetime.now(tz=tz.tzoffset(None, sitetimezone * 60)).strftime('%z')
+                        sitetimezone = f"UTC{offset[:3]}:{offset[3:]}"
                     try:
                         siteinstdate = isoparse(lookup(d, ['installation_date']))
                     except:
@@ -400,40 +401,6 @@ def get_power_history(start, end):
     """
     global sitetz, tzname, dayloaded, power, soe
 
-    if not sitetz:
-        try:
-            # Retrieve current history data to determine site timezone
-            data = site.get_calendar_history_data(kind='power', end_date=sitetime.replace(second=59).isoformat())
-
-            # Attempt to get history data for alternative dates if no data was returned for current time
-            if not data:
-                data = site.get_calendar_history_data(kind='power', end_date=(sitetime - timedelta(days=1)).replace(second=59).isoformat())
-            if not data:
-                data = site.get_calendar_history_data(kind='power', end_date=end.replace(second=59).isoformat())
-            if not data:
-                data = site.get_calendar_history_data(kind='power', end_date=start.replace(second=59).isoformat())
-            if not data:
-                sys.exit("ERROR: Failed to retrieve history data")
-            if args.debug:
-                print(data)
-
-            # Get timezone name or offset from history data
-            tzdata = lookup(data, ['installation_time_zone', 'time_zone_offset'])
-
-            if type(tzdata) is int:
-                # Set site timezone from timezone offset
-                tzname = f"UTC{int(tzdata / 60):+}"
-                sitetz = tz.tzoffset(tzname, tzdata * 60)
-            else:
-                # Set site timezone from timezone name
-                tzname = tzdata
-                sitetz = tz.gettz(tzname)
-
-            if sitetz is None:
-                sys.exit(f"ERROR: Invalid timezone for history data - {tzdata}")
-        except Exception as err:
-            sys.exit(f"ERROR: Failed to retrieve timezone from history data - {err}")
-
     print(f"Retrieving data for gap: [{start.astimezone(influxtz)}] - [{end.astimezone(influxtz)}] ({str(end - start)}s)")
 
     # Set time to end of day for daily calendar history data retrieval
@@ -441,6 +408,7 @@ def get_power_history(start, end):
     endday = end.astimezone(sitetz).replace(hour=23, minute=59, second=59, tzinfo=None)
 
     # Loop through each day to retrieve daily 'power' and 'soe' history data
+    nextstart = start
     while day <= endday:
         # Get this day's history if not already loaded
         if day != dayloaded:
@@ -460,6 +428,31 @@ def get_power_history(start, end):
                     "generator_power": 0
                 }
                 """
+                # Check history data for timezone changes
+                if power:
+                    # Get timezone name or offset from history data
+                    tzdata = lookup(power, ['installation_time_zone', 'time_zone_offset'])
+
+                    if type(tzdata) is int:
+                        # Get timezone from timezone offset
+                        histtz = tz.tzoffset(None, tzdata * 60)
+                        offset = datetime.now(tz=histtz).strftime('%z')
+                        tzdata = f"UTC{offset[:3]}:{offset[3:]}"
+                    else:
+                        # Get timezone from timezone name
+                        histtz = tz.gettz(tzdata)
+
+                    if histtz is None:
+                        sys.exit(f"ERROR: Invalid timezone for history data - {tzdata}")
+
+                    if sitetz != histtz:
+                        # Update site timezone if mismatch found and re-run from next start day
+                        sitetz = histtz
+                        tzname = tzdata
+                        day = nextstart.astimezone(sitetz).replace(hour=23, minute=59, second=59, tzinfo=None)
+                        endday = end.astimezone(sitetz).replace(hour=23, minute=59, second=59, tzinfo=None)
+                        continue
+
                 if isinstance(site, Battery):
                     # Retrieve current day 'soe' history ('soe' data returned in 15 minute intervals)
                     soe = site.get_calendar_history_data(kind='soe', end_date=day.replace(tzinfo=sitetz).isoformat())
@@ -476,8 +469,17 @@ def get_power_history(start, end):
             dayloaded = day
 
         if power:
+            # Check if solar only site returns grid power values
+            if isinstance(site, SolarPanel):
+                gridpower = False
+                for d in power['time_series']:
+                    if d['grid_power'] != 0:
+                        gridpower = True
+                        break
+
             for d in power['time_series']:
                 timestamp = isoparse(d['timestamp']).astimezone(utctz)
+                nextstart = timestamp + timedelta(minutes=5)
                 # Save data point when within start/end range only
                 if timestamp >= start and timestamp <= end:
                     # Calculate power usage values
@@ -487,6 +489,10 @@ def get_power_history(start, end):
                     to_pw = -d['battery_power'] if d['battery_power'] < 0 else 0
                     from_grid = d['grid_power'] if d['grid_power'] > 0 else 0
                     to_grid = -d['grid_power'] if d['grid_power'] < 0 else 0
+
+                    if isinstance(site, SolarPanel) and not gridpower:
+                        # Set home to zero when grid power not available for solar only sites
+                        home = 0
 
                     # Save data point values
                     point = f"http,source=cloud,month={timestamp.astimezone(influxtz).strftime('%b')},year={timestamp.astimezone(influxtz).year} home={home},solar={solar},from_pw={from_pw},to_pw={to_pw},from_grid={from_grid},to_grid={to_grid} "
@@ -1003,6 +1009,8 @@ else:
 # Get site info and timezones
 site = siteinfo['site']
 influxtz = tz.gettz(ITZ)
+sitetz = influxtz
+tzname = ITZ
 utctz = tz.tzutc()
 
 # Check InfluxDB timezone is valid
