@@ -61,3 +61,9 @@ Several in the community use NodeRed to help automate usage of their Solar and P
 This is a tool for Tesla Solar owners who don't have a Powerwall to get a similar dashboard for their systems. This folder contains a setup using the `tesla-history` script developed by @mcbirse.
 
 * [Solar Only Setup](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/tools/solar-only/)
+
+## InfluxDB 2.x Support
+
+This includes optionals files and instructions to help setup InfluxDB 2.x (instead of 1.8) as the database for the Dashboard. Thanks to @ThePnuts for developing the many flux queries required to replace the 1.8 version continuous queries as well as the Grafana queries in the dashboard.json.
+
+* [InfluxDB 2.x Support](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/tools/influxdb2/)
