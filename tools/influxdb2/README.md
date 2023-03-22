@@ -14,7 +14,7 @@ This includes optionals files and instructions to help setup InfluxDB 2.x (inste
 * InfluxDB 2.x setup
   * Docker Container options (configure ports and path for your local host)
     * Port: 8083 and 8086 (So its accessible)
-    * Host Path: /var/lib/influxdb (So your databases are not stored in the container)
+    * Host Path: /var/lib/influxdb to wherever you want TO store your databases and config (So your databases are not stored in the container)
   * Configure
     * If this is your first time, connect to http://localhost:8086/ and follow walk through to create initial oreganization and admin user
     * Plan to either use an existing organization or create one
@@ -30,6 +30,13 @@ This includes optionals files and instructions to help setup InfluxDB 2.x (inste
         * raw_weather and tesla_energy (for Grafana to access data)
 * Weather411 setup for influxDB 2.x
   * Docker Container options (configure ports and path for your local host)
+    * Port: 8676 (So its accessible)
+    * Variable: WEATHERCONF | /var/lib/weather/weather411.conf (So your container expects it there)
+    * Host Path: /var/lib/weather/weather411.conf TO wherever you create the weather.411.conf file (So your config file is outside of your container)
+  * Configure
+    * Follow configuration steps in step 1 on the [weather411](https://hub.docker.com/r/jasonacox/weather411/) page.
+      * Use the Influx 2.x details with the info you created above (Write API token for weather411, Orginization you created, URL for influx server you used above)
+      * This file is saved in the location you specified above
 * pyPowerwall setup
   * Docker Container options (configure ports and path for your local host)
 * Telegraf setup
