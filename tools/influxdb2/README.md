@@ -5,6 +5,10 @@ This includes optionals files and instructions to help setup InfluxDB 2.x (inste
 ## Instructions
 
 * Containers (setup)
+  * I am using the default containers provided by influxdata and GrafanaLabs
+    * [Influxdb 2.6](https://hub.docker.com/_/influxdb/)
+    * [Grafana](https://hub.docker.com/r/grafana/grafana/)
+    * [Telegraf](https://hub.docker.com/_/telegraf/)
 * InfluxDB 2.x setup
 * Flux tasks
 * Dashboard
