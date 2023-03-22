@@ -51,9 +51,9 @@ This includes optionals files and instructions to help setup InfluxDB 2.x (inste
     * raw_weather (For raw weather data from weather411)
       * This data is not aggregated, do not set a retention policy if you want to keep historical data
     * raw_tesla_energy (For raw data from PyPowerwall)
-      * At this time not all data is aggregated, everything used for current reporting is aggregated to tesla_energy, set a retention policy respective of how much data you want to keep at 5s interval
+      * At this time not all data is aggregated, everything used for current reporting is aggregated to tesla_energy, set a retention policy respective of how much data you want to keep (its stored at 5s intervals from pyPowerwall)
     * tesla_energy (For aggregate date from raw_tesla_energy, also primary source for tesla data on the dashboard)
-      * Aggregate data (@1m) from raw_tesla_energy, do not set a retention policy if you want to keep historical data.
+      * Aggregate data (@1m intervals) from raw_tesla_energy, do not set a retention policy if you want to keep historical data.
   * Generate the following API tokens. Each a sperate tokens unless specified together. API tokens are only displayed at creatiion and need to be recreated if lost.
     * Write
       * raw_weather (for weather 411)
