@@ -67,17 +67,24 @@ This includes optionals files and instructions to help setup InfluxDB 2.x (inste
   * Follow configuration steps in step 1 on the [weather411](https://hub.docker.com/r/jasonacox/weather411/) page.
     * Use the Influx 2.x details with the info you created above (Write API token for weather411, Orginization you created, URL for influx server you used above)
     * Make sure to update DB = powerwall to DB = raw_weather
-    * This file is saved in the location you specified above
+    * This file is saved in the location you specified
 * Telegraf
   * Edit telegraf.conf file with your server information and Write API token for raw_tesla_energy from above. Ensure it is saved where you specfied above.
-* Grafana
+* Grafana (http://IP:3000/)
+  * grafana.ini
+    * Get the sample file from: https://github.com/grafana/grafana/blob/main/conf/sample.ini
+    * Save this file as grafana.ini in the location you specified
   * Allow html
-  * Add DB sources
-    * InfluxDB 2.x
-  * Add plugins
-    * Sun and Moon
+    * In the grafana.ini file, find and edit:
+      * ;disable_sanitize_html = false TO disable_sanitize_html = true
+  * Add data sources in configuration
+    * Enter the URL of your influxdb: http://IP:8086
+    * Enter the Organization you created
+    * Default Bucket: tesla_energy
+  * Add plugins in configuration
+    * Search for and isntall: Sun and Moon (By fetzerch)
   * Dashboard
-    * Import json file
+    * Import grafana dashboard json file
 
 ## Discussion Link
 
