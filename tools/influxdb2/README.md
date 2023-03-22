@@ -39,8 +39,20 @@ This includes optionals files and instructions to help setup InfluxDB 2.x (inste
       * This file is saved in the location you specified above
 * pyPowerwall setup
   * Docker Container options (configure ports and path for your local host)
+    * Port: 8675 (So its accessible)
+    * Variable: PW_HOST | IP of Powerwall  (IP Address of your Powerwall)
+    * Variable: PW_PORT | 8675  (Your Powerwall Port)
+    * Variable: PW_EMAIL | something@else.com  (Your Powerwall account email)
+    * Variable: PW_PASSWORD | Sup3rSecr3t  (Your Powerwall account password)
+    * Variable: PW_TIMEZONE | America/Los_Angeles  (Variable for your powerwall timezone)
+    * Variable: TZ | America/Los_Angeles  (Variable for local timezone)
+    * Variable: PW_CACHE_EXPIRE | 5 (Variable for Powerwall Cache Expiration)
+  * Test it: http://localhost:8675/aggregates
 * Telegraf setup
   * Docker Container options (configure ports and path for your local host)
+    * Host Path: /etc/telegraf/telegraf.conf TO wherever you create the telegraf.conf file (So your config file is outside of your container)
+  * Configure
+    * Edit the telegraf.conf file with your server information and Write API token for raw_tesla_energy from above
 * Grafana
   * Docker Container options (configure ports and path for your local host)
 * Dashboard
