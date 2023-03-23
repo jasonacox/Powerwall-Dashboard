@@ -1,5 +1,13 @@
 # RELEASE NOTES
 
+## v2.8.8 - Update pyPowerwall
+
+* Upgraded to pyPowerwall v0.6.2 Proxy t25 which fixes Cache-Control no-cache header and adds an option to set max-age, See https://github.com/jasonacox/pypowerwall/blob/main/proxy/RELEASE.md#proxy-t25-21-mar-2023
+* Solar Only Support Development by @mcbirse in https://github.com/jasonacox/Powerwall-Dashboard/pull/211 and in https://github.com/jasonacox/Powerwall-Dashboard/pull/218
+* Grafana Options - Base setup in [grafana.env.sample](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/grafana.env.sample) will allow embedding of graphs into webpages [#219](https://github.com/jasonacox/Powerwall-Dashboard/issues/219) and optional removal of login requirement [#221](https://github.com/jasonacox/Powerwall-Dashboard/issues/221)
+* Tools - InfluxDB 2.x optional setup, tasks, and dashboard by @ThePnuts in https://github.com/jasonacox/Powerwall-Dashboard/pull/223 See https://github.com/jasonacox/Powerwall-Dashboard/tree/main/tools/influxdb2
+
+
 ## v2.8.7 - Preserve Peaks in Graphs
 
 * Update Live Monitoring graph queries for Dashboard to use `max()` instead of `mean()` for Solar, Home, Grid and Powerwall to preserve peaks across all time filters as raised in https://github.com/jasonacox/Powerwall-Dashboard/issues/203
