@@ -23,7 +23,7 @@
       "type": "datasource",
       "id": "fetzerch-sunandmoon-datasource",
       "name": "Sun and Moon",
-      "version": "0.3.0"
+      "version": "0.2.1"
     },
     {
       "type": "grafana",
@@ -35,7 +35,7 @@
       "type": "panel",
       "id": "grafana-piechart-panel",
       "name": "Pie Chart (old)",
-      "version": "1.6.4"
+      "version": "1.6.2"
     },
     {
       "type": "panel",
@@ -57,27 +57,15 @@
     },
     {
       "type": "panel",
-      "id": "state-timeline",
-      "name": "State timeline",
-      "version": ""
-    },
-    {
-      "type": "panel",
       "id": "text",
       "name": "Text",
       "version": ""
     },
     {
       "type": "panel",
-      "id": "timeseries",
-      "name": "Time series",
-      "version": ""
-    },
-    {
-      "type": "panel",
       "id": "yesoreyeram-boomtable-panel",
       "name": "Boom Table",
-      "version": "1.5.0-alpha.3"
+      "version": "1.4.1"
     }
   ],
   "annotations": {
@@ -123,479 +111,112 @@
       "type": "row"
     },
     {
+      "aliasColors": {
+        "Charge": "red",
+        "Grid Usage": "purple",
+        "Home Usage": "blue",
+        "Powerwall": "green",
+        "Solar Energy": "yellow",
+        "Sun altitude": "rgb(192, 192, 192)"
+      },
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
       "datasource": {
         "type": "datasource",
         "uid": "-- Mixed --"
       },
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisCenteredZero": true,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 30,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": true,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "links": [],
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "watt"
+          "links": []
         },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Charge"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "red",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Grid Usage"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "purple",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Home Usage"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "blue",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Powerwall"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "green",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Solar Energy"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "yellow",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Sun altitude"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "rgb(192, 192, 192)",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "custom.hideFrom",
-                "value": {
-                  "legend": true,
-                  "tooltip": true,
-                  "viz": false
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "Charge|Reserve"
-            },
-            "properties": [
-              {
-                "id": "custom.drawStyle",
-                "value": "line"
-              },
-              {
-                "id": "custom.fillOpacity",
-                "value": 0
-              },
-              {
-                "id": "custom.lineWidth",
-                "value": 0
-              },
-              {
-                "id": "custom.lineWidth",
-                "value": 2
-              },
-              {
-                "id": "unit",
-                "value": "percent"
-              },
-              {
-                "id": "decimals",
-                "value": 0
-              },
-              {
-                "id": "min",
-                "value": -101
-              },
-              {
-                "id": "max",
-                "value": 101
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Sun altitude"
-            },
-            "properties": [
-              {
-                "id": "custom.fillOpacity",
-                "value": 10
-              },
-              {
-                "id": "unit",
-                "value": "percent"
-              },
-              {
-                "id": "decimals",
-                "value": 0
-              },
-              {
-                "id": "min",
-                "value": -101
-              },
-              {
-                "id": "max",
-                "value": 101
-              },
-              {
-                "id": "custom.lineStyle",
-                "value": {
-                  "dash": [
-                    1,
-                    5
-                  ],
-                  "fill": "dash"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Temperature"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#FF9830",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "custom.fillOpacity",
-                "value": 0
-              },
-              {
-                "id": "unit",
-                "value": "none"
-              },
-              {
-                "id": "decimals",
-                "value": 0
-              },
-              {
-                "id": "min",
-                "value": -101
-              },
-              {
-                "id": "max",
-                "value": 101
-              },
-              {
-                "id": "custom.lineStyle",
-                "value": {
-                  "dash": [
-                    6,
-                    2
-                  ],
-                  "fill": "dash"
-                }
-              },
-              {
-                "id": "custom.axisPlacement",
-                "value": "hidden"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Clouds"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "rgb(255, 255, 255)",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "custom.fillOpacity",
-                "value": 0
-              },
-              {
-                "id": "unit",
-                "value": "percent"
-              },
-              {
-                "id": "decimals",
-                "value": 0
-              },
-              {
-                "id": "min",
-                "value": -101
-              },
-              {
-                "id": "max",
-                "value": 101
-              },
-              {
-                "id": "custom.lineStyle",
-                "value": {
-                  "dash": [
-                    5,
-                    6
-                  ],
-                  "fill": "dash"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Feels Like"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#F2CC0C",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "custom.fillOpacity",
-                "value": 0
-              },
-              {
-                "id": "unit",
-                "value": "percent"
-              },
-              {
-                "id": "decimals",
-                "value": 0
-              },
-              {
-                "id": "min",
-                "value": -101
-              },
-              {
-                "id": "max",
-                "value": 101
-              },
-              {
-                "id": "custom.lineStyle",
-                "value": {
-                  "dash": [
-                    6,
-                    2
-                  ],
-                  "fill": "dash"
-                }
-              },
-              {
-                "id": "custom.hideFrom",
-                "value": {
-                  "legend": true,
-                  "tooltip": true,
-                  "viz": false
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Grid Down"
-            },
-            "properties": [
-              {
-                "id": "custom.axisPlacement",
-                "value": "hidden"
-              },
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "red",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "min",
-                "value": 0
-              },
-              {
-                "id": "max",
-                "value": 30
-              },
-              {
-                "id": "custom.hideFrom",
-                "value": {
-                  "legend": true,
-                  "tooltip": true,
-                  "viz": false
-                }
-              },
-              {
-                "id": "custom.fillOpacity",
-                "value": 24
-              },
-              {
-                "id": "custom.spanNulls",
-                "value": 120000
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Reserve"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#f2495c75",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "custom.lineStyle",
-                "value": {
-                  "dash": [
-                    10,
-                    10
-                  ],
-                  "fill": "dash"
-                }
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
+      "fill": 3,
+      "fillGradient": 0,
       "gridPos": {
-        "h": 13,
+        "h": 12,
         "w": 16,
         "x": 0,
         "y": 1
       },
+      "hiddenSeries": false,
       "id": 2,
       "interval": "",
-      "options": {
-        "legend": {
-          "calcs": [
-            "max"
-          ],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
+      "legend": {
+        "alignAsTable": false,
+        "avg": false,
+        "current": false,
+        "max": true,
+        "min": false,
+        "rightSide": false,
+        "show": true,
+        "total": false,
+        "values": true
       },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "connected",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
       "pluginVersion": "9.1.2",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [
+        {
+          "alias": "Charge",
+          "bars": false,
+          "fill": 0,
+          "lines": true,
+          "linewidth": 2,
+          "yaxis": 2
+        },
+        {
+          "alias": "Sun altitude",
+          "dashLength": 1,
+          "dashes": true,
+          "fill": 1,
+          "hideTooltip": true,
+          "legend": false,
+          "spaceLength": 5,
+          "yaxis": 2
+        },
+        {
+          "alias": "Temperature",
+          "color": "#FF9830",
+          "dashLength": 6,
+          "dashes": true,
+          "fill": 0,
+          "spaceLength": 2,
+          "yaxis": 2
+        },
+        {
+          "alias": "Clouds",
+          "color": "rgb(255, 255, 255)",
+          "dashLength": 5,
+          "dashes": true,
+          "fill": 0,
+          "spaceLength": 6,
+          "yaxis": 2
+        },
+        {
+          "alias": "Feels Like",
+          "color": "#F2CC0C",
+          "dashLength": 6,
+          "dashes": true,
+          "fill": 0,
+          "hideTooltip": true,
+          "legend": false,
+          "spaceLength": 2,
+          "yaxis": 2
+        }
+      ],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
       "targets": [
         {
           "alias": "Home Usage",
@@ -606,7 +227,7 @@
           "groupBy": [
             {
               "params": [
-                "$__interval"
+                "5m"
               ],
               "type": "time"
             }
@@ -628,11 +249,12 @@
               },
               {
                 "params": [],
-                "type": "max"
+                "type": "mean"
               }
             ]
           ],
-          "tags": []
+          "tags": [],
+          "tz": "America/Los_Angeles"
         },
         {
           "alias": "Solar Energy",
@@ -643,7 +265,7 @@
           "groupBy": [
             {
               "params": [
-                "$__interval"
+                "5m"
               ],
               "type": "time"
             }
@@ -664,11 +286,12 @@
               },
               {
                 "params": [],
-                "type": "max"
+                "type": "mean"
               }
             ]
           ],
-          "tags": []
+          "tags": [],
+          "tz": "America/Los_Angeles"
         },
         {
           "alias": "Powerwall",
@@ -688,7 +311,7 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "autogen",
-          "query": "SELECT max(from_pw) - max(to_pw) FROM autogen.http WHERE $timeFilter GROUP BY time($__interval) ",
+          "query": "SELECT mean(from_pw) - mean(to_pw) FROM autogen.http WHERE $timeFilter GROUP BY time(5m) tz('America/Los_Angeles')",
           "rawQuery": true,
           "refId": "C",
           "resultFormat": "time_series",
@@ -733,7 +356,7 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT max(from_grid) - max(to_grid) FROM autogen.http WHERE $timeFilter GROUP BY time($__interval) ",
+          "query": "SELECT mean(from_grid) - mean(to_grid) FROM autogen.http WHERE $timeFilter GROUP BY time(5m) tz('America/Los_Angeles')",
           "rawQuery": true,
           "refId": "D",
           "resultFormat": "time_series",
@@ -763,7 +386,7 @@
           "groupBy": [
             {
               "params": [
-                "$__interval"
+                "5m"
               ],
               "type": "time"
             },
@@ -802,7 +425,8 @@
               }
             ]
           ],
-          "tags": []
+          "tags": [],
+          "tz": "America/Los_Angeles"
         },
         {
           "datasource": {
@@ -810,9 +434,7 @@
             "uid": "${DS_SUN_AND MOON}"
           },
           "refId": "F",
-          "target": [
-            "sun_altitude"
-          ]
+          "target": "sun_altitude"
         },
         {
           "alias": "Temperature",
@@ -936,102 +558,47 @@
             ]
           ],
           "tags": []
-        },
-        {
-          "alias": "Grid Down",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT min(\"grid_status\") +1  FROM \"grid\".\"http\" WHERE grid_status = 0 and $timeFilter GROUP BY time($__interval) ",
-          "rawQuery": true,
-          "refId": "J",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        },
-        {
-          "alias": "Reserve",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "none"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "measurement": "http",
-          "orderByTime": "ASC",
-          "policy": "pod",
-          "query": "SELECT \"mean_percentage\" FROM \"http\" WHERE $timeFilter",
-          "rawQuery": false,
-          "refId": "K",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "backup_reserve_percent"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "last"
-              }
-            ]
-          ],
-          "tags": []
         }
       ],
+      "thresholds": [],
+      "timeRegions": [],
       "title": "Energy Usage",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
       "transparent": true,
-      "type": "timeseries"
+      "type": "graph",
+      "xaxis": {
+        "mode": "time",
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "watt",
+          "label": "",
+          "logBase": 1,
+          "show": true
+        },
+        {
+          "decimals": 0,
+          "format": "percent",
+          "label": "",
+          "logBase": 1,
+          "max": "101",
+          "min": "-101",
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": true
+      }
     },
     {
       "gridPos": {
-        "h": 10,
+        "h": 9,
         "w": 8,
         "x": 16,
         "y": 1
@@ -1039,7 +606,7 @@
       "id": 13,
       "links": [],
       "options": {
-        "content": "<div style=\"text-align: center\">\n<iframe id=\"frame\" src=\"/public/img/grafana_icon.svg\" width=\"100%\" height=\"290\" frameBorder=\"0\">No</iframe>\n<p class=\"version\" style=\"color:gray;\">Firmware</p>\n<script>\n// Get Firmware Version\nfunction showversion() {\n    var pwver = window.location.protocol + \"//\" + window.location.hostname + \":8675/version\";\n    $.getJSON(pwver, function(data) {\n        var text = `Firmware: ${data.version.split(\" \")[0]}`;\n        $(\".version\").html(text);\n    });\n    setTimeout(showversion, 60000);\n}\nvar pwurl = window.location.protocol + \"//\" + window.location.hostname + \":8675/\";\ndocument.getElementById('frame').src = pwurl;\nshowversion();\n</script>\n</div>",
+        "content": "<div style=\"text-align: center\">\n<iframe id=\"frame\" src=\"/public/img/grafana_icon.svg\" width=\"400\" height=\"300\" frameBorder=\"0\">No</iframe>\n<script>\nvar pwurl = window.location.protocol + \"//\" + window.location.hostname + \":8675/\";\nconsole.log(pwurl);\ndocument.getElementById('frame').src = pwurl;\n</script>\n</div>",
         "mode": "html"
       },
       "pluginVersion": "9.1.2",
@@ -1212,7 +779,7 @@
         "h": 3,
         "w": 6,
         "x": 17,
-        "y": 11
+        "y": 10
       },
       "hiddenSeries": false,
       "hideTimeOverride": false,
@@ -1315,7 +882,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 14
+        "y": 13
       },
       "id": 41,
       "panels": [],
@@ -1359,9 +926,9 @@
       },
       "gridPos": {
         "h": 2,
-        "w": 3,
+        "w": 4,
         "x": 0,
-        "y": 15
+        "y": 14
       },
       "id": 4,
       "interval": "",
@@ -1417,7 +984,8 @@
               }
             ]
           ],
-          "tags": []
+          "tags": [],
+          "tz": "America/Los_Angeles"
         }
       ],
       "title": "Home Usage",
@@ -1461,9 +1029,9 @@
       },
       "gridPos": {
         "h": 2,
-        "w": 3,
-        "x": 3,
-        "y": 15
+        "w": 4,
+        "x": 4,
+        "y": 14
       },
       "id": 5,
       "interval": "",
@@ -1519,117 +1087,11 @@
               }
             ]
           ],
-          "tags": []
+          "tags": [],
+          "tz": "America/Los_Angeles"
         }
       ],
       "title": "Solar Energy",
-      "transparent": true,
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "decimals": 1,
-          "mappings": [
-            {
-              "options": {
-                "match": "null",
-                "result": {
-                  "text": "N/A"
-                }
-              },
-              "type": "special"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "yellow",
-                "value": null
-              }
-            ]
-          },
-          "unit": "percentunit"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 2,
-        "w": 3,
-        "x": 6,
-        "y": 15
-      },
-      "id": 70,
-      "interval": "",
-      "links": [],
-      "maxDataPoints": 100,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [
-            "sum"
-          ],
-          "fields": "/^SolarPowered$/",
-          "values": false
-        },
-        "text": {
-          "valueSize": 30
-        },
-        "textMode": "auto"
-      },
-      "pluginVersion": "9.1.2",
-      "targets": [
-        {
-          "alias": "SolarPowered",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "groupBy": [],
-          "hide": false,
-          "measurement": "http",
-          "orderByTime": "ASC",
-          "policy": "autogen",
-          "query": "SELECT (home - from_grid) / home FROM \n  (SELECT integral(\"home\")  AS home, integral(\"from_grid\")  AS from_grid \n      FROM \"autogen\".\"http\" WHERE $timeFilter)",
-          "rawQuery": true,
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "solar"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "integral"
-              },
-              {
-                "params": [
-                  " / 1000 / 3600"
-                ],
-                "type": "math"
-              }
-            ]
-          ],
-          "tags": []
-        }
-      ],
-      "title": "% Solar Powered",
       "transparent": true,
       "type": "stat"
     },
@@ -1670,9 +1132,9 @@
       },
       "gridPos": {
         "h": 2,
-        "w": 3,
-        "x": 9,
-        "y": 15
+        "w": 4,
+        "x": 8,
+        "y": 14
       },
       "id": 8,
       "interval": "",
@@ -1728,7 +1190,8 @@
               }
             ]
           ],
-          "tags": []
+          "tags": [],
+          "tz": "America/Los_Angeles"
         }
       ],
       "title": "To Powerwall",
@@ -1772,9 +1235,9 @@
       },
       "gridPos": {
         "h": 2,
-        "w": 3,
+        "w": 4,
         "x": 12,
-        "y": 15
+        "y": 14
       },
       "id": 6,
       "interval": "",
@@ -1830,7 +1293,8 @@
               }
             ]
           ],
-          "tags": []
+          "tags": [],
+          "tz": "America/Los_Angeles"
         }
       ],
       "title": "From Powerwall",
@@ -1874,9 +1338,9 @@
       },
       "gridPos": {
         "h": 2,
-        "w": 3,
-        "x": 15,
-        "y": 15
+        "w": 4,
+        "x": 16,
+        "y": 14
       },
       "id": 7,
       "interval": "",
@@ -1932,7 +1396,8 @@
               }
             ]
           ],
-          "tags": []
+          "tags": [],
+          "tz": "America/Los_Angeles"
         }
       ],
       "title": "To Grid",
@@ -1976,9 +1441,9 @@
       },
       "gridPos": {
         "h": 2,
-        "w": 3,
-        "x": 18,
-        "y": 15
+        "w": 4,
+        "x": 20,
+        "y": 14
       },
       "id": 9,
       "interval": "",
@@ -2034,115 +1499,11 @@
               }
             ]
           ],
-          "tags": []
+          "tags": [],
+          "tz": "America/Los_Angeles"
         }
       ],
       "title": "From Grid",
-      "transparent": true,
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "decimals": 1,
-          "mappings": [
-            {
-              "options": {
-                "match": "null",
-                "result": {
-                  "text": "N/A"
-                }
-              },
-              "type": "special"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "purple",
-                "value": null
-              }
-            ]
-          },
-          "unit": "kwatth"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 2,
-        "w": 3,
-        "x": 21,
-        "y": 15
-      },
-      "id": 69,
-      "interval": "",
-      "links": [],
-      "maxDataPoints": 100,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [
-            "sum"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "text": {
-          "valueSize": 30
-        },
-        "textMode": "auto"
-      },
-      "pluginVersion": "9.1.2",
-      "targets": [
-        {
-          "alias": "",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "groupBy": [],
-          "measurement": "http",
-          "orderByTime": "ASC",
-          "policy": "autogen",
-          "query": "SELECT (integral(\"from_grid\") - integral(\"to_grid\"))   / 1000 / 3600 FROM \"autogen\".\"http\" WHERE $timeFilter",
-          "rawQuery": true,
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "from_grid"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "integral"
-              },
-              {
-                "params": [
-                  " / 1000 / 3600"
-                ],
-                "type": "math"
-              }
-            ]
-          ],
-          "tags": []
-        }
-      ],
-      "title": "Net Grid Usage",
       "transparent": true,
       "type": "stat"
     },
@@ -2179,7 +1540,7 @@
         "h": 5,
         "w": 9,
         "x": 0,
-        "y": 17
+        "y": 16
       },
       "hiddenSeries": false,
       "hideTimeOverride": true,
@@ -2332,7 +1693,7 @@
         "h": 5,
         "w": 8,
         "x": 9,
-        "y": 17
+        "y": 16
       },
       "id": 43,
       "interval": "",
@@ -2358,7 +1719,7 @@
             "type": "influxdb",
             "uid": "${DS_INFLUXDB}"
           },
-          "query": "SELECT  (1+from_solar/abs(from_solar))*from_solar/2  FROM (SELECT integral(solar)/1000/3600 - (integral(to_pw) - integral(grid_to_pw))/1000/3600  - integral(to_grid)/1000/3600  AS from_solar FROM (SELECT from_solar, solar, to_pw, to_grid, ((from_grid - home - solar) + ABS((from_grid - home - solar))) / 2 AS grid_to_pw FROM autogen.http WHERE  $timeFilter tz('America/Los_Angeles')))",
+          "query": "SELECT  (1+from_solar/abs(from_solar))*from_solar/2  FROM (SELECT integral(solar)/1000/3600 - integral(to_pw)/1000/3600 - integral(to_grid)/1000/3600  AS from_solar FROM autogen.http WHERE  $timeFilter tz('America/Los_Angeles'))",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series"
@@ -2412,8 +1773,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "autogen",
-          "query": "SELECT (integral(from_grid) - integral(grid_to_pw))/1000/3600  AS from_grid FROM (SELECT from_grid, ((from_grid - home - solar) + ABS((from_grid - home - solar))) / 2 AS grid_to_pw FROM autogen.http WHERE  $timeFilter tz('America/Los_Angeles'))",
-          "rawQuery": true,
+          "query": "SELECT mean(\"value\") FROM \"measurement\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "C",
           "resultFormat": "time_series",
           "select": [
@@ -2496,7 +1857,7 @@
         "h": 6,
         "w": 6,
         "x": 18,
-        "y": 17
+        "y": 16
       },
       "hide_first_column": false,
       "hide_headers": true,
@@ -2648,7 +2009,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 23
+        "y": 22
       },
       "id": 22,
       "panels": [],
@@ -2678,7 +2039,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 24
+        "y": 23
       },
       "hiddenSeries": false,
       "id": 24,
@@ -2807,7 +2168,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 24
+        "y": 23
       },
       "hiddenSeries": false,
       "id": 25,
@@ -2942,7 +2303,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 32
+        "y": 31
       },
       "hiddenSeries": false,
       "id": 26,
@@ -3074,7 +2435,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 32
+        "y": 31
       },
       "hiddenSeries": false,
       "id": 27,
@@ -3254,10 +2615,10 @@
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
-        "h": 6,
+        "h": 5,
         "w": 24,
         "x": 0,
-        "y": 40
+        "y": 39
       },
       "hiddenSeries": false,
       "id": 30,
@@ -3268,8 +2629,7 @@
         "current": false,
         "max": false,
         "min": false,
-        "rightSide": true,
-        "show": true,
+        "show": false,
         "total": false,
         "values": false
       },
@@ -3287,23 +2647,14 @@
       "seriesOverrides": [
         {
           "$$hashKey": "object:1551",
-          "alias": "Solar",
+          "alias": "Solar Energy Year",
           "color": "#FADE2A"
         },
         {
           "$$hashKey": "object:1552",
-          "alias": "Home",
+          "alias": "Home Usage",
           "bars": false,
           "color": "rgb(50, 116, 217)",
-          "fill": 0,
-          "lines": true,
-          "steppedLine": true
-        },
-        {
-          "$$hashKey": "object:161",
-          "alias": "Grid",
-          "bars": false,
-          "color": "rgb(184, 119, 217)",
           "fill": 0,
           "lines": true,
           "steppedLine": true
@@ -3314,7 +2665,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "alias": "Solar",
+          "alias": "Solar Energy",
           "datasource": {
             "type": "influxdb",
             "uid": "${DS_INFLUXDB}"
@@ -3362,7 +2713,7 @@
           "tz": "America/Los_Angeles"
         },
         {
-          "alias": "Home",
+          "alias": "Home Usage",
           "datasource": {
             "type": "influxdb",
             "uid": "${DS_INFLUXDB}"
@@ -3404,57 +2755,6 @@
           "tags": [
             {
               "key": "home",
-              "operator": ">",
-              "value": "0"
-            }
-          ],
-          "tz": "America/Los_Angeles"
-        },
-        {
-          "alias": "Grid",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "1d"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "0"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "measurement": "http",
-          "orderByTime": "ASC",
-          "policy": "kwh",
-          "query": "SELECT sum(\"from_grid\") - sum(\"to_grid\") as \"grid\" FROM \"kwh\".\"http\" WHERE $timeFilter GROUP BY time(1d) fill(0) tz('America/Los_Angeles')",
-          "rawQuery": true,
-          "refId": "C",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "from_grid"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "sum"
-              }
-            ]
-          ],
-          "tags": [
-            {
-              "key": "from_grid",
               "operator": ">",
               "value": "0"
             }
@@ -3502,7 +2802,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 46
+        "y": 44
       },
       "id": 37,
       "panels": [],
@@ -3532,7 +2832,7 @@
         "h": 5,
         "w": 8,
         "x": 0,
-        "y": 47
+        "y": 45
       },
       "hiddenSeries": false,
       "id": 32,
@@ -4294,7 +3594,7 @@
         "h": 5,
         "w": 8,
         "x": 8,
-        "y": 47
+        "y": 45
       },
       "hiddenSeries": false,
       "id": 62,
@@ -5056,7 +4356,7 @@
         "h": 5,
         "w": 8,
         "x": 16,
-        "y": 47
+        "y": 45
       },
       "hiddenSeries": false,
       "id": 63,
@@ -5817,7 +5117,7 @@
         "h": 6,
         "w": 12,
         "x": 0,
-        "y": 52
+        "y": 50
       },
       "hiddenSeries": false,
       "id": 34,
@@ -5882,7 +5182,7 @@
               },
               {
                 "params": [],
-                "type": "max"
+                "type": "mean"
               }
             ]
           ],
@@ -5924,7 +5224,7 @@
               },
               {
                 "params": [],
-                "type": "max"
+                "type": "mean"
               }
             ]
           ],
@@ -5966,7 +5266,7 @@
               },
               {
                 "params": [],
-                "type": "max"
+                "type": "mean"
               }
             ]
           ],
@@ -6008,7 +5308,7 @@
               },
               {
                 "params": [],
-                "type": "max"
+                "type": "mean"
               }
             ]
           ],
@@ -6073,7 +5373,7 @@
         "h": 6,
         "w": 12,
         "x": 12,
-        "y": 52
+        "y": 50
       },
       "hiddenSeries": false,
       "id": 35,
@@ -6399,7 +5699,7 @@
         "type": "influxdb",
         "uid": "${DS_INFLUXDB}"
       },
-      "decimals": 3,
+      "decimals": 1,
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -6413,7 +5713,7 @@
         "h": 5,
         "w": 24,
         "x": 0,
-        "y": 58
+        "y": 56
       },
       "hiddenSeries": false,
       "id": 38,
@@ -6769,7 +6069,7 @@
             [
               {
                 "params": [
-                  "PW2_PINV_Fout"
+                  "PW2_PINV_FOUT"
                 ],
                 "type": "field"
               },
@@ -6811,7 +6111,7 @@
             [
               {
                 "params": [
-                  "PW3_PINV_Fout"
+                  "PW3_PINV_FOUT"
                 ],
                 "type": "field"
               },
@@ -6853,7 +6153,7 @@
             [
               {
                 "params": [
-                  "PW4_PINV_Fout"
+                  "PW4_PINV_FOUT"
                 ],
                 "type": "field"
               },
@@ -6895,7 +6195,7 @@
             [
               {
                 "params": [
-                  "PW5_PINV_Fout"
+                  "PW5_PINV_FOUT"
                 ],
                 "type": "field"
               },
@@ -6937,7 +6237,7 @@
             [
               {
                 "params": [
-                  "PW6_PINV_Fout"
+                  "PW6_PINV_FOUT"
                 ],
                 "type": "field"
               },
@@ -7009,7 +6309,7 @@
         "h": 5,
         "w": 24,
         "x": 0,
-        "y": 63
+        "y": 61
       },
       "hiddenSeries": false,
       "id": 61,
@@ -7062,12 +6362,9 @@
               "type": "fill"
             }
           ],
-          "hide": false,
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "query": "SELECT mean(\"ISLAND_VL1N_Load\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -7152,8 +6449,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "query": "SELECT mean(\"ISLAND_VL3N_Load\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "C",
           "resultFormat": "time_series",
           "select": [
@@ -7196,15 +6491,13 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "query": "SELECT mean(\"METER_X_VL1N\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "D",
           "resultFormat": "time_series",
           "select": [
             [
               {
                 "params": [
-                  "ISLAND_VL1N_Main"
+                  "METER_X_VL1N"
                 ],
                 "type": "field"
               },
@@ -7246,7 +6539,7 @@
             [
               {
                 "params": [
-                  "ISLAND_VL2N_Main"
+                  "METER_X_VL2N"
                 ],
                 "type": "field"
               },
@@ -7282,15 +6575,13 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "query": "SELECT mean(\"METER_X_VL3N\") FROM \"vitals\".\"http\" WHERE \"METER_X_VL3N\" > 0 AND $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "F",
           "resultFormat": "time_series",
           "select": [
             [
               {
                 "params": [
-                  "ISLAND_VL3N_Main"
+                  "METER_X_VL3N"
                 ],
                 "type": "field"
               },
@@ -7326,8 +6617,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "query": "SELECT mean(\"PW1_PINV_VSplit1\") FROM \"vitals\".\"http\" WHERE \"ISLAND_VL1N_Load\" < 200.0 AND  $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": true,
           "refId": "G",
           "resultFormat": "time_series",
           "select": [
@@ -7370,8 +6659,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "query": "SELECT mean(\"PW1_PINV_VSplit2\") FROM \"vitals\".\"http\" WHERE \"ISLAND_VL1N_Load\" < 200.0 AND $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": true,
           "refId": "H",
           "resultFormat": "time_series",
           "select": [
@@ -7414,8 +6701,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "query": "SELECT mean(\"PW2_PINV_VSplit1\") FROM \"vitals\".\"http\" WHERE \"ISLAND_VL1N_Load\" < 200.0 AND  $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": true,
           "refId": "I",
           "resultFormat": "time_series",
           "select": [
@@ -7458,8 +6743,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "query": "SELECT mean(\"PW2_PINV_VSplit2\") FROM \"vitals\".\"http\" WHERE \"ISLAND_VL1N_Load\" < 200.0 AND  $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": true,
           "refId": "J",
           "resultFormat": "time_series",
           "select": [
@@ -7502,8 +6785,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "query": "SELECT mean(\"PW3_PINV_VSplit1\") FROM \"vitals\".\"http\" WHERE \"ISLAND_VL1N_Load\" < 200.0 AND  $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": true,
           "refId": "K",
           "resultFormat": "time_series",
           "select": [
@@ -7546,8 +6827,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "query": "SELECT mean(\"PW3_PINV_VSplit2\") FROM \"vitals\".\"http\" WHERE \"ISLAND_VL1N_Load\" < 200.0 AND  $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": true,
           "refId": "L",
           "resultFormat": "time_series",
           "select": [
@@ -7590,8 +6869,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "query": "SELECT mean(\"PW4_PINV_VSplit1\") FROM \"vitals\".\"http\" WHERE \"ISLAND_VL1N_Load\" < 200.0 AND $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": true,
           "refId": "M",
           "resultFormat": "time_series",
           "select": [
@@ -7634,8 +6911,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "query": "SELECT mean(\"PW4_PINV_VSplit2\") FROM \"vitals\".\"http\" WHERE \"ISLAND_VL1N_Load\" < 200.0 AND  $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": true,
           "refId": "N",
           "resultFormat": "time_series",
           "select": [
@@ -7678,8 +6953,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "query": "SELECT mean(\"PW5_PINV_VSplit1\") FROM \"vitals\".\"http\" WHERE \"ISLAND_VL1N_Load\" < 200.0 AND  $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": true,
           "refId": "O",
           "resultFormat": "time_series",
           "select": [
@@ -7722,8 +6995,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "query": "SELECT mean(\"PW5_PINV_VSplit2\") FROM \"vitals\".\"http\" WHERE \"ISLAND_VL1N_Load\" < 200.0 AND $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": true,
           "refId": "P",
           "resultFormat": "time_series",
           "select": [
@@ -7766,8 +7037,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "query": "SELECT mean(\"PW6_PINV_VSplit1\") FROM \"vitals\".\"http\" WHERE \"ISLAND_VL1N_Load\" < 200.0 AND $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": true,
           "refId": "Q",
           "resultFormat": "time_series",
           "select": [
@@ -7810,273 +7079,7 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "query": "SELECT mean(\"PW6_PINV_VSplit2\") FROM \"vitals\".\"http\" WHERE \"ISLAND_VL1N_Load\" < 200.0 AND  $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": true,
           "refId": "R",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "PW6_PINV_VSplit2"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        },
-        {
-          "alias": "PW1",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "measurement": "http",
-          "orderByTime": "ASC",
-          "policy": "vitals",
-          "query": "SELECT mean(\"PW1_PINV_VSplit1\") +  mean(\"PW1_PINV_VSplit2\")  FROM \"vitals\".\"http\" WHERE \"ISLAND_VL1N_Load\" > 200.0 AND  $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": true,
-          "refId": "S",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "PW6_PINV_VSplit2"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        },
-        {
-          "alias": "PW2",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "measurement": "http",
-          "orderByTime": "ASC",
-          "policy": "vitals",
-          "query": "SELECT mean(\"PW2_PINV_VSplit1\") +  mean(\"PW2_PINV_VSplit2\")  FROM \"vitals\".\"http\" WHERE \"ISLAND_VL1N_Load\" > 200.0 AND  $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": true,
-          "refId": "T",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "PW6_PINV_VSplit2"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        },
-        {
-          "alias": "PW3",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "measurement": "http",
-          "orderByTime": "ASC",
-          "policy": "vitals",
-          "query": "SELECT mean(\"PW3_PINV_VSplit1\") +  mean(\"PW3_PINV_VSplit2\")  FROM \"vitals\".\"http\" WHERE \"ISLAND_VL1N_Load\" > 200.0 AND  $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": true,
-          "refId": "U",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "PW6_PINV_VSplit2"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        },
-        {
-          "alias": "PW4",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "measurement": "http",
-          "orderByTime": "ASC",
-          "policy": "vitals",
-          "query": "SELECT mean(\"PW4_PINV_VSplit1\") +  mean(\"PW4_PINV_VSplit2\")  FROM \"vitals\".\"http\" WHERE \"ISLAND_VL1N_Load\" > 200.0 AND  $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": true,
-          "refId": "V",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "PW6_PINV_VSplit2"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        },
-        {
-          "alias": "PW5",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "measurement": "http",
-          "orderByTime": "ASC",
-          "policy": "vitals",
-          "query": "SELECT mean(\"PW5_PINV_VSplit1\") +  mean(\"PW5_PINV_VSplit2\")  FROM \"vitals\".\"http\" WHERE \"ISLAND_VL1N_Load\" > 200.0 AND  $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": true,
-          "refId": "W",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "PW6_PINV_VSplit2"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        },
-        {
-          "alias": "PW6",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "measurement": "http",
-          "orderByTime": "ASC",
-          "policy": "vitals",
-          "query": "SELECT mean(\"PW6_PINV_VSplit1\") +  mean(\"PW6_PINV_VSplit2\")  FROM \"vitals\".\"http\" WHERE \"ISLAND_VL1N_Load\" > 200.0 AND  $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": true,
-          "refId": "X",
           "resultFormat": "time_series",
           "select": [
             [
@@ -8151,7 +7154,7 @@
         "h": 5,
         "w": 24,
         "x": 0,
-        "y": 68
+        "y": 66
       },
       "hiddenSeries": false,
       "id": 55,
@@ -8762,224 +7765,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 73
-      },
-      "id": 65,
-      "panels": [],
-      "title": "Alerts",
-      "type": "row"
-    },
-    {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "dark-blue",
-            "mode": "thresholds"
-          },
-          "custom": {
-            "fillOpacity": 41,
-            "lineWidth": 6,
-            "spanNulls": false
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "transparent",
-                "value": null
-              },
-              {
-                "color": "blue",
-                "value": 1
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "max_FWUpdateSucceeded"
-            },
-            "properties": [
-              {
-                "id": "thresholds",
-                "value": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "dark-green",
-                      "value": null
-                    }
-                  ]
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "max_SystemConnectedToGrid"
-            },
-            "properties": [
-              {
-                "id": "thresholds",
-                "value": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "purple",
-                      "value": null
-                    }
-                  ]
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "max_GridCodesWrite"
-            },
-            "properties": [
-              {
-                "id": "thresholds",
-                "value": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "dark-blue",
-                      "value": null
-                    }
-                  ]
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "max_PodCommissionTime"
-            },
-            "properties": [
-              {
-                "id": "thresholds",
-                "value": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "dark-blue",
-                      "value": null
-                    }
-                  ]
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "max_ScheduledIslandContactorOpen"
-            },
-            "properties": [
-              {
-                "id": "thresholds",
-                "value": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "dark-purple",
-                      "value": null
-                    }
-                  ]
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "max_PVS.*MciString.*"
-            },
-            "properties": [
-              {
-                "id": "thresholds",
-                "value": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "dark-blue",
-                      "value": null
-                    }
-                  ]
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 24,
-        "x": 0,
-        "y": 74
-      },
-      "id": 68,
-      "options": {
-        "alignValue": "left",
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": false
-        },
-        "mergeValues": true,
-        "rowHeight": 0.51,
-        "showValue": "never",
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "hide": false,
-          "query": "SELECT *::field from alerts.alerts where $timeFilter",
-          "rawQuery": true,
-          "refId": "A",
-          "resultFormat": "table"
-        }
-      ],
-      "title": "Alerts",
-      "transformations": [
-        {
-          "id": "renameByRegex",
-          "options": {
-            "regex": "max_(.*)",
-            "renamePattern": "$1"
-          }
-        }
-      ],
-      "transparent": true,
-      "type": "state-timeline"
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 82
+        "y": 71
       },
       "id": 57,
       "panels": [],
@@ -9011,7 +7797,7 @@
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 83
+        "y": 72
       },
       "hiddenSeries": false,
       "hideTimeOverride": false,
@@ -9297,7 +8083,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 89
+        "y": 78
       },
       "hiddenSeries": false,
       "hideTimeOverride": false,
@@ -9647,7 +8433,7 @@
   },
   "timezone": "browser",
   "title": "Powerwall Power Flow",
-  "uid": "RSabAvRRzV",
-  "version": 31,
+  "uid": "RSabAvRRzU",
+  "version": 1,
   "weekStart": ""
 }
