@@ -224,6 +224,7 @@ eventdata = []
 reservedata = []
 sitetz = None
 tzname = None
+tzoffset = False
 power = None
 soe = None
 backup = None
@@ -399,7 +400,7 @@ def get_power_history(start, end):
 
     Adds data points to 'powerdata' in InfluxDB Line Protocol format with tag source='cloud'
     """
-    global sitetz, tzname, dayloaded, power, soe
+    global sitetz, tzname, tzoffset, dayloaded, power, soe
 
     print(f"Retrieving data for gap: [{start.astimezone(influxtz)}] - [{end.astimezone(influxtz)}] ({str(end - start)}s)")
 
@@ -438,9 +439,11 @@ def get_power_history(start, end):
                         histtz = tz.tzoffset(None, tzdata * 60)
                         offset = datetime.now(tz=histtz).strftime('%z')
                         tzdata = f"UTC{offset[:3]}:{offset[3:]}"
+                        tzoffset = True
                     else:
                         # Get timezone from timezone name
                         histtz = tz.gettz(tzdata)
+                        tzoffset = False
 
                     if histtz is None:
                         sys.exit(f"ERROR: Invalid timezone for history data - {tzdata}")
@@ -480,6 +483,11 @@ def get_power_history(start, end):
             for d in power['time_series']:
                 timestamp = isoparse(d['timestamp']).astimezone(utctz)
                 nextstart = timestamp + timedelta(minutes=5)
+
+                # Check if solar only site timezone is using an offset and replace with InfluxDB timezone
+                if isinstance(site, SolarPanel) and tzoffset:
+                    timestamp = isoparse(d['timestamp']).replace(tzinfo=influxtz).astimezone(utctz)
+
                 # Save data point when within start/end range only
                 if timestamp >= start and timestamp <= end:
                     # Calculate power usage values
