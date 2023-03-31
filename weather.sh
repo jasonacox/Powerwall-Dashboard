@@ -109,6 +109,8 @@ if [ ! -f ${CONF_FILE} ]; then
         echo "    I)mperial = temperature in Fahrenheit"
         echo "    S)tandard = temperature in Kelvin"
         echo ""
+        echo "    Note: This only applies to weather data, Powerwall data is metric."
+        echo ""
         read -p 'Enter M, I or S: ' response
         if [[ "$response" =~ ^([sS])$ ]]; then
             UNITS="standard"
