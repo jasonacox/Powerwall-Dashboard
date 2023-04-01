@@ -717,8 +717,8 @@
       },
       "gridPos": {
         "h": 3,
-        "w": 5,
-        "x": 18,
+        "w": 6,
+        "x": 17,
         "y": 11
       },
       "id": 6,
@@ -4625,6 +4625,6 @@
   "timezone": "",
   "title": "Tesla Energy",
   "uid": "yDBrTi-4k",
-  "version": 64,
+  "version": 65,
   "weekStart": "monday"
 }
