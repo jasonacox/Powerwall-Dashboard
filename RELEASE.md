@@ -1,5 +1,11 @@
 # RELEASE NOTES
 
+## v2.8.9 - Animation Auto-Scale
+
+* Solar Only Support Development - Fix timezone for solar only sites using an offset by @mcbirse in https://github.com/jasonacox/Powerwall-Dashboard/pull/226
+* Add code to power flow animation dashboard panel to auto-scale based on window size by @dkerr64 in https://github.com/jasonacox/Powerwall-Dashboard/discussions/216 and PR https://github.com/jasonacox/Powerwall-Dashboard/pull/228 
+* Tools - InfluxDB 2.x updates to instructions and dashboard by @ThePnuts in https://github.com/jasonacox/Powerwall-Dashboard/pull/232
+
 ## v2.8.8 - pyPowerwall Cache-Control
 
 * Upgraded to pyPowerwall v0.6.2 Proxy t25 which fixes Cache-Control no-cache header and adds an option to set max-age, See https://github.com/jasonacox/pypowerwall/blob/main/proxy/RELEASE.md#proxy-t25-21-mar-2023
