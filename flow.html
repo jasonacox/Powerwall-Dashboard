@@ -1,26 +1,25 @@
 <style>
-    .powerDiv {
+    div.powerDiv {
           width: 100%;
           height: 100%;
-          position: absolute;
-          left: 50%;
-          top: 50%;
+          overflow: hidden;
         }
-    .firmwareDiv {
+    div.firmwareDiv {
           width: 100%;
           position: absolute;
           text-align: center;
-          left: 0%;
-          bottom: 0%;
+          left: 0;
+          bottom: 0;
+          overflow: hidden;
         }
-    .powerFrame {
+    iframe.powerFrame {
           width: 500px;
           height: 300px;
           transform: scale(0);
-          transform-origin: 0 0;
+          transform-origin: center;
           position: absolute;
-          left: 0;
-          top: 0;
+          left: 50%;
+          top: 50%;
           border-style: none;
         }
     </style>
@@ -38,10 +37,8 @@
     function scale() {
       document.querySelectorAll('.powerFrame').forEach(scaled => {
         parent = scaled.parentNode;
-        ratio = 1.2 * Math.min((parent.offsetWidth / scaled.offsetWidth), (parent.offsetHeight / scaled.offsetHeight));
-        if (ratio > 1.0) ratio = 1.0;
-        scaled.style.transform = 'scale(' + ratio + ')  translate(-50%, -50%)';
-        scaled.style.transformOrigin = 'top left';
+        ratio = Math.min(1, 1.2 * (parent.offsetWidth / scaled.offsetWidth), (parent.offsetHeight / scaled.offsetHeight));
+        scaled.style.transform = 'translate(-50%, -50%) scale(' + ratio + ')';
       })
     }
     window.addEventListener('resize', function(e){ scale(); }, false);
@@ -60,5 +57,4 @@
     // Load Animation from pyPowerwall
     var pwurl = window.location.protocol + "//" + window.location.hostname + ":8675/";
     document.getElementById('frame8675').src = pwurl;
-    
     </script>
