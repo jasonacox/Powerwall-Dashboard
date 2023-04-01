@@ -26,12 +26,6 @@
       "version": ""
     },
     {
-      "type": "panel",
-      "id": "bargauge",
-      "name": "Bar gauge",
-      "version": ""
-    },
-    {
       "type": "datasource",
       "id": "fetzerch-sunandmoon-datasource",
       "name": "Sun and Moon",
@@ -41,7 +35,7 @@
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "9.4.3"
+      "version": "9.4.7"
     },
     {
       "type": "datasource",
@@ -78,6 +72,12 @@
       "id": "timeseries",
       "name": "Time series",
       "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "yesoreyeram-boomtable-panel",
+      "name": "Boom Table",
+      "version": "1.4.1"
     }
   ],
   "annotations": {
@@ -621,10 +621,10 @@
           "showLineNumbers": false,
           "showMiniMap": false
         },
-        "content": "<div style=\"text-align: center\">\n<iframe id=\"frame\" src=\"/public/img/grafana_icon.svg\" width=\"100%\" height=\"290\" frameBorder=\"0\">No</iframe>\n<p class=\"version\" style=\"color:gray;\">Firmware</p>\n<script>\n// Get Firmware Version\nfunction showversion() {\n    var pwver = window.location.protocol + \"//\" + window.location.hostname + \":8675/version\";\n    $.getJSON(pwver, function(data) {\n        var text = `Firmware: ${data.version.split(\" \")[0]}`;\n        $(\".version\").html(text);\n    });\n    setTimeout(showversion, 60000);\n}\nvar pwurl = window.location.protocol + \"//\" + window.location.hostname + \":8675/\";\ndocument.getElementById('frame').src = pwurl;\nshowversion();\n</script>\n</div>",
+        "content": "<style>\n.powerDiv {\n      width: 100%;\n      height: 100%;\n      position: absolute;\n      left: 50%;\n      top: 50%;\n    }\n.firmwareDiv {\n      width: 100%;\n      position: absolute;\n      text-align: center;\n      left: 0%;\n      bottom: 0%;\n    }\n.powerFrame {\n      width: 500px;\n      height: 300px;\n      transform: scale(0);\n      transform-origin: 0 0;\n      position: absolute;\n      left: 0;\n      top: 0;\n      border-style: none;\n    }\n</style>\n<div class=\"powerDiv\">\n    <iframe id=\"frame8675\" class=\"powerFrame\" src=\"/public/img/grafana_icon.svg\" onload=\"scale(this)\">IFRAME not supported by browser.</iframe>\n    <script>\n    document.getElementById('frame8675').parentElement.parentElement.parentElement.style.overflow = 'hidden';\n    </script>\n</div>\n<div class=\"firmwareDiv\">\n  <p class=\"version\" style=\"color:gray; text-align: bottom\">Firmware</p>\n</div>\n<script>\n// Scale Animation when Window is Resized\nfunction scale() {\n  document.querySelectorAll('.powerFrame').forEach(scaled => {\n    parent = scaled.parentNode;\n    ratio = 1.2 * Math.min((parent.offsetWidth / scaled.offsetWidth), (parent.offsetHeight / scaled.offsetHeight));\n    if (ratio > 1.0) ratio = 1.0;\n    scaled.style.transform = 'scale(' + ratio + ')  translate(-50%, -50%)';\n    scaled.style.transformOrigin = 'top left';\n  })\n}\nwindow.addEventListener('resize', function(e){ scale(); }, false);\n\n// Display Firmware Version\nfunction showversion() {\n    var pwver = window.location.protocol + \"//\" + window.location.hostname + \":8675/version\";\n    $.getJSON(pwver, function(data) {\n        var text = `Firmware: ${data.version.split(\" \")[0]}`;\n        $(\".version\").html(text);\n    });\n    setTimeout(showversion, 60000);\n}\nshowversion();\n\n// Load Animation from pyPowerwall\nvar pwurl = window.location.protocol + \"//\" + window.location.hostname + \":8675/\";\ndocument.getElementById('frame8675').src = pwurl;\n\n</script>",
         "mode": "html"
       },
-      "pluginVersion": "9.4.3",
+      "pluginVersion": "9.4.7",
       "title": "Power Flow",
       "transparent": true,
       "type": "text"
@@ -826,7 +826,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.4.3",
+      "pluginVersion": "9.4.7",
       "targets": [
         {
           "datasource": {
@@ -906,7 +906,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.4.3",
+      "pluginVersion": "9.4.7",
       "targets": [
         {
           "datasource": {
@@ -971,7 +971,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.4.3",
+      "pluginVersion": "9.4.7",
       "targets": [
         {
           "datasource": {
@@ -1051,7 +1051,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.4.3",
+      "pluginVersion": "9.4.7",
       "targets": [
         {
           "datasource": {
@@ -1131,7 +1131,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.4.3",
+      "pluginVersion": "9.4.7",
       "targets": [
         {
           "datasource": {
@@ -1211,7 +1211,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.4.3",
+      "pluginVersion": "9.4.7",
       "targets": [
         {
           "datasource": {
@@ -1291,7 +1291,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.4.3",
+      "pluginVersion": "9.4.7",
       "targets": [
         {
           "datasource": {
@@ -1371,7 +1371,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.4.3",
+      "pluginVersion": "9.4.7",
       "targets": [
         {
           "datasource": {
@@ -1690,142 +1690,229 @@
       "type": "piechart"
     },
     {
+      "activePatternIndex": 2,
       "datasource": {
         "type": "influxdb",
         "uid": "${DS_INFLUXDB}"
       },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "decimals": 2,
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          },
-          "unit": "kwatth"
+      "defaultPattern": {
+        "bgColors": "green|orange|red",
+        "bgColors_overrides": "0->green|2->red|1->yellow",
+        "clickable_cells_link": "",
+        "col_name": "Value",
+        "decimals": 2,
+        "defaultBGColor": "#5794F2",
+        "defaultTextColor": "black",
+        "delimiter": ".",
+        "displayTemplate": "_value_",
+        "enable_bgColor": false,
+        "enable_bgColor_overrides": false,
+        "enable_clickable_cells": false,
+        "enable_textColor": false,
+        "enable_textColor_overrides": false,
+        "enable_time_based_thresholds": false,
+        "enable_transform": true,
+        "enable_transform_overrides": false,
+        "filter": {
+          "value_above": "",
+          "value_below": ""
         },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Home"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Home"
-              },
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "blue",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Solar"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Solar"
-              },
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "yellow",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Powerwall"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Powerwall"
-              },
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "green",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Grid"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Grid"
-              },
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "purple",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          }
-        ]
+        "format": "kwatt",
+        "name": "Default Pattern",
+        "null_color": "darkred",
+        "null_textcolor": "black",
+        "null_value": "No data",
+        "pattern": "*",
+        "row_col_wrapper": "_",
+        "row_name": "_1_",
+        "textColors": "red|orange|green",
+        "textColors_overrides": "0->red|2->green|1->yellow",
+        "thresholds": "0",
+        "time_based_thresholds": [],
+        "tooltipTemplate": "Series : _series_ <br/>Row Name : _row_name_ <br/>Col Name : _col_name_ <br/>Value : _value_",
+        "transform_values": "No Usage | Using <div style=\"float: right;\">_value_</div>",
+        "transform_values_overrides": "0->down|1->up",
+        "valueName": "current"
       },
+      "default_title_for_rows": "Metric",
+      "font_size": ".9rem",
       "gridPos": {
         "h": 6,
         "w": 7,
         "x": 17,
         "y": 18
       },
+      "hide_first_column": false,
+      "hide_headers": true,
       "id": 38,
-      "options": {
-        "displayMode": "gradient",
-        "minVizHeight": 10,
-        "minVizWidth": 0,
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
+      "patterns": [
+        {
+          "bgColors": "#B877D9 | gray | #F2495C",
+          "bgColors_overrides": "0->green|2->red|1->yellow",
+          "clickable_cells_link": "",
+          "col_name": "Value",
+          "decimals": 2,
+          "defaultBGColor": "",
+          "defaultTextColor": "",
+          "delimiter": ".",
+          "displayTemplate": "_value_",
+          "enable_bgColor": true,
+          "enable_bgColor_overrides": false,
+          "enable_clickable_cells": false,
+          "enable_textColor": true,
+          "enable_textColor_overrides": false,
+          "enable_time_based_thresholds": false,
+          "enable_transform": true,
+          "enable_transform_overrides": false,
+          "filter": {
+            "value_above": "",
+            "value_below": ""
+          },
+          "format": "kwatt",
+          "name": "Home",
+          "null_color": "darkred",
+          "null_textcolor": "black",
+          "null_value": "No data",
+          "pattern": "Home",
+          "row_col_wrapper": "_",
+          "row_name": "_1_",
+          "textColors": "white | white | white",
+          "textColors_overrides": "0->red|2->green|1->yellow",
+          "thresholds": "-0.09,0.09",
+          "time_based_thresholds": [],
+          "tooltipTemplate": "Series : _series_ <br/>Row Name : _row_name_ <br/>Col Name : _col_name_ <br/>Value : _value_",
+          "transform_values": "Exporting <div style=\"float: right;\">_value_</div> | Idle | Importing <div style=\"float: right;\">_value_</div>",
+          "transform_values_overrides": "0->down|1->up",
+          "valueName": "current"
         },
-        "showUnfilled": false
+        {
+          "bgColors": "#73BF69 | gray | #F2495C",
+          "bgColors_overrides": "0->green|2->red|1->yellow",
+          "clickable_cells_link": "",
+          "col_name": "Value",
+          "decimals": 2,
+          "defaultBGColor": "",
+          "defaultTextColor": "",
+          "delimiter": ".",
+          "displayTemplate": "_value_",
+          "enable_bgColor": true,
+          "enable_bgColor_overrides": false,
+          "enable_clickable_cells": false,
+          "enable_textColor": true,
+          "enable_textColor_overrides": false,
+          "enable_time_based_thresholds": false,
+          "enable_transform": true,
+          "enable_transform_overrides": false,
+          "filter": {
+            "value_above": "",
+            "value_below": ""
+          },
+          "format": "kwatt",
+          "name": "Battery",
+          "null_color": "gray",
+          "null_textcolor": "white",
+          "null_value": "Idle",
+          "pattern": "Battery",
+          "row_col_wrapper": "_",
+          "row_name": "_1_",
+          "textColors": "white | white | white",
+          "textColors_overrides": "0->red|2->green|1->yellow",
+          "thresholds": "-0.1,0.1",
+          "time_based_thresholds": [],
+          "tooltipTemplate": "Series : _series_ <br/>Row Name : _row_name_ <br/>Col Name : _col_name_ <br/>Value : _value_",
+          "transform_values": "Charging <div style=\"float: right;\">_value_</div> | Idle | Discharging <div style=\"float: right;\">_value_</div>",
+          "transform_values_overrides": "0->down|1->up",
+          "valueName": "current"
+        },
+        {
+          "bgColors": "green|orange|red",
+          "bgColors_overrides": "0->green|2->red|1->yellow",
+          "clickable_cells_link": "",
+          "col_name": "Value",
+          "decimals": 2,
+          "defaultBGColor": "#FADE2A",
+          "defaultTextColor": "black",
+          "delimiter": ".",
+          "displayTemplate": "_value_",
+          "enable_bgColor": false,
+          "enable_bgColor_overrides": false,
+          "enable_clickable_cells": false,
+          "enable_textColor": false,
+          "enable_textColor_overrides": false,
+          "enable_time_based_thresholds": false,
+          "enable_transform": true,
+          "enable_transform_overrides": false,
+          "filter": {
+            "value_above": "",
+            "value_below": ""
+          },
+          "format": "kwatt",
+          "name": "Solar",
+          "null_color": "#FADE2A",
+          "null_textcolor": "black",
+          "null_value": "No Generation",
+          "pattern": "Solar",
+          "row_col_wrapper": "_",
+          "row_name": "_1_",
+          "textColors": "red|orange|green",
+          "textColors_overrides": "0->red|2->green|1->yellow",
+          "thresholds": "0.1",
+          "time_based_thresholds": [],
+          "tooltipTemplate": "Series : _series_ <br/>Row Name : _row_name_ <br/>Col Name : _col_name_ <br/>Value : _value_",
+          "transform_values": "No Generation | Generating <div style=\"float: right;\">_value_</div>",
+          "transform_values_overrides": "0->down|1->up",
+          "valueName": "current"
+        }
+      ],
+      "pluginVersion": "9.4.7",
+      "row_col_wrapper": "_",
+      "sorting_props": {
+        "col_index": -1,
+        "direction": "desc"
       },
-      "pluginVersion": "9.4.3",
       "targets": [
         {
           "datasource": {
             "type": "influxdb",
             "uid": "${DS_INFLUXDB}"
           },
-          "query": "from(bucket: \"raw_tesla_energy\")\r\n  |> range(start: -1m)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"http\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"battery_instant_power\" or r[\"_field\"] == \"load_instant_power\" or r[\"_field\"] == \"site_instant_power\" or r[\"_field\"] == \"solar_instant_power\")\r\n  |> drop(columns: [\"_start\", \"_stop\", \"year\", \"host\", \"month\", \"url\"])\r\n  |> aggregateWindow(every: 30m, fn: last, createEmpty: false)\r\n  |> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> map(fn: (r) => ({r with Powerwall: if r.battery_instant_power > 90.0 then r.battery_instant_power / 1000.0 else 0.00}))\r\n  |> map(fn: (r) => ({r with Grid: r.site_instant_power / 1000.0}))\r\n  |> map(fn: (r) => ({r with Home: if r.load_instant_power > 90.0 then r.load_instant_power / 1000.0 else 0.00}))\r\n  |> map(fn: (r) => ({r with Solar: if r.solar_instant_power > 90.0 then r.solar_instant_power / 1000.0 else 0.00}))\r\n  |> drop(columns: [\"load_instant_power\", \"solar_instant_power\", \"battery_instant_power\", \"site_instant_power\"])\r\n \r\n \r\n\r\n",
+          "query": "from(bucket: \"raw_tesla_energy\")\r\n  |> range(start: -10m)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"http\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"battery_instant_power\" or r[\"_field\"] == \"load_instant_power\" or r[\"_field\"] == \"site_instant_power\" or r[\"_field\"] == \"solar_instant_power\")\r\n  |> drop(columns: [\"_start\", \"_stop\", \"year\", \"host\", \"month\", \"url\"])\r\n  |> map(fn: (r) => ({r with _value: r._value / 1000.0}))",
           "refId": "A"
         }
       ],
       "title": "Current State",
+      "transformations": [
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "battery_instant_power",
+            "renamePattern": "Battery"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "load_instant_power",
+            "renamePattern": "Home"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "site_instant_power",
+            "renamePattern": "Grid"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "solar_instant_power",
+            "renamePattern": "Solar"
+          }
+        }
+      ],
       "transparent": true,
-      "type": "bargauge"
+      "type": "yesoreyeram-boomtable-panel"
     },
     {
       "collapsed": false,
@@ -1886,8 +1973,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1979,8 +2065,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -2452,12 +2537,468 @@
       "type": "timeseries"
     },
     {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "yellow",
+            "mode": "fixed"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "bars",
+            "fillOpacity": 100,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
+          "unit": "kwatth"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Daily Solar Energy"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#ffd90054",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Home 30-day Average"
+            },
+            "properties": [
+              {
+                "id": "custom.drawStyle",
+                "value": "line"
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 0
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "light-blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Solar 30-day Average"
+            },
+            "properties": [
+              {
+                "id": "custom.drawStyle",
+                "value": "line"
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 0
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "semi-dark-yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Solar 12-month Average"
+            },
+            "properties": [
+              {
+                "id": "custom.drawStyle",
+                "value": "line"
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 0
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Home 12-month Average"
+            },
+            "properties": [
+              {
+                "id": "custom.drawStyle",
+                "value": "line"
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 0
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Monthly Average"
+            },
+            "properties": [
+              {
+                "id": "custom.fillOpacity",
+                "value": 0
+              },
+              {
+                "id": "custom.drawStyle",
+                "value": "line"
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 3
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#129d00cc",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.lineInterpolation",
+                "value": "stepBefore"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 48
+      },
+      "hideTimeOverride": false,
+      "id": 60,
+      "interval": "1d",
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "none",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "9.1.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "hide": false,
+          "query": "import \"timezone\"\r\nimport \"date\"\r\n\r\noption location = timezone.location(name: \"America/Los_Angeles\")\r\n\r\nfrom(bucket: \"tesla_energy\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"kwh\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"solar\")\r\n  |> aggregateWindow(every: 1d, fn: sum, createEmpty: false)\r\n  |> aggregateWindow(every: 1mo, fn: mean, createEmpty: false)\r\n  |> map(fn: (r) => ({r with _field: \"Monthly Average\"}))\r\n  |> map(fn: (r) => ({r with _time: date.sub(d: 15d, from: r._time)}))",
+          "refId": "F"
+        },
+        {
+          "alias": "Daily Solar Energy",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "1d"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "0"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "kwh",
+          "query": "import \"timezone\"\r\n\r\noption location = timezone.location(name: \"America/Los_Angeles\")\r\n\r\nfrom(bucket: \"tesla_energy\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"kwh\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"solar\")\r\n  |> aggregateWindow(every: 1d, fn: sum, createEmpty: false)\r\n    |> map(fn: (r) => ({r with _field: \"Daily Solar Energy\"}))",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "solar"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "sum"
+              }
+            ]
+          ],
+          "tags": [
+            {
+              "key": "solar",
+              "operator": ">",
+              "value": "0"
+            }
+          ],
+          "tz": "America/New_York"
+        },
+        {
+          "alias": "Solar 30-day Average",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "1d"
+              ],
+              "type": "time"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "kwh",
+          "query": "import \"timezone\"\r\n\r\noption location = timezone.location(name: \"America/Los_Angeles\")\r\n\r\nfrom(bucket: \"tesla_energy\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"kwh\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"solar\")\r\n  |> aggregateWindow(every: 1d, fn: sum, createEmpty: false)\r\n  |> movingAverage(n: 30)\r\n  |> map(fn: (r) => ({r with _field: \"Solar 30-day Average\"}))",
+          "refId": "C",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "solar"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "sum"
+              },
+              {
+                "params": [
+                  30
+                ],
+                "type": "moving_average"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Solar 12-month Average",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "1d"
+              ],
+              "type": "time"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "kwh",
+          "query": "import \"timezone\"\r\n\r\noption location = timezone.location(name: \"America/Los_Angeles\")\r\n\r\nfrom(bucket: \"tesla_energy\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"kwh\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"solar\")\r\n  |> aggregateWindow(every: 1d, fn: sum, createEmpty: false)\r\n  |> movingAverage(n: 365)\r\n  |> map(fn: (r) => ({r with _field: \"Solar 12-month Average\"}))",
+          "refId": "D",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "solar"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "sum"
+              },
+              {
+                "params": [
+                  "365"
+                ],
+                "type": "moving_average"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Home 30-day Average",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "1d"
+              ],
+              "type": "time"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "kwh",
+          "query": "import \"timezone\"\r\n\r\noption location = timezone.location(name: \"America/Los_Angeles\")\r\n\r\nfrom(bucket: \"tesla_energy\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"kwh\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"home\")\r\n  |> aggregateWindow(every: 1d, fn: sum, createEmpty: false)\r\n  |> movingAverage(n: 30)\r\n  |> map(fn: (r) => ({r with _field: \"Home 30-day Average\"}))",
+          "refId": "B",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "home"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "sum"
+              },
+              {
+                "params": [
+                  30
+                ],
+                "type": "moving_average"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Home 12-month Average",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "1d"
+              ],
+              "type": "time"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "kwh",
+          "query": "import \"timezone\"\r\n\r\noption location = timezone.location(name: \"America/Los_Angeles\")\r\n\r\nfrom(bucket: \"tesla_energy\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"kwh\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"home\")\r\n  |> aggregateWindow(every: 1d, fn: sum, createEmpty: false)\r\n  |> movingAverage(n: 365)\r\n  |> map(fn: (r) => ({r with _field: \"Home 12-month Average\"}))",
+          "refId": "E",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "home"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "sum"
+              },
+              {
+                "params": [
+                  "365"
+                ],
+                "type": "moving_average"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "timeFrom": "1y",
+      "title": "Solar Energy - Rolling Averages",
+      "transparent": true,
+      "type": "timeseries"
+    },
+    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 48
+        "y": 57
       },
       "id": 28,
       "panels": [],
@@ -2526,7 +3067,7 @@
         "h": 5,
         "w": 8,
         "x": 0,
-        "y": 49
+        "y": 58
       },
       "id": 32,
       "options": {
@@ -2628,7 +3169,7 @@
         "h": 5,
         "w": 8,
         "x": 8,
-        "y": 49
+        "y": 58
       },
       "id": 52,
       "options": {
@@ -2730,7 +3271,7 @@
         "h": 5,
         "w": 8,
         "x": 16,
-        "y": 49
+        "y": 58
       },
       "id": 50,
       "options": {
@@ -2832,7 +3373,7 @@
         "h": 6,
         "w": 12,
         "x": 0,
-        "y": 54
+        "y": 63
       },
       "id": 49,
       "options": {
@@ -2933,7 +3474,7 @@
         "h": 6,
         "w": 12,
         "x": 12,
-        "y": 54
+        "y": 63
       },
       "id": 54,
       "options": {
@@ -3035,7 +3576,7 @@
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 60
+        "y": 69
       },
       "id": 53,
       "options": {
@@ -3161,7 +3702,7 @@
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 66
+        "y": 75
       },
       "id": 55,
       "options": {
@@ -3303,7 +3844,7 @@
         "h": 5,
         "w": 24,
         "x": 0,
-        "y": 72
+        "y": 81
       },
       "id": 56,
       "options": {
@@ -3366,7 +3907,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 77
+        "y": 86
       },
       "id": 46,
       "panels": [],
@@ -3472,7 +4013,7 @@
         "h": 12,
         "w": 24,
         "x": 0,
-        "y": 78
+        "y": 87
       },
       "id": 48,
       "options": {
@@ -3512,7 +4053,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 90
+        "y": 99
       },
       "id": 26,
       "panels": [],
@@ -3728,7 +4269,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 91
+        "y": 100
       },
       "id": 30,
       "options": {
@@ -3999,7 +4540,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 99
+        "y": 108
       },
       "id": 44,
       "options": {
@@ -4080,6 +4621,6 @@
   "timezone": "",
   "title": "Tesla Energy",
   "uid": "yDBrTi-4k",
-  "version": 50,
+  "version": 61,
   "weekStart": "monday"
 }

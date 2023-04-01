@@ -82,7 +82,8 @@ This includes optionals files and instructions to help setup InfluxDB 2.x (inste
     * Enter the Organization you created
     * Default Bucket: tesla_energy
   * Add plugins in configuration
-    * Search for and isntall: Sun and Moon (By fetzerch)
+    * Search for and install: Sun and Moon (By fetzerch)
+    * Search for and install: Boom Table (By yesoreyeram)
   * Dashboard
     * Import grafana dashboard json file
 
