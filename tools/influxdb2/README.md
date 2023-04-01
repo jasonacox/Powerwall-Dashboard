@@ -54,7 +54,7 @@ This includes optionals files and instructions to help setup InfluxDB 2.x (inste
       * At this time not all data is aggregated, everything used for current reporting is aggregated to tesla_energy, set a retention policy respective of how much data you want to keep (its stored at 5s intervals from pyPowerwall)
     * tesla_energy (For aggregate date from raw_tesla_energy, also primary source for tesla data on the dashboard)
       * Aggregate data (@1m intervals) from raw_tesla_energy, do not set a retention policy if you want to keep historical data.
-  * Generate the following API tokensin the Web UI. Each a sperate tokens unless specified together. API tokens are only displayed at creatiion and need to be recreated if lost.
+  * Generate the following API tokens in the Web UI. Each a sperate tokens unless specified together. API tokens are only displayed at creatiion and need to be recreated if lost.
     * Write
       * raw_weather (for weather 411)
       * raw_tesla_energy (for Telegraf capturing pyPowerwall)
