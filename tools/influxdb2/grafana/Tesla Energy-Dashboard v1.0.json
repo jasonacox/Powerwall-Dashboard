@@ -1,0 +1,4639 @@
+{
+  "__inputs": [
+    {
+      "name": "DS_INFLUXDB",
+      "label": "InfluxDB",
+      "description": "",
+      "type": "datasource",
+      "pluginId": "influxdb",
+      "pluginName": "InfluxDB"
+    },
+    {
+      "name": "DS_SUN_AND MOON",
+      "label": "Sun and Moon",
+      "description": "",
+      "type": "datasource",
+      "pluginId": "fetzerch-sunandmoon-datasource",
+      "pluginName": "Sun and Moon"
+    }
+  ],
+  "__elements": {},
+  "__requires": [
+    {
+      "type": "panel",
+      "id": "barchart",
+      "name": "Bar chart",
+      "version": ""
+    },
+    {
+      "type": "datasource",
+      "id": "fetzerch-sunandmoon-datasource",
+      "name": "Sun and Moon",
+      "version": "0.3.0"
+    },
+    {
+      "type": "grafana",
+      "id": "grafana",
+      "name": "Grafana",
+      "version": "9.4.7"
+    },
+    {
+      "type": "datasource",
+      "id": "influxdb",
+      "name": "InfluxDB",
+      "version": "1.0.0"
+    },
+    {
+      "type": "panel",
+      "id": "piechart",
+      "name": "Pie chart",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "stat",
+      "name": "Stat",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "state-timeline",
+      "name": "State timeline",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "text",
+      "name": "Text",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "timeseries",
+      "name": "Time series",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "yesoreyeram-boomtable-panel",
+      "name": "Boom Table",
+      "version": "1.4.1"
+    }
+  ],
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 20,
+      "panels": [],
+      "title": "Live Monitoring",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "datasource",
+        "uid": "-- Mixed --"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": true,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "watt"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "solar"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 30
+              },
+              {
+                "id": "displayName",
+                "value": "Solar Energy"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "grid"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 30
+              },
+              {
+                "id": "displayName",
+                "value": "Grid Usage"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "home"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 30
+              },
+              {
+                "id": "displayName",
+                "value": "Home Usage"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "powerwall"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 30
+              },
+              {
+                "id": "displayName",
+                "value": "Powerwall"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "percentage"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "unit",
+                "value": "degree"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "min",
+                "value": -101
+              },
+              {
+                "id": "max",
+                "value": 101
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 2
+              },
+              {
+                "id": "displayName",
+                "value": "Charge"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Sun altitude"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#c0c0c0",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 10
+              },
+              {
+                "id": "unit",
+                "value": "degree"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "min",
+                "value": -101
+              },
+              {
+                "id": "max",
+                "value": 101
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    1,
+                    5
+                  ],
+                  "fill": "dash"
+                }
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "auto"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "weather temperature"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Temperature"
+              },
+              {
+                "id": "unit",
+                "value": "degree"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "custom.axisSoftMin",
+                "value": -101
+              },
+              {
+                "id": "custom.axisSoftMax",
+                "value": 101
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    6,
+                    2
+                  ],
+                  "fill": "dash"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#ff9830",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "hidden"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "weather clouds"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Clouds"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#ffffff",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "unit",
+                "value": "degree"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "min",
+                "value": -101
+              },
+              {
+                "id": "max",
+                "value": 101
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    5,
+                    6
+                  ],
+                  "fill": "dash"
+                }
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "hidden"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "weather feels_like"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Feels Like"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#f2cc0c",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "unit",
+                "value": "degree"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "min",
+                "value": -101
+              },
+              {
+                "id": "max",
+                "value": 101
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "hidden"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "backup_reserve_percent"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "degree"
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "hidden"
+              },
+              {
+                "id": "min",
+                "value": -100
+              },
+              {
+                "id": "max",
+                "value": 100
+              },
+              {
+                "id": "displayName",
+                "value": "Battery Reserve"
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    10,
+                    10
+                  ],
+                  "fill": "dash"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#f2495c75",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 13,
+        "w": 17,
+        "x": 0,
+        "y": 1
+      },
+      "id": 2,
+      "options": {
+        "legend": {
+          "calcs": [
+            "max"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "from(bucket: \"tesla_energy\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"instant_power\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"home\" or r[\"_field\"] == \"solar\" or r[\"_field\"] == \"grid\" or r[\"_field\"] == \"powerwall\" or r[\"_field\"] ==  \"backup_reserve_percent\")\r\n  |> aggregateWindow(every: 1m, fn: mean, createEmpty: false)",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "hide": false,
+          "query": "from(bucket: \"tesla_energy\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"instant_power\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"percentage\")\r\n  |> map(fn: (r) => ({r with _value: (r._value / 0.95) - 5.0 / 0.95 }))\r\n  |> aggregateWindow(every: 1m, fn: mean, createEmpty: false)",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "fetzerch-sunandmoon-datasource",
+            "uid": "${DS_SUN_AND MOON}"
+          },
+          "hide": false,
+          "refId": "C",
+          "target": [
+            "sun_altitude"
+          ]
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "hide": false,
+          "query": "from(bucket: \"raw_weather\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"weather\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"clouds\" or r[\"_field\"] == \"feels_like\" or r[\"_field\"] == \"temperature\")\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)",
+          "refId": "D"
+        }
+      ],
+      "title": "Energy Use",
+      "transparent": true,
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "fetzerch-sunandmoon-datasource",
+        "uid": "${DS_SUN_AND MOON}"
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 7,
+        "x": 17,
+        "y": 1
+      },
+      "id": 4,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "<div style=\"text-align: center\">\n<iframe id=\"frame\" src=\"/public/img/grafana_icon.svg\" width=\"100%\" height=\"290\" frameBorder=\"0\">No</iframe>\n<p class=\"version\" style=\"color:gray;\">Firmware</p>\n<script>\n// Get Firmware Version\nfunction showversion() {\n    var pwver = window.location.protocol + \"//\" + window.location.hostname + \":8675/version\";\n    $.getJSON(pwver, function(data) {\n        var text = `Firmware: ${data.version.split(\" \")[0]}`;\n        $(\".version\").html(text);\n    });\n    setTimeout(showversion, 60000);\n}\nvar pwurl = window.location.protocol + \"//\" + window.location.hostname + \":8675/\";\ndocument.getElementById('frame').src = pwurl;\nshowversion();\n</script>\n</div>",
+        "mode": "html"
+      },
+      "pluginVersion": "9.4.7",
+      "title": "Power Flow",
+      "transparent": true,
+      "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 20,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "line+area"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "transparent",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "grid_status"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "grid_status"
+            },
+            "properties": [
+              {
+                "id": "custom.axisPlacement",
+                "value": "hidden"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 5,
+        "x": 18,
+        "y": 11
+      },
+      "id": 6,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "from(bucket: \"tesla_energy\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"instant_power\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"grid_status\")\r\n  |> aggregateWindow(every: 5m, fn: min, createEmpty: false)\r\n",
+          "refId": "A"
+        }
+      ],
+      "title": "Grid Status",
+      "transparent": true,
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 14
+      },
+      "id": 24,
+      "panels": [],
+      "title": "Power Meters",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 1,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "kwatth"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "home"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 0,
+        "y": 15
+      },
+      "id": 8,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {
+          "valueSize": 30
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.4.7",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "import \"math\"\r\n\r\nfrom(bucket: \"tesla_energy\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"instant_power\")\r\n  |> filter(fn: (r) => r._field == \"home\")\r\n  |> integral()\r\n  |> map(fn: (r) => ({r with _value: r._value / 1000.0 / 3600.0}))\r\n  |> map(fn: (r) => ({r with _time: now()}))\r\n  |> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n",
+          "refId": "A"
+        }
+      ],
+      "title": "Home Usage",
+      "transparent": true,
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 1,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "kwatth"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "solar"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 3,
+        "y": 15
+      },
+      "id": 9,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {
+          "valueSize": 30
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.4.7",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "import \"math\"\r\n\r\nfrom(bucket: \"tesla_energy\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"instant_power\")\r\n  |> filter(fn: (r) => r._field == \"solar\")\r\n  |> integral()\r\n  |> map(fn: (r) => ({r with _value: r._value / 1000.0 / 3600.0}))\r\n  |> map(fn: (r) => ({r with _time: now()}))\r\n  |> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n",
+          "refId": "A"
+        }
+      ],
+      "title": "Solar Energy",
+      "transparent": true,
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "yellow",
+            "mode": "fixed"
+          },
+          "decimals": 1,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 6,
+        "y": 15
+      },
+      "id": 57,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {
+          "valueSize": 30
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.4.7",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "from(bucket: \"tesla_energy\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"instant_power\")\r\n  |> filter(fn: (r) => r._field == \"home\" or r._field == \"from_grid\")\r\n  |> integral()\r\n  |> map(fn: (r) => ({r with _value: r._value / 1000.0 / 3600.0}))\r\n  |> map(fn: (r) => ({r with _time: now()}))\r\n  |> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> map(fn: (r) => ({_time: now(), powered: (r.home - r.from_grid) / r.home}))\r\n",
+          "refId": "A"
+        }
+      ],
+      "title": "Solar Energy",
+      "transparent": true,
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 1,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "kwatth"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "to_powerwall"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 9,
+        "y": 15
+      },
+      "id": 10,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {
+          "valueSize": 30
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.4.7",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "import \"math\"\r\n\r\nfrom(bucket: \"tesla_energy\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"instant_power\")\r\n  |> filter(fn: (r) => r._field == \"to_powerwall\")\r\n  |> integral()\r\n  |> map(fn: (r) => ({r with _value: r._value / 1000.0 / 3600.0}))\r\n  |> map(fn: (r) => ({r with _time: now()}))\r\n  |> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n",
+          "refId": "A"
+        }
+      ],
+      "title": "To Powerwall",
+      "transparent": true,
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 1,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "kwatth"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "from_powerwall"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 12,
+        "y": 15
+      },
+      "id": 11,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {
+          "valueSize": 30
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.4.7",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "import \"math\"\r\n\r\nfrom(bucket: \"tesla_energy\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"instant_power\")\r\n  |> filter(fn: (r) => r._field == \"from_powerwall\")\r\n  |> integral()\r\n  |> map(fn: (r) => ({r with _value: r._value / 1000.0 / 3600.0}))\r\n  |> map(fn: (r) => ({r with _time: now()}))\r\n  |> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n",
+          "refId": "A"
+        }
+      ],
+      "title": "From Powerwall",
+      "transparent": true,
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 1,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "kwatth"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "to_grid"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 15,
+        "y": 15
+      },
+      "id": 12,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {
+          "valueSize": 30
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.4.7",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "import \"math\"\r\n\r\nfrom(bucket: \"tesla_energy\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"instant_power\")\r\n  |> filter(fn: (r) => r._field == \"to_grid\")\r\n  |> integral()\r\n  |> map(fn: (r) => ({r with _value: r._value / 1000.0 / 3600.0}))\r\n  |> map(fn: (r) => ({r with _time: now()}))\r\n  |> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n",
+          "refId": "A"
+        }
+      ],
+      "title": "To Grid",
+      "transparent": true,
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 1,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "kwatth"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "from_grid"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 18,
+        "y": 15
+      },
+      "id": 13,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {
+          "valueSize": 30
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.4.7",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "import \"math\"\r\n\r\nfrom(bucket: \"tesla_energy\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"instant_power\")\r\n  |> filter(fn: (r) => r._field == \"from_grid\")\r\n  |> integral()\r\n  |> map(fn: (r) => ({r with _value: r._value / 1000.0 / 3600.0}))\r\n  |> map(fn: (r) => ({r with _time: now()}))\r\n  |> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n",
+          "refId": "A"
+        }
+      ],
+      "title": "From Grid",
+      "transparent": true,
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 1,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "kwatth"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "grid"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 21,
+        "y": 15
+      },
+      "id": 58,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {
+          "valueSize": 30
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.4.7",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "import \"math\"\r\n\r\nfrom(bucket: \"tesla_energy\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"instant_power\")\r\n  |> filter(fn: (r) => r._field == \"grid\")\r\n  |> integral()\r\n  |> map(fn: (r) => ({r with _value: r._value / 1000.0 / 3600.0}))\r\n  |> map(fn: (r) => ({r with _time: now()}))\r\n  |> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n",
+          "refId": "A"
+        }
+      ],
+      "title": "Net Grid Usage",
+      "transparent": true,
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 100,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 2,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "p_h"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Powerwall > Home"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "s_h"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Solar > Home"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "s_g"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Solar > Grid"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "total"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Total"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "blank"
+            },
+            "properties": [
+              {
+                "id": "unit"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 9,
+        "x": 0,
+        "y": 18
+      },
+      "id": 34,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.85,
+        "fullHighlight": false,
+        "groupWidth": 1,
+        "legend": {
+          "calcs": [
+            "sum"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "orientation": "vertical",
+        "showValue": "never",
+        "stacking": "none",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "xField": "blank",
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "  from(bucket: \"tesla_energy\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"kwh\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"from_powerwall\" or r[\"_field\"] == \"solar\" or r[\"_field\"] == \"to_powerwall\" or r[\"_field\"] == \"to_grid\")\r\n  |> sum()\r\n  |> drop(columns: [\"_start\", \"_stop\"])\r\n  |> pivot(rowKey: [\"_measurement\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> map(fn: (r) => ({r with p_h: r.from_powerwall * ${kWhCost}}))\r\n  |> map(fn: (r) => ({r with s_h: (r.solar - (r.to_powerwall + r.to_grid)) * ${kWhCost}}))\r\n  |> map(fn: (r) => ({r with s_g: (r.to_grid) * ${kWhCost}}))\r\n  |> map(fn: (r) => ({r with total: (r.p_h + r.s_h + r.s_g)}))\r\n  |> map(fn: (r) => ({r with \"blank\": (\" \")}))\r\n  |> drop(columns: [\"from_powerwall\", \"to_powerwall\", \"to_grid\", \"solar\"])\r\n",
+          "refId": "A"
+        }
+      ],
+      "title": "Savings",
+      "transparent": true,
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": [],
+          "unit": "kwatth"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "solar"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "From Solar"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "from_grid"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "From Grid"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "from_powerwall"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "From Powerwall"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 9,
+        "y": 18
+      },
+      "id": 36,
+      "options": {
+        "displayLabels": [],
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "values": [
+            "percent",
+            "value"
+          ]
+        },
+        "pieType": "donut",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "import \"math\"\r\n\r\nfrom(bucket: \"tesla_energy\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"instant_power\")\r\n  |> filter(fn: (r) => r._field == \"solar\" or r._field == \"to_grid\" or r._field == \"to_powerwall\" or r._field == \"from_powerwall\" or r._field == \"from_grid\")\r\n  |> integral()\r\n  |> map(fn: (r) => ({r with _value: r._value / 1000.0 / 3600.0}))\r\n  |> map(fn: (r) => ({r with _time: now()}))\r\n  |> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> map(fn: (r) => ({_time: now(), from_solar: ((r.solar) - (r.to_grid) - (r.to_powerwall)), from_powerwall: r.from_powerwall, from_grid: r.from_grid}))\r\n  |> map(fn: (r) => ({r with solar: (1.0 + r.from_solar / math.abs(x: r.from_solar)) * r.from_solar / 2.0 }))\r\n  |> drop(columns: [\"from_solar\"])",
+          "refId": "A"
+        }
+      ],
+      "title": "Self Powered",
+      "transparent": true,
+      "type": "piechart"
+    },
+    {
+      "activePatternIndex": 2,
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "defaultPattern": {
+        "bgColors": "green|orange|red",
+        "bgColors_overrides": "0->green|2->red|1->yellow",
+        "clickable_cells_link": "",
+        "col_name": "Value",
+        "decimals": 2,
+        "defaultBGColor": "#5794F2",
+        "defaultTextColor": "black",
+        "delimiter": ".",
+        "displayTemplate": "_value_",
+        "enable_bgColor": false,
+        "enable_bgColor_overrides": false,
+        "enable_clickable_cells": false,
+        "enable_textColor": false,
+        "enable_textColor_overrides": false,
+        "enable_time_based_thresholds": false,
+        "enable_transform": true,
+        "enable_transform_overrides": false,
+        "filter": {
+          "value_above": "",
+          "value_below": ""
+        },
+        "format": "kwatt",
+        "name": "Default Pattern",
+        "null_color": "darkred",
+        "null_textcolor": "black",
+        "null_value": "No data",
+        "pattern": "*",
+        "row_col_wrapper": "_",
+        "row_name": "_1_",
+        "textColors": "red|orange|green",
+        "textColors_overrides": "0->red|2->green|1->yellow",
+        "thresholds": "0",
+        "time_based_thresholds": [],
+        "tooltipTemplate": "Series : _series_ <br/>Row Name : _row_name_ <br/>Col Name : _col_name_ <br/>Value : _value_",
+        "transform_values": "No Usage | Using <div style=\"float: right;\">_value_</div>",
+        "transform_values_overrides": "0->down|1->up",
+        "valueName": "current"
+      },
+      "default_title_for_rows": "Metric",
+      "font_size": ".9rem",
+      "gridPos": {
+        "h": 6,
+        "w": 7,
+        "x": 17,
+        "y": 18
+      },
+      "hide_first_column": false,
+      "hide_headers": true,
+      "id": 38,
+      "patterns": [
+        {
+          "bgColors": "#B877D9 | gray | #F2495C",
+          "bgColors_overrides": "0->green|2->red|1->yellow",
+          "clickable_cells_link": "",
+          "col_name": "Value",
+          "decimals": 2,
+          "defaultBGColor": "",
+          "defaultTextColor": "",
+          "delimiter": ".",
+          "displayTemplate": "_value_",
+          "enable_bgColor": true,
+          "enable_bgColor_overrides": false,
+          "enable_clickable_cells": false,
+          "enable_textColor": true,
+          "enable_textColor_overrides": false,
+          "enable_time_based_thresholds": false,
+          "enable_transform": true,
+          "enable_transform_overrides": false,
+          "filter": {
+            "value_above": "",
+            "value_below": ""
+          },
+          "format": "kwatt",
+          "name": "Home",
+          "null_color": "darkred",
+          "null_textcolor": "black",
+          "null_value": "No data",
+          "pattern": "Home",
+          "row_col_wrapper": "_",
+          "row_name": "_1_",
+          "textColors": "white | white | white",
+          "textColors_overrides": "0->red|2->green|1->yellow",
+          "thresholds": "-0.09,0.09",
+          "time_based_thresholds": [],
+          "tooltipTemplate": "Series : _series_ <br/>Row Name : _row_name_ <br/>Col Name : _col_name_ <br/>Value : _value_",
+          "transform_values": "Exporting <div style=\"float: right;\">_value_</div> | Idle | Importing <div style=\"float: right;\">_value_</div>",
+          "transform_values_overrides": "0->down|1->up",
+          "valueName": "current"
+        },
+        {
+          "bgColors": "#73BF69 | gray | #F2495C",
+          "bgColors_overrides": "0->green|2->red|1->yellow",
+          "clickable_cells_link": "",
+          "col_name": "Value",
+          "decimals": 2,
+          "defaultBGColor": "",
+          "defaultTextColor": "",
+          "delimiter": ".",
+          "displayTemplate": "_value_",
+          "enable_bgColor": true,
+          "enable_bgColor_overrides": false,
+          "enable_clickable_cells": false,
+          "enable_textColor": true,
+          "enable_textColor_overrides": false,
+          "enable_time_based_thresholds": false,
+          "enable_transform": true,
+          "enable_transform_overrides": false,
+          "filter": {
+            "value_above": "",
+            "value_below": ""
+          },
+          "format": "kwatt",
+          "name": "Battery",
+          "null_color": "gray",
+          "null_textcolor": "white",
+          "null_value": "Idle",
+          "pattern": "Battery",
+          "row_col_wrapper": "_",
+          "row_name": "_1_",
+          "textColors": "white | white | white",
+          "textColors_overrides": "0->red|2->green|1->yellow",
+          "thresholds": "-0.1,0.1",
+          "time_based_thresholds": [],
+          "tooltipTemplate": "Series : _series_ <br/>Row Name : _row_name_ <br/>Col Name : _col_name_ <br/>Value : _value_",
+          "transform_values": "Charging <div style=\"float: right;\">_value_</div> | Idle | Discharging <div style=\"float: right;\">_value_</div>",
+          "transform_values_overrides": "0->down|1->up",
+          "valueName": "current"
+        },
+        {
+          "bgColors": "green|orange|red",
+          "bgColors_overrides": "0->green|2->red|1->yellow",
+          "clickable_cells_link": "",
+          "col_name": "Value",
+          "decimals": 2,
+          "defaultBGColor": "#FADE2A",
+          "defaultTextColor": "black",
+          "delimiter": ".",
+          "displayTemplate": "_value_",
+          "enable_bgColor": false,
+          "enable_bgColor_overrides": false,
+          "enable_clickable_cells": false,
+          "enable_textColor": false,
+          "enable_textColor_overrides": false,
+          "enable_time_based_thresholds": false,
+          "enable_transform": true,
+          "enable_transform_overrides": false,
+          "filter": {
+            "value_above": "",
+            "value_below": ""
+          },
+          "format": "kwatt",
+          "name": "Solar",
+          "null_color": "#FADE2A",
+          "null_textcolor": "black",
+          "null_value": "No Generation",
+          "pattern": "Solar",
+          "row_col_wrapper": "_",
+          "row_name": "_1_",
+          "textColors": "red|orange|green",
+          "textColors_overrides": "0->red|2->green|1->yellow",
+          "thresholds": "0.1",
+          "time_based_thresholds": [],
+          "tooltipTemplate": "Series : _series_ <br/>Row Name : _row_name_ <br/>Col Name : _col_name_ <br/>Value : _value_",
+          "transform_values": "No Generation | Generating <div style=\"float: right;\">_value_</div>",
+          "transform_values_overrides": "0->down|1->up",
+          "valueName": "current"
+        }
+      ],
+      "pluginVersion": "9.4.7",
+      "row_col_wrapper": "_",
+      "sorting_props": {
+        "col_index": -1,
+        "direction": "desc"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "from(bucket: \"raw_tesla_energy\")\r\n  |> range(start: -10m)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"http\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"battery_instant_power\" or r[\"_field\"] == \"load_instant_power\" or r[\"_field\"] == \"site_instant_power\" or r[\"_field\"] == \"solar_instant_power\")\r\n  |> drop(columns: [\"_start\", \"_stop\", \"year\", \"host\", \"month\", \"url\"])\r\n  |> map(fn: (r) => ({r with _value: r._value / 1000.0}))",
+          "refId": "A"
+        }
+      ],
+      "title": "Current State",
+      "transformations": [
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "battery_instant_power",
+            "renamePattern": "Battery"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "load_instant_power",
+            "renamePattern": "Home"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "site_instant_power",
+            "renamePattern": "Grid"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "solar_instant_power",
+            "renamePattern": "Solar"
+          }
+        }
+      ],
+      "transparent": true,
+      "type": "yesoreyeram-boomtable-panel"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 24
+      },
+      "id": 22,
+      "panels": [],
+      "title": "Monthly Analysis",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "blue",
+            "mode": "fixed"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "bars",
+            "fillOpacity": 100,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "kwatth"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 25
+      },
+      "id": 15,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "import \"date\"\r\nimport \"timezone\"\r\n\r\noption location = timezone.location(name: \"America/Los_Angeles\")\r\n\r\nfrom(bucket: \"tesla_energy\")\r\n  |> range(start: -1mo, stop: date.truncate(t: now(), unit: 1d))\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"kwh\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"home\")\r\n  |> aggregateWindow(every: 1d, fn: sum)\r\n",
+          "refId": "A"
+        }
+      ],
+      "timeFrom": "1M",
+      "title": "Home Usage",
+      "transparent": true,
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "yellow",
+            "mode": "fixed"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "bars",
+            "fillOpacity": 100,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "kwatth"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 25
+      },
+      "id": 16,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "import \"date\"\r\nimport \"timezone\"\r\n\r\noption location = timezone.location(name: \"America/Los_Angeles\")\r\n\r\nfrom(bucket: \"tesla_energy\")\r\n  |> range(start: -1mo, stop: date.truncate(t: now(), unit: 1d))\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"kwh\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"solar\")\r\n  |> aggregateWindow(every: 1d, fn: sum)\r\n",
+          "refId": "A"
+        }
+      ],
+      "timeFrom": "1M",
+      "title": "Solar Energy",
+      "transparent": true,
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "green",
+            "mode": "fixed"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "bars",
+            "fillOpacity": 100,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "kwatth"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 33
+      },
+      "id": 17,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "import \"date\"\r\nimport \"timezone\"\r\n\r\noption location = timezone.location(name: \"America/Los_Angeles\")\r\n\r\nfrom(bucket: \"tesla_energy\")\r\n  |> range(start: -1mo, stop: date.truncate(t: now(), unit: 1d))\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"kwh\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"from_powerwall\")\r\n  |> aggregateWindow(every: 1d, fn: sum)\r\n",
+          "refId": "A"
+        }
+      ],
+      "timeFrom": "1M",
+      "title": "From Powerwall",
+      "transparent": true,
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "purple",
+            "mode": "fixed"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "bars",
+            "fillOpacity": 100,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "kwatth"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "from_grid"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "light-red",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "From Grid"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "grid"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-blue",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.drawStyle",
+                "value": "line"
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 0
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 2
+              },
+              {
+                "id": "custom.lineInterpolation",
+                "value": "smooth"
+              },
+              {
+                "id": "displayName",
+                "value": "Net Usage"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "to_grid"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "To Grid"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 33
+      },
+      "id": 18,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "import \"date\"\r\nimport \"timezone\"\r\n\r\noption location = timezone.location(name: \"America/Los_Angeles\")\r\n\r\nfrom(bucket: \"tesla_energy\")\r\n  |> range(start: -1mo, stop: date.truncate(t: now(), unit: 1d))\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"kwh\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"from_grid\")\r\n  |> aggregateWindow(every: 1d, fn: sum)\r\n",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "hide": false,
+          "query": "import \"date\"\r\nimport \"timezone\"\r\n\r\noption location = timezone.location(name: \"America/Los_Angeles\")\r\n\r\nfrom(bucket: \"tesla_energy\")\r\n  |> range(start: -1mo, stop: date.truncate(t: now(), unit: 1d))\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"kwh\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"to_grid\")\r\n  |> map(fn: (r) => ({r with _value: r._value * -1.0}))\r\n  |> aggregateWindow(every: 1d, fn: sum)\r\n\r\n\r\n",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "hide": false,
+          "query": "import \"date\"\r\nimport \"timezone\"\r\n\r\noption location = timezone.location(name: \"America/Los_Angeles\")\r\n\r\nfrom(bucket: \"tesla_energy\")\r\n  |> range(start: -1mo, stop: date.truncate(t: now(), unit: 1d))\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"kwh\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"grid\")\r\n  |> aggregateWindow(every: 1d, fn: sum)\r\n\r\n\r\n",
+          "refId": "C"
+        }
+      ],
+      "timeFrom": "1M",
+      "title": "Grid Usage",
+      "transparent": true,
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "yellow",
+            "mode": "fixed"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "bars",
+            "fillOpacity": 100,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1.5,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "noValue": "0",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "kwatth"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "home"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 0
+              },
+              {
+                "id": "custom.drawStyle",
+                "value": "line"
+              },
+              {
+                "id": "custom.lineInterpolation",
+                "value": "stepAfter"
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "grid"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 0
+              },
+              {
+                "id": "custom.drawStyle",
+                "value": "line"
+              },
+              {
+                "id": "custom.lineInterpolation",
+                "value": "stepAfter"
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 1
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 41
+      },
+      "id": 39,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "import \"timezone\"\r\n\r\noption location = timezone.location(name: \"America/Los_Angeles\")\r\n\r\nfrom(bucket: \"tesla_energy\")\r\n  |> range(start: -1y, stop: now())\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"kwh\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"solar\" or r[\"_field\"] == \"home\" or r[\"_field\"] == \"grid\")\r\n  |> aggregateWindow(every: 1d, fn: sum)\r\n",
+          "refId": "A"
+        }
+      ],
+      "timeFrom": "1y",
+      "title": "Solar Energy Year",
+      "transparent": true,
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "yellow",
+            "mode": "fixed"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "bars",
+            "fillOpacity": 100,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "kwatth"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Daily Solar Energy"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#ffd90054",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Home 30-day Average"
+            },
+            "properties": [
+              {
+                "id": "custom.drawStyle",
+                "value": "line"
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 0
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "light-blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Solar 30-day Average"
+            },
+            "properties": [
+              {
+                "id": "custom.drawStyle",
+                "value": "line"
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 0
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "semi-dark-yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Solar 12-month Average"
+            },
+            "properties": [
+              {
+                "id": "custom.drawStyle",
+                "value": "line"
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 0
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Home 12-month Average"
+            },
+            "properties": [
+              {
+                "id": "custom.drawStyle",
+                "value": "line"
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 0
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Monthly Average"
+            },
+            "properties": [
+              {
+                "id": "custom.fillOpacity",
+                "value": 0
+              },
+              {
+                "id": "custom.drawStyle",
+                "value": "line"
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 3
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#129d00cc",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.lineInterpolation",
+                "value": "stepBefore"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 48
+      },
+      "hideTimeOverride": false,
+      "id": 60,
+      "interval": "1d",
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "none",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "9.1.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "hide": false,
+          "query": "import \"timezone\"\r\nimport \"date\"\r\n\r\noption location = timezone.location(name: \"America/Los_Angeles\")\r\n\r\nfrom(bucket: \"tesla_energy\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"kwh\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"solar\")\r\n  |> aggregateWindow(every: 1d, fn: sum, createEmpty: false)\r\n  |> aggregateWindow(every: 1mo, fn: mean, createEmpty: false)\r\n  |> map(fn: (r) => ({r with _field: \"Monthly Average\"}))\r\n  |> map(fn: (r) => ({r with _time: date.sub(d: 15d, from: r._time)}))",
+          "refId": "F"
+        },
+        {
+          "alias": "Daily Solar Energy",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "1d"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "0"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "kwh",
+          "query": "import \"timezone\"\r\n\r\noption location = timezone.location(name: \"America/Los_Angeles\")\r\n\r\nfrom(bucket: \"tesla_energy\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"kwh\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"solar\")\r\n  |> aggregateWindow(every: 1d, fn: sum, createEmpty: false)\r\n    |> map(fn: (r) => ({r with _field: \"Daily Solar Energy\"}))",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "solar"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "sum"
+              }
+            ]
+          ],
+          "tags": [
+            {
+              "key": "solar",
+              "operator": ">",
+              "value": "0"
+            }
+          ],
+          "tz": "America/New_York"
+        },
+        {
+          "alias": "Solar 30-day Average",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "1d"
+              ],
+              "type": "time"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "kwh",
+          "query": "import \"timezone\"\r\n\r\noption location = timezone.location(name: \"America/Los_Angeles\")\r\n\r\nfrom(bucket: \"tesla_energy\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"kwh\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"solar\")\r\n  |> aggregateWindow(every: 1d, fn: sum, createEmpty: false)\r\n  |> movingAverage(n: 30)\r\n  |> map(fn: (r) => ({r with _field: \"Solar 30-day Average\"}))",
+          "refId": "C",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "solar"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "sum"
+              },
+              {
+                "params": [
+                  30
+                ],
+                "type": "moving_average"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Solar 12-month Average",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "1d"
+              ],
+              "type": "time"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "kwh",
+          "query": "import \"timezone\"\r\n\r\noption location = timezone.location(name: \"America/Los_Angeles\")\r\n\r\nfrom(bucket: \"tesla_energy\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"kwh\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"solar\")\r\n  |> aggregateWindow(every: 1d, fn: sum, createEmpty: false)\r\n  |> movingAverage(n: 365)\r\n  |> map(fn: (r) => ({r with _field: \"Solar 12-month Average\"}))",
+          "refId": "D",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "solar"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "sum"
+              },
+              {
+                "params": [
+                  "365"
+                ],
+                "type": "moving_average"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Home 30-day Average",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "1d"
+              ],
+              "type": "time"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "kwh",
+          "query": "import \"timezone\"\r\n\r\noption location = timezone.location(name: \"America/Los_Angeles\")\r\n\r\nfrom(bucket: \"tesla_energy\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"kwh\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"home\")\r\n  |> aggregateWindow(every: 1d, fn: sum, createEmpty: false)\r\n  |> movingAverage(n: 30)\r\n  |> map(fn: (r) => ({r with _field: \"Home 30-day Average\"}))",
+          "refId": "B",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "home"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "sum"
+              },
+              {
+                "params": [
+                  30
+                ],
+                "type": "moving_average"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Home 12-month Average",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "1d"
+              ],
+              "type": "time"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "kwh",
+          "query": "import \"timezone\"\r\n\r\noption location = timezone.location(name: \"America/Los_Angeles\")\r\n\r\nfrom(bucket: \"tesla_energy\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"kwh\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"home\")\r\n  |> aggregateWindow(every: 1d, fn: sum, createEmpty: false)\r\n  |> movingAverage(n: 365)\r\n  |> map(fn: (r) => ({r with _field: \"Home 12-month Average\"}))",
+          "refId": "E",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "home"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "sum"
+              },
+              {
+                "params": [
+                  "365"
+                ],
+                "type": "moving_average"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "timeFrom": "1y",
+      "title": "Solar Energy - Rolling Averages",
+      "transparent": true,
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 57
+      },
+      "id": 28,
+      "panels": [],
+      "title": "Powerwall+",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "volt"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 8,
+        "x": 0,
+        "y": 58
+      },
+      "id": 32,
+      "options": {
+        "legend": {
+          "calcs": [
+            "max"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "from(bucket: \"tesla_energy\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"strings\")\r\n  |> filter(fn: (r) => r[\"_field\"] =~ /[A-D][0-99]_Voltage/)\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n",
+          "refId": "A"
+        }
+      ],
+      "title": "String Voltage",
+      "transformations": [
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "([A-D][0-99]).*",
+            "renamePattern": "$1"
+          }
+        }
+      ],
+      "transparent": true,
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "volt"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 8,
+        "x": 8,
+        "y": 58
+      },
+      "id": 52,
+      "options": {
+        "legend": {
+          "calcs": [
+            "max"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "from(bucket: \"tesla_energy\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"strings\")\r\n  |> filter(fn: (r) => r[\"_field\"] =~ /[A-D][0-99]_Voltage/)\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n",
+          "refId": "A"
+        }
+      ],
+      "title": "String Current",
+      "transformations": [
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "([A-D][0-99]).*",
+            "renamePattern": "$1"
+          }
+        }
+      ],
+      "transparent": true,
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "watt"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 8,
+        "x": 16,
+        "y": 58
+      },
+      "id": 50,
+      "options": {
+        "legend": {
+          "calcs": [
+            "max"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "from(bucket: \"tesla_energy\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"strings\")\r\n  |> filter(fn: (r) => r[\"_field\"] =~ /[A-D][0-99]_Power/)\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n",
+          "refId": "A"
+        }
+      ],
+      "title": "String Power",
+      "transformations": [
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "([A-D][0-99]).*",
+            "renamePattern": "$1"
+          }
+        }
+      ],
+      "transparent": true,
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "watt"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 0,
+        "y": 63
+      },
+      "id": 49,
+      "options": {
+        "legend": {
+          "calcs": [
+            "max"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "from(bucket: \"tesla_energy\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"strings\")\r\n  |> filter(fn: (r) => r[\"_field\"] =~ /Inverter[0-99]/)\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n",
+          "refId": "A"
+        }
+      ],
+      "title": "Inverter Power",
+      "transformations": [
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "([A-D][0-99]).*",
+            "renamePattern": "$1"
+          }
+        }
+      ],
+      "transparent": true,
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "celsius"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 12,
+        "y": 63
+      },
+      "id": 54,
+      "options": {
+        "legend": {
+          "calcs": [
+            "max"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "from(bucket: \"tesla_energy\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"pwtemps\")\r\n  |> filter(fn: (r) => r[\"_field\"] =~ /PW[0-99]_temp/)\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)",
+          "refId": "A"
+        }
+      ],
+      "title": "Powerwall Temps",
+      "transformations": [
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "([A-D][0-99]).*",
+            "renamePattern": "$1"
+          }
+        }
+      ],
+      "transparent": true,
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 3,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "rothz"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 69
+      },
+      "id": 53,
+      "options": {
+        "legend": {
+          "calcs": [
+            "min",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "from(bucket: \"tesla_energy\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"vitals\")\r\n  |> filter(fn: (r) => r[\"_field\"] =~ /ISLAND_Freq/)\r\n  |> filter(fn: (r) => r[\"_value\"] >= 1.0)\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "hide": false,
+          "query": "from(bucket: \"tesla_energy\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"vitals\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"PW1_PINV_Fout\")\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)",
+          "refId": "B"
+        }
+      ],
+      "title": "Frequency",
+      "transformations": [
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": ".*([0-99])_Main",
+            "renamePattern": "Home L$1"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": ".*([0-99])_Load",
+            "renamePattern": "Grid L$1"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "PW([0-99])_PINV_Fout",
+            "renamePattern": "PW$1"
+          }
+        }
+      ],
+      "transparent": true,
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 3,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "volt"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 75
+      },
+      "id": 55,
+      "options": {
+        "legend": {
+          "calcs": [
+            "min",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "from(bucket: \"tesla_energy\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"vitals\")\r\n  |> filter(fn: (r) => r[\"_field\"] =~ /ISLAND_VL[0-3].*/ or r[\"_field\"] =~ /PW[0-99]_PINV_VSplit[1-2]/)\r\n  |> filter(fn: (r) => r[\"_value\"] >= 1.0)\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n\r\n\r\n",
+          "refId": "A"
+        }
+      ],
+      "title": "Voltages",
+      "transformations": [
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": ".*([0-99]).*_Main",
+            "renamePattern": "Home L$1"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": ".*([0-99]).*_Load",
+            "renamePattern": "Grid L$1"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "PW([0-99])_PINV_VSplit([1-2])",
+            "renamePattern": "PW$1 L$2"
+          }
+        }
+      ],
+      "transparent": true,
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "green",
+            "mode": "fixed"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 2,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "watth"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "PW1 Charge"
+            },
+            "properties": [
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    10,
+                    10
+                  ],
+                  "fill": "dash"
+                }
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 10
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 24,
+        "x": 0,
+        "y": 81
+      },
+      "id": 56,
+      "options": {
+        "legend": {
+          "calcs": [
+            "min",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "from(bucket: \"tesla_energy\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"pods\")\r\n  |> filter(fn: (r) => r[\"_field\"] =~ /PW[1-99]_POD_nom_full_pack_energy/)\r\n  |> filter(fn: (r) => r[\"_value\"] >= 1.0)\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n\r\n\r\n",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "hide": false,
+          "query": "from(bucket: \"tesla_energy\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"pods\")\r\n  |> filter(fn: (r) => r[\"_field\"] =~ /PW[1-99]_POD_nom_energy_remaining/)\r\n  |> filter(fn: (r) => r[\"_value\"] >= 1.0)\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n\r\n\r\n",
+          "refId": "B"
+        }
+      ],
+      "title": "Powerwall Capacity",
+      "transformations": [
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "PW([1-99])_POD_nom_full_pack_energy",
+            "renamePattern": "PW$1"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "PW([1-99])_POD_nom_energy_remaining",
+            "renamePattern": "PW$1 Charge"
+          }
+        }
+      ],
+      "transparent": true,
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 86
+      },
+      "id": 46,
+      "panels": [],
+      "title": "Alerts",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "blue",
+            "mode": "fixed"
+          },
+          "custom": {
+            "fillOpacity": 100,
+            "lineWidth": 0,
+            "spanNulls": false
+          },
+          "mappings": [],
+          "noValue": "0",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "bool_on_off"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "FWUpdateSucceeded"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "GridCodesWrite"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "HighCPU"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "SystemConnectedToGrid"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 24,
+        "x": 0,
+        "y": 87
+      },
+      "id": 48,
+      "options": {
+        "alignValue": "left",
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "mergeValues": true,
+        "rowHeight": 0.75,
+        "showValue": "never",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "9.4.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "from(bucket: \"tesla_energy\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"alerts\")\r\n  |> aggregateWindow(every: 1m, fn: min, createEmpty: true)\r\n  |> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> drop(columns: [\"_start\", \"_stop\", \"host\", \"month\", \"url\", \"year\"])\r\n\r\n",
+          "refId": "A"
+        }
+      ],
+      "title": "Alerts",
+      "transformations": [],
+      "transparent": true,
+      "type": "state-timeline"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 99
+      },
+      "id": 26,
+      "panels": [],
+      "title": "Weather",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1.5,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "clouds"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Clouds (%)"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "text",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    10,
+                    10
+                  ],
+                  "fill": "dash"
+                }
+              },
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 5
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "feels_like"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Feels Like"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    5,
+                    3
+                  ],
+                  "fill": "dash"
+                }
+              },
+              {
+                "id": "unit",
+                "value": "fahrenheit"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "temperature"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Temperature"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "fill": "solid"
+                }
+              },
+              {
+                "id": "unit",
+                "value": "fahrenheit"
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 10
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "humidity"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Humidity (%)"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "light-blue",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    10,
+                    10
+                  ],
+                  "fill": "dash"
+                }
+              },
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 5
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 100
+      },
+      "id": 30,
+      "options": {
+        "legend": {
+          "calcs": [
+            "last"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "from(bucket: \"raw_weather\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"weather\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"feels_like\" or r[\"_field\"] == \"humidity\" or r[\"_field\"] == \"temperature\" or r[\"_field\"] == \"clouds\")\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)",
+          "refId": "A"
+        }
+      ],
+      "title": "Temperature, Humidity, Clouds",
+      "transparent": true,
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1.5,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "pressure"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Pressure"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "semi-dark-green",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "fill": "solid"
+                }
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 10
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "wind_speed"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Wind"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "fill": "solid"
+                }
+              },
+              {
+                "id": "unit",
+                "value": "velocitymph"
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "left"
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 10
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "snow_1h"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Snow"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "text",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    5,
+                    5
+                  ],
+                  "fill": "dash"
+                }
+              },
+              {
+                "id": "unit",
+                "value": "lengthin"
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 10
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "hidden"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "wind_gust"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Wind Gusts"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    10,
+                    10
+                  ],
+                  "fill": "dash"
+                }
+              },
+              {
+                "id": "unit",
+                "value": "velocitymph"
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "hidden"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "rain_1h"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Rain"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "semi-dark-blue",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 10
+              },
+              {
+                "id": "unit",
+                "value": "lengthin"
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "hidden"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 108
+      },
+      "id": 44,
+      "options": {
+        "legend": {
+          "calcs": [
+            "last"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "from(bucket: \"raw_weather\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"weather\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"pressure\" or r[\"_field\"] == \"wind_gust\" or r[\"_field\"] == \"wind_speed\")\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "hide": false,
+          "query": "from(bucket: \"raw_weather\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"weather\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"rain_1h\" or r[\"_field\"] == \"snow_1h\")\r\n  |> map(fn: (r) => ({r with _value: r._value * 0.0393701}))\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)",
+          "refId": "B"
+        }
+      ],
+      "title": "Wind, Pressure and Precipitation",
+      "transparent": true,
+      "type": "timeseries"
+    }
+  ],
+  "refresh": "5s",
+  "revision": 1,
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "selected": false,
+          "text": ".37",
+          "value": ".37"
+        },
+        "description": "How much are you charged per kWh",
+        "hide": 0,
+        "label": "kWh Cost",
+        "name": "kWhCost",
+        "options": [
+          {
+            "selected": true,
+            "text": ".37",
+            "value": ".37"
+          }
+        ],
+        "query": ".37",
+        "skipUrlSync": false,
+        "type": "textbox"
+      }
+    ]
+  },
+  "time": {
+    "from": "now/d",
+    "to": "now"
+  },
+  "timepicker": {
+    "hidden": false
+  },
+  "timezone": "",
+  "title": "Tesla Energy",
+  "uid": "yDBrTi-4k",
+  "version": 59,
+  "weekStart": "monday"
+}
