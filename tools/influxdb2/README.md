@@ -40,8 +40,8 @@ This includes optionals files and instructions to help setup InfluxDB 2.x (inste
     * Host Path: /var/lib/grafana TO wherever you want to store your Grafana config and plugins (So its not stored in the container)
     * Variable: GF_SERVER_ROOT_URL | http://xxx.xxx.xxx.xxx  (Your localhost IP)
     * Variable: GF_SECURITY_ADMIN_PASSWORD | Sup3rSecr3t  (admin account password)
-    * Variable: GF_PATHS_CONFIG | /etc/grafana/grafana.ini  (location of config file within container)
-    * Host Path: /etc/grafana/grafana.ini TO wherever you want to store your Grafana config (So its not stored in the container)
+    * Variable: GF_PANELS_DISABLE_SANITIZE_HTML | true  (allow html code for tesla graphic)
+    * Variable: GF_INSTALL_PLUGINS | yesoreyeram-boomtable-panel, fetzerch-sunandmoon-datasource  (auto install required plugins)
     
 ## Configure containers
 * InfluxDB 2.x
@@ -54,7 +54,7 @@ This includes optionals files and instructions to help setup InfluxDB 2.x (inste
       * At this time not all data is aggregated, everything used for current reporting is aggregated to tesla_energy, set a retention policy respective of how much data you want to keep (its stored at 5s intervals from pyPowerwall)
     * tesla_energy (For aggregate date from raw_tesla_energy, also primary source for tesla data on the dashboard)
       * Aggregate data (@1m intervals) from raw_tesla_energy, do not set a retention policy if you want to keep historical data.
-  * Generate the following API tokens. Each a sperate tokens unless specified together. API tokens are only displayed at creatiion and need to be recreated if lost.
+  * Generate the following API tokens in the Web UI. Each a sperate tokens unless specified together. API tokens are only displayed at creatiion and need to be recreated if lost.
     * Write
       * raw_weather (for weather 411)
       * raw_tesla_energy (for Telegraf capturing pyPowerwall)
@@ -71,20 +71,11 @@ This includes optionals files and instructions to help setup InfluxDB 2.x (inste
 * Telegraf
   * Edit telegraf.conf file with your server information and Write API token for raw_tesla_energy from above. Ensure it is saved where you specfied above.
 * Grafana (http://IP:3000/)
-  * grafana.ini
-    * Get the sample file from: https://github.com/grafana/grafana/blob/main/conf/sample.ini
-    * Save this file as grafana.ini in the location you specified
-  * Allow html
-    * In the grafana.ini file, find and edit:
-      * ;disable_sanitize_html = false TO disable_sanitize_html = true
-  * Add data sources in configuration
+  * Add data sources in configuration (Grafana web UI)
     * Enter the URL of your influxdb: http://IP:8086
     * Enter the Organization you created
     * Default Bucket: tesla_energy
-  * Add plugins in configuration
-    * Search for and install: Sun and Moon (By fetzerch)
-    * Search for and install: Boom Table (By yesoreyeram)
-  * Dashboard
+  * Dashboard (Grafana web UI)
     * Import grafana dashboard json file
 
 ## Discussion Link
