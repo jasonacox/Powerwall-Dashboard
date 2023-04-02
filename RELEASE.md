@@ -1,5 +1,9 @@
 # RELEASE NOTES
 
+## v2.8.10 - Revert Animation Auto-Scale
+
+* Problem with scaling causing scrollbar and clipping reported and reproducible on Windows 11 as raised in https://github.com/jasonacox/Powerwall-Dashboard/discussions/216
+
 ## v2.8.9 - Animation Auto-Scale
 
 * Solar Only Support Development - Fix timezone for solar only sites using an offset by @mcbirse in https://github.com/jasonacox/Powerwall-Dashboard/pull/226
