@@ -1,8 +1,13 @@
 # RELEASE NOTES
 
+## v2.8.11 - Animation Auto-Scale
+
+* Add code to power flow animation dashboard panel to auto-scale based on window size by @dkerr64 in https://github.com/jasonacox/Powerwall-Dashboard/discussions/216
+
 ## v2.8.10 - Revert Animation Auto-Scale
 
 * Problem with scaling causing scrollbar and clipping reported and reproducible on Windows 11 as raised in https://github.com/jasonacox/Powerwall-Dashboard/discussions/216
+* Tools - InfluxDB 2.x fixes and moved to grafana variables use instead of grafana.ini by @ThePnuts in #233
 
 ## v2.8.9 - Animation Auto-Scale
 

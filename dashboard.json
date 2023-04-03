@@ -1039,7 +1039,7 @@
       "id": 13,
       "links": [],
       "options": {
-        "content": "<div style=\"text-align: center\">\n<iframe id=\"frame\" src=\"/public/img/grafana_icon.svg\" width=\"100%\" height=\"290\" frameBorder=\"0\">No</iframe>\n<p class=\"version\" style=\"color:gray;\">Firmware</p>\n<script>\n// Get Firmware Version\nfunction showversion() {\n    var pwver = window.location.protocol + \"//\" + window.location.hostname + \":8675/version\";\n    $.getJSON(pwver, function(data) {\n        var text = `Firmware: ${data.version.split(\" \")[0]}`;\n        $(\".version\").html(text);\n    });\n    setTimeout(showversion, 60000);\n}\nvar pwurl = window.location.protocol + \"//\" + window.location.hostname + \":8675/\";\ndocument.getElementById('frame').src = pwurl;\nshowversion();\n</script>\n</div>",
+        "content": "<style>\ndiv.powerDiv {\n      width: 100%;\n      height: 100%;\n      overflow: hidden;\n    }\ndiv.firmwareDiv {\n      width: 100%;\n      position: absolute;\n      text-align: center;\n      left: 0;\n      bottom: 0;\n      overflow: hidden;\n    }\niframe.powerFrame {\n      width: 400px;\n      height: 300px;\n      transform: scale(0);\n      transform-origin: center;\n      position: absolute;\n      left: 50%;\n      top: 50%;\n      border-style: none;\n    }\n</style>\n<div class=\"powerDiv\">\n    <iframe id=\"frame8675\" class=\"powerFrame\" src=\"/public/img/grafana_icon.svg\" onload=\"scale(this)\">IFRAME not supported by browser.</iframe>\n</div>\n<div class=\"firmwareDiv\">\n  <p class=\"version\" style=\"color:gray; text-align: center;\">Firmware</p>\n</div>\n<script>\n// Scale Animation when Window is Resized\nfunction scale() {\n  document.querySelectorAll('.powerFrame').forEach(scaled => {\n    parent = scaled.parentNode;\n    ratio = Math.min(1, (parent.offsetWidth / scaled.offsetWidth), (parent.offsetHeight / scaled.offsetHeight));\n    scaled.style.transform = 'translate(-50%, -50%) scale(' + ratio + ')';\n  })\n}\nwindow.addEventListener('resize', function(e){ scale(); }, false);\n\n// Display Firmware Version\nfunction showversion() {\n    var pwver = window.location.protocol + \"//\" + window.location.hostname + \":8675/version\";\n    $.getJSON(pwver, function(data) {\n        var text = `Firmware: ${data.version.split(\" \")[0]}`;\n        $(\".version\").html(text);\n    });\n    setTimeout(showversion, 60000);\n}\nshowversion();\n\n// Load Animation from pyPowerwall\nvar pwurl = window.location.protocol + \"//\" + window.location.hostname + \":8675/\";\ndocument.getElementById('frame8675').src = pwurl;\n</script>",
         "mode": "html"
       },
       "pluginVersion": "9.1.2",
@@ -9648,6 +9648,6 @@
   "timezone": "browser",
   "title": "Powerwall Power Flow",
   "uid": "RSabAvRRzV",
-  "version": 31,
+  "version": 40,
   "weekStart": ""
 }
