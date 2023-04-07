@@ -340,10 +340,7 @@ def tesla_login(email):
                     d = data['response']
                     if sitename is None:
                         sitename = lookup(d, ['site_name'])
-                    sitetimezone = lookup(d, ['installation_time_zone', 'time_zone_offset'])
-                    if type(sitetimezone) is int:
-                        offset = datetime.now(tz=tz.tzoffset(None, sitetimezone * 60)).strftime('%z')
-                        sitetimezone = f"UTC{offset[:3]}:{offset[3:]}"
+                    sitetimezone = get_timezone(d)[1]
                     try:
                         siteinstdate = isoparse(lookup(d, ['installation_date']))
                     except:
@@ -394,6 +391,30 @@ def tesla_login(email):
 
     return sitelist
 
+def get_timezone(data):
+    """
+    Get timezone from response data based on a timezone name or offset
+
+    Returns timezone object, name, and offset flag
+    """
+    tzdata = lookup(data, ['installation_time_zone', 'time_zone_offset'])
+
+    if type(tzdata) is int:
+        # Get timezone from timezone offset
+        tzinfo = tz.tzoffset(None, tzdata * 60)
+        offset = datetime.now(tz=tzinfo).strftime('%z')
+        tzdata = f"UTC{offset[:3]}:{offset[3:]}"
+        tzoffset = True
+    else:
+        # Get timezone from timezone name
+        if tzdata is not None:
+            tzinfo = tz.gettz(tzdata)
+        else:
+            tzinfo = None
+        tzoffset = False
+
+    return tzinfo, tzdata, tzoffset
+
 def get_power_history(start, end):
     """
     Retrieve power history data between start and end date/time
@@ -401,6 +422,38 @@ def get_power_history(start, end):
     Adds data points to 'powerdata' in InfluxDB Line Protocol format with tag source='cloud'
     """
     global sitetz, tzname, tzoffset, dayloaded, power, soe
+
+    if sitetz is None:
+        try:
+            if args.debug: print("Get timezone from CALENDAR_HISTORY_DATA")
+
+            # Retrieve current history data to determine site timezone
+            data = site.get_calendar_history_data(kind='power', end_date=sitetime.replace(second=59).isoformat())
+
+            # Attempt to get history data for alternative dates if no data was returned for current time
+            if not data:
+                data = site.get_calendar_history_data(kind='power', end_date=(sitetime - timedelta(days=1)).replace(second=59).isoformat())
+            if not data:
+                data = site.get_calendar_history_data(kind='power', end_date=(sitetime - timedelta(days=2)).replace(second=59).isoformat())
+            if not data:
+                data = site.get_calendar_history_data(kind='power', end_date=end.replace(second=59).isoformat())
+            if not data:
+                data = site.get_calendar_history_data(kind='power', end_date=start.replace(second=59).isoformat())
+            if not data:
+                if args.debug: print(f"No history returned, setting timezone to {ITZ}")
+                sitetz = influxtz
+                tzname = ITZ
+            else:
+                if args.debug: print(data)
+
+                # Get timezone name or offset from history data
+                sitetz, tzname, tzoffset = get_timezone(data)
+
+                if sitetz is None:
+                    sys.exit(f"ERROR: Invalid timezone for history data - {tzname}")
+
+        except Exception as err:
+            sys.exit(f"ERROR: Failed to retrieve timezone from history data - {err}")
 
     print(f"Retrieving data for gap: [{start.astimezone(influxtz)}] - [{end.astimezone(influxtz)}] ({str(end - start)}s)")
 
@@ -432,18 +485,7 @@ def get_power_history(start, end):
                 # Check history data for timezone changes
                 if power:
                     # Get timezone name or offset from history data
-                    tzdata = lookup(power, ['installation_time_zone', 'time_zone_offset'])
-
-                    if type(tzdata) is int:
-                        # Get timezone from timezone offset
-                        histtz = tz.tzoffset(None, tzdata * 60)
-                        offset = datetime.now(tz=histtz).strftime('%z')
-                        tzdata = f"UTC{offset[:3]}:{offset[3:]}"
-                        tzoffset = True
-                    else:
-                        # Get timezone from timezone name
-                        histtz = tz.gettz(tzdata)
-                        tzoffset = False
+                    histtz, tzdata, tzoffset = get_timezone(power)
 
                     if histtz is None:
                         sys.exit(f"ERROR: Invalid timezone for history data - {tzdata}")
@@ -1017,8 +1059,6 @@ else:
 # Get site info and timezones
 site = siteinfo['site']
 influxtz = tz.gettz(ITZ)
-sitetz = influxtz
-tzname = ITZ
 utctz = tz.tzutc()
 
 # Check InfluxDB timezone is valid
