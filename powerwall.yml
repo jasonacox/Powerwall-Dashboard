@@ -20,7 +20,7 @@ services:
               mode: host
 
     pypowerwall:
-        image: jasonacox/pypowerwall:latest
+        image: jasonacox/pypowerwall:0.6.2t25
         container_name: pypowerwall
         hostname: pypowerwall
         restart: always
@@ -33,7 +33,7 @@ services:
             - pypowerwall.env
 
     telegraf:
-        image: telegraf:latest
+        image: telegraf:1.26.1
         container_name: telegraf
         hostname: telegraf
         restart: always
@@ -78,7 +78,7 @@ services:
             - influxdb
 
     weather411:
-        image: jasonacox/weather411:latest
+        image: jasonacox/weather411:0.2.1
         container_name: weather411
         hostname: weather411
         restart: always
