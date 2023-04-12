@@ -177,21 +177,18 @@ echo ""
 echo "Delete and Upgrade pyPowerwall to Latest"
 docker stop pypowerwall
 docker rm pypowerwall
-docker images | grep pypowerwall | awk '{print $3}' | xargs docker rmi -f
 
 # Delete telegraf for Upgrade
 echo ""
 echo "Delete and Upgrade telegraf to Latest"
 docker stop telegraf
 docker rm telegraf
-docker images | grep telegraf | awk '{print $3}' | xargs docker rmi -f
 
 # Delete weather411 for Upgrade
 echo ""
 echo "Delete and Upgrade weather411 to Latest"
 docker stop weather411
 docker rm weather411
-docker images | grep weather411 | awk '{print $3}' | xargs docker rmi -f
 
 # Restart Stack
 echo ""
