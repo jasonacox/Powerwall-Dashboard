@@ -1,5 +1,10 @@
 # RELEASE NOTES
 
+## v2.9.0 - Pinned Versions
+
+* Tools - Reinstate setting timezone from history on 1st run by @mcbirse in https://github.com/jasonacox/Powerwall-Dashboard/pull/236
+* Pinned versions in compose file for controlled upgrades and repeatable setups. Fix https://github.com/jasonacox/Powerwall-Dashboard/issues/237 issue by removing image pruning in `upgrade.sh` script by @GrimmiMeloni in https://github.com/jasonacox/Powerwall-Dashboard/pull/240
+
 ## v2.8.11 - Animation Auto-Scale
 
 * Add code to power flow animation dashboard panel to auto-scale based on window size by @dkerr64 in https://github.com/jasonacox/Powerwall-Dashboard/discussions/216
