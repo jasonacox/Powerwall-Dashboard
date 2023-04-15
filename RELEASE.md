@@ -1,5 +1,10 @@
 # RELEASE NOTES
 
+## v2.9.1 - Minimize Grafana Plugins
+
+* Minimize the number of default Grafana plutins as defined in the `grafana.env.sample` file (installed as localized `grafana.env`) for new installations by @jasonacox in https://github.com/jasonacox/Powerwall-Dashboard/issues/234
+* Update power flow animation panel code to display Grafana loading image while power flow graphics are loaded by @dkerr64 as discussed in https://github.com/jasonacox/Powerwall-Dashboard/discussions/216#discussioncomment-5573094
+
 ## v2.9.0 - Pinned Versions
 
 * Tools - Reinstate setting timezone from history on 1st run by @mcbirse in https://github.com/jasonacox/Powerwall-Dashboard/pull/236
