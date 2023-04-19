@@ -566,7 +566,7 @@
             "type": "influxdb",
             "uid": "${DS_INFLUXDB}"
           },
-          "query": "from(bucket: \"tesla_energy\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"instant_power\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"home\" or r[\"_field\"] == \"solar\" or r[\"_field\"] == \"grid\" or r[\"_field\"] == \"powerwall\" or r[\"_field\"] ==  \"backup_reserve_percent\")\r\n  |> aggregateWindow(every: 1m, fn: mean, createEmpty: false)",
+          "query": "from(bucket: \"tesla_energy\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"instant_power\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"home\" or r[\"_field\"] == \"solar\" or r[\"_field\"] == \"grid\" or r[\"_field\"] == \"powerwall\" or r[\"_field\"] ==  \"backup_reserve_percent\")\r\n  |> aggregateWindow(every: 1m, fn: max, createEmpty: false)",
           "refId": "A"
         },
         {
@@ -621,7 +621,7 @@
           "showLineNumbers": false,
           "showMiniMap": false
         },
-        "content": "<style>\ndiv.powerDiv {\n      width: 100%;\n      height: 100%;\n      overflow: hidden;\n    }\ndiv.firmwareDiv {\n      width: 100%;\n      position: absolute;\n      text-align: center;\n      left: 0;\n      bottom: 0;\n      overflow: hidden;\n    }\niframe.powerFrame {\n      width: 500px;\n      height: 300px;\n      transform: scale(0);\n      transform-origin: center;\n      position: absolute;\n      left: 50%;\n      top: 50%;\n      border-style: none;\n    }\n</style>\n<div class=\"powerDiv\">\n    <iframe id=\"frame8675\" class=\"powerFrame\" src=\"/public/img/grafana_icon.svg\" onload=\"scale(this)\">IFRAME not supported by browser.</iframe>\n    <script>\n    document.getElementById('frame8675').parentElement.parentElement.parentElement.style.overflow = 'hidden';\n    </script>\n</div>\n<div class=\"firmwareDiv\">\n  <p class=\"version\" style=\"color:gray; text-align: bottom\">Firmware</p>\n</div>\n<script>\n// Scale Animation when Window is Resized\nfunction scale() {\n  document.querySelectorAll('.powerFrame').forEach(scaled => {\n    parent = scaled.parentNode;\n    ratio = Math.min(1, 1.2 * (parent.offsetWidth / scaled.offsetWidth), (parent.offsetHeight / scaled.offsetHeight));\n    scaled.style.transform = 'translate(-50%, -50%) scale(' + ratio + ')';\n  })\n}\nwindow.addEventListener('resize', function(e){ scale(); }, false);\n\n// Display Firmware Version\nfunction showversion() {\n    var pwver = window.location.protocol + \"//\" + window.location.hostname + \":8675/version\";\n    $.getJSON(pwver, function(data) {\n        var text = `Firmware: ${data.version.split(\" \")[0]}`;\n        $(\".version\").html(text);\n    });\n    setTimeout(showversion, 60000);\n}\nshowversion();\n\n// Load Animation from pyPowerwall\nvar pwurl = window.location.protocol + \"//\" + window.location.hostname + \":8675/\";\ndocument.getElementById('frame8675').src = pwurl;\n</script>",
+        "content": "<style>\ndiv.powerDiv {\n      width: 100%;\n      height: 100%;\n      overflow: hidden;\n      background: url(public/img/load_big.gif) center center no-repeat;\n    }\ndiv.firmwareDiv {\n      width: 100%;\n      position: absolute;\n      text-align: center;\n      left: 0;\n      bottom: 0;\n      overflow: hidden;\n    }\niframe.powerFrame {\n      width: 400px;\n      height: 300px;\n      transform: scale(0);\n      transform-origin: center;\n      position: absolute;\n      left: 50%;\n      top: 50%;\n      border-style: none;\n    }\n</style>\n<div class=\"powerDiv\">\n    <iframe id=\"frame8675\" class=\"powerFrame\" src=\"/public/img/grafana_icon.svg\">IFRAME not supported by browser.</iframe>\n</div>\n<div class=\"firmwareDiv\">\n  <p class=\"version\" style=\"color:gray; text-align: center;\">Firmware</p>\n</div>\n<script>\n// Scale Animation when Window is Resized\nfunction scale() {\n  document.querySelectorAll('.powerFrame').forEach(scaled => {\n    parent = scaled.parentNode;\n    ratio = Math.min(parent.offsetWidth / scaled.offsetWidth, parent.offsetHeight / scaled.offsetHeight);\n    scaled.style.transform = 'translate(-50%, -50%) scale(' + ratio + ')';\n  })\n}\nwindow.addEventListener('resize', function(e){ scale(); }, false);\n\n// Display Firmware Version\nfunction showversion() {\n    var pwver = window.location.protocol + \"//\" + window.location.hostname + \":8675/version\";\n    $.getJSON(pwver, function(data) {\n        var text = `Firmware: ${data.version.split(\" \")[0]}`;\n        $(\".version\").html(text);\n    });\n    setTimeout(showversion, 60000);\n}\nshowversion();\n\n// Load Animation from pyPowerwall\nvar powerFrame = document.getElementById('frame8675');\npowerFrame.onload = function() {\n  // remove animated gif from background now that frame downloaded...\n  this.parentNode.setAttribute('style','background: none');\n  // and scale the frame to fit...\n  scale();\n}\npowerFrame.src = window.location.protocol + \"//\" + window.location.hostname + \":8675/\";\n</script>",
         "mode": "html"
       },
       "pluginVersion": "9.4.7",
@@ -2011,7 +2011,7 @@
             "type": "influxdb",
             "uid": "${DS_INFLUXDB}"
           },
-          "query": "import \"date\"\r\nimport \"timezone\"\r\n\r\noption location = timezone.location(name: \"America/Los_Angeles\")\r\n\r\nfrom(bucket: \"tesla_energy\")\r\n  |> range(start: -1mo, stop: date.truncate(t: now(), unit: 1d))\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"kwh\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"home\")\r\n  |> aggregateWindow(every: 1d, fn: sum)\r\n",
+          "query": "import \"date\"\r\nimport \"timezone\"\r\n\r\noption location = timezone.location(name: \"America/Los_Angeles\")\r\n\r\nfrom(bucket: \"tesla_energy\")\r\n  |> range(start: -2mo, stop: date.truncate(t: now(), unit: 1d))\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"kwh\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"home\")\r\n  |> aggregateWindow(every: 1d, fn: sum)\r\n",
           "refId": "A"
         }
       ],
@@ -2104,7 +2104,7 @@
             "type": "influxdb",
             "uid": "${DS_INFLUXDB}"
           },
-          "query": "import \"date\"\r\nimport \"timezone\"\r\n\r\noption location = timezone.location(name: \"America/Los_Angeles\")\r\n\r\nfrom(bucket: \"tesla_energy\")\r\n  |> range(start: -1mo, stop: date.truncate(t: now(), unit: 1d))\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"kwh\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"solar\")\r\n  |> aggregateWindow(every: 1d, fn: sum)\r\n",
+          "query": "import \"date\"\r\nimport \"timezone\"\r\n\r\noption location = timezone.location(name: \"America/Los_Angeles\")\r\n\r\nfrom(bucket: \"tesla_energy\")\r\n  |> range(start: -2mo, stop: date.truncate(t: now(), unit: 1d))\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"kwh\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"solar\")\r\n  |> aggregateWindow(every: 1d, fn: sum)\r\n",
           "refId": "A"
         }
       ],
@@ -2159,8 +2159,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -2197,7 +2196,7 @@
             "type": "influxdb",
             "uid": "${DS_INFLUXDB}"
           },
-          "query": "import \"date\"\r\nimport \"timezone\"\r\n\r\noption location = timezone.location(name: \"America/Los_Angeles\")\r\n\r\nfrom(bucket: \"tesla_energy\")\r\n  |> range(start: -1mo, stop: date.truncate(t: now(), unit: 1d))\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"kwh\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"from_powerwall\")\r\n  |> aggregateWindow(every: 1d, fn: sum)\r\n",
+          "query": "import \"date\"\r\nimport \"timezone\"\r\n\r\noption location = timezone.location(name: \"America/Los_Angeles\")\r\n\r\nfrom(bucket: \"tesla_energy\")\r\n  |> range(start: -2mo, stop: date.truncate(t: now(), unit: 1d))\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"kwh\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"from_powerwall\")\r\n  |> aggregateWindow(every: 1d, fn: sum)\r\n",
           "refId": "A"
         }
       ],
@@ -2252,8 +2251,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -2357,7 +2355,7 @@
             "type": "influxdb",
             "uid": "${DS_INFLUXDB}"
           },
-          "query": "import \"date\"\r\nimport \"timezone\"\r\n\r\noption location = timezone.location(name: \"America/Los_Angeles\")\r\n\r\nfrom(bucket: \"tesla_energy\")\r\n  |> range(start: -1mo, stop: date.truncate(t: now(), unit: 1d))\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"kwh\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"from_grid\")\r\n  |> aggregateWindow(every: 1d, fn: sum)\r\n",
+          "query": "import \"date\"\r\nimport \"timezone\"\r\n\r\noption location = timezone.location(name: \"America/Los_Angeles\")\r\n\r\nfrom(bucket: \"tesla_energy\")\r\n  |> range(start: -2mo, stop: date.truncate(t: now(), unit: 1d))\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"kwh\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"from_grid\")\r\n  |> aggregateWindow(every: 1d, fn: sum)\r\n",
           "refId": "A"
         },
         {
@@ -2366,7 +2364,7 @@
             "uid": "${DS_INFLUXDB}"
           },
           "hide": false,
-          "query": "import \"date\"\r\nimport \"timezone\"\r\n\r\noption location = timezone.location(name: \"America/Los_Angeles\")\r\n\r\nfrom(bucket: \"tesla_energy\")\r\n  |> range(start: -1mo, stop: date.truncate(t: now(), unit: 1d))\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"kwh\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"to_grid\")\r\n  |> map(fn: (r) => ({r with _value: r._value * -1.0}))\r\n  |> aggregateWindow(every: 1d, fn: sum)\r\n\r\n\r\n",
+          "query": "import \"date\"\r\nimport \"timezone\"\r\n\r\noption location = timezone.location(name: \"America/Los_Angeles\")\r\n\r\nfrom(bucket: \"tesla_energy\")\r\n  |> range(start: -2mo, stop: date.truncate(t: now(), unit: 1d))\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"kwh\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"to_grid\")\r\n  |> map(fn: (r) => ({r with _value: r._value * -1.0}))\r\n  |> aggregateWindow(every: 1d, fn: sum)\r\n\r\n\r\n",
           "refId": "B"
         },
         {
@@ -2375,7 +2373,7 @@
             "uid": "${DS_INFLUXDB}"
           },
           "hide": false,
-          "query": "import \"date\"\r\nimport \"timezone\"\r\n\r\noption location = timezone.location(name: \"America/Los_Angeles\")\r\n\r\nfrom(bucket: \"tesla_energy\")\r\n  |> range(start: -1mo, stop: date.truncate(t: now(), unit: 1d))\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"kwh\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"grid\")\r\n  |> aggregateWindow(every: 1d, fn: sum)\r\n\r\n\r\n",
+          "query": "import \"date\"\r\nimport \"timezone\"\r\n\r\noption location = timezone.location(name: \"America/Los_Angeles\")\r\n\r\nfrom(bucket: \"tesla_energy\")\r\n  |> range(start: -2mo, stop: date.truncate(t: now(), unit: 1d))\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"kwh\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"grid\")\r\n  |> aggregateWindow(every: 1d, fn: sum)\r\n\r\n\r\n",
           "refId": "C"
         }
       ],
@@ -3196,7 +3194,7 @@
             "type": "influxdb",
             "uid": "${DS_INFLUXDB}"
           },
-          "query": "from(bucket: \"tesla_energy\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"strings\")\r\n  |> filter(fn: (r) => r[\"_field\"] =~ /[A-D][0-99]_Voltage/)\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n",
+          "query": "from(bucket: \"tesla_energy\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"strings\")\r\n  |> filter(fn: (r) => r[\"_field\"] =~ /[A-D][0-99]_Current/)\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n",
           "refId": "A"
         }
       ],
@@ -3948,7 +3946,7 @@
               }
             ]
           },
-          "unit": "bool_on_off"
+          "unit": "none"
         },
         "overrides": [
           {
@@ -4014,7 +4012,7 @@
         ]
       },
       "gridPos": {
-        "h": 12,
+        "h": 8,
         "w": 24,
         "x": 0,
         "y": 87
@@ -4042,7 +4040,7 @@
             "type": "influxdb",
             "uid": "${DS_INFLUXDB}"
           },
-          "query": "from(bucket: \"tesla_energy\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"alerts\")\r\n  |> aggregateWindow(every: 1m, fn: min, createEmpty: true)\r\n  |> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> drop(columns: [\"_start\", \"_stop\", \"host\", \"month\", \"url\", \"year\"])\r\n\r\n",
+          "query": "from(bucket: \"tesla_energy\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"alerts\")\r\n//  |> aggregateWindow(every: 1m, fn: min, createEmpty: true)\r\n  |> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> drop(columns: [\"_start\", \"_stop\", \"host\", \"month\", \"url\", \"year\"])\r\n\r\n",
           "refId": "A"
         }
       ],
@@ -4057,7 +4055,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 99
+        "y": 95
       },
       "id": 26,
       "panels": [],
@@ -4273,7 +4271,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 100
+        "y": 96
       },
       "id": 30,
       "options": {
@@ -4544,7 +4542,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 108
+        "y": 104
       },
       "id": 44,
       "options": {
@@ -4625,6 +4623,6 @@
   "timezone": "",
   "title": "Tesla Energy",
   "uid": "yDBrTi-4k",
-  "version": 65,
+  "version": 71,
   "weekStart": "monday"
 }
