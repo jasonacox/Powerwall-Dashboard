@@ -3,7 +3,7 @@
 This tool is a shell script designed to run as a system service to monitor status of grid, battery percentage, and firmware version, and send an e-mail alert when changes are detected or low battery reached. It is also useful as a command line API request dumper.
 
 * Author: [@mcbirse](https://github.com/mcbirse)
-* Discussion: [249](https://github.com/jasonacox/Powerwall-Dashboard/discussions/249)
+* Discussion: [#249](https://github.com/jasonacox/Powerwall-Dashboard/discussions/249)
 * Script: [pwstatus.sh](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/tools/pwstatus/pwstatus.sh)
 
 ## Features
@@ -20,7 +20,7 @@ As well as the monitoring capabilities, the script can be used as a simple and c
 
 ## Requirements
 
-The requirements and configuration examples below are based on a minimal Alpine Linux install, as this was the platform I used to develop the script. Requirements and configuration will vary based on your chosen platform. Please submit a PR or join discussion [249](https://github.com/jasonacox/Powerwall-Dashboard/discussions/249) if you would like to add setup instructions or provide guidance for other platforms.
+The requirements and configuration examples below are based on a minimal Alpine Linux install, as this was the platform I used to develop the script. Requirements and configuration will vary based on your chosen platform. Please submit a PR or join discussion [#249](https://github.com/jasonacox/Powerwall-Dashboard/discussions/249) if you would like to add setup instructions or provide guidance for other platforms.
 
 The script requires the following additional packages to be installed:
 
@@ -62,7 +62,7 @@ You can skip this step if not required or if you wish to test the script beforeh
 
 <p>
 
-Additional config files may be required to install the script as a system service depending on your platform. Below is an example of how to install the script as a system service based on requirements for Alpine Linux, which uses the OpenRC init system. Please submit a PR or join discussion [249](https://github.com/jasonacox/Powerwall-Dashboard/discussions/249) if you would like to add instructions or provide guidance for other platforms.
+Additional config files may be required to install the script as a system service depending on your platform. Below is an example of how to install the script as a system service based on requirements for Alpine Linux, which uses the OpenRC init system. Please submit a PR or join discussion [#249](https://github.com/jasonacox/Powerwall-Dashboard/discussions/249) if you would like to add instructions or provide guidance for other platforms.
 
 Copy the script to an appropriate location for your system, e.g. `/usr/local/bin`, and ensure it is executable.
 
@@ -311,4 +311,4 @@ Specify alternative configuration file:
 
 ### Discussion Link
 
-Join discussion [249](https://github.com/jasonacox/Powerwall-Dashboard/discussions/249) if you have questions or find a problem with this script, or would like to contribute additional setup instructions or provide guidance for other platforms.
+Join discussion [#249](https://github.com/jasonacox/Powerwall-Dashboard/discussions/249) if you have questions or find a problem with this script, or would like to contribute additional setup instructions or provide guidance for other platforms.
