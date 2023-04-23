@@ -1,0 +1,45 @@
+# pwstatus configuration file
+
+# Powerwall hostname/ip and login credentials
+POWERWALL="192.168.91.1"
+USERNAME="customer"
+PASSWORD="XXXXX"
+EMAIL="yourname@example.com"
+
+# pyPowerwall proxy address
+PWPROXY="http://localhost:8675"
+USEPROXY="YES"
+FALLBACK="YES"
+
+# cookie file
+COOKIE="/var/tmp/pwcookie"
+
+# status files
+GRIDSTATUS="/var/tmp/pwgridstatus"
+VERSION="/var/tmp/pwversion"
+
+# allow any user to update files
+SHAREFILES="YES"
+
+# log file
+LOGFILE="/var/log/pwstatus.log"
+
+# e-mail alert sender name
+FROM="Powerwall"
+
+# e-mail alert recipient addresses
+ALERTS="alerts@example.com"
+ERRORS="errors@example.com"
+
+# seconds to wait between status requests
+SLEEP=5
+
+# seconds to wait before retry on status request failure
+RETRY=10
+
+# battery charge percentage to send alerts at
+BATTLOW=15
+BATTCRIT=10
+
+# hour of day to force check for firmware version change
+CHKVERHR=7

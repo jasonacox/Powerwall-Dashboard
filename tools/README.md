@@ -67,3 +67,11 @@ This is a tool for Tesla Solar owners who don't have a Powerwall to get a simila
 This includes optionals files and instructions to help setup InfluxDB 2.x (instead of 1.8) as the database for the Dashboard. Thanks to @ThePnuts for developing the many flux queries required to replace the 1.8 version continuous queries as well as the Grafana queries in the dashboard.json.
 
 * [InfluxDB 2.x Support](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/tools/influxdb2/)
+
+## Powerwall Status Monitor and API Request Dumper
+
+This tool is a shell script designed to run as a system service to monitor status of grid, battery percentage, and firmware version, and send an e-mail alert when changes are detected or low battery reached. It is also useful as a command line API request dumper.
+
+* Author: [@mcbirse](https://github.com/mcbirse)
+* [Details and Instructions](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/tools/pwstatus/)
+* Script: [pwstatus.sh](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/tools/pwstatus/pwstatus.sh)
