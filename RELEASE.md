@@ -1,5 +1,9 @@
 # RELEASE NOTES
 
+## v2.9.2 - Additional Powerwall Support
+
+* Add support for up to 12 Powerwalls (added PW7 to PW12) for temperature data, frequencies, voltages and capacity as requested in https://github.com/jasonacox/Powerwall-Dashboard/discussions/253 and issue https://github.com/jasonacox/Powerwall-Dashboard/issues/256.
+
 ## v2.9.1 - Minimize Grafana Plugins
 
 * Minimize the number of default Grafana plutins as defined in the `grafana.env.sample` file (installed as localized `grafana.env`) for new installations by @jasonacox in https://github.com/jasonacox/Powerwall-Dashboard/issues/234
