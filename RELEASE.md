@@ -1,8 +1,12 @@
 # RELEASE NOTES
 
+## v2.9.2 - Additional Powerwall Support
+
+* Add support for up to 12 Powerwalls (added PW7 to PW12) for temperature data, frequencies, voltages and capacity as requested in https://github.com/jasonacox/Powerwall-Dashboard/discussions/253 and issue https://github.com/jasonacox/Powerwall-Dashboard/issues/256.
+
 ## v2.9.1 - Minimize Grafana Plugins
 
-* Minimize the number of default Grafana plutins as defined in the `grafana.env.sample` file (installed as localized `grafana.env`) for new installations by @jasonacox in https://github.com/jasonacox/Powerwall-Dashboard/issues/234
+* Minimize the number of default Grafana plugins as defined in the `grafana.env.sample` file (installed as localized `grafana.env`) for new installations by @jasonacox in https://github.com/jasonacox/Powerwall-Dashboard/issues/234
 * Update power flow animation panel code to display Grafana loading image while power flow graphics are loaded by @dkerr64 as discussed in https://github.com/jasonacox/Powerwall-Dashboard/discussions/216#discussioncomment-5573094
 
 ## v2.9.0 - Pinned Versions
