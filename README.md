@@ -134,7 +134,7 @@ Note: It can take a while for InfluxDB to start.  Also the influxdb.sql file is 
 
 ### Notes
 
-* The database queries and dashboard are set to use `America/Los_Angeles` as the timezone. Remember to edit the database commands [influxdb.sql](influxdb/influxdb.sql), [powerwall.yml](powerwall.yml), and [dashboard.json](dashboard.json) to replace `America/Los_Angeles` with your own timezone.
+* The database queries are set to use `America/Los_Angeles` as the timezone. Remember to edit the database commands [influxdb.sql](influxdb/influxdb.sql) and [powerwall.yml](powerwall.yml) with your own timezone. During import of dashboards into Grafana you'll be prompted to enter your timezone for queries.
 
 ### Upgrading
 
@@ -192,7 +192,7 @@ If you are getting permission errors running docker, or an error that it isn't i
 
 #### Savings Errors
 
-The savings estimates are based on a $0.19/kWh utility cost and net metering credit. You likely have a different value for this and can edit the queries in that panel to reflect your actual costs and credits.  To help, here are the variables used to calculate the savings:
+The savings estimates are based on a $0.19/kWh (by default) utility cost and net metering credit. You likely have a different value for this and during importing dashboards indicate your average cost per kWh to reflect your actual costs and credits. As of now there's one variable to set both cost and credit per kWh. To help, here are the variables used to calculate the savings:
 
 * `s` = kWh from solar (based on time frame selected)
 * `fp` = kWh from powerwall
