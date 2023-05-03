@@ -15,6 +15,20 @@
       "type": "datasource",
       "pluginId": "fetzerch-sunandmoon-datasource",
       "pluginName": "Sun and Moon"
+    },
+    {
+      "name": "VAR_AVG_PER_KWH",
+      "type": "constant",
+      "label": "kWh cost",
+      "value": "0.19",
+      "description": ""
+    },
+    {
+      "name": "VAR_TZ",
+      "type": "constant",
+      "label": "Timezone",
+      "value": "America/Los_Angeles",
+      "description": ""
     }
   ],
   "__elements": {},
@@ -219,7 +233,7 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "autogen",
-          "query": "SELECT \"mean_load_instant_power\" FROM \"http\" WHERE $timeFilter tz('America/Los_Angeles')",
+          "query": "SELECT \"mean_load_instant_power\" FROM \"http\" WHERE $timeFilter tz('$tz')",
           "rawQuery": false,
           "refId": "A",
           "resultFormat": "time_series",
@@ -238,7 +252,7 @@
             ]
           ],
           "tags": [],
-          "tz": "America/Los_Angeles"
+          "tz": "$tz"
         },
         {
           "alias": "Solar Energy",
@@ -275,7 +289,7 @@
             ]
           ],
           "tags": [],
-          "tz": "America/Los_Angeles"
+          "tz": "$tz"
         },
         {
           "alias": "Powerwall",
@@ -295,7 +309,7 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "autogen",
-          "query": "SELECT mean(from_pw) - mean(to_pw) FROM autogen.http WHERE $timeFilter GROUP BY time(5m) tz('America/Los_Angeles')",
+          "query": "SELECT mean(from_pw) - mean(to_pw) FROM autogen.http WHERE $timeFilter GROUP BY time(5m) tz('$tz')",
           "rawQuery": true,
           "refId": "C",
           "resultFormat": "time_series",
@@ -314,7 +328,7 @@
             ]
           ],
           "tags": [],
-          "tz": "America/Los_Angeles"
+          "tz": "$tz"
         },
         {
           "alias": "Grid Usage",
@@ -340,7 +354,7 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT mean(from_grid) - mean(to_grid) FROM autogen.http WHERE $timeFilter GROUP BY time(5m) tz('America/Los_Angeles')",
+          "query": "SELECT mean(from_grid) - mean(to_grid) FROM autogen.http WHERE $timeFilter GROUP BY time(5m) tz('$tz')",
           "rawQuery": true,
           "refId": "D",
           "resultFormat": "time_series",
@@ -359,7 +373,7 @@
             ]
           ],
           "tags": [],
-          "tz": "America/Los_Angeles"
+          "tz": "$tz"
         },
         {
           "alias": "Charge",
@@ -410,7 +424,7 @@
             ]
           ],
           "tags": [],
-          "tz": "America/Los_Angeles"
+          "tz": "$tz"
         },
         {
           "datasource": {
@@ -547,7 +561,7 @@
             ]
           ],
           "tags": [],
-          "tz": "America/Los_Angeles"
+          "tz": "$tz"
         }
       ],
       "title": "Powerwall",
@@ -626,7 +640,7 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT  (1+from_solar/abs(from_solar))*from_solar/2  FROM (SELECT integral(solar)/1000/3600 - integral(to_pw)/1000/3600 - integral(to_grid)/1000/3600  AS from_solar FROM autogen.http WHERE  $timeFilter tz('America/Los_Angeles'))",
+          "query": "SELECT  (1+from_solar/abs(from_solar))*from_solar/2  FROM (SELECT integral(solar)/1000/3600 - integral(to_pw)/1000/3600 - integral(to_grid)/1000/3600  AS from_solar FROM autogen.http WHERE  $timeFilter tz('$tz'))",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -680,7 +694,7 @@
             ]
           ],
           "tags": [],
-          "tz": "America/Los_Angeles"
+          "tz": "$tz"
         },
         {
           "alias": "From Grid",
@@ -716,7 +730,7 @@
             ]
           ],
           "tags": [],
-          "tz": "America/Los_Angeles"
+          "tz": "$tz"
         }
       ],
       "title": "Self-powered",
@@ -814,7 +828,7 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT fp FROM (SELECT sum(\"from_pw\")  * 0.19 AS fp FROM kwh.http WHERE  $timeFilter tz('America/Los_Angeles'))",
+          "query": "SELECT fp FROM (SELECT sum(\"from_pw\")  * $avg_per_kwh AS fp FROM kwh.http WHERE  $timeFilter tz('$tz'))",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -857,7 +871,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT s - (tp + tg) FROM (SELECT sum(\"solar\") * 0.19 AS s,  sum(\"to_pw\")  * 0.19 AS tp, sum(\"to_grid\") * 0.19 AS tg FROM kwh.http WHERE  $timeFilter tz('America/Los_Angeles'))",
+          "query": "SELECT s - (tp + tg) FROM (SELECT sum(\"solar\") * $avg_per_kwh AS s,  sum(\"to_pw\")  * $avg_per_kwh AS tp, sum(\"to_grid\") * $avg_per_kwh AS tg FROM kwh.http WHERE  $timeFilter tz('$tz'))",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "time_series",
@@ -900,7 +914,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT tg FROM (SELECT sum(\"to_pw\")  * 0.19 AS tp, sum(\"solar\") * 0.19 AS s, sum(\"to_grid\") * 0.19 AS tg FROM kwh.http WHERE  $timeFilter tz('America/Los_Angeles'))",
+          "query": "SELECT tg FROM (SELECT sum(\"to_pw\")  * $avg_per_kwh AS tp, sum(\"solar\") * $avg_per_kwh AS s, sum(\"to_grid\") * $avg_per_kwh AS tg FROM kwh.http WHERE  $timeFilter tz('$tz'))",
           "rawQuery": true,
           "refId": "C",
           "resultFormat": "time_series",
@@ -927,7 +941,7 @@
             "uid": "${DS_INFLUXDB}"
           },
           "hide": false,
-          "query": "SELECT tg + (s - tp - tg ) + fp FROM (SELECT sum(\"to_pw\")  * 0.19 AS tp, sum(\"solar\") * 0.19 AS s, sum(\"to_grid\") * 0.19 AS tg, sum(\"from_pw\") * 0.19 AS fp FROM kwh.http WHERE  $timeFilter tz('America/Los_Angeles'))\n",
+          "query": "SELECT tg + (s - tp - tg ) + fp FROM (SELECT sum(\"to_pw\")  * $avg_per_kwh AS tp, sum(\"solar\") * $avg_per_kwh AS s, sum(\"to_grid\") * $avg_per_kwh AS tg, sum(\"from_pw\") * $avg_per_kwh AS fp FROM kwh.http WHERE  $timeFilter tz('$tz'))\n",
           "rawQuery": true,
           "refId": "D",
           "resultFormat": "time_series"
@@ -1261,7 +1275,7 @@
             ]
           ],
           "tags": [],
-          "tz": "America/Los_Angeles"
+          "tz": "$tz"
         }
       ],
       "title": "Home Usage",
@@ -1364,7 +1378,7 @@
             ]
           ],
           "tags": [],
-          "tz": "America/Los_Angeles"
+          "tz": "$tz"
         }
       ],
       "title": "From Powerwall",
@@ -1467,7 +1481,7 @@
             ]
           ],
           "tags": [],
-          "tz": "America/Los_Angeles"
+          "tz": "$tz"
         }
       ],
       "title": "From Grid",
@@ -1570,7 +1584,7 @@
             ]
           ],
           "tags": [],
-          "tz": "America/Los_Angeles"
+          "tz": "$tz"
         }
       ],
       "title": "Solar Energy",
@@ -1673,7 +1687,7 @@
             ]
           ],
           "tags": [],
-          "tz": "America/Los_Angeles"
+          "tz": "$tz"
         }
       ],
       "title": "To Powerwall",
@@ -1776,7 +1790,7 @@
             ]
           ],
           "tags": [],
-          "tz": "America/Los_Angeles"
+          "tz": "$tz"
         }
       ],
       "title": "To Grid",
@@ -1901,7 +1915,7 @@
             ]
           ],
           "tags": [],
-          "tz": "America/Los_Angeles"
+          "tz": "$tz"
         }
       ],
       "thresholds": [],
@@ -2034,7 +2048,7 @@
               "value": "0"
             }
           ],
-          "tz": "America/Los_Angeles"
+          "tz": "$tz"
         }
       ],
       "thresholds": [],
@@ -2161,7 +2175,7 @@
             ]
           ],
           "tags": [],
-          "tz": "America/Los_Angeles"
+          "tz": "$tz"
         }
       ],
       "thresholds": [],
@@ -2295,7 +2309,7 @@
             ]
           ],
           "tags": [],
-          "tz": "America/Los_Angeles"
+          "tz": "$tz"
         },
         {
           "alias": "To Grid",
@@ -2344,7 +2358,7 @@
             ]
           ],
           "tags": [],
-          "tz": "America/Los_Angeles"
+          "tz": "$tz"
         }
       ],
       "thresholds": [],
@@ -2484,7 +2498,7 @@
               "value": "0"
             }
           ],
-          "tz": "America/Los_Angeles"
+          "tz": "$tz"
         }
       ],
       "thresholds": [],
@@ -2525,7 +2539,50 @@
   "style": "dark",
   "tags": [],
   "templating": {
-    "list": []
+    "list": [
+      {
+        "description": "Average Cost Per kWh",
+        "hide": 2,
+        "label": "kWh cost",
+        "name": "avg_per_kwh",
+        "query": "${VAR_AVG_PER_KWH}",
+        "skipUrlSync": false,
+        "type": "constant",
+        "current": {
+          "value": "${VAR_AVG_PER_KWH}",
+          "text": "${VAR_AVG_PER_KWH}",
+          "selected": false
+        },
+        "options": [
+          {
+            "value": "${VAR_AVG_PER_KWH}",
+            "text": "${VAR_AVG_PER_KWH}",
+            "selected": false
+          }
+        ]
+      },
+      {
+        "description": "Timezone",
+        "hide": 2,
+        "label": "Timezone",
+        "name": "tz",
+        "query": "${VAR_TZ}",
+        "skipUrlSync": false,
+        "type": "constant",
+        "current": {
+          "value": "${VAR_TZ}",
+          "text": "${VAR_TZ}",
+          "selected": false
+        },
+        "options": [
+          {
+            "value": "${VAR_TZ}",
+            "text": "${VAR_TZ}",
+            "selected": false
+          }
+        ]
+      }
+    ]
   },
   "time": {
     "from": "now/d",
