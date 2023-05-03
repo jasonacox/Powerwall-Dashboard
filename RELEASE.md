@@ -1,5 +1,9 @@
 # RELEASE NOTES
 
+## v2.9.3 - Adjustable kWh Cost
+
+* Dashboard Update - Make "costs/credit per kWh" and "timezone" user adjustable variables in Grafana by @emptywee in https://github.com/jasonacox/Powerwall-Dashboard/pull/266
+
 ## v2.9.2 - Additional Powerwall Support
 
 * Add support for up to 12 Powerwalls (added PW7 to PW12) for temperature data, frequencies, voltages and capacity as requested in https://github.com/jasonacox/Powerwall-Dashboard/discussions/253 and issue https://github.com/jasonacox/Powerwall-Dashboard/issues/256.
