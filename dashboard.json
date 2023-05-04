@@ -34,7 +34,7 @@
       "name": "VAR_TZ",
       "type": "constant",
       "label": "Timezone",
-      "value": "America/Phoenix",
+      "value": "America/Los_Angeles",
       "description": ""
     }
   ],
