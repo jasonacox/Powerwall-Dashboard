@@ -1,5 +1,9 @@
 # RELEASE NOTES
 
+## v2.9.4 - Adjustable kWh Cost
+
+* Dashboard Update - Update "costs/credit per kWh" for buy vs. sell by @jgleigh in https://github.com/jasonacox/Powerwall-Dashboard/pull/266
+
 ## v2.9.3 - Adjustable kWh Cost
 
 * Dashboard Update - Make "costs/credit per kWh" and "timezone" user adjustable variables in Grafana by @emptywee in https://github.com/jasonacox/Powerwall-Dashboard/pull/266
