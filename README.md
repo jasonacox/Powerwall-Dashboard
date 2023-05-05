@@ -48,8 +48,7 @@ Run the interactive setup script that will ask you for your Powerwall details an
   * _For Windows 11 users, see the [Windows 11 Instructions](https://github.com/jasonacox/Powerwall-Dashboard#windows-11-instructions) below._
 
 Follow the **[Grafana Setup](https://github.com/jasonacox/Powerwall-Dashboard#grafana-setup)** instructions provided (or see below) to complete the setup.
- 
- 
+
 ## Option 2 - Manual Install
 
 If you prefer, you can perform the same steps that `setup.sh` performs.
@@ -87,7 +86,7 @@ You will want to set your local timezone by editing `pypowerwall.env`, `telegraf
       [OpenWeatherMap]
       # Register and get APIKEY from OpenWeatherMap.org
       APIKEY = aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-      # Enter your location in latitude and longitude 
+      # Enter your location in latitude and longitude
       LAT = xxx.xxxx
       LON = yyy.yyyy
   ```
@@ -100,7 +99,7 @@ You will want to set your local timezone by editing `pypowerwall.env`, `telegraf
 
 ### InfluxDB
 
-* Connect to the Influx database to import setup commands: 
+* Connect to the Influx database to import setup commands:
 
   ```bash
     docker exec -it influxdb influx -import -path=/var/lib/influxdb/influxdb.sql
@@ -149,7 +148,7 @@ Check the logs of the services using:
   docker logs -f grafana
 ```
 
-* Docker terminating with `error 139`:  InfluxDB does not run reliably on older models of Raspberry Pi. 
+* Docker terminating with `error 139`:  InfluxDB does not run reliably on older models of Raspberry Pi.
 * Grafana Error: Invalid interval string, expecting a number followed by one of "Mwdhmsy" - This indicates that the Grafana setup for InfluxDB is missing the time unit, "s", in the "Min time interval" field:
   - Min time interval: `5s`
 
@@ -244,7 +243,7 @@ InfluxDB is configured to use a infinite retention policy (see [influxdb.sql](..
 ### Credits
 
 * This project is based on the great work by mihailescu2m at [https://github.com/mihailescu2m/powerwall_monitor](https://github.com/mihailescu2m/powerwall_monitor) and has been modified to use pypowerwall as a proxy to the Powerwall and includes solar String, Inverter and Powerwall Temperature graphs for Powerwall+ systems.
-* Grafana at https://github.com/grafana/grafana 
+* Grafana at https://github.com/grafana/grafana
 * Telegraf at https://github.com/influxdata/telegraf
 * InfluxDB at https://github.com/influxdata/influxdb
 * pyPowerwall at https://github.com/jasonacox/pypowerwall
