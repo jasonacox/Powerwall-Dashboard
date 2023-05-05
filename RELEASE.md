@@ -1,7 +1,9 @@
 # RELEASE NOTES
 
-## v2.9.4 - Adjustable kWh Cost
+## v2.9.4 - pyPowerwall Proxy t26
 
+* Update pyPowerwall Proxy to t26 with updated default `PW_POOL_MAXSIZE` of 15 as raised by @jgleigh
+ and @mcbirse in https://github.com/jasonacox/Powerwall-Dashboard/discussions/261#discussioncomment-5803595
 * Dashboard Update - Update "costs/credit per kWh" for buy vs. sell by @jgleigh in https://github.com/jasonacox/Powerwall-Dashboard/pull/266
 
 ## v2.9.3 - Adjustable kWh Cost
