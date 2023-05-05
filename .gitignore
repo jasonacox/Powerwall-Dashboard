@@ -1,5 +1,7 @@
 sandbox/
 *.bak
+grafana/alerting/
+grafana/csv/
 grafana/grafana.db
 grafana/plugins/
 influxdb/meta/
