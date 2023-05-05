@@ -20,7 +20,7 @@ services:
               mode: host
 
     pypowerwall:
-        image: jasonacox/pypowerwall:0.6.2t25
+        image: jasonacox/pypowerwall:0.6.2t26
         container_name: pypowerwall
         hostname: pypowerwall
         restart: always

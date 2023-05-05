@@ -17,9 +17,16 @@
       "pluginName": "Sun and Moon"
     },
     {
-      "name": "VAR_AVG_PER_KWH",
+      "name": "VAR_AVG_BUY_PER_KWH",
       "type": "constant",
-      "label": "Cost per kWh",
+      "label": "Buy Cost per kWh",
+      "value": "0.19",
+      "description": ""
+    },
+    {
+      "name": "VAR_AVG_SELL_PER_KWH",
+      "type": "constant",
+      "label": "Sell Cost per kWh",
       "value": "0.19",
       "description": ""
     },
@@ -2235,7 +2242,7 @@
             "type": "influxdb",
             "uid": "${DS_INFLUXDB}"
           },
-          "query": "SELECT fp FROM (SELECT sum(\"from_pw\")  * $avg_per_kwh AS fp FROM kwh.http WHERE  $timeFilter tz('$tz'))",
+          "query": "SELECT fp FROM (SELECT sum(\"from_pw\")  * $avg_buy_per_kwh AS fp FROM kwh.http WHERE  $timeFilter tz('$tz'))",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series"
@@ -2247,7 +2254,7 @@
             "uid": "${DS_INFLUXDB}"
           },
           "hide": false,
-          "query": "SELECT s - (tp + tg) FROM (SELECT sum(\"solar\") * $avg_per_kwh AS s,  sum(\"to_pw\")  * $avg_per_kwh AS tp, sum(\"to_grid\") * $avg_per_kwh AS tg FROM kwh.http WHERE  $timeFilter tz('$tz'))\n",
+          "query": "SELECT s - (tp + tg) FROM (SELECT sum(\"solar\") * $avg_buy_per_kwh AS s,  sum(\"to_pw\")  * $avg_buy_per_kwh AS tp, sum(\"to_grid\") * $avg_buy_per_kwh AS tg FROM kwh.http WHERE  $timeFilter tz('$tz'))\n",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "time_series"
@@ -2259,7 +2266,7 @@
             "uid": "${DS_INFLUXDB}"
           },
           "hide": false,
-          "query": "SELECT tg FROM (SELECT sum(\"to_pw\")  * $avg_per_kwh AS tp, sum(\"solar\") * $avg_per_kwh AS s, sum(\"to_grid\") * $avg_per_kwh AS tg FROM kwh.http WHERE  $timeFilter tz('$tz'))\n",
+          "query": "SELECT tgg FROM (SELECT sum(\"to_grid\") * $avg_sell_per_kwh AS tgg FROM kwh.http WHERE  $timeFilter tz('$tz'))\n",
           "rawQuery": true,
           "refId": "C",
           "resultFormat": "time_series"
@@ -2271,7 +2278,7 @@
             "uid": "${DS_INFLUXDB}"
           },
           "hide": false,
-          "query": "SELECT tg + (s - tp - tg ) + fp FROM (SELECT sum(\"to_pw\")  * $avg_per_kwh AS tp, sum(\"solar\") * $avg_per_kwh AS s, sum(\"to_grid\") * $avg_per_kwh AS tg, sum(\"from_pw\") * $avg_per_kwh AS fp FROM kwh.http WHERE  $timeFilter tz('$tz'))\n",
+          "query": "SELECT tgg + (s - tp - tg ) + fp FROM (SELECT sum(\"to_pw\")  * $avg_buy_per_kwh AS tp, sum(\"solar\") * $avg_buy_per_kwh AS s, sum(\"to_grid\") * $avg_buy_per_kwh AS tg, sum(\"from_pw\") * $avg_buy_per_kwh AS fp, sum(\"to_grid\") * $avg_sell_per_kwh AS tgg FROM kwh.http WHERE  $timeFilter tz('$tz'))\n",
           "rawQuery": true,
           "refId": "D",
           "resultFormat": "time_series"
@@ -11465,22 +11472,43 @@
   "templating": {
     "list": [
       {
-        "description": "Average Cost Per kWh",
+        "description": "Average Buy Cost Per kWh",
         "hide": 2,
-        "label": "Cost per kWh",
-        "name": "avg_per_kwh",
-        "query": "${VAR_AVG_PER_KWH}",
+        "label": "Buy Cost per kWh",
+        "name": "avg_buy_per_kwh",
+        "query": "${VAR_AVG_BUY_PER_KWH}",
         "skipUrlSync": false,
         "type": "constant",
         "current": {
-          "value": "${VAR_AVG_PER_KWH}",
-          "text": "${VAR_AVG_PER_KWH}",
+          "value": "${VAR_AVG_BUY_PER_KWH}",
+          "text": "${VAR_AVG_BUY_PER_KWH}",
           "selected": false
         },
         "options": [
           {
-            "value": "${VAR_AVG_PER_KWH}",
-            "text": "${VAR_AVG_PER_KWH}",
+            "value": "${VAR_AVG_BUY_PER_KWH}",
+            "text": "${VAR_AVG_BUY_PER_KWH}",
+            "selected": false
+          }
+        ]
+      },
+      {
+        "description": "Average Sell Cost Per kWh",
+        "hide": 2,
+        "label": "Sell Cost per kWh",
+        "name": "avg_sell_per_kwh",
+        "query": "${VAR_AVG_SELL_PER_KWH}",
+        "skipUrlSync": false,
+        "type": "constant",
+        "current": {
+          "value": "${VAR_AVG_SELL_PER_KWH}",
+          "text": "${VAR_AVG_SELL_PER_KWH}",
+          "selected": false
+        },
+        "options": [
+          {
+            "value": "${VAR_AVG_SELL_PER_KWH}",
+            "text": "${VAR_AVG_SELL_PER_KWH}",
             "selected": false
           }
         ]
@@ -11529,6 +11557,6 @@
   "timezone": "browser",
   "title": "Powerwall Power Flow",
   "uid": "RSabAvRRzV",
-  "version": 44,
+  "version": 45,
   "weekStart": ""
 }
