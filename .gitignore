@@ -7,7 +7,10 @@ grafana/plugins/
 influxdb/meta/
 influxdb/wal/
 influxdb/data/
+compose.env
+grafana.env
 pypowerwall.env
+telegraf.local
 weather/uploadtest.sh
 weather/weather411.conf
 weather/weather411.conf.orig
