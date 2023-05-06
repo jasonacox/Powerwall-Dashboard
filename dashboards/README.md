@@ -8,7 +8,6 @@ This dashboard graphs min(), mean() and max() values for the Solar, Home, Grid a
 
 <img width="863" alt="image" src="https://user-images.githubusercontent.com/836718/224519614-76dcab24-deb3-42fe-a0ba-9f4837af7ee8.png">
 
-
 ## No Animation
 
 This dashboard provides the original time series "Live Monitoring" graph but removes the Powerwall flow animation panel.
@@ -16,7 +15,6 @@ This dashboard provides the original time series "Live Monitoring" graph but rem
 [dashboard-no-animation.json](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/dashboards/dashboard-no-animation.json)
 
 <img width="864" alt="image" src="https://user-images.githubusercontent.com/836718/224519662-f29a044a-34d8-4d1f-9220-bebfe7172cd3.png">
-
 
 ## Simple
 
@@ -27,4 +25,3 @@ Similar to the above, this dashboard provides a basic time series graph and mete
 ## Submit Your Dashboard
 
 Do you have a great dashboard?  Do you think others might be able to use it?  If so, submit a PR so we can get it added.
-

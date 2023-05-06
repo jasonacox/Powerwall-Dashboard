@@ -10,12 +10,12 @@
 
  Overview:
     Historical weather data from Ecowitt API can be imported into your
-    Powerwall Dashboard graphs by repeatedly calling the historical API with a short time range and a short interval`.
+    Powerwall Dashboard graphs by repeatedly calling the historical API with a short time range and a short interval.
 
  Usage:
     * Subscribe to the Ecowitt API as described here
         https://github.com/jasonacox/Powerwall-Dashboard/tree/main/weather/contrib/ecowitt#ecowitt-local-weather-server
-        
+
     * Install the required python modules:
         pip install python-dateutil influxdb
 
@@ -506,7 +506,7 @@ def get_weather_history(start, end):
         print(f"* Loading data for time: [{curr.astimezone(influxtz)}]")
         try:
             dtstart = curr.date()
-            dtend = dtstart 
+            dtend = dtstart
             dtend += interval
             url = f"{ecoapi}&start_date={dtstart}%2000:00:00&end_date={dtend}%2023:59:59"
             response = session.get(url, timeout=TIMEOUT)

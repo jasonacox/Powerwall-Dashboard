@@ -4,7 +4,7 @@
 #
 # The local configuration file should be named "telegraf.local".
 # Upgrade.sh does not modify this file.
-# 
+#
 # The following sample adds some power and energy data from the solar meter
 # as a measurement called "solarmeter" (used in a three phase monitoring example)
 
