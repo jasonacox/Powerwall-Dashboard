@@ -12,6 +12,10 @@ indent_style = space
 insert_final_newline = true
 trim_trailing_whitespace = true
 
+# json files don't want a final newline
+[*.json]
+insert_final_newline = false
+
 # 4 space indentation
 [*.py]
 indent_size = 4
