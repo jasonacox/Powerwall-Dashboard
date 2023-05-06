@@ -5,6 +5,7 @@
 Dockerfile        text
 *.conf            text
 *.env             text
+*.flux            text
 *.html            text    diff=html
 *.json            text
 *.local           text
