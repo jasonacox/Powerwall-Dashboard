@@ -1,20 +1,40 @@
-sandbox/
-*.bak
-grafana/alerting/
-grafana/csv/
-grafana/grafana.db
-grafana/plugins/
-influxdb/meta/
-influxdb/wal/
-influxdb/data/
+# Ignore common local files
+.DS_Store
+
+# VisualStudio
+.vs/
+
+# VisualStudio code
+# https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/*.code-snippets
+
+# Local Settings
 compose.env
 grafana.env
 pypowerwall.env
 telegraf.local
+
+# Local Dev files
+*.bak
+backups/*.tgz
+influxdb/run-once-*.sql.done
+
+sandbox/
+
+grafana/alerting/
+grafana/csv/
+grafana/grafana.db
+grafana/plugins/
+
+influxdb/meta/
+influxdb/wal/
+influxdb/data/
+
 weather/uploadtest.sh
 weather/weather411.conf
 weather/weather411.conf.orig
-.DS_Store
-.vs/
-backups/*.tgz
-influxdb/run-once-*.sql.done
