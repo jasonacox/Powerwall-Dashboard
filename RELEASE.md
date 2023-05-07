@@ -1,8 +1,8 @@
 # RELEASE NOTES
 
-## v2.9.7 - Backup script quickfix
+## v2.9.7 - Backup Script Quickfix
 
-* Prevent permission issues from interrupting the upgrade script.
+* Quickfix for permissions issues after repo cleanup. This addresses permission issues that interrupt the upgrade script for users of the backup script. Fix by @YesThatAllen in https://github.com/jasonacox/Powerwall-Dashboard/pull/272 as raised in https://github.com/jasonacox/Powerwall-Dashboard/issues/265
 
 ## v2.9.6 - Add Git Attributes
 
