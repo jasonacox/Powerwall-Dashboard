@@ -1,9 +1,13 @@
 # RELEASE NOTES
 
+## v2.9.6 - Add Git Attributes
+
+* Add `.gitattributes` file to help prevent issues such as .sh files being borked on Windows OS (ref #155) by @YesThatAllen in https://github.com/jasonacox/Powerwall-Dashboard/pull/270
+* Fix `verify.sh` to run on Windows OS in https://github.com/jasonacox/Powerwall-Dashboard/commit/25b77e53310d1668b2b3868e59fac55b82286f4f
+
 ## v2.9.5 - Repo Cleanup
 
 * Repo cleanup and maintenance by @YesThatAllen in https://github.com/jasonacox/Powerwall-Dashboard/pull/269
-
 
 ## v2.9.4 - pyPowerwall Proxy t26
 
