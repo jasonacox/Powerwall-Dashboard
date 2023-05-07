@@ -4,7 +4,7 @@
 set -e
 
 # Set Globals
-VERSION="2.9.6"
+VERSION="2.9.7"
 CURRENT="Unknown"
 COMPOSE_ENV_FILE="compose.env"
 TELEGRAF_LOCAL="telegraf.local"
@@ -13,7 +13,7 @@ if [ -f VERSION ]; then
 fi
 
 # Verify not running as root
-if [ "$EUID" -eq 0 ]; then 
+if [ "$EUID" -eq 0 ]; then
   echo "ERROR: Running this as root will cause permission issues."
   echo ""
   echo "Please ensure your local user in in the docker group and run without sudo."
@@ -69,14 +69,14 @@ then
     echo ""
 else
     echo "Cancel"
-    exit 
+    exit
 fi
 
 # Remember Timezome and Reset to Default
 echo "Resetting Timezone to Default..."
 DEFAULT="America/Los_Angeles"
 TZ=`cat tz`
-if [ -z "${TZ}" ]; then 
+if [ -z "${TZ}" ]; then
     TZ="America/Los_Angeles"
 fi
 ./tz.sh "${DEFAULT}"
@@ -145,7 +145,7 @@ echo ""
 echo "Start Powerwall-Dashboard stack..."
 ./compose-dash.sh up -d
 
-# Set Timezone 
+# Set Timezone
 echo ""
 echo "Setting Timezone back to ${TZ}..."
 ./tz.sh "${TZ}"
@@ -163,9 +163,9 @@ echo ""
 echo "Add downsample continuous queries to InfluxDB..."
 docker exec --tty influxdb sh -c "influx -import -path=/var/lib/influxdb/influxdb.sql"
 cd influxdb
-for f in run-once*.sql; do 
+for f in run-once*.sql; do
     if [ ! -f "${f}.done" ]; then
-        echo "Executing single run query $f file..."; 
+        echo "Executing single run query $f file...";
         docker exec --tty influxdb sh -c "influx -import -path=/var/lib/influxdb/${f}"
         echo "OK" > "${f}.done"
     fi
@@ -199,14 +199,14 @@ echo "Restarting Powerwall-Dashboard stack..."
 cat << EOF
 
 ---------------[ Update Dashboard ]---------------
-Open Grafana at http://localhost:9000/ 
+Open Grafana at http://localhost:9000/
 
 From 'Dashboard/Browse', select 'New/Import', and
-upload 'dashboard.json' from the path below.  
+upload 'dashboard.json' from the path below.
 
 Please note, you may need to select data sources
-for 'InfluxDB' and 'Sun and Moon' via the 
-dropdowns and use 'Import (Overwrite)' button.  
+for 'InfluxDB' and 'Sun and Moon' via the
+dropdowns and use 'Import (Overwrite)' button.
 
 Use dashboard.json located in: ${PWD}
 

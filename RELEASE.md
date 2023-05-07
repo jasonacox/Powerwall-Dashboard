@@ -1,5 +1,9 @@
 # RELEASE NOTES
 
+## v2.9.7 - Backup script quickfix
+
+* Prevent permission issues from interrupting the upgrade script.
+
 ## v2.9.6 - Add Git Attributes
 
 * Add `.gitattributes` file to help prevent issues such as .sh files being borked on Windows OS (ref #155) by @YesThatAllen in https://github.com/jasonacox/Powerwall-Dashboard/pull/270
@@ -45,13 +49,13 @@
 ## v2.8.9 - Animation Auto-Scale
 
 * Solar Only Support Development - Fix timezone for solar only sites using an offset by @mcbirse in https://github.com/jasonacox/Powerwall-Dashboard/pull/226
-* Add code to power flow animation dashboard panel to auto-scale based on window size by @dkerr64 in https://github.com/jasonacox/Powerwall-Dashboard/discussions/216 and PR https://github.com/jasonacox/Powerwall-Dashboard/pull/228 
+* Add code to power flow animation dashboard panel to auto-scale based on window size by @dkerr64 in https://github.com/jasonacox/Powerwall-Dashboard/discussions/216 and PR https://github.com/jasonacox/Powerwall-Dashboard/pull/228
 * Tools - InfluxDB 2.x updates to instructions and dashboard by @ThePnuts in https://github.com/jasonacox/Powerwall-Dashboard/pull/232
 
 ## v2.8.8 - pyPowerwall Cache-Control
 
 * Upgraded to pyPowerwall v0.6.2 Proxy t25 which fixes Cache-Control no-cache header and adds an option to set max-age, See https://github.com/jasonacox/pypowerwall/blob/main/proxy/RELEASE.md#proxy-t25-21-mar-2023
-* Solar Only Support Development by @mcbirse in https://github.com/jasonacox/Powerwall-Dashboard/pull/211 and in https://github.com/jasonacox/Powerwall-Dashboard/pull/218 in https://github.com/jasonacox/Powerwall-Dashboard/tree/main/tools/solar-only 
+* Solar Only Support Development by @mcbirse in https://github.com/jasonacox/Powerwall-Dashboard/pull/211 and in https://github.com/jasonacox/Powerwall-Dashboard/pull/218 in https://github.com/jasonacox/Powerwall-Dashboard/tree/main/tools/solar-only
 * Grafana Options - Base setup in [grafana.env.sample](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/grafana.env.sample) will allow embedding of graphs into webpages [#219](https://github.com/jasonacox/Powerwall-Dashboard/issues/219) and optional removal of login requirement [#221](https://github.com/jasonacox/Powerwall-Dashboard/issues/221)
 * Tools - InfluxDB 2.x optional setup, tasks, and dashboard by @ThePnuts in https://github.com/jasonacox/Powerwall-Dashboard/pull/223 See https://github.com/jasonacox/Powerwall-Dashboard/tree/main/tools/influxdb2
 
@@ -71,7 +75,7 @@
 * Added `verify.sh` tool to test setup and operation of the main components for the Dashboard (pypowerwall, telegraf, influxdb, grafana, weather411) by @jasonacox as raised in https://github.com/jasonacox/Powerwall-Dashboard/issues/187
 
 ```bash
-./verify.sh # optional: -no-color 
+./verify.sh # optional: -no-color
 ```
 
 <img width="545" alt="image" src="https://user-images.githubusercontent.com/836718/220232810-5766a38d-05ab-4982-bae9-2dd92d0e4990.png">
@@ -100,7 +104,7 @@ Note: For anyone that already upgraded to 2.8.0 or later, there is an option to 
 ## v2.8.0 - Grid Voltage Upgrade
 
 * Now using `ISLAND_VLxN_Main` data for Grid voltage (instead of `METER_x_VLxN`) as this appears to be more common across systems. Upgrade script executes a run-once query to copy historic data over. https://github.com/jasonacox/Powerwall-Dashboard/pull/167
-* Added logic to Voltage panel to sum Powerwall L1 and L2 voltages for 230V grid users thanks to @longzheng in https://github.com/jasonacox/Powerwall-Dashboard/pull/165 
+* Added logic to Voltage panel to sum Powerwall L1 and L2 voltages for 230V grid users thanks to @longzheng in https://github.com/jasonacox/Powerwall-Dashboard/pull/165
 * Change frequency panel to 3 decimal places by @longzheng in https://github.com/jasonacox/Powerwall-Dashboard/pull/163
 * Update README.md - Indent powerwall.yml snippet so that it can be cut and pasted directly into powerwall.yml by @BJReplay in https://github.com/jasonacox/Powerwall-Dashboard/pull/168
 
@@ -173,7 +177,7 @@ Note: For anyone that already upgraded to 2.8.0 or later, there is an option to 
 
 ## v2.5.0 - Weather Data
 
-* Adds local weather data from [OpenWeatherMap.org](https://openweathermap.org/) using the [jasonacox/weather411](https://hub.docker.com/r/jasonacox/weather411) container. #42 #51 
+* Adds local weather data from [OpenWeatherMap.org](https://openweathermap.org/) using the [jasonacox/weather411](https://hub.docker.com/r/jasonacox/weather411) container. #42 #51
 
 ## v2.4.5 - pyPowerwall v0.6.0
 
