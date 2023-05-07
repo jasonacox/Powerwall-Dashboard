@@ -4,7 +4,7 @@
 set -e
 
 # Set Globals
-VERSION="2.9.4"
+VERSION="2.9.5"
 CURRENT="Unknown"
 COMPOSE_ENV_FILE="compose.env"
 TELEGRAF_LOCAL="telegraf.local"

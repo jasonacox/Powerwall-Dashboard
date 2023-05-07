@@ -1,5 +1,10 @@
 # RELEASE NOTES
 
+## v2.9.5 - Repo Cleanup
+
+* Repo cleanup and maintenance by @YesThatAllen in https://github.com/jasonacox/Powerwall-Dashboard/pull/269
+
+
 ## v2.9.4 - pyPowerwall Proxy t26
 
 * Update pyPowerwall Proxy to t26 with updated default `PW_POOL_MAXSIZE` of 15 as raised by @jgleigh
