@@ -1,0 +1,25 @@
+# Set default behavior to automatically normalize line endings.
+* text=auto
+
+# Handle common extensions
+Dockerfile        text
+*.conf            text
+*.env             text
+*.flux            text
+*.html            text    diff=html
+*.json            text
+*.local           text
+*.md              text    diff=markdown
+*.py              text    diff=python
+*.sh              text    eol=lf
+*.yml             text
+
+# Handle sql files
+*.sql             text    linguist-detectable=true
+*.sql             text    linguist-language=sql
+
+# Exclude files from exporting
+.editorconfig     text    export-ignore
+.gitattributes    text    export-ignore
+.gitignore        text    export-ignore
+.keep             text    export-ignore
