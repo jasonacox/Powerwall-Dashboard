@@ -129,7 +129,7 @@ echo -e -n "${dim} - Container ($CONTAINER): "
 RUNNING=$(docker inspect --format="{{.State.Running}}" $CONTAINER 2>/dev/null)
 if [ "$RUNNING" = "true" ]; then
   echo -e $GOOD
-  VER=`docker exec -it telegraf telegraf --version`
+  VER=`docker exec --tty telegraf telegraf --version`
 else
   echo -e "${alert}ERROR: Stopped${normal}"
 fi
@@ -187,7 +187,7 @@ echo -e -n "${dim} - Container ($CONTAINER): "
 RUNNING=$(docker inspect --format="{{.State.Running}}" $CONTAINER 2>/dev/null)
 if [ "$RUNNING" = "true" ]; then
     echo -e $GOOD
-    VER=`docker exec -it grafana grafana-cli --version 2>/dev/null`
+    VER=`docker exec --tty grafana grafana-cli --version 2>/dev/null`
     echo -e -n "${dim} - Service (port $PORT): "
     if running http://localhost:$PORT/login 200 1 2>/dev/null;  then
         echo -e $GOOD
