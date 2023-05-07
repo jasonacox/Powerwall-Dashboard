@@ -40,7 +40,7 @@
     })
   }
   window.addEventListener('resize', function(e){ scale(); }, false);
-  
+
   // Display Firmware Version
   function showversion() {
       var pwver = window.location.protocol + "//" + window.location.hostname + ":8675/version";
@@ -51,7 +51,7 @@
       setTimeout(showversion, 60000);
   }
   showversion();
-  
+
   // Load Animation from pyPowerwall
   var powerFrame = document.getElementById('frame8675');
   powerFrame.onload = function() {
