@@ -613,7 +613,7 @@ do
         percentrnd=0
     fi
 
-    if [ "$grid_status" != "$grid_status_old" ]
+    if [ "$grid_status" != "null" ] && [ "$grid_status" != "$grid_status_old" ]
     then
         log_msg "Grid status changed from $grid_status_old to $grid_status"
 

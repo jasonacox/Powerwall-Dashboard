@@ -396,7 +396,9 @@ Weather411 can be used here (note, plan activation may take some time).
     config['OpenWeatherMap']['UNITS'] = OWUNITS
     config['OpenWeatherMap']['GAP'] = str(OWGAP)
 
-    if TIMEOUT != 10:
+    if not configloaded:
+        TIMEOUT = 10
+    elif TIMEOUT != 10:
         config['OpenWeatherMap']['TIMEOUT'] = str(TIMEOUT)
 
     config['InfluxDB'] = {}
