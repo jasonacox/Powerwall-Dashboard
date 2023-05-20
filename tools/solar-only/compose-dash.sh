@@ -3,9 +3,9 @@
 # Convenience script for docker-compose
 # Enables
 #   - docker-compose and docker compose (v1, v2)
-#   - moves multiple versions of unweildy compose invocation to one place
+#   - moves multiple versions of unwieldy compose invocation to one place
 #   - very convenient for starting and stopping containers when developing.
-# Takes up to two arguments, typicallly "up -d", "start", and "stop"
+# Takes up to two arguments, typically "up -d", "start", and "stop"
 # Always verifies docker and docker-compose, as it is run infrequently.
 # by BuongiornoTexas 16 Oct 2022
 
@@ -29,12 +29,12 @@ fi
 
 # Docker Dependency Check
 if ! docker info > /dev/null 2>&1; then
-    echo "ERROR: docker is not available or not runnning."
+    echo "ERROR: docker is not available or not running."
     echo "This script requires docker, please install and try again."
     exit 1
 fi
 
-# Load enviroment variables for compose
+# Load environment variables for compose
 if [ ! -f "compose.env" ]; then
     echo "ERROR: Missing compose.env file."
     echo "Please run setup.sh or copy compose.env.sample to compose.env."
@@ -61,7 +61,7 @@ else
         # Build Docker (v2)
         docker compose -f powerwall.yml $pwextend $1 $2
     else
-        echo "ERROR: docker-compose/docker compose is not available or not runnning."
+        echo "ERROR: docker-compose/docker compose is not available or not running."
         echo "This script requires docker-compose or docker compose."
         echo "Please install and try again."
         exit 1

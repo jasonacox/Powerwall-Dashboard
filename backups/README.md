@@ -28,7 +28,7 @@ DASHBOARD="/home/user/Powerwall-Dashboard"    # Location of Dashboard to backup
 BACKUP_FOLDER="${DASHBOARD}/backups"          # Destination folder for backups
 KEEP="5"                                      # Days to keep backup
 
-# Check to see if direcotry exists
+# Check to see if directory exists
 if [ ! -d "${DASHBOARD}" ]; then
   echo "Dashboard directory ${DASHBOARD} does not exist."
   exit
