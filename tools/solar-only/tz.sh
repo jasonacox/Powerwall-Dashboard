@@ -2,9 +2,9 @@
 # Shell script to replace timezone values in influxdb.sql and dashboard.json
 if [ $# -eq 0 ]
   then
-    echo "ERROR: No timzezone supplied"
+    echo "ERROR: No timezone supplied"
     echo
-    echo "USAGE: ${0} {timzeone}"
+    echo "USAGE: ${0} {timezone}"
     exit
 fi
 

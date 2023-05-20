@@ -26,7 +26,7 @@ echo "-----------------------------------------"
 # Weather411 Dependency Check
 if grep -q "weather411" powerwall.yml; then
     echo "Weather data from OpenWeatherMap can be added to your Powerwall Dashboard"
-    echo "graphs.  This requires that you set up a free acccount with OpenWeatherMap"
+    echo "graphs.  This requires that you set up a free account with OpenWeatherMap"
     echo "and enter the API Key during this setup process."
     echo ""
 else
@@ -48,7 +48,7 @@ fi
 
 # Configuration File 
 if [ -f ${CONF_FILE} ]; then
-    echo "Existing Configuration Founded"
+    echo "Existing Configuration Found"
     echo ""
     # Load existing data
     # TODO
@@ -105,7 +105,7 @@ if [ ! -f ${CONF_FILE} ]; then
     do
         echo ""
         echo "Enter the desired units: M)etric, I)mperial or S)tandard where:"
-        echo "    M)etrics = temperature in Celsius"
+        echo "    M)etric = temperature in Celsius"
         echo "    I)mperial = temperature in Fahrenheit"
         echo "    S)tandard = temperature in Kelvin"
         echo ""

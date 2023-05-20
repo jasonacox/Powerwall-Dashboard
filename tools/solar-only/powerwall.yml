@@ -39,7 +39,7 @@ services:
             - influxdb
 
     weather411:
-        image: jasonacox/weather411:latest
+        image: jasonacox/weather411:0.2.1
         container_name: weather411
         hostname: weather411
         restart: always
@@ -58,3 +58,18 @@ services:
         depends_on:
             - influxdb
 
+    tesla-history:
+        image: jasonacox/tesla-history:0.1.0
+        container_name: tesla-history
+        hostname: tesla-history
+        restart: always
+        volumes:
+            - type: bind
+              source: ./tesla-history
+              target: /var/lib/tesla-history
+        environment:
+            - IHOST=influxdb
+            - TCONF=/var/lib/tesla-history/tesla-history.conf
+            - TAUTH=/var/lib/tesla-history/tesla-history.auth
+        depends_on:
+            - influxdb

@@ -72,7 +72,7 @@ else
     exit
 fi
 
-# Remember Timezome and Reset to Default
+# Remember Timezone and Reset to Default
 echo "Resetting Timezone to Default..."
 DEFAULT="America/Los_Angeles"
 TZ=`cat tz`
@@ -96,7 +96,7 @@ fi
 
 # Check for latest Grafana settings (required in 2.6.2)
 if ! grep -q "yesoreyeram-boomtable-panel-1.5.0-alpha.3.zip" grafana.env; then
-  echo "Your Grafana envrionmental settings are outdated."
+  echo "Your Grafana environmental settings are outdated."
     read -r -p "Upgrade grafana.env? [y/N] " response
     if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]
     then
@@ -135,7 +135,7 @@ fi
 
 # Check to see that TZ is set in pypowerwall
 if ! grep -q "TZ=" pypowerwall.env; then
-    echo "Your pypowerwall envrionmental settings are missing TZ."
+    echo "Your pypowerwall environmental settings are missing TZ."
     echo "Adding..."
     echo "TZ=America/Los_Angeles" >> pypowerwall.env
 fi
