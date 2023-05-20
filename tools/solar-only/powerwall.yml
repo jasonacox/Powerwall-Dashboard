@@ -39,7 +39,7 @@ services:
             - influxdb
 
     weather411:
-        image: jasonacox/weather411:latest
+        image: jasonacox/weather411:0.2.1
         container_name: weather411
         hostname: weather411
         restart: always
