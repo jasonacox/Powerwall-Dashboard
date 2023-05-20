@@ -17,7 +17,7 @@ echo "Tesla Solar Dashboard (v${VERSION}) - SETUP"
 echo "-----------------------------------------"
 
 # Verify not running as root
-if [ "$EUID" -eq 0 ]; then 
+if [ "$EUID" -eq 0 ]; then
   echo "ERROR: Running this as root will cause permission issues."
   echo ""
   echo "Please ensure your local user in in the docker group and run without sudo."
@@ -35,7 +35,7 @@ running() {
     [[ $status == ${code} ]]
 }
 
-# Docker Dependency Check 
+# Docker Dependency Check
 if ! docker info > /dev/null 2>&1; then
     echo "ERROR: docker is not available or not running."
     echo "This script requires docker, please install and try again."
@@ -90,12 +90,12 @@ if [ ! -f ${COMPOSE_ENV_FILE} ]; then
 fi
 
 echo ""
-if [ -z "${TZ}" ]; then 
-    echo "Using ${CURRENT} timezone..."; 
+if [ -z "${TZ}" ]; then
+    echo "Using ${CURRENT} timezone...";
     ./tz.sh "${CURRENT}";
-else 
-    echo "Setting ${TZ} timezone..."; 
-    ./tz.sh "${TZ}"; 
+else
+    echo "Setting ${TZ} timezone...";
+    ./tz.sh "${TZ}";
 fi
 echo "-----------------------------------------"
 echo ""
@@ -104,6 +104,19 @@ echo ""
 if [ -f weather.sh ]; then
     ./weather.sh setup
 fi
+
+# Setup Tesla-History Server
+if [ -z "${TZ}" ]; then
+    TZ="${CURRENT}"
+fi
+echo ""
+echo "Tesla-History Setup"
+echo "-----------------------------------------"
+echo "Checking/installing python modules..."
+cd tesla-history
+pip install python-dateutil teslapy influxdb > /dev/null 2>&1
+python3 tesla-history.py --setup --timezone "${TZ}"
+cd ..
 
 # Build Docker in current environment
 ./compose-dash.sh up -d
@@ -122,9 +135,9 @@ docker exec --tty influxdb sh -c "influx -import -path=/var/lib/influxdb/influxd
 sleep 2
 # Execute Run-Once queries for initial setup.
 cd influxdb
-for f in run-once*.sql; do 
+for f in run-once*.sql; do
     if [ ! -f "${f}.done" ]; then
-        echo "Executing single run query $f file..."; 
+        echo "Executing single run query $f file...";
         docker exec --tty influxdb sh -c "influx -import -path=/var/lib/influxdb/${f}"
         echo "OK" > "${f}.done"
     fi
@@ -135,6 +148,12 @@ cd ..
 if [ -f weather/weather411.conf ]; then
     echo "Fetching local weather..."
     docker restart weather411
+fi
+
+# Restart tesla-history
+if [ -f tesla-history/tesla-history.conf ] && [ -f tesla-history/tesla-history.auth ]; then
+    echo "Restarting tesla-history..."
+    docker restart tesla-history
 fi
 
 # Display Final Instructions
