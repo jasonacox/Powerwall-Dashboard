@@ -105,19 +105,6 @@ if [ -f weather.sh ]; then
     ./weather.sh setup
 fi
 
-# Setup Tesla-History Server
-if [ -z "${TZ}" ]; then
-    TZ="${CURRENT}"
-fi
-echo ""
-echo "Tesla-History Setup"
-echo "-----------------------------------------"
-echo "Checking/installing python modules..."
-cd tesla-history
-pip install python-dateutil teslapy influxdb > /dev/null 2>&1
-python3 tesla-history.py --setup --timezone "${TZ}"
-cd ..
-
 # Build Docker in current environment
 ./compose-dash.sh up -d
 echo "-----------------------------------------"
@@ -149,6 +136,13 @@ if [ -f weather/weather411.conf ]; then
     echo "Fetching local weather..."
     docker restart weather411
 fi
+
+# Setup tesla-history
+if [ -z "${TZ}" ]; then
+    TZ="${CURRENT}"
+fi
+echo "Setup tesla-history..."
+docker exec -it -w /var/lib/tesla-history tesla-history python3 tesla-history.py --setup --timezone "${TZ}"
 
 # Restart tesla-history
 if [ -f tesla-history/tesla-history.conf ] && [ -f tesla-history/tesla-history.auth ]; then
