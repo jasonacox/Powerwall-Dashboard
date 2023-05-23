@@ -142,7 +142,12 @@ if [ -z "${TZ}" ]; then
     TZ="${CURRENT}"
 fi
 echo "Setup tesla-history..."
-docker exec -it -w /var/lib/tesla-history tesla-history python3 tesla-history.py --setup --timezone "${TZ}"
+if type winpty > /dev/null; then
+    # Windows special case
+    winpty docker exec -it -w /var/lib/tesla-history tesla-history python3 tesla-history.py --setup --timezone "${TZ}"
+else
+    docker exec -it -w /var/lib/tesla-history tesla-history python3 tesla-history.py --setup --timezone "${TZ}"
+fi
 
 # Restart tesla-history
 if [ -f tesla-history/tesla-history.conf ] && [ -f tesla-history/tesla-history.auth ]; then
