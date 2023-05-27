@@ -142,7 +142,7 @@ if [ -z "${TZ}" ]; then
     TZ="${CURRENT}"
 fi
 echo "Setup tesla-history..."
-if type winpty > /dev/null; then
+if type winpty > /dev/null 2>&1; then
     # Windows special case
     winpty docker exec -it -w /var/lib/tesla-history tesla-history python3 tesla-history.py --setup --timezone "${TZ}"
 else

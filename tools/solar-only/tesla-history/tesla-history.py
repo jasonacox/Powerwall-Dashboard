@@ -57,7 +57,7 @@ try:
 except:
     sys.exit("ERROR: Missing python influxdb module. Run 'pip install influxdb'.")
 
-BUILD = "0.1.0"
+BUILD = "0.1.1"
 VERBOSE = True
 SCRIPTPATH = os.path.dirname(os.path.realpath(sys.argv[0]))
 SCRIPTNAME = os.path.basename(sys.argv[0]).split('.')[0]
@@ -138,7 +138,7 @@ if args.config:
 
 if args.daemon:
     # Get config file from environment variable if defined
-    CONFIGNAME = CONFIGFILE = os.getenv('TCONF', CONFIGNAME)
+    CONFIGNAME = CONFIGFILE = os.getenv('TESLA_CONF', CONFIGNAME)
 
 # Load Configuration File
 config = configparser.ConfigParser(allow_no_value=True)
@@ -180,8 +180,9 @@ if os.path.exists(CONFIGFILE):
 
         # Get settings when running as a daemon
         if args.daemon:
-            IHOST = os.getenv('IHOST', IHOST)
-            TAUTH = os.getenv('TAUTH', TAUTH)
+            IHOST = os.getenv('INFLUX_HOST', IHOST)
+            IPORT = os.getenv('INFLUX_PORT', IPORT)
+            TAUTH = os.getenv('TESLA_AUTH', TAUTH)
             WAIT = config.getint('daemon', 'WAIT', fallback=5)
             HIST = config.getint('daemon', 'HIST', fallback=60)
             SITE = config.getint('daemon', 'SITE', fallback=None)
