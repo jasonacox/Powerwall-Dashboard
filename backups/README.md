@@ -11,7 +11,9 @@ Backup the Powerwall-Dashboard folder. In that folder are two important folders:
 
 The following shows an example of how to migrate the data (influxdb) from one system to another (see backup.sh):
 
-Copy backup.sh.sample to backup.sh (cp backup.sh.sample backup.sh), and edit the line that says DASHBOARD="/home/user/Powerwall-Dashboard" to have your dashboard location.
+1. Copy backup.sh.sample to backup.sh (cp backup.sh.sample backup.sh)
+2. Edit the line that says DASHBOARD="/home/user/Powerwall-Dashboard" to have your dashboard location.
+3. Make the script executable with `chmod +x backup.sh`
 
 ## Backup Example
 
