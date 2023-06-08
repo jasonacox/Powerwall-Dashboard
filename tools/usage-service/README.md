@@ -5,17 +5,23 @@ into Powerwall-Dashboard. This service provides a proxy that generates usage and
 cost/savings information based on utility usage plans. As of 4/6/2023, this service only
 supports a general time of use plan, but the service is extensible to different plans.
 
-For documentation on the micro-service, refer to: 
-https://github.com/BuongiornoTexas/pwdusage.
+More specifically, this folder contains:
 
-The files in this folder are:
+- Scripts and docker configuration files required to setup a dock image for the 
+`pwdusage` usage micro service for Powerwall-Dashboard. 
+- A sample configuration file for `pwdusage`.
+- Sample grafana dashboard files that can be used to build your own usage dashboards
+and panels. 
 
-- `example_usage.json`, a sample configuration file for the microservice, which is a 
-duplicate of the sample file in the `pwdusage` repository.
-- `example-dashboard.json`, a sample grafana dashboard that demonstrates the output of 
-the usage service with the sample configuration file.
-- `Dockerfile` is the docker configuration file used to generate the containerised
-microservice from the `pwdusage` python package.
+As this micro-service is tightly linked to the `pwdusage` python package, please refer
+to the [`pwdusage`](https://github.com/BuongiornoTexas/pwdusage) README for specifics
+on:
+- Creating a docker image.
+- Configuring the service.
+- Configuring grafana to use the service. 
 
-The documentation for `pwdusage` details usage of these files.
+Note: I have made the explicit decision to document once with `pwdusage` rather than try
+to manage two parallel documentation streams.
+
+
 
