@@ -59,7 +59,7 @@ services:
             - influxdb
 
     tesla-history:
-        image: jasonacox/tesla-history:0.1.1
+        image: jasonacox/tesla-history:0.1.2
         container_name: tesla-history
         hostname: tesla-history
         restart: always
