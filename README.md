@@ -37,7 +37,7 @@ Clone this repo on the host that will run the dashboard:
 
 ## Option 1 - Quick Start
 
-Run the interactive setup script that will ask you for your Powerwall details and Local Time Zone ([options](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)).
+Run the interactive setup script that will ask you for your Powerwall details and Local *timezone*. To find your timezone, see the second column in this table: [https://en.wikipedia.org/wiki/List_of_tz_database_time_zones](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List).
 
   ```bash
     cd Powerwall-Dashboard
@@ -55,7 +55,7 @@ If you prefer, you can perform the same steps that `setup.sh` performs.
 
 Note: some manual configuration is required if you are running a non-standard docker installation (e.g. rootless). Also, ensure that the `conf`, `env` and `sql` files are readable by the docker services (e.g. `chmod 644`).
 
-You will want to set your local timezone by editing `pypowerwall.env`, `telegraf.conf`, `influxdb.sql` and `dashboard.json` or you can use this handy `tz.sh` update script.  A list of timezones is available [here](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
+You will want to set your local timezone by editing `pypowerwall.env`, `telegraf.conf`, `influxdb.sql` and `dashboard.json` or you can use this handy `tz.sh` update script.  A list of timezones is available here: [TZ Table](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
 
   ```bash
     # Replace with your timezone
