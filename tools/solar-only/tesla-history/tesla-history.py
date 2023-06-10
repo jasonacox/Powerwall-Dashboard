@@ -57,7 +57,7 @@ try:
 except:
     sys.exit("ERROR: Missing python influxdb module. Run 'pip install influxdb'.")
 
-BUILD = "0.1.1"
+BUILD = "0.1.2"
 VERBOSE = True
 SCRIPTPATH = os.path.dirname(os.path.realpath(sys.argv[0]))
 SCRIPTNAME = os.path.basename(sys.argv[0]).split('.')[0]
@@ -925,7 +925,8 @@ def remove_influx(start, end):
     """
     Remove imported data from InfluxDB (removes data points tagged with source='cloud')
     """
-    print("Removing imported data from InfluxDB")
+    if not args.daemon:
+        print("Removing imported data from InfluxDB")
 
     # Query definitions (sanity check data points before and after delete)
     power = f"SELECT * FROM autogen.http WHERE source='cloud' AND time >= '{start.isoformat()}' AND time <= '{end.isoformat()}'"
@@ -992,7 +993,8 @@ def remove_influx(start, end):
         ptstotal = ptspower + ptsgrid + ptsreserve
 
         if ptstotal == 0:
-            print("* No data points found\n")
+            if not args.daemon:
+                print("* No data points found")
             return
 
         for point in result.get_points():
@@ -1000,7 +1002,8 @@ def remove_influx(start, end):
                 print(f"Remove data point: {point}")
 
         if args.test:
-            print(f"* {ptstotal} data points to be removed (*** skipped - test mode enabled ***)\n")
+            if not args.daemon:
+                print(f"* {ptstotal} data points to be removed (*** skipped - test mode enabled ***)")
             return
 
         # Delete data points where source='cloud'
@@ -1030,9 +1033,10 @@ def remove_influx(start, end):
 
         # Total number of data points after delete (should be zero)
         ptstotalnow = ptspowernow + ptsgridnow + ptsreservenow
-        print(f"* {ptstotal - ptstotalnow} of {ptstotal} data points removed\n")
+        if not args.daemon:
+            print(f"* {ptstotal - ptstotalnow} of {ptstotal} data points removed")
 
-        if periods:
+        if periods and not args.daemon:
             # Update InfluxDB analysis data after delete
             update_influx(periods=periods)
 
@@ -1306,7 +1310,7 @@ powergaps = gridgaps = reservegaps = None
 if args.remove:
     # Remove imported data from InfluxDB between start and end date/time
     remove_influx(start, end)
-    print("Done.")
+    print("\nDone.")
     sys_exit()
 elif args.force:
     # Retrieve power history data between start and end date/time (skip search for gaps)
@@ -1359,7 +1363,13 @@ elif args.daemon:
                     set_reserve_history(start, end)
 
             if powerdata or eventdata or reservedata:
-                # Write data points to InfluxDB
+                if powerdata:
+                    # Remove previously written data points
+                    if VERBOSE:
+                        print("Clearing InfluxDB data")
+                    remove_influx(start, end)
+
+                # Write new data points to InfluxDB
                 write_influx()
 
                 if powerdata:
