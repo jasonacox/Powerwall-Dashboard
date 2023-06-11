@@ -3357,6 +3357,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "kwh",
+          "query": "SELECT sum(\"solar\") FROM \"kwh\".\"http\" WHERE (\"solar\" > 0) AND $timeFilter GROUP BY time(1d) fill(0) tz('$tz')",
+          "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -3406,6 +3408,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "kwh",
+          "query": "SELECT sum(\"home\") FROM \"kwh\".\"http\" WHERE (\"home\" > 0) AND $timeFilter GROUP BY time(1d) fill(0) tz('$tz')",
+          "rawQuery": true,
           "refId": "B",
           "resultFormat": "time_series",
           "select": [
@@ -11557,6 +11561,6 @@
   "timezone": "browser",
   "title": "Powerwall Power Flow",
   "uid": "RSabAvRRzV",
-  "version": 45,
+  "version": 46,
   "weekStart": ""
 }
