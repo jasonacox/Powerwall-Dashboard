@@ -1,0 +1,209 @@
+{
+  "id": 71,
+  "gridPos": {
+    "h": 5,
+    "w": 9,
+    "x": 0,
+    "y": 20
+  },
+  "type": "graph",
+  "title": "Savings - ToU Month to Date",
+  "transformations": [
+    {
+      "id": "calculateField",
+      "options": {
+        "alias": "powerwall > home",
+        "mode": "reduceRow",
+        "reduce": {
+          "include": [
+            "Off-Peak PW to home-grid charge ($)",
+            "Peak PW to home-grid charge ($)"
+          ],
+          "reducer": "sum"
+        }
+      }
+    },
+    {
+      "id": "calculateField",
+      "options": {
+        "alias": "solar > home",
+        "mode": "reduceRow",
+        "reduce": {
+          "include": [
+            "Off-Peak Solar to home+residual ($)",
+            "Peak Solar to home+residual ($)"
+          ],
+          "reducer": "sum"
+        }
+      }
+    },
+    {
+      "id": "calculateField",
+      "options": {
+        "alias": "export > grid",
+        "mode": "reduceRow",
+        "reduce": {
+          "include": [
+            "Off-Peak Grid export+++ ($)",
+            "Peak Grid export+++ ($)"
+          ],
+          "reducer": "sum"
+        }
+      }
+    },
+    {
+      "id": "calculateField",
+      "options": {
+        "alias": "total",
+        "mode": "reduceRow",
+        "reduce": {
+          "include": [
+            "powerwall > home",
+            "solar > home",
+            "export > grid"
+          ],
+          "reducer": "sum"
+        }
+      }
+    },
+    {
+      "id": "organize",
+      "options": {
+        "excludeByName": {
+          "Off-Peak Grid export+++ ($)": true,
+          "Off-Peak Grid export+++ (kWh)": true,
+          "Off-Peak Grid supply--- ($)": true,
+          "Off-Peak Grid supply--- (kWh)": true,
+          "Off-Peak PW to home-grid charge ($)": true,
+          "Off-Peak PW to home-grid charge (kWh)": true,
+          "Off-Peak Solar to home+residual ($)": true,
+          "Off-Peak Solar to home+residual (kWh)": true,
+          "Off-Peak Supply Charge ($)": true,
+          "Peak Grid export+++ ($)": true,
+          "Peak Grid export+++ (kWh)": true,
+          "Peak Grid supply--- ($)": true,
+          "Peak Grid supply--- (kWh)": true,
+          "Peak PW to home-grid charge ($)": true,
+          "Peak PW to home-grid charge (kWh)": true,
+          "Peak Solar to home+residual ($)": true,
+          "Peak Solar to home+residual (kWh)": true,
+          "Peak Supply Charge ($)": true,
+          "_time": false
+        },
+        "indexByName": {},
+        "renameByName": {}
+      }
+    }
+  ],
+  "datasource": {
+    "uid": "-e6_y3a4k",
+    "type": "simpod-json-datasource"
+  },
+  "thresholds": [],
+  "pluginVersion": "9.1.2",
+  "timeFrom": "1M",
+  "hideTimeOverride": true,
+  "description": "Estimated Savings",
+  "links": [],
+  "legend": {
+    "alignAsTable": true,
+    "avg": false,
+    "current": false,
+    "hideEmpty": false,
+    "hideZero": true,
+    "max": false,
+    "min": false,
+    "rightSide": true,
+    "show": true,
+    "total": true,
+    "values": true
+  },
+  "aliasColors": {
+    "battery": "green",
+    "battery impact": "green",
+    "combined": "red",
+    "solar": "yellow",
+    "solar + battery": "red",
+    "solar > grid": "purple",
+    "solar > home": "yellow",
+    "solar only": "yellow",
+    "total": "blue"
+  },
+  "bars": true,
+  "dashLength": 10,
+  "decimals": 2,
+  "fieldConfig": {
+    "defaults": {
+      "links": []
+    },
+    "overrides": []
+  },
+  "fill": 1,
+  "linewidth": 1,
+  "nullPointMode": "null",
+  "options": {
+    "alertThreshold": true
+  },
+  "pointradius": 2,
+  "renderer": "flot",
+  "seriesOverrides": [],
+  "spaceLength": 10,
+  "targets": [
+    {
+      "datasource": {
+        "type": "simpod-json-datasource",
+        "uid": "-e6_y3a4k"
+      },
+      "editorMode": "code",
+      "payload": "{\r\n  \"summary\": true,\r\n  \"month_to_date\": true\r\n}",
+      "refId": "A",
+      "target": "usage"
+    }
+  ],
+  "timeRegions": [],
+  "tooltip": {
+    "shared": false,
+    "sort": 0,
+    "value_type": "individual"
+  },
+  "transparent": true,
+  "xaxis": {
+    "mode": "series",
+    "show": false,
+    "values": [
+      "total"
+    ],
+    "name": null,
+    "buckets": null
+  },
+  "yaxes": [
+    {
+      "$$hashKey": "object:1096",
+      "decimals": 2,
+      "format": "currencyUSD",
+      "label": "",
+      "logBase": 1,
+      "min": "0",
+      "show": true
+    },
+    {
+      "$$hashKey": "object:1097",
+      "format": "short",
+      "logBase": 1,
+      "show": false
+    }
+  ],
+  "yaxis": {
+    "align": false
+  },
+  "dashes": false,
+  "fillGradient": 0,
+  "hiddenSeries": false,
+  "interval": "",
+  "lines": false,
+  "percentage": false,
+  "points": false,
+  "stack": false,
+  "steppedLine": false,
+  "timeShift": null
+}
