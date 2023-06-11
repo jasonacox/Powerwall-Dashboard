@@ -268,6 +268,7 @@
 					}
 				],
 				"title": "Grid Status",
+				"transparent": true,
 				"type": "timeseries"
 			}
 		},
@@ -322,8 +323,7 @@
 							"mode": "absolute",
 							"steps": [
 								{
-									"color": "green",
-									"value": null
+									"color": "green"
 								}
 							]
 						},
@@ -541,6 +541,7 @@
 				],
 				"timeFrom": "12M",
 				"title": "Solar Energy Year",
+				"transparent": true,
 				"type": "timeseries"
 			}
 		}
@@ -3282,6 +3283,7 @@
 					},
 					"links": [],
 					"mappings": [],
+					"min": 0,
 					"thresholds": {
 						"mode": "absolute",
 						"steps": [
@@ -3426,6 +3428,7 @@
 					},
 					"links": [],
 					"mappings": [],
+					"min": 0,
 					"thresholds": {
 						"mode": "absolute",
 						"steps": [
@@ -3576,12 +3579,12 @@
 					},
 					"links": [],
 					"mappings": [],
+					"min": 0,
 					"thresholds": {
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green",
-								"value": null
+								"color": "green"
 							},
 							{
 								"color": "red",
@@ -3724,8 +3727,7 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green",
-								"value": null
+								"color": "green"
 							},
 							{
 								"color": "red",
@@ -3989,8 +3991,7 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green",
-								"value": null
+								"color": "green"
 							},
 							{
 								"color": "red",
@@ -4765,8 +4766,7 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green",
-								"value": null
+								"color": "green"
 							},
 							{
 								"color": "red",
@@ -5541,8 +5541,7 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green",
-								"value": null
+								"color": "green"
 							},
 							{
 								"color": "red",
@@ -6317,8 +6316,7 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green",
-								"value": null
+								"color": "green"
 							},
 							{
 								"color": "red",
@@ -6588,8 +6586,7 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green",
-								"value": null
+								"color": "green"
 							},
 							{
 								"color": "red",
@@ -7197,8 +7194,7 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green",
-								"value": null
+								"color": "green"
 							},
 							{
 								"color": "red",
@@ -8058,8 +8054,7 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green",
-								"value": null
+								"color": "green"
 							},
 							{
 								"color": "red",
@@ -10008,8 +10003,7 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green",
-								"value": null
+								"color": "green"
 							},
 							{
 								"color": "red",
@@ -11229,8 +11223,7 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "transparent",
-								"value": null
+								"color": "transparent"
 							},
 							{
 								"color": "blue",
@@ -11253,8 +11246,7 @@
 									"mode": "absolute",
 									"steps": [
 										{
-											"color": "dark-green",
-											"value": null
+											"color": "dark-green"
 										}
 									]
 								}
@@ -11273,8 +11265,7 @@
 									"mode": "absolute",
 									"steps": [
 										{
-											"color": "purple",
-											"value": null
+											"color": "purple"
 										}
 									]
 								}
@@ -11293,8 +11284,7 @@
 									"mode": "absolute",
 									"steps": [
 										{
-											"color": "dark-blue",
-											"value": null
+											"color": "dark-blue"
 										}
 									]
 								}
@@ -11313,8 +11303,7 @@
 									"mode": "absolute",
 									"steps": [
 										{
-											"color": "dark-blue",
-											"value": null
+											"color": "dark-blue"
 										}
 									]
 								}
@@ -11333,8 +11322,7 @@
 									"mode": "absolute",
 									"steps": [
 										{
-											"color": "dark-purple",
-											"value": null
+											"color": "dark-purple"
 										}
 									]
 								}
@@ -11353,8 +11341,7 @@
 									"mode": "absolute",
 									"steps": [
 										{
-											"color": "dark-blue",
-											"value": null
+											"color": "dark-blue"
 										}
 									]
 								}
@@ -11471,8 +11458,7 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green",
-								"value": null
+								"color": "green"
 							},
 							{
 								"color": "red",
@@ -12244,6 +12230,6 @@
 	"timezone": "browser",
 	"title": "Powerwall - Power Flow",
 	"uid": "RSabAvRRzVz",
-	"version": 5,
+	"version": 7,
 	"weekStart": ""
 }
