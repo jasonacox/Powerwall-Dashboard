@@ -1,0 +1,23 @@
+version: "3.5"
+
+services:
+    pwdusage:
+        image: jasonacox/pwdusage:latest
+        container_name: pwdusage
+        hostname: pwdusage
+        restart: always
+        user: "1000:1000"
+        volumes:
+            - type: bind
+              source: ./tools/usage-service
+              target: /var/lib/pwdusage
+              read_only: true
+        ports:
+            - target: 9050
+              published: 9050
+              mode: host
+        environment:
+            - USAGE_JSON=/var/lib/pwdusage/usage.json
+        depends_on:
+            - influxdb
+            
