@@ -24,9 +24,6 @@ SHAREFILES="YES"
 # log file
 LOGFILE="/var/log/pwstatus.log"
 
-# e-mail alert sender name
-FROM="Powerwall"
-
 # e-mail alert recipient addresses
 ALERTS="alerts@example.com"
 ERRORS="errors@example.com"
