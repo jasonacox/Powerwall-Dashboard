@@ -163,11 +163,6 @@ else
         NO )    chmod 644 "$COOKIE" "$GRIDSTATUS" "$VERSION" > /dev/null 2>&1;;
     esac
 
-    if [ -z "$FROM" ]
-    then
-        FROM="Powerwall"
-    fi
-
     if [ -z "$SLEEP" ] || [ $SLEEP -lt 1 ]
     then
         SLEEP=5
@@ -245,7 +240,7 @@ send_alert()
             "Message: $3" \
             "Details: $4" )"
 
-    err="$( echo -e "$body" | mail -s "$2" "$1" -F "$FROM" 2>&1 )"
+    err="$( echo -e "$body" | mail -s "$2" "$1" 2>&1 )"
     rv=$?
 
     if [ $rv -ne 0 ]
@@ -515,7 +510,6 @@ log_msg "   COOKIE     = $COOKIE"
 log_msg "   GRIDSTATUS = $GRIDSTATUS"
 log_msg "   VERSION    = $VERSION"
 log_msg "   SHAREFILES = $SHAREFILES"
-log_msg "   FROM       = $FROM"
 log_msg "   ALERTS     = $ALERTS"
 log_msg "   ERRORS     = $ERRORS"
 log_msg "   SLEEP      = $SLEEP"
