@@ -1,5 +1,33 @@
 # RELEASE NOTES
 
+## v2.9.9 - Tools, Solar Only Support and Dashboard Updates
+
+#### Instructions / Cleanup and Misc Tool Updates
+
+* Fix typos and spelling errors by @mcbirse in https://github.com/jasonacox/Powerwall-Dashboard/pull/281
+* Add instructions to make backup script executable by @s-crypt in https://github.com/jasonacox/Powerwall-Dashboard/pull/289
+* Add timezone lookup instructions by @jasonacox see https://github.com/jasonacox/Powerwall-Dashboard/discussions/291#discussioncomment-6140863
+* Remove option to set e-mail sender name in Powerwall Status Monitor tool for improved compatibility by @mcbirse in https://github.com/jasonacox/Powerwall-Dashboard/pull/301
+* Update Powerwall Status Monitor tool to ignore null responses which can occur during firmware updates by @mcbirse in https://github.com/jasonacox/Powerwall-Dashboard/pull/305 see https://github.com/jasonacox/Powerwall-Dashboard/discussions/109#discussioncomment-6193560
+
+#### Solar Only Support
+
+* Add daemon option to Tesla History tool and create docker container by @mcbirse in https://github.com/jasonacox/Powerwall-Dashboard/pull/281
+* Revise setup script to utilise docker container environment by @mcbirse in https://github.com/jasonacox/Powerwall-Dashboard/pull/283
+* Add WinOS winpty support to setup script by @jasonacox in https://github.com/jasonacox/Powerwall-Dashboard/pull/283#discussion_r1201492026
+* Add support to define InfluxDB PORT by environment variable when running in docker by @mcbirse in https://github.com/jasonacox/Powerwall-Dashboard/pull/285 see https://github.com/jasonacox/Powerwall-Dashboard/issues/183#issuecomment-1565191526
+* Modify script to replace data instead of update by @mcbirse in https://github.com/jasonacox/Powerwall-Dashboard/pull/293 see https://github.com/jasonacox/Powerwall-Dashboard/issues/286
+
+#### Powerwall-Dashboard Usage Micro Service
+
+* New tool developed by @BuongiornoTexas to generate usage and cost/savings information based on utility usage plans in https://github.com/jasonacox/Powerwall-Dashboard/pull/299 see https://github.com/jasonacox/Powerwall-Dashboard/tree/main/tools/usage-service and https://github.com/jasonacox/Powerwall-Dashboard/issues/276
+* Add Docker Hub upload script by @jasonacox in https://github.com/jasonacox/Powerwall-Dashboard/pull/299
+* Remove armv7 architecture by @jasonacox see https://github.com/jasonacox/Powerwall-Dashboard/pull/299#issuecomment-1586136593
+
+#### Migrate Dashboard Panels
+
+* Create "dashboard-new" using new Grafana time series type panels by @s-crypt in https://github.com/jasonacox/Powerwall-Dashboard/pull/295 and https://github.com/jasonacox/Powerwall-Dashboard/pull/297 see https://github.com/jasonacox/Powerwall-Dashboard/issues/290
+
 ## v2.9.8 - Tool Updates and Bug Fixes
 
 * Update to Powerwall Status Monitor tool to prevent false grid status alerts during Powerwall firmware updates by @mcbirse as raised in https://github.com/jasonacox/Powerwall-Dashboard/discussions/109#discussioncomment-5801031
@@ -139,8 +167,8 @@ Note: For anyone that already upgraded to 2.8.0 or later, there is an option to 
 
 ## v2.6.6 - History Import Tool & Windows 11 Compatibility
 
-* Added tool to import history data from Tesla cloud by @mcbirse in https://github.com/jasonacox/Powerwall-Dashboard/pull/99 and  https://github.com/jasonacox/Powerwall-Dashboard/pull/108 - see https://github.com/jasonacox/Powerwall-Dashboard/tree/main/tools#tesla-historypy and  https://github.com/jasonacox/Powerwall-Dashboard/issues/12
-* Adjusted  instructions, `setup.sh` and `upgrade.sh` to work with Windows 11 OS. https://github.com/jasonacox/Powerwall-Dashboard/issues/63
+* Added tool to import history data from Tesla cloud by @mcbirse in https://github.com/jasonacox/Powerwall-Dashboard/pull/99 and https://github.com/jasonacox/Powerwall-Dashboard/pull/108 - see https://github.com/jasonacox/Powerwall-Dashboard/tree/main/tools#tesla-historypy and https://github.com/jasonacox/Powerwall-Dashboard/issues/12
+* Adjusted instructions, `setup.sh` and `upgrade.sh` to work with Windows 11 OS. https://github.com/jasonacox/Powerwall-Dashboard/issues/63
 * Minor QoL enhancements by @BuongiornoTexas in https://github.com/jasonacox/Powerwall-Dashboard/pull/105 - Closes https://github.com/jasonacox/Powerwall-Dashboard/issues/96
 
 ## v2.6.5 - Upgrade pyPowerwall Proxy t18
