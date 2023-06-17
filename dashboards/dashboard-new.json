@@ -323,7 +323,8 @@
 							"mode": "absolute",
 							"steps": [
 								{
-									"color": "green"
+									"color": "green",
+									"value": null
 								}
 							]
 						},
@@ -345,7 +346,7 @@
 								},
 								{
 									"id": "custom.fillOpacity",
-									"value": 46
+									"value": 25
 								}
 							]
 						},
@@ -364,7 +365,7 @@
 								},
 								{
 									"id": "custom.fillOpacity",
-									"value": 100
+									"value": 0
 								},
 								{
 									"id": "custom.lineWidth",
@@ -2806,7 +2807,7 @@
 						"percent"
 					]
 				},
-				"pieType": "donut",
+				"pieType": "pie",
 				"reduceOptions": {
 					"calcs": [
 						"sum"
@@ -2843,8 +2844,8 @@
 					"measurement": "http",
 					"orderByTime": "ASC",
 					"policy": "autogen",
-					"query": "SELECT mean(\"value\") FROM \"measurement\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-					"rawQuery": false,
+					"query": "SELECT integral(\"from_pw\")  / 1000 / 3600 FROM \"autogen\".\"http\" WHERE $timeFilter tz('$tz')",
+					"rawQuery": true,
 					"refId": "B",
 					"resultFormat": "time_series",
 					"select": [
@@ -3466,7 +3467,8 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green"
+								"color": "green",
+								"value": null
 							},
 							{
 								"color": "red",
@@ -3610,7 +3612,8 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green"
+								"color": "green",
+								"value": null
 							},
 							{
 								"color": "red",
@@ -3874,7 +3877,8 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green"
+								"color": "green",
+								"value": null
 							},
 							{
 								"color": "red",
@@ -4649,7 +4653,8 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green"
+								"color": "green",
+								"value": null
 							},
 							{
 								"color": "red",
@@ -5424,7 +5429,8 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green"
+								"color": "green",
+								"value": null
 							},
 							{
 								"color": "red",
@@ -6199,7 +6205,8 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green"
+								"color": "green",
+								"value": null
 							},
 							{
 								"color": "red",
@@ -6469,7 +6476,8 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green"
+								"color": "green",
+								"value": null
 							},
 							{
 								"color": "red",
@@ -7077,7 +7085,8 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green"
+								"color": "green",
+								"value": null
 							},
 							{
 								"color": "red",
@@ -7937,7 +7946,8 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green"
+								"color": "green",
+								"value": null
 							},
 							{
 								"color": "red",
@@ -9886,7 +9896,8 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green"
+								"color": "green",
+								"value": null
 							},
 							{
 								"color": "red",
@@ -12186,6 +12197,6 @@
 	"timezone": "browser",
 	"title": "Powerwall - Power Flow",
 	"uid": "RSabAvRRzVz",
-	"version": 21,
+	"version": 23,
 	"weekStart": ""
 }
