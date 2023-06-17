@@ -163,11 +163,6 @@ else
         NO )    chmod 644 "$COOKIE" "$GRIDSTATUS" "$VERSION" > /dev/null 2>&1;;
     esac
 
-    if [ -z "$FROM" ]
-    then
-        FROM="Powerwall"
-    fi
-
     if [ -z "$SLEEP" ] || [ $SLEEP -lt 1 ]
     then
         SLEEP=5
@@ -245,7 +240,7 @@ send_alert()
             "Message: $3" \
             "Details: $4" )"
 
-    err="$( echo -e "$body" | mail -s "$2" "$1" -F "$FROM" 2>&1 )"
+    err="$( echo -e "$body" | mail -s "$2" "$1" 2>&1 )"
     rv=$?
 
     if [ $rv -ne 0 ]
@@ -515,7 +510,6 @@ log_msg "   COOKIE     = $COOKIE"
 log_msg "   GRIDSTATUS = $GRIDSTATUS"
 log_msg "   VERSION    = $VERSION"
 log_msg "   SHAREFILES = $SHAREFILES"
-log_msg "   FROM       = $FROM"
 log_msg "   ALERTS     = $ALERTS"
 log_msg "   ERRORS     = $ERRORS"
 log_msg "   SLEEP      = $SLEEP"
@@ -550,7 +544,11 @@ then
 else
     get_stats "api/system_status/grid_status"
     grid_status_old="$( echo "$result" | jq -sr '.[0].grid_status' )"
-    echo "$grid_status_old" > "$GRIDSTATUS"
+
+    if [ "$grid_status_old" != "null" ]
+    then
+        echo "$grid_status_old" > "$GRIDSTATUS"
+    fi
 fi
 
 if [ -s "$VERSION" ]
@@ -559,8 +557,12 @@ then
 else
     get_stats "api/status"
     version_old="$( echo "$result" | jq -sr '.[0].version' )"
-    echo "$version_old" > "$VERSION"
-    chkvernow=0
+
+    if [ "$version_old" != "null" ]
+    then
+        echo "$version_old" > "$VERSION"
+        chkvernow=0
+    fi
 fi
 
 
@@ -587,7 +589,10 @@ do
         version="$( echo "$result" | jq -sr '.[2].version' )"
         uptime="$( echo "$result" | jq -sr '.[2].up_time_seconds' )"
 
-        if [ "$version" != "$version_old" ]
+        if [ "$version" = "null" ]
+        then
+            chkvernow=1
+        elif [ "$version" != "$version_old" ]
         then
             log_msg "Firmware version changed from $version_old to $version"
 

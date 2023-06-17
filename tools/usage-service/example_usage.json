@@ -1,0 +1,99 @@
+{
+    "settings": {
+        "influx_url": "http://localhost:8086",
+        "bucket": "powerwall/kwh",
+        "timezone": "Australia/Hobart",
+        "supply_priority": [
+            "GRID_SUPPLY",
+            "PW_SUPPLY",
+            "SOLAR_SUPPLY"
+        ],
+        "cost_unit": "$",
+        "energy_unit": "kWh",
+        "rename": {
+            "GRID_SUPPLY": "Grid supply---",
+            "GRID_EXPORT": "Grid export+++"
+        },
+        "resample": true,
+        "week_anchor": "MONTH",
+        "year_anchor": "JUN"        
+    },
+    "plans": [
+        {
+            "name": "Aurora-TAS-ToU",
+            "report": [
+                "GRID_SUPPLY",
+                "GRID_EXPORT",
+                "SELF_PW_NET_OF_GRID",
+                "SELF_SOLAR_PLUS_RES"
+            ],
+            "agent": "Simple",
+            "seasons": {
+                "Summer": [
+                    {
+                        "schedule": "Weekday",
+                        "days": [
+                            0,
+                            1,
+                            2,
+                            3,
+                            4
+                        ],
+                        "periods": {
+                            "22:00": "Off-Peak",
+                            "08:00": "Peak",
+                            "11:00": "Off-Peak",
+                            "17:00": "Peak"
+                        }
+                    },
+                    {
+                        "schedule": "Weekend",
+                        "days": [
+                            5,
+                            6
+                        ],
+                        "periods": {
+                            "00:00": "Off-Peak"
+                        }
+                    }
+                ],
+                "Winter": [
+                    {
+                        "schedule": "Weekday",
+                        "periods": {
+                            "21:00": "Off-Peak",
+                            "07:00": "Peak",
+                            "10:00": "Off-Peak",
+                            "16:00": "Peak"
+                        }
+                    }
+                ]
+            }
+        }
+    ],
+    "calendar": {
+        "2022-10-06": {
+            "plan": "Aurora-TAS-ToU",
+            "season": "Summer",
+            "tariffs": {
+                "Peak": {
+                    "GRID_SUPPLY": -0.33399,
+                    "GRID_EXPORT": 0.08883,
+                    "SELF_PW_NET_OF_GRID": 0.33399,
+                    "SELF_SOLAR_PLUS_RES": 0.33399,
+                    "SUPPLY_CHARGE": -0.04579291666
+                },
+                "Off-Peak": {
+                    "GRID_SUPPLY": -0.15551,
+                    "GRID_EXPORT": 0.08883,
+                    "SELF_PW_NET_OF_GRID": 0.15551,
+                    "SELF_SOLAR_PLUS_RES": 0.15551,
+                    "SUPPLY_CHARGE": -0.04579291666
+                }
+            }
+        },
+        "2023-04-02": {
+            "season": "Winter"
+        }
+    }
+}
