@@ -323,7 +323,8 @@
 							"mode": "absolute",
 							"steps": [
 								{
-									"color": "green"
+									"color": "green",
+									"value": null
 								}
 							]
 						},
@@ -342,6 +343,18 @@
 										"fixedColor": "yellow",
 										"mode": "fixed"
 									}
+								},
+								{
+									"id": "custom.drawStyle",
+									"value": "line"
+								},
+								{
+									"id": "custom.lineInterpolation",
+									"value": "stepAfter"
+								},
+								{
+									"id": "custom.fillOpacity",
+									"value": 40
 								}
 							]
 						},
@@ -364,7 +377,7 @@
 								},
 								{
 									"id": "custom.fillOpacity",
-									"value": 0
+									"value": 100
 								},
 								{
 									"id": "custom.lineWidth",
@@ -2709,36 +2722,6 @@
 					{
 						"matcher": {
 							"id": "byName",
-							"options": "Battery"
-						},
-						"properties": [
-							{
-								"id": "color",
-								"value": {
-									"fixedColor": "#73BF69",
-									"mode": "fixed"
-								}
-							}
-						]
-					},
-					{
-						"matcher": {
-							"id": "byName",
-							"options": "Battery Usage"
-						},
-						"properties": [
-							{
-								"id": "color",
-								"value": {
-									"fixedColor": "#73BF69",
-									"mode": "fixed"
-								}
-							}
-						]
-					},
-					{
-						"matcher": {
-							"id": "byName",
 							"options": "From Grid"
 						},
 						"properties": [
@@ -2780,126 +2763,6 @@
 								}
 							}
 						]
-					},
-					{
-						"matcher": {
-							"id": "byName",
-							"options": "Grid"
-						},
-						"properties": [
-							{
-								"id": "color",
-								"value": {
-									"fixedColor": "#B877D9",
-									"mode": "fixed"
-								}
-							}
-						]
-					},
-					{
-						"matcher": {
-							"id": "byName",
-							"options": "Grid Usage"
-						},
-						"properties": [
-							{
-								"id": "color",
-								"value": {
-									"fixedColor": "#B877D9",
-									"mode": "fixed"
-								}
-							}
-						]
-					},
-					{
-						"matcher": {
-							"id": "byName",
-							"options": "Powerwall"
-						},
-						"properties": [
-							{
-								"id": "color",
-								"value": {
-									"fixedColor": "#73BF69",
-									"mode": "fixed"
-								}
-							}
-						]
-					},
-					{
-						"matcher": {
-							"id": "byName",
-							"options": "Powerwall Usage"
-						},
-						"properties": [
-							{
-								"id": "color",
-								"value": {
-									"fixedColor": "#73BF69",
-									"mode": "fixed"
-								}
-							}
-						]
-					},
-					{
-						"matcher": {
-							"id": "byName",
-							"options": "Solar"
-						},
-						"properties": [
-							{
-								"id": "color",
-								"value": {
-									"fixedColor": "#FADE2A",
-									"mode": "fixed"
-								}
-							}
-						]
-					},
-					{
-						"matcher": {
-							"id": "byName",
-							"options": "Solar Usage"
-						},
-						"properties": [
-							{
-								"id": "color",
-								"value": {
-									"fixedColor": "#FADE2A",
-									"mode": "fixed"
-								}
-							}
-						]
-					},
-					{
-						"matcher": {
-							"id": "byName",
-							"options": "Total Solar"
-						},
-						"properties": [
-							{
-								"id": "color",
-								"value": {
-									"fixedColor": "#FADE2A",
-									"mode": "fixed"
-								}
-							}
-						]
-					},
-					{
-						"matcher": {
-							"id": "byName",
-							"options": "Total Usage"
-						},
-						"properties": [
-							{
-								"id": "color",
-								"value": {
-									"fixedColor": "#5794F2",
-									"mode": "fixed"
-								}
-							}
-						]
 					}
 				]
 			},
@@ -2914,6 +2777,7 @@
 			"links": [],
 			"maxDataPoints": 3,
 			"options": {
+				"displayLabels": [],
 				"legend": {
 					"calcs": [],
 					"displayMode": "table",
@@ -3256,6 +3120,7 @@
 						"axisColorMode": "text",
 						"axisLabel": "",
 						"axisPlacement": "auto",
+						"axisSoftMin": 0,
 						"barAlignment": 0,
 						"drawStyle": "bars",
 						"fillOpacity": 100,
@@ -3283,7 +3148,6 @@
 					},
 					"links": [],
 					"mappings": [],
-					"min": 0,
 					"thresholds": {
 						"mode": "absolute",
 						"steps": [
@@ -3401,6 +3265,7 @@
 						"axisColorMode": "text",
 						"axisLabel": "",
 						"axisPlacement": "auto",
+						"axisSoftMin": 0,
 						"barAlignment": 0,
 						"drawStyle": "bars",
 						"fillOpacity": 100,
@@ -3428,7 +3293,6 @@
 					},
 					"links": [],
 					"mappings": [],
-					"min": 0,
 					"thresholds": {
 						"mode": "absolute",
 						"steps": [
@@ -3552,6 +3416,7 @@
 						"axisColorMode": "text",
 						"axisLabel": "",
 						"axisPlacement": "auto",
+						"axisSoftMin": 0,
 						"barAlignment": 0,
 						"drawStyle": "bars",
 						"fillOpacity": 100,
@@ -3579,12 +3444,12 @@
 					},
 					"links": [],
 					"mappings": [],
-					"min": 0,
 					"thresholds": {
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green"
+								"color": "green",
+								"value": null
 							},
 							{
 								"color": "red",
@@ -3692,10 +3557,11 @@
 						"mode": "palette-classic"
 					},
 					"custom": {
-						"axisCenteredZero": false,
+						"axisCenteredZero": true,
 						"axisColorMode": "text",
 						"axisLabel": "",
 						"axisPlacement": "auto",
+						"axisSoftMin": 0,
 						"barAlignment": 0,
 						"drawStyle": "bars",
 						"fillOpacity": 100,
@@ -3727,7 +3593,8 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green"
+								"color": "green",
+								"value": null
 							},
 							{
 								"color": "red",
@@ -3925,7 +3792,7 @@
 				"x": 0,
 				"y": 40
 			},
-			"id": 74,
+			"id": 76,
 			"libraryPanel": {
 				"uid": "urTr7ciRk",
 				"name": "Solar Energy Year"
@@ -3991,7 +3858,8 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green"
+								"color": "green",
+								"value": null
 							},
 							{
 								"color": "red",
@@ -4766,7 +4634,8 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green"
+								"color": "green",
+								"value": null
 							},
 							{
 								"color": "red",
@@ -5541,7 +5410,8 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green"
+								"color": "green",
+								"value": null
 							},
 							{
 								"color": "red",
@@ -6316,7 +6186,8 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green"
+								"color": "green",
+								"value": null
 							},
 							{
 								"color": "red",
@@ -6586,7 +6457,8 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green"
+								"color": "green",
+								"value": null
 							},
 							{
 								"color": "red",
@@ -7194,7 +7066,8 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green"
+								"color": "green",
+								"value": null
 							},
 							{
 								"color": "red",
@@ -8054,7 +7927,8 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green"
+								"color": "green",
+								"value": null
 							},
 							{
 								"color": "red",
@@ -10003,7 +9877,8 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green"
+								"color": "green",
+								"value": null
 							},
 							{
 								"color": "red",
@@ -11223,7 +11098,8 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "transparent"
+								"color": "transparent",
+								"value": null
 							},
 							{
 								"color": "blue",
@@ -11246,7 +11122,8 @@
 									"mode": "absolute",
 									"steps": [
 										{
-											"color": "dark-green"
+											"color": "dark-green",
+											"value": null
 										}
 									]
 								}
@@ -11265,7 +11142,8 @@
 									"mode": "absolute",
 									"steps": [
 										{
-											"color": "purple"
+											"color": "purple",
+											"value": null
 										}
 									]
 								}
@@ -11284,7 +11162,8 @@
 									"mode": "absolute",
 									"steps": [
 										{
-											"color": "dark-blue"
+											"color": "dark-blue",
+											"value": null
 										}
 									]
 								}
@@ -11303,7 +11182,8 @@
 									"mode": "absolute",
 									"steps": [
 										{
-											"color": "dark-blue"
+											"color": "dark-blue",
+											"value": null
 										}
 									]
 								}
@@ -11322,7 +11202,8 @@
 									"mode": "absolute",
 									"steps": [
 										{
-											"color": "dark-purple"
+											"color": "dark-purple",
+											"value": null
 										}
 									]
 								}
@@ -11341,7 +11222,8 @@
 									"mode": "absolute",
 									"steps": [
 										{
-											"color": "dark-blue"
+											"color": "dark-blue",
+											"value": null
 										}
 									]
 								}
@@ -11458,7 +11340,8 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green"
+								"color": "green",
+								"value": null
 							},
 							{
 								"color": "red",
@@ -11794,10 +11677,6 @@
 			"type": "timeseries"
 		},
 		{
-			"aliasColors": {},
-			"bars": false,
-			"dashLength": 10,
-			"dashes": false,
 			"datasource": {
 				"type": "influxdb",
 				"uid": "${DS_INFLUXDB}"
@@ -11805,85 +11684,195 @@
 			"description": "",
 			"fieldConfig": {
 				"defaults": {
-					"links": []
+					"color": {
+						"mode": "palette-classic"
+					},
+					"custom": {
+						"axisCenteredZero": false,
+						"axisColorMode": "text",
+						"axisLabel": "",
+						"axisPlacement": "auto",
+						"barAlignment": 0,
+						"drawStyle": "line",
+						"fillOpacity": 10,
+						"gradientMode": "none",
+						"hideFrom": {
+							"legend": false,
+							"tooltip": false,
+							"viz": false
+						},
+						"lineInterpolation": "linear",
+						"lineWidth": 1,
+						"pointSize": 5,
+						"scaleDistribution": {
+							"type": "linear"
+						},
+						"showPoints": "never",
+						"spanNulls": true,
+						"stacking": {
+							"group": "A",
+							"mode": "none"
+						},
+						"thresholdsStyle": {
+							"mode": "off"
+						}
+					},
+					"decimals": 1,
+					"links": [],
+					"mappings": [],
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{
+								"color": "green",
+								"value": null
+							},
+							{
+								"color": "red",
+								"value": 80
+							}
+						]
+					},
+					"unit": "none"
 				},
-				"overrides": []
+				"overrides": [
+					{
+						"matcher": {
+							"id": "byName",
+							"options": "Rain"
+						},
+						"properties": [
+							{
+								"id": "color",
+								"value": {
+									"fixedColor": "#1F60C4",
+									"mode": "fixed"
+								}
+							},
+							{
+								"id": "custom.fillOpacity",
+								"value": 10
+							}
+						]
+					},
+					{
+						"matcher": {
+							"id": "byName",
+							"options": "Wind"
+						},
+						"properties": [
+							{
+								"id": "color",
+								"value": {
+									"fixedColor": "#FADE2A",
+									"mode": "fixed"
+								}
+							}
+						]
+					},
+					{
+						"matcher": {
+							"id": "byName",
+							"options": "Pressure"
+						},
+						"properties": [
+							{
+								"id": "color",
+								"value": {
+									"fixedColor": "#73BF69",
+									"mode": "fixed"
+								}
+							},
+							{
+								"id": "custom.axisPlacement",
+								"value": "right"
+							}
+						]
+					},
+					{
+						"matcher": {
+							"id": "byName",
+							"options": "Snow"
+						},
+						"properties": [
+							{
+								"id": "color",
+								"value": {
+									"fixedColor": "rgb(255, 255, 255)",
+									"mode": "fixed"
+								}
+							},
+							{
+								"id": "custom.fillOpacity",
+								"value": 10
+							},
+							{
+								"id": "custom.lineStyle",
+								"value": {
+									"dash": [
+										4,
+										1
+									],
+									"fill": "dash"
+								}
+							}
+						]
+					},
+					{
+						"matcher": {
+							"id": "byName",
+							"options": "Visibility (K)"
+						},
+						"properties": [
+							{
+								"id": "color",
+								"value": {
+									"fixedColor": "rgba(255, 255, 255, 0.65)",
+									"mode": "fixed"
+								}
+							},
+							{
+								"id": "custom.fillOpacity",
+								"value": 0
+							},
+							{
+								"id": "custom.lineStyle",
+								"value": {
+									"dash": [
+										10,
+										10
+									],
+									"fill": "dash"
+								}
+							}
+						]
+					}
+				]
 			},
-			"fill": 1,
-			"fillGradient": 0,
 			"gridPos": {
 				"h": 7,
 				"w": 24,
 				"x": 0,
 				"y": 89
 			},
-			"hiddenSeries": false,
 			"hideTimeOverride": false,
 			"id": 60,
 			"interval": "",
-			"legend": {
-				"avg": false,
-				"current": true,
-				"hideEmpty": false,
-				"hideZero": false,
-				"max": false,
-				"min": false,
-				"rightSide": false,
-				"show": true,
-				"total": false,
-				"values": true
-			},
-			"lines": true,
-			"linewidth": 1,
-			"nullPointMode": "connected",
 			"options": {
-				"alertThreshold": true
-			},
-			"percentage": false,
-			"pluginVersion": "9.1.2",
-			"pointradius": 2,
-			"points": false,
-			"renderer": "flot",
-			"seriesOverrides": [
-				{
-					"$$hashKey": "object:2792",
-					"alias": "Rain",
-					"color": "#1F60C4",
-					"fill": 1,
-					"yaxis": 1
+				"legend": {
+					"calcs": [
+						"lastNotNull"
+					],
+					"displayMode": "list",
+					"placement": "bottom",
+					"showLegend": true
 				},
-				{
-					"$$hashKey": "object:2793",
-					"alias": "Wind",
-					"color": "#FADE2A",
-					"yaxis": 1
-				},
-				{
-					"$$hashKey": "object:2794",
-					"alias": "Pressure",
-					"color": "#73BF69",
-					"yaxis": 2
-				},
-				{
-					"$$hashKey": "object:2795",
-					"alias": "Snow",
-					"color": "rgb(255, 255, 255)",
-					"dashLength": 4,
-					"dashes": true,
-					"fill": 1,
-					"spaceLength": 1
-				},
-				{
-					"$$hashKey": "object:2796",
-					"alias": "Visibility (K)",
-					"color": "rgba(255, 255, 255, 0.65)",
-					"dashes": true,
-					"fill": 0
+				"tooltip": {
+					"mode": "multi",
+					"sort": "none"
 				}
-			],
-			"spaceLength": 10,
-			"stack": false,
-			"steppedLine": false,
+			},
+			"pluginVersion": "9.1.2",
 			"targets": [
 				{
 					"alias": "Snow",
@@ -12101,41 +12090,9 @@
 					"tags": []
 				}
 			],
-			"thresholds": [],
-			"timeRegions": [],
 			"title": "Wind, Pressure and Precipitation ",
-			"tooltip": {
-				"shared": true,
-				"sort": 0,
-				"value_type": "individual"
-			},
 			"transparent": true,
-			"type": "graph",
-			"xaxis": {
-				"mode": "time",
-				"show": true,
-				"values": []
-			},
-			"yaxes": [
-				{
-					"$$hashKey": "object:2847",
-					"decimals": 1,
-					"format": "none",
-					"label": "",
-					"logBase": 1,
-					"show": true
-				},
-				{
-					"$$hashKey": "object:2848",
-					"format": "none",
-					"label": "",
-					"logBase": 1,
-					"show": true
-				}
-			],
-			"yaxis": {
-				"align": false
-			}
+			"type": "timeseries"
 		}
 	],
 	"refresh": "5m",
@@ -12230,6 +12187,6 @@
 	"timezone": "browser",
 	"title": "Powerwall - Power Flow",
 	"uid": "RSabAvRRzVz",
-	"version": 7,
+	"version": 15,
 	"weekStart": ""
 }
