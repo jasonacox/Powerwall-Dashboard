@@ -323,8 +323,7 @@
 							"mode": "absolute",
 							"steps": [
 								{
-									"color": "green",
-									"value": null
+									"color": "green"
 								}
 							]
 						},
@@ -555,16 +554,16 @@
 			"version": "9.1.2"
 		},
 		{
+			"type": "panel",
+			"id": "grafana-piechart-panel",
+			"name": "Pie Chart (old)",
+			"version": "1.6.4"
+		},
+		{
 			"type": "datasource",
 			"id": "influxdb",
 			"name": "InfluxDB",
 			"version": "1.0.0"
-		},
-		{
-			"type": "panel",
-			"id": "piechart",
-			"name": "Pie chart",
-			"version": ""
 		},
 		{
 			"type": "panel",
@@ -2717,74 +2716,32 @@
 			"type": "barchart"
 		},
 		{
+			"aliasColors": {
+				"Battery": "#73BF69",
+				"Battery Usage": "#73BF69",
+				"From Grid": "#B877D9",
+				"From Powerwall": "#73BF69",
+				"From Solar": "#FADE2A",
+				"Grid": "#B877D9",
+				"Grid Usage": "#B877D9",
+				"Powerwall": "#73BF69",
+				"Powerwall Usage": "#73BF69",
+				"Solar": "#FADE2A",
+				"Solar Usage": "#FADE2A",
+				"Total Solar": "#FADE2A",
+				"Total Usage": "#5794F2"
+			},
+			"breakPoint": "50%",
+			"combine": {
+				"label": "Others",
+				"threshold": 0
+			},
 			"datasource": {
 				"type": "influxdb",
 				"uid": "${DS_INFLUXDB}"
 			},
-			"fieldConfig": {
-				"defaults": {
-					"color": {
-						"mode": "palette-classic"
-					},
-					"custom": {
-						"hideFrom": {
-							"legend": false,
-							"tooltip": false,
-							"viz": false
-						}
-					},
-					"decimals": 0,
-					"mappings": [],
-					"unit": "kwatth"
-				},
-				"overrides": [
-					{
-						"matcher": {
-							"id": "byName",
-							"options": "From Grid"
-						},
-						"properties": [
-							{
-								"id": "color",
-								"value": {
-									"fixedColor": "#B877D9",
-									"mode": "fixed"
-								}
-							}
-						]
-					},
-					{
-						"matcher": {
-							"id": "byName",
-							"options": "From Powerwall"
-						},
-						"properties": [
-							{
-								"id": "color",
-								"value": {
-									"fixedColor": "#73BF69",
-									"mode": "fixed"
-								}
-							}
-						]
-					},
-					{
-						"matcher": {
-							"id": "byName",
-							"options": "From Solar"
-						},
-						"properties": [
-							{
-								"id": "color",
-								"value": {
-									"fixedColor": "#FADE2A",
-									"mode": "fixed"
-								}
-							}
-						]
-					}
-				]
-			},
+			"fontSize": "100%",
+			"format": "kwatth",
 			"gridPos": {
 				"h": 5,
 				"w": 8,
@@ -2793,34 +2750,21 @@
 			},
 			"id": 43,
 			"interval": "",
+			"legend": {
+				"header": "Power",
+				"percentage": true,
+				"percentageDecimals": 1,
+				"show": true,
+				"sortDesc": true,
+				"values": true
+			},
+			"legendType": "Right side",
 			"links": [],
 			"maxDataPoints": 3,
-			"options": {
-				"displayLabels": [],
-				"legend": {
-					"calcs": [],
-					"displayMode": "table",
-					"placement": "right",
-					"showLegend": true,
-					"values": [
-						"value",
-						"percent"
-					]
-				},
-				"pieType": "pie",
-				"reduceOptions": {
-					"calcs": [
-						"sum"
-					],
-					"fields": "",
-					"values": false
-				},
-				"tooltip": {
-					"mode": "single",
-					"sort": "none"
-				}
-			},
+			"nullPointMode": "connected",
+			"pieType": "donut",
 			"pluginVersion": "6.5.1",
+			"strokeWidth": "1",
 			"targets": [
 				{
 					"alias": "From Solar",
@@ -2912,7 +2856,8 @@
 			],
 			"title": "Self-Powered",
 			"transparent": true,
-			"type": "piechart"
+			"type": "grafana-piechart-panel",
+			"valueName": "total"
 		},
 		{
 			"activePatternIndex": 1,
@@ -3877,8 +3822,7 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green",
-								"value": null
+								"color": "green"
 							},
 							{
 								"color": "red",
@@ -4653,8 +4597,7 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green",
-								"value": null
+								"color": "green"
 							},
 							{
 								"color": "red",
@@ -5429,8 +5372,7 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green",
-								"value": null
+								"color": "green"
 							},
 							{
 								"color": "red",
@@ -6205,8 +6147,7 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green",
-								"value": null
+								"color": "green"
 							},
 							{
 								"color": "red",
@@ -6476,8 +6417,7 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green",
-								"value": null
+								"color": "green"
 							},
 							{
 								"color": "red",
@@ -7085,8 +7025,7 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green",
-								"value": null
+								"color": "green"
 							},
 							{
 								"color": "red",
@@ -7946,8 +7885,7 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green",
-								"value": null
+								"color": "green"
 							},
 							{
 								"color": "red",
@@ -9896,8 +9834,7 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green",
-								"value": null
+								"color": "green"
 							},
 							{
 								"color": "red",
@@ -12197,6 +12134,6 @@
 	"timezone": "browser",
 	"title": "Powerwall - Power Flow",
 	"uid": "RSabAvRRzVz",
-	"version": 23,
+	"version": 26,
 	"weekStart": ""
 }
