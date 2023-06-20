@@ -293,7 +293,7 @@
 							"axisLabel": "",
 							"axisPlacement": "auto",
 							"barAlignment": 0,
-							"drawStyle": "bars",
+							"drawStyle": "line",
 							"fillOpacity": 100,
 							"gradientMode": "none",
 							"hideFrom": {
@@ -301,7 +301,7 @@
 								"tooltip": false,
 								"viz": false
 							},
-							"lineInterpolation": "linear",
+							"lineInterpolation": "stepAfter",
 							"lineWidth": 1,
 							"pointSize": 5,
 							"scaleDistribution": {
@@ -323,8 +323,7 @@
 							"mode": "absolute",
 							"steps": [
 								{
-									"color": "green",
-									"value": null
+									"color": "green"
 								}
 							]
 						},
@@ -345,16 +344,8 @@
 									}
 								},
 								{
-									"id": "custom.drawStyle",
-									"value": "line"
-								},
-								{
-									"id": "custom.lineInterpolation",
-									"value": "stepAfter"
-								},
-								{
 									"id": "custom.fillOpacity",
-									"value": 40
+									"value": 25
 								}
 							]
 						},
@@ -372,20 +363,12 @@
 									}
 								},
 								{
-									"id": "custom.drawStyle",
-									"value": "line"
-								},
-								{
 									"id": "custom.fillOpacity",
-									"value": 100
+									"value": 0
 								},
 								{
 									"id": "custom.lineWidth",
 									"value": 1
-								},
-								{
-									"id": "custom.lineInterpolation",
-									"value": "stepAfter"
 								}
 							]
 						},
@@ -405,14 +388,6 @@
 								{
 									"id": "custom.lineWidth",
 									"value": 1
-								},
-								{
-									"id": "custom.lineInterpolation",
-									"value": "stepAfter"
-								},
-								{
-									"id": "custom.drawStyle",
-									"value": "line"
 								},
 								{
 									"id": "custom.fillOpacity",
@@ -561,6 +536,12 @@
 	},
 	"__requires": [
 		{
+			"type": "panel",
+			"id": "barchart",
+			"name": "Bar chart",
+			"version": ""
+		},
+		{
 			"type": "datasource",
 			"id": "fetzerch-sunandmoon-datasource",
 			"name": "Sun and Moon",
@@ -574,21 +555,15 @@
 		},
 		{
 			"type": "panel",
-			"id": "graph",
-			"name": "Graph (old)",
-			"version": ""
+			"id": "grafana-piechart-panel",
+			"name": "Pie Chart (old)",
+			"version": "1.6.4"
 		},
 		{
 			"type": "datasource",
 			"id": "influxdb",
 			"name": "InfluxDB",
 			"version": "1.0.0"
-		},
-		{
-			"type": "panel",
-			"id": "piechart",
-			"name": "Pie chart",
-			"version": ""
 		},
 		{
 			"type": "panel",
@@ -2543,73 +2518,149 @@
 			"type": "stat"
 		},
 		{
-			"aliasColors": {
-				"battery": "green",
-				"battery impact": "green",
-				"combined": "red",
-				"solar": "yellow",
-				"solar + battery": "red",
-				"solar > grid": "purple",
-				"solar > home": "yellow",
-				"solar only": "yellow",
-				"total": "blue"
-			},
-			"bars": true,
-			"dashLength": 10,
-			"dashes": false,
 			"datasource": {
 				"type": "influxdb",
 				"uid": "${DS_INFLUXDB}"
 			},
-			"decimals": 2,
 			"description": "Estimated Savings",
 			"fieldConfig": {
 				"defaults": {
-					"links": []
+					"color": {
+						"mode": "thresholds"
+					},
+					"custom": {
+						"axisCenteredZero": false,
+						"axisColorMode": "text",
+						"axisGridShow": true,
+						"axisLabel": "",
+						"axisPlacement": "auto",
+						"axisSoftMin": 0,
+						"fillOpacity": 100,
+						"gradientMode": "none",
+						"hideFrom": {
+							"legend": false,
+							"tooltip": false,
+							"viz": false
+						},
+						"lineWidth": 0,
+						"scaleDistribution": {
+							"type": "linear"
+						}
+					},
+					"links": [],
+					"mappings": [],
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{
+								"color": "green",
+								"value": null
+							},
+							{
+								"color": "red",
+								"value": 80
+							}
+						]
+					},
+					"unit": "currencyUSD"
 				},
-				"overrides": []
+				"overrides": [
+					{
+						"matcher": {
+							"id": "byName",
+							"options": "powerwall > home"
+						},
+						"properties": [
+							{
+								"id": "color",
+								"value": {
+									"fixedColor": "green",
+									"mode": "fixed"
+								}
+							}
+						]
+					},
+					{
+						"matcher": {
+							"id": "byName",
+							"options": "solar > home"
+						},
+						"properties": [
+							{
+								"id": "color",
+								"value": {
+									"fixedColor": "yellow",
+									"mode": "fixed"
+								}
+							}
+						]
+					},
+					{
+						"matcher": {
+							"id": "byName",
+							"options": "solar > grid"
+						},
+						"properties": [
+							{
+								"id": "color",
+								"value": {
+									"fixedColor": "purple",
+									"mode": "fixed"
+								}
+							}
+						]
+					},
+					{
+						"matcher": {
+							"id": "byName",
+							"options": "total"
+						},
+						"properties": [
+							{
+								"id": "color",
+								"value": {
+									"fixedColor": "blue",
+									"mode": "fixed"
+								}
+							}
+						]
+					}
+				]
 			},
-			"fill": 1,
-			"fillGradient": 0,
 			"gridPos": {
 				"h": 5,
 				"w": 9,
 				"x": 0,
 				"y": 17
 			},
-			"hiddenSeries": false,
 			"hideTimeOverride": true,
 			"id": 45,
 			"interval": "",
-			"legend": {
-				"alignAsTable": true,
-				"avg": false,
-				"current": false,
-				"hideEmpty": false,
-				"hideZero": true,
-				"max": false,
-				"min": false,
-				"rightSide": true,
-				"show": true,
-				"total": true,
-				"values": true
-			},
-			"lines": false,
-			"linewidth": 1,
 			"links": [],
-			"nullPointMode": "null",
 			"options": {
-				"alertThreshold": true
+				"barRadius": 0,
+				"barWidth": 1,
+				"groupWidth": 1,
+				"legend": {
+					"calcs": [
+						"sum"
+					],
+					"displayMode": "table",
+					"placement": "right",
+					"showLegend": true
+				},
+				"orientation": "auto",
+				"showValue": "never",
+				"stacking": "none",
+				"tooltip": {
+					"mode": "single",
+					"sort": "none"
+				},
+				"xTickLabelMaxLength": 0,
+				"xTickLabelRotation": 0,
+				"xTickLabelSpacing": 0
 			},
-			"percentage": false,
 			"pluginVersion": "9.1.2",
-			"pointradius": 2,
-			"points": false,
-			"renderer": "flot",
-			"seriesOverrides": [],
-			"spaceLength": 10,
-			"stack": false,
-			"steppedLine": false,
 			"targets": [
 				{
 					"alias": "powerwall > home",
@@ -2659,113 +2710,38 @@
 					"resultFormat": "time_series"
 				}
 			],
-			"thresholds": [],
-			"timeRegions": [],
 			"title": "Savings",
-			"tooltip": {
-				"shared": false,
-				"sort": 0,
-				"value_type": "individual"
-			},
+			"transformations": [],
 			"transparent": true,
-			"type": "graph",
-			"xaxis": {
-				"mode": "series",
-				"show": false,
-				"values": [
-					"total"
-				]
-			},
-			"yaxes": [
-				{
-					"$$hashKey": "object:1096",
-					"decimals": 2,
-					"format": "currencyUSD",
-					"label": "",
-					"logBase": 1,
-					"min": "0",
-					"show": true
-				},
-				{
-					"$$hashKey": "object:1097",
-					"format": "short",
-					"logBase": 1,
-					"show": false
-				}
-			],
-			"yaxis": {
-				"align": false
-			}
+			"type": "barchart"
 		},
 		{
+			"aliasColors": {
+				"Battery": "#73BF69",
+				"Battery Usage": "#73BF69",
+				"From Grid": "#B877D9",
+				"From Powerwall": "#73BF69",
+				"From Solar": "#FADE2A",
+				"Grid": "#B877D9",
+				"Grid Usage": "#B877D9",
+				"Powerwall": "#73BF69",
+				"Powerwall Usage": "#73BF69",
+				"Solar": "#FADE2A",
+				"Solar Usage": "#FADE2A",
+				"Total Solar": "#FADE2A",
+				"Total Usage": "#5794F2"
+			},
+			"breakPoint": "50%",
+			"combine": {
+				"label": "Others",
+				"threshold": 0
+			},
 			"datasource": {
 				"type": "influxdb",
 				"uid": "${DS_INFLUXDB}"
 			},
-			"fieldConfig": {
-				"defaults": {
-					"color": {
-						"mode": "palette-classic"
-					},
-					"custom": {
-						"hideFrom": {
-							"legend": false,
-							"tooltip": false,
-							"viz": false
-						}
-					},
-					"decimals": 0,
-					"mappings": [],
-					"unit": "kwatth"
-				},
-				"overrides": [
-					{
-						"matcher": {
-							"id": "byName",
-							"options": "From Grid"
-						},
-						"properties": [
-							{
-								"id": "color",
-								"value": {
-									"fixedColor": "#B877D9",
-									"mode": "fixed"
-								}
-							}
-						]
-					},
-					{
-						"matcher": {
-							"id": "byName",
-							"options": "From Powerwall"
-						},
-						"properties": [
-							{
-								"id": "color",
-								"value": {
-									"fixedColor": "#73BF69",
-									"mode": "fixed"
-								}
-							}
-						]
-					},
-					{
-						"matcher": {
-							"id": "byName",
-							"options": "From Solar"
-						},
-						"properties": [
-							{
-								"id": "color",
-								"value": {
-									"fixedColor": "#FADE2A",
-									"mode": "fixed"
-								}
-							}
-						]
-					}
-				]
-			},
+			"fontSize": "100%",
+			"format": "kwatth",
 			"gridPos": {
 				"h": 5,
 				"w": 8,
@@ -2774,34 +2750,21 @@
 			},
 			"id": 43,
 			"interval": "",
+			"legend": {
+				"header": "Power",
+				"percentage": true,
+				"percentageDecimals": 1,
+				"show": true,
+				"sortDesc": true,
+				"values": true
+			},
+			"legendType": "Right side",
 			"links": [],
 			"maxDataPoints": 3,
-			"options": {
-				"displayLabels": [],
-				"legend": {
-					"calcs": [],
-					"displayMode": "table",
-					"placement": "right",
-					"showLegend": true,
-					"values": [
-						"value",
-						"percent"
-					]
-				},
-				"pieType": "donut",
-				"reduceOptions": {
-					"calcs": [
-						"sum"
-					],
-					"fields": "",
-					"values": false
-				},
-				"tooltip": {
-					"mode": "single",
-					"sort": "none"
-				}
-			},
+			"nullPointMode": "connected",
+			"pieType": "donut",
 			"pluginVersion": "6.5.1",
+			"strokeWidth": "1",
 			"targets": [
 				{
 					"alias": "From Solar",
@@ -2825,8 +2788,8 @@
 					"measurement": "http",
 					"orderByTime": "ASC",
 					"policy": "autogen",
-					"query": "SELECT mean(\"value\") FROM \"measurement\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-					"rawQuery": false,
+					"query": "SELECT integral(\"from_pw\")  / 1000 / 3600 FROM \"autogen\".\"http\" WHERE $timeFilter tz('$tz')",
+					"rawQuery": true,
 					"refId": "B",
 					"resultFormat": "time_series",
 					"select": [
@@ -2893,7 +2856,8 @@
 			],
 			"title": "Self-Powered",
 			"transparent": true,
-			"type": "piechart"
+			"type": "grafana-piechart-panel",
+			"valueName": "total"
 		},
 		{
 			"activePatternIndex": 1,
@@ -2993,7 +2957,7 @@
 					"valueName": "avg"
 				},
 				{
-					"bgColors": "#73BF69 | gray | #F2495C",
+					"bgColors": "#73BF69 | gray | orange",
 					"bgColors_overrides": "0->green|2->red|1->yellow",
 					"clickable_cells_link": "",
 					"col_name": "Value",
@@ -3022,7 +2986,7 @@
 					"pattern": "http.Battery",
 					"row_col_wrapper": "_",
 					"row_name": "_1_",
-					"textColors": "white | white | white",
+					"textColors": "white | white | black",
 					"textColors_overrides": "0->red|2->green|1->yellow",
 					"thresholds": "-0.1,0.1",
 					"time_based_thresholds": [],
@@ -3032,7 +2996,7 @@
 					"valueName": "avg"
 				},
 				{
-					"bgColors": "red|yellow",
+					"bgColors": "grey|yellow",
 					"bgColors_overrides": "0->green|2->red|1->yellow",
 					"clickable_cells_link": "",
 					"col_name": "Value",
@@ -3041,10 +3005,10 @@
 					"defaultTextColor": "black",
 					"delimiter": ".",
 					"displayTemplate": "_value_",
-					"enable_bgColor": false,
+					"enable_bgColor": true,
 					"enable_bgColor_overrides": false,
 					"enable_clickable_cells": false,
-					"enable_textColor": false,
+					"enable_textColor": true,
 					"enable_textColor_overrides": false,
 					"enable_time_based_thresholds": false,
 					"enable_transform": true,
@@ -3858,8 +3822,7 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green",
-								"value": null
+								"color": "green"
 							},
 							{
 								"color": "red",
@@ -4634,8 +4597,7 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green",
-								"value": null
+								"color": "green"
 							},
 							{
 								"color": "red",
@@ -5410,8 +5372,7 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green",
-								"value": null
+								"color": "green"
 							},
 							{
 								"color": "red",
@@ -6186,8 +6147,7 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green",
-								"value": null
+								"color": "green"
 							},
 							{
 								"color": "red",
@@ -6457,8 +6417,7 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green",
-								"value": null
+								"color": "green"
 							},
 							{
 								"color": "red",
@@ -7066,8 +7025,7 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green",
-								"value": null
+								"color": "green"
 							},
 							{
 								"color": "red",
@@ -7927,8 +7885,7 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green",
-								"value": null
+								"color": "green"
 							},
 							{
 								"color": "red",
@@ -9877,8 +9834,7 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green",
-								"value": null
+								"color": "green"
 							},
 							{
 								"color": "red",
@@ -11098,8 +11054,7 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "transparent",
-								"value": null
+								"color": "transparent"
 							},
 							{
 								"color": "blue",
@@ -11122,8 +11077,7 @@
 									"mode": "absolute",
 									"steps": [
 										{
-											"color": "dark-green",
-											"value": null
+											"color": "dark-green"
 										}
 									]
 								}
@@ -11142,8 +11096,7 @@
 									"mode": "absolute",
 									"steps": [
 										{
-											"color": "purple",
-											"value": null
+											"color": "purple"
 										}
 									]
 								}
@@ -11162,8 +11115,7 @@
 									"mode": "absolute",
 									"steps": [
 										{
-											"color": "dark-blue",
-											"value": null
+											"color": "dark-blue"
 										}
 									]
 								}
@@ -11182,8 +11134,7 @@
 									"mode": "absolute",
 									"steps": [
 										{
-											"color": "dark-blue",
-											"value": null
+											"color": "dark-blue"
 										}
 									]
 								}
@@ -11202,8 +11153,7 @@
 									"mode": "absolute",
 									"steps": [
 										{
-											"color": "dark-purple",
-											"value": null
+											"color": "dark-purple"
 										}
 									]
 								}
@@ -11222,8 +11172,7 @@
 									"mode": "absolute",
 									"steps": [
 										{
-											"color": "dark-blue",
-											"value": null
+											"color": "dark-blue"
 										}
 									]
 								}
@@ -11340,8 +11289,7 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green",
-								"value": null
+								"color": "green"
 							},
 							{
 								"color": "red",
@@ -11724,8 +11672,7 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green",
-								"value": null
+								"color": "green"
 							},
 							{
 								"color": "red",
@@ -12187,6 +12134,6 @@
 	"timezone": "browser",
 	"title": "Powerwall - Power Flow",
 	"uid": "RSabAvRRzVz",
-	"version": 15,
+	"version": 26,
 	"weekStart": ""
 }
