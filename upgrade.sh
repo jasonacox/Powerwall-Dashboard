@@ -202,13 +202,12 @@ cat << EOF
 Open Grafana at http://localhost:9000/
 
 From 'Dashboard/Browse', select 'New/Import', and
-upload 'dashboard.json' from the path below.
+upload 'dashboard.json' located in the folder
+${PWD}/dashboards/
 
 Please note, you may need to select data sources
 for 'InfluxDB' and 'Sun and Moon' via the
 dropdowns and use 'Import (Overwrite)' button.
-
-Use dashboard.json located in: ${PWD}
 
 EOF
 
