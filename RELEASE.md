@@ -1,5 +1,10 @@
 # RELEASE NOTES
 
+## v2.9.10 - Updated Default Dashboard
+
+* Updated default `dashboard.json` to incorporate timeseries migrations by @s-crypt in https://github.com/jasonacox/Powerwall-Dashboard/pull/295 and https://github.com/jasonacox/Powerwall-Dashboard/pull/297 see https://github.com/jasonacox/Powerwall-Dashboard/issues/290
+* Updated "Grid Status" to new timeseries graph with red/yellow/green status.
+
 ## v2.9.9 - Tools, Solar Only Support and Dashboard Updates
 
 #### Instructions / Cleanup and Misc Tool Updates

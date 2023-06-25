@@ -193,5 +193,6 @@ Follow these instructions for *Grafana Setup*:
   - Click "Save & test" button
 
 * From 'Dashboard\Browse', select 'New/Import', and upload 'dashboard.json' from
+  the ${PWD}/dashboards folder.
+  
 EOF
-pwd
