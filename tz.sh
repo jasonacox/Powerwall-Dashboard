@@ -20,7 +20,7 @@ updatetz() {
     sed -i.bak "s@${from}@${to}@g" powerwall.yml
     sed -i.bak "s@${from}@${to}@g" telegraf.conf
     sed -i.bak "s@${from}@${to}@g" influxdb/influxdb.sql
-    for i in dashboard*.json; do
+    for i in dashboards/dashboard*.json; do
         sed -i.bak "s@${from}@${to}@g" $i
     done
     sed -i.bak "s@${from}@${to}@g" pypowerwall.env
