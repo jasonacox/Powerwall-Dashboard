@@ -2526,23 +2526,23 @@
 			"fieldConfig": {
 				"defaults": {
 					"color": {
-						"mode": "thresholds"
+						"mode": "palette-classic"
 					},
 					"custom": {
 						"axisCenteredZero": false,
 						"axisColorMode": "text",
 						"axisGridShow": true,
 						"axisLabel": "",
-						"axisPlacement": "auto",
+						"axisPlacement": "left",
 						"axisSoftMin": 0,
-						"fillOpacity": 100,
+						"fillOpacity": 80,
 						"gradientMode": "none",
 						"hideFrom": {
 							"legend": false,
 							"tooltip": false,
 							"viz": false
 						},
-						"lineWidth": 0,
+						"lineWidth": 1,
 						"scaleDistribution": {
 							"type": "linear"
 						}
@@ -2624,22 +2624,34 @@
 								}
 							}
 						]
+					},
+					{
+						"matcher": {
+							"id": "byType",
+							"options": "time"
+						},
+						"properties": [
+							{
+								"id": "unit",
+								"value": "time: "
+							}
+						]
 					}
 				]
 			},
 			"gridPos": {
-				"h": 5,
+				"h": 6,
 				"w": 9,
 				"x": 0,
 				"y": 17
 			},
 			"hideTimeOverride": true,
-			"id": 45,
+			"id": 78,
 			"interval": "",
 			"links": [],
 			"options": {
 				"barRadius": 0,
-				"barWidth": 1,
+				"barWidth": 0.82,
 				"groupWidth": 1,
 				"legend": {
 					"calcs": [
@@ -2650,13 +2662,12 @@
 					"showLegend": true
 				},
 				"orientation": "auto",
-				"showValue": "never",
+				"showValue": "always",
 				"stacking": "none",
 				"tooltip": {
 					"mode": "single",
 					"sort": "none"
 				},
-				"xTickLabelMaxLength": 0,
 				"xTickLabelRotation": 0,
 				"xTickLabelSpacing": 0
 			},
@@ -2680,7 +2691,7 @@
 						"uid": "${DS_INFLUXDB}"
 					},
 					"hide": false,
-					"query": "SELECT s - (tp + tg) FROM (SELECT sum(\"solar\") * $avg_buy_per_kwh AS s,  sum(\"to_pw\")  * $avg_buy_per_kwh AS tp, sum(\"to_grid\") * $avg_buy_per_kwh AS tg FROM kwh.http WHERE  $timeFilter tz('$tz'))\n",
+					"query": "SELECT s - (tp + tg) FROM (SELECT sum(\"solar\") * $avg_buy_per_kwh AS s,  sum(\"to_pw\")  * $avg_buy_per_kwh AS tp, sum(\"to_grid\") * $avg_buy_per_kwh AS tg FROM kwh.http WHERE  $timeFilter tz('$tz'))",
 					"rawQuery": true,
 					"refId": "B",
 					"resultFormat": "time_series"
@@ -2692,7 +2703,7 @@
 						"uid": "${DS_INFLUXDB}"
 					},
 					"hide": false,
-					"query": "SELECT tgg FROM (SELECT sum(\"to_grid\") * $avg_sell_per_kwh AS tgg FROM kwh.http WHERE  $timeFilter tz('$tz'))\n",
+					"query": "SELECT tgg FROM (SELECT sum(\"to_grid\") * $avg_sell_per_kwh AS tgg FROM kwh.http WHERE  $timeFilter tz('$tz'))",
 					"rawQuery": true,
 					"refId": "C",
 					"resultFormat": "time_series"
@@ -2704,14 +2715,19 @@
 						"uid": "${DS_INFLUXDB}"
 					},
 					"hide": false,
-					"query": "SELECT tgg + (s - tp - tg ) + fp FROM (SELECT sum(\"to_pw\")  * $avg_buy_per_kwh AS tp, sum(\"solar\") * $avg_buy_per_kwh AS s, sum(\"to_grid\") * $avg_buy_per_kwh AS tg, sum(\"from_pw\") * $avg_buy_per_kwh AS fp, sum(\"to_grid\") * $avg_sell_per_kwh AS tgg FROM kwh.http WHERE  $timeFilter tz('$tz'))\n",
+					"query": "SELECT tgg + (s - tp - tg ) + fp FROM (SELECT sum(\"to_pw\")  * $avg_buy_per_kwh AS tp, sum(\"solar\") * $avg_buy_per_kwh AS s, sum(\"to_grid\") * $avg_buy_per_kwh AS tg, sum(\"from_pw\") * $avg_buy_per_kwh AS fp, sum(\"to_grid\") * $avg_sell_per_kwh AS tgg FROM kwh.http WHERE  $timeFilter tz('$tz'))",
 					"rawQuery": true,
 					"refId": "D",
 					"resultFormat": "time_series"
 				}
 			],
 			"title": "Savings",
-			"transformations": [],
+			"transformations": [
+				{
+					"id": "concatenate",
+					"options": {}
+				}
+			],
 			"transparent": true,
 			"type": "barchart"
 		},
@@ -2743,7 +2759,7 @@
 			"fontSize": "100%",
 			"format": "kwatth",
 			"gridPos": {
-				"h": 5,
+				"h": 6,
 				"w": 8,
 				"x": 9,
 				"y": 17
@@ -2914,7 +2930,7 @@
 			},
 			"hide_first_column": false,
 			"hide_headers": true,
-			"id": 49,
+			"id": 80,
 			"interval": "",
 			"patterns": [
 				{
@@ -2957,7 +2973,7 @@
 					"valueName": "avg"
 				},
 				{
-					"bgColors": "#73BF69 | gray | orange",
+					"bgColors": "#73BF69 | gray | #F2495C",
 					"bgColors_overrides": "0->green|2->red|1->yellow",
 					"clickable_cells_link": "",
 					"col_name": "Value",
@@ -2986,7 +3002,7 @@
 					"pattern": "http.Battery",
 					"row_col_wrapper": "_",
 					"row_name": "_1_",
-					"textColors": "white | white | black",
+					"textColors": "white | white | white",
 					"textColors_overrides": "0->red|2->green|1->yellow",
 					"thresholds": "-0.1,0.1",
 					"time_based_thresholds": [],
@@ -2996,7 +3012,7 @@
 					"valueName": "avg"
 				},
 				{
-					"bgColors": "grey|yellow",
+					"bgColors": "red|yellow",
 					"bgColors_overrides": "0->green|2->red|1->yellow",
 					"clickable_cells_link": "",
 					"col_name": "Value",
@@ -3005,10 +3021,10 @@
 					"defaultTextColor": "black",
 					"delimiter": ".",
 					"displayTemplate": "_value_",
-					"enable_bgColor": true,
+					"enable_bgColor": false,
 					"enable_bgColor_overrides": false,
 					"enable_clickable_cells": false,
-					"enable_textColor": true,
+					"enable_textColor": false,
 					"enable_textColor_overrides": false,
 					"enable_time_based_thresholds": false,
 					"enable_transform": true,
@@ -3588,36 +3604,6 @@
 						"matcher": {
 							"id": "byName",
 							"options": "To Grid"
-						},
-						"properties": [
-							{
-								"id": "color",
-								"value": {
-									"fixedColor": "purple",
-									"mode": "fixed"
-								}
-							}
-						]
-					},
-					{
-						"matcher": {
-							"id": "byName",
-							"options": "http.From Grid"
-						},
-						"properties": [
-							{
-								"id": "color",
-								"value": {
-									"fixedColor": "red",
-									"mode": "fixed"
-								}
-							}
-						]
-					},
-					{
-						"matcher": {
-							"id": "byName",
-							"options": "http.To Grid"
 						},
 						"properties": [
 							{
@@ -12134,6 +12120,6 @@
 	"timezone": "browser",
 	"title": "Powerwall - Power Flow",
 	"uid": "RSabAvRRzVz",
-	"version": 26,
+	"version": 27,
 	"weekStart": ""
 }
