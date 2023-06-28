@@ -38,220 +38,7 @@
       "description": ""
     }
   ],
-  "__elements": {
-    "_d_4IWRgz": {
-      "name": "Savings-new",
-      "uid": "_d_4IWRgz",
-      "kind": 1,
-      "model": {
-        "datasource": {
-          "type": "influxdb",
-          "uid": "${DS_INFLUXDB}"
-        },
-        "description": "Estimated Savings",
-        "fieldConfig": {
-          "defaults": {
-            "color": {
-              "mode": "palette-classic"
-            },
-            "custom": {
-              "axisCenteredZero": false,
-              "axisColorMode": "text",
-              "axisGridShow": true,
-              "axisLabel": "",
-              "axisPlacement": "left",
-              "axisSoftMin": 0,
-              "fillOpacity": 80,
-              "gradientMode": "none",
-              "hideFrom": {
-                "legend": false,
-                "tooltip": false,
-                "viz": false
-              },
-              "lineWidth": 1,
-              "scaleDistribution": {
-                "type": "linear"
-              }
-            },
-            "links": [],
-            "mappings": [],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "green",
-                  "value": null
-                },
-                {
-                  "color": "red",
-                  "value": 80
-                }
-              ]
-            },
-            "unit": "currencyUSD"
-          },
-          "overrides": [
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "powerwall > home"
-              },
-              "properties": [
-                {
-                  "id": "color",
-                  "value": {
-                    "fixedColor": "green",
-                    "mode": "fixed"
-                  }
-                }
-              ]
-            },
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "solar > home"
-              },
-              "properties": [
-                {
-                  "id": "color",
-                  "value": {
-                    "fixedColor": "yellow",
-                    "mode": "fixed"
-                  }
-                }
-              ]
-            },
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "solar > grid"
-              },
-              "properties": [
-                {
-                  "id": "color",
-                  "value": {
-                    "fixedColor": "purple",
-                    "mode": "fixed"
-                  }
-                }
-              ]
-            },
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "total"
-              },
-              "properties": [
-                {
-                  "id": "color",
-                  "value": {
-                    "fixedColor": "blue",
-                    "mode": "fixed"
-                  }
-                }
-              ]
-            },
-            {
-              "matcher": {
-                "id": "byType",
-                "options": "time"
-              },
-              "properties": [
-                {
-                  "id": "unit",
-                  "value": "time: "
-                }
-              ]
-            }
-          ]
-        },
-        "hideTimeOverride": true,
-        "interval": "",
-        "links": [],
-        "options": {
-          "barRadius": 0,
-          "barWidth": 0.82,
-          "groupWidth": 1,
-          "legend": {
-            "calcs": [
-              "sum"
-            ],
-            "displayMode": "table",
-            "placement": "right",
-            "showLegend": true
-          },
-          "orientation": "auto",
-          "showValue": "auto",
-          "stacking": "none",
-          "tooltip": {
-            "mode": "single",
-            "sort": "none"
-          },
-          "xTickLabelRotation": 0,
-          "xTickLabelSpacing": 0
-        },
-        "pluginVersion": "9.1.2",
-        "targets": [
-          {
-            "alias": "powerwall > home",
-            "datasource": {
-              "type": "influxdb",
-              "uid": "${DS_INFLUXDB}"
-            },
-            "query": "SELECT fp FROM (SELECT sum(\"from_pw\")  * $avg_buy_per_kwh AS fp FROM kwh.http WHERE  $timeFilter tz('$tz'))",
-            "rawQuery": true,
-            "refId": "A",
-            "resultFormat": "time_series"
-          },
-          {
-            "alias": "solar > home",
-            "datasource": {
-              "type": "influxdb",
-              "uid": "${DS_INFLUXDB}"
-            },
-            "hide": false,
-            "query": "SELECT s - (tp + tg) FROM (SELECT sum(\"solar\") * $avg_buy_per_kwh AS s,  sum(\"to_pw\")  * $avg_buy_per_kwh AS tp, sum(\"to_grid\") * $avg_buy_per_kwh AS tg FROM kwh.http WHERE  $timeFilter tz('$tz'))",
-            "rawQuery": true,
-            "refId": "B",
-            "resultFormat": "time_series"
-          },
-          {
-            "alias": "solar > grid",
-            "datasource": {
-              "type": "influxdb",
-              "uid": "${DS_INFLUXDB}"
-            },
-            "hide": false,
-            "query": "SELECT tgg FROM (SELECT sum(\"to_grid\") * $avg_sell_per_kwh AS tgg FROM kwh.http WHERE  $timeFilter tz('$tz'))",
-            "rawQuery": true,
-            "refId": "C",
-            "resultFormat": "time_series"
-          },
-          {
-            "alias": "total",
-            "datasource": {
-              "type": "influxdb",
-              "uid": "${DS_INFLUXDB}"
-            },
-            "hide": false,
-            "query": "SELECT tgg + (s - tp - tg ) + fp FROM (SELECT sum(\"to_pw\")  * $avg_buy_per_kwh AS tp, sum(\"solar\") * $avg_buy_per_kwh AS s, sum(\"to_grid\") * $avg_buy_per_kwh AS tg, sum(\"from_pw\") * $avg_buy_per_kwh AS fp, sum(\"to_grid\") * $avg_sell_per_kwh AS tgg FROM kwh.http WHERE  $timeFilter tz('$tz'))",
-            "rawQuery": true,
-            "refId": "D",
-            "resultFormat": "time_series"
-          }
-        ],
-        "title": "Savings",
-        "transformations": [
-          {
-            "id": "concatenate",
-            "options": {}
-          }
-        ],
-        "transparent": true,
-        "type": "barchart"
-      }
-    }
-  },
+  "__elements": {},
   "__requires": [
     {
       "type": "panel",
@@ -2521,17 +2308,218 @@
       "type": "stat"
     },
     {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "description": "Estimated Savings",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisGridShow": true,
+            "axisLabel": "",
+            "axisPlacement": "left",
+            "axisSoftMin": 0,
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "powerwall > home"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "solar > home"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "solar > grid"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "total"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byType",
+              "options": "time"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "time: "
+              }
+            ]
+          }
+        ]
+      },
       "gridPos": {
         "h": 6,
         "w": 9,
         "x": 0,
         "y": 17
       },
+      "hideTimeOverride": true,
       "id": 82,
-      "libraryPanel": {
-        "uid": "_d_4IWRgz",
-        "name": "Savings-new"
-      }
+      "interval": "",
+      "links": [],
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.82,
+        "groupWidth": 1,
+        "legend": {
+          "calcs": [
+            "sum"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "stacking": "none",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "9.1.2",
+      "targets": [
+        {
+          "alias": "powerwall > home",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "SELECT fp FROM (SELECT sum(\"from_pw\")  * $avg_buy_per_kwh AS fp FROM kwh.http WHERE  $timeFilter tz('$tz'))",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "time_series"
+        },
+        {
+          "alias": "solar > home",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "hide": false,
+          "query": "SELECT s - (tp + tg) FROM (SELECT sum(\"solar\") * $avg_buy_per_kwh AS s,  sum(\"to_pw\")  * $avg_buy_per_kwh AS tp, sum(\"to_grid\") * $avg_buy_per_kwh AS tg FROM kwh.http WHERE  $timeFilter tz('$tz'))",
+          "rawQuery": true,
+          "refId": "B",
+          "resultFormat": "time_series"
+        },
+        {
+          "alias": "solar > grid",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "hide": false,
+          "query": "SELECT tgg FROM (SELECT sum(\"to_grid\") * $avg_sell_per_kwh AS tgg FROM kwh.http WHERE  $timeFilter tz('$tz'))",
+          "rawQuery": true,
+          "refId": "C",
+          "resultFormat": "time_series"
+        },
+        {
+          "alias": "total",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "hide": false,
+          "query": "SELECT tgg + (s - tp - tg ) + fp FROM (SELECT sum(\"to_pw\")  * $avg_buy_per_kwh AS tp, sum(\"solar\") * $avg_buy_per_kwh AS s, sum(\"to_grid\") * $avg_buy_per_kwh AS tg, sum(\"from_pw\") * $avg_buy_per_kwh AS fp, sum(\"to_grid\") * $avg_sell_per_kwh AS tgg FROM kwh.http WHERE  $timeFilter tz('$tz'))",
+          "rawQuery": true,
+          "refId": "D",
+          "resultFormat": "time_series"
+        }
+      ],
+      "title": "Savings",
+      "transformations": [
+        {
+          "id": "concatenate",
+          "options": {}
+        }
+      ],
+      "transparent": true,
+      "type": "barchart"
     },
     {
       "aliasColors": {
@@ -12194,6 +12182,6 @@
   "timezone": "browser",
   "title": "Powerwall - Power Flow",
   "uid": "RSabAvRRzZ",
-  "version": 49,
+  "version": 50,
   "weekStart": ""
 }
