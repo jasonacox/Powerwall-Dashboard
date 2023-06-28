@@ -38,8 +38,227 @@
       "description": ""
     }
   ],
-  "__elements": {},
+  "__elements": {
+    "_d_4IWRgz": {
+      "name": "Savings-new",
+      "uid": "_d_4IWRgz",
+      "kind": 1,
+      "model": {
+        "datasource": {
+          "type": "influxdb",
+          "uid": "${DS_INFLUXDB}"
+        },
+        "description": "Estimated Savings",
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            },
+            "custom": {
+              "axisCenteredZero": false,
+              "axisColorMode": "text",
+              "axisGridShow": true,
+              "axisLabel": "",
+              "axisPlacement": "left",
+              "axisSoftMin": 0,
+              "fillOpacity": 80,
+              "gradientMode": "none",
+              "hideFrom": {
+                "legend": false,
+                "tooltip": false,
+                "viz": false
+              },
+              "lineWidth": 1,
+              "scaleDistribution": {
+                "type": "linear"
+              }
+            },
+            "links": [],
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            },
+            "unit": "currencyUSD"
+          },
+          "overrides": [
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "powerwall > home"
+              },
+              "properties": [
+                {
+                  "id": "color",
+                  "value": {
+                    "fixedColor": "green",
+                    "mode": "fixed"
+                  }
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "solar > home"
+              },
+              "properties": [
+                {
+                  "id": "color",
+                  "value": {
+                    "fixedColor": "yellow",
+                    "mode": "fixed"
+                  }
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "solar > grid"
+              },
+              "properties": [
+                {
+                  "id": "color",
+                  "value": {
+                    "fixedColor": "purple",
+                    "mode": "fixed"
+                  }
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "total"
+              },
+              "properties": [
+                {
+                  "id": "color",
+                  "value": {
+                    "fixedColor": "blue",
+                    "mode": "fixed"
+                  }
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byType",
+                "options": "time"
+              },
+              "properties": [
+                {
+                  "id": "unit",
+                  "value": "time: "
+                }
+              ]
+            }
+          ]
+        },
+        "hideTimeOverride": true,
+        "interval": "",
+        "links": [],
+        "options": {
+          "barRadius": 0,
+          "barWidth": 0.82,
+          "groupWidth": 1,
+          "legend": {
+            "calcs": [
+              "sum"
+            ],
+            "displayMode": "table",
+            "placement": "right",
+            "showLegend": true
+          },
+          "orientation": "auto",
+          "showValue": "auto",
+          "stacking": "none",
+          "tooltip": {
+            "mode": "single",
+            "sort": "none"
+          },
+          "xTickLabelRotation": 0,
+          "xTickLabelSpacing": 0
+        },
+        "pluginVersion": "9.1.2",
+        "targets": [
+          {
+            "alias": "powerwall > home",
+            "datasource": {
+              "type": "influxdb",
+              "uid": "${DS_INFLUXDB}"
+            },
+            "query": "SELECT fp FROM (SELECT sum(\"from_pw\")  * $avg_buy_per_kwh AS fp FROM kwh.http WHERE  $timeFilter tz('$tz'))",
+            "rawQuery": true,
+            "refId": "A",
+            "resultFormat": "time_series"
+          },
+          {
+            "alias": "solar > home",
+            "datasource": {
+              "type": "influxdb",
+              "uid": "${DS_INFLUXDB}"
+            },
+            "hide": false,
+            "query": "SELECT s - (tp + tg) FROM (SELECT sum(\"solar\") * $avg_buy_per_kwh AS s,  sum(\"to_pw\")  * $avg_buy_per_kwh AS tp, sum(\"to_grid\") * $avg_buy_per_kwh AS tg FROM kwh.http WHERE  $timeFilter tz('$tz'))",
+            "rawQuery": true,
+            "refId": "B",
+            "resultFormat": "time_series"
+          },
+          {
+            "alias": "solar > grid",
+            "datasource": {
+              "type": "influxdb",
+              "uid": "${DS_INFLUXDB}"
+            },
+            "hide": false,
+            "query": "SELECT tgg FROM (SELECT sum(\"to_grid\") * $avg_sell_per_kwh AS tgg FROM kwh.http WHERE  $timeFilter tz('$tz'))",
+            "rawQuery": true,
+            "refId": "C",
+            "resultFormat": "time_series"
+          },
+          {
+            "alias": "total",
+            "datasource": {
+              "type": "influxdb",
+              "uid": "${DS_INFLUXDB}"
+            },
+            "hide": false,
+            "query": "SELECT tgg + (s - tp - tg ) + fp FROM (SELECT sum(\"to_pw\")  * $avg_buy_per_kwh AS tp, sum(\"solar\") * $avg_buy_per_kwh AS s, sum(\"to_grid\") * $avg_buy_per_kwh AS tg, sum(\"from_pw\") * $avg_buy_per_kwh AS fp, sum(\"to_grid\") * $avg_sell_per_kwh AS tgg FROM kwh.http WHERE  $timeFilter tz('$tz'))",
+            "rawQuery": true,
+            "refId": "D",
+            "resultFormat": "time_series"
+          }
+        ],
+        "title": "Savings",
+        "transformations": [
+          {
+            "id": "concatenate",
+            "options": {}
+          }
+        ],
+        "transparent": true,
+        "type": "barchart"
+      }
+    }
+  },
   "__requires": [
+    {
+      "type": "panel",
+      "id": "barchart",
+      "name": "Bar chart",
+      "version": ""
+    },
     {
       "type": "datasource",
       "id": "fetzerch-sunandmoon-datasource",
@@ -57,12 +276,6 @@
       "id": "grafana-piechart-panel",
       "name": "Pie Chart (old)",
       "version": "1.6.4"
-    },
-    {
-      "type": "panel",
-      "id": "graph",
-      "name": "Graph (old)",
-      "version": ""
     },
     {
       "type": "datasource",
@@ -2308,158 +2521,16 @@
       "type": "stat"
     },
     {
-      "aliasColors": {
-        "battery": "green",
-        "battery impact": "green",
-        "combined": "red",
-        "solar": "yellow",
-        "solar + battery": "red",
-        "solar > grid": "purple",
-        "solar > home": "yellow",
-        "solar only": "yellow",
-        "total": "blue"
-      },
-      "bars": true,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
-      "decimals": 2,
-      "description": "Estimated Savings",
-      "fieldConfig": {
-        "defaults": {
-          "links": []
-        },
-        "overrides": []
-      },
-      "fill": 1,
-      "fillGradient": 0,
       "gridPos": {
-        "h": 5,
+        "h": 7,
         "w": 9,
         "x": 0,
         "y": 17
       },
-      "hiddenSeries": false,
-      "hideTimeOverride": true,
-      "id": 78,
-      "interval": "",
-      "legend": {
-        "alignAsTable": true,
-        "avg": false,
-        "current": false,
-        "hideEmpty": false,
-        "hideZero": true,
-        "max": false,
-        "min": false,
-        "rightSide": true,
-        "show": true,
-        "total": true,
-        "values": true
-      },
-      "lines": false,
-      "linewidth": 1,
-      "links": [],
-      "nullPointMode": "null",
-      "options": {
-        "alertThreshold": true
-      },
-      "percentage": false,
-      "pluginVersion": "9.1.2",
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "alias": "powerwall > home",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "query": "SELECT fp FROM (SELECT sum(\"from_pw\")  * 0.19 AS fp FROM kwh.http WHERE  $timeFilter tz('$tz'))",
-          "rawQuery": true,
-          "refId": "A",
-          "resultFormat": "time_series"
-        },
-        {
-          "alias": "solar > home",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "hide": false,
-          "query": "SELECT s - (tp + tg) FROM (SELECT sum(\"solar\") * 0.19 AS s,  sum(\"to_pw\")  * 0.19 AS tp, sum(\"to_grid\") * 0.19 AS tg FROM kwh.http WHERE  $timeFilter tz('$tz'))\n",
-          "rawQuery": true,
-          "refId": "B",
-          "resultFormat": "time_series"
-        },
-        {
-          "alias": "solar > grid",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "hide": false,
-          "query": "SELECT tg FROM (SELECT sum(\"to_pw\")  * 0.19 AS tp, sum(\"solar\") * 0.19 AS s, sum(\"to_grid\") * 0.19 AS tg FROM kwh.http WHERE  $timeFilter tz('$tz'))\n",
-          "rawQuery": true,
-          "refId": "C",
-          "resultFormat": "time_series"
-        },
-        {
-          "alias": "total",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "hide": false,
-          "query": "SELECT tg + (s - tp - tg ) + fp FROM (SELECT sum(\"to_pw\")  * 0.19 AS tp, sum(\"solar\") * 0.19 AS s, sum(\"to_grid\") * 0.19 AS tg, sum(\"from_pw\") * 0.19 AS fp FROM kwh.http WHERE  $timeFilter tz('$tz'))\n",
-          "rawQuery": true,
-          "refId": "D",
-          "resultFormat": "time_series"
-        }
-      ],
-      "thresholds": [],
-      "timeRegions": [],
-      "title": "Savings",
-      "tooltip": {
-        "shared": false,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "transparent": true,
-      "type": "graph",
-      "xaxis": {
-        "mode": "series",
-        "show": false,
-        "values": [
-          "total"
-        ]
-      },
-      "yaxes": [
-        {
-          "$$hashKey": "object:1096",
-          "decimals": 2,
-          "format": "currencyUSD",
-          "label": "",
-          "logBase": 1,
-          "min": "0",
-          "show": true
-        },
-        {
-          "$$hashKey": "object:1097",
-          "format": "short",
-          "logBase": 1,
-          "show": false
-        }
-      ],
-      "yaxis": {
-        "align": false
+      "id": 82,
+      "libraryPanel": {
+        "uid": "_d_4IWRgz",
+        "name": "Savings-new"
       }
     },
     {
@@ -2490,7 +2561,7 @@
       "fontSize": "100%",
       "format": "kwatth",
       "gridPos": {
-        "h": 5,
+        "h": 6,
         "w": 8,
         "x": 9,
         "y": 17
@@ -2809,7 +2880,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 23
+        "y": 24
       },
       "id": 22,
       "panels": [],
@@ -2896,7 +2967,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 24
+        "y": 25
       },
       "id": 24,
       "options": {
@@ -3041,7 +3112,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 24
+        "y": 25
       },
       "id": 25,
       "options": {
@@ -3159,8 +3230,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -3192,7 +3262,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 32
+        "y": 33
       },
       "id": 26,
       "options": {
@@ -3304,8 +3374,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -3352,7 +3421,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 32
+        "y": 33
       },
       "id": 27,
       "options": {
@@ -3513,8 +3582,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           },
@@ -3616,7 +3684,7 @@
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 40
+        "y": 41
       },
       "id": 76,
       "options": {
@@ -3760,7 +3828,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 46
+        "y": 47
       },
       "id": 37,
       "panels": [],
@@ -3814,8 +3882,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -3847,7 +3914,7 @@
         "h": 5,
         "w": 8,
         "x": 0,
-        "y": 47
+        "y": 48
       },
       "id": 32,
       "interval": "",
@@ -4590,8 +4657,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -4623,7 +4689,7 @@
         "h": 5,
         "w": 8,
         "x": 8,
-        "y": 47
+        "y": 48
       },
       "id": 62,
       "interval": "",
@@ -5366,8 +5432,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -5399,7 +5464,7 @@
         "h": 5,
         "w": 8,
         "x": 16,
-        "y": 47
+        "y": 48
       },
       "id": 63,
       "interval": "",
@@ -6142,8 +6207,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -6175,7 +6239,7 @@
         "h": 6,
         "w": 12,
         "x": 0,
-        "y": 52
+        "y": 53
       },
       "id": 34,
       "interval": "",
@@ -6413,8 +6477,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -6446,7 +6509,7 @@
         "h": 6,
         "w": 12,
         "x": 12,
-        "y": 52
+        "y": 53
       },
       "id": 35,
       "interval": "",
@@ -7022,8 +7085,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -7055,7 +7117,7 @@
         "h": 5,
         "w": 24,
         "x": 0,
-        "y": 58
+        "y": 59
       },
       "id": 38,
       "interval": "",
@@ -7883,8 +7945,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -7916,7 +7977,7 @@
         "h": 5,
         "w": 24,
         "x": 0,
-        "y": 63
+        "y": 64
       },
       "id": 61,
       "interval": "",
@@ -9833,8 +9894,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -9963,7 +10023,7 @@
         "h": 5,
         "w": 24,
         "x": 0,
-        "y": 68
+        "y": 69
       },
       "id": 55,
       "options": {
@@ -11025,7 +11085,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 73
+        "y": 74
       },
       "id": 65,
       "panels": [],
@@ -11054,8 +11114,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "transparent",
-                "value": null
+                "color": "transparent"
               },
               {
                 "color": "blue",
@@ -11078,8 +11137,7 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "dark-green",
-                      "value": null
+                      "color": "dark-green"
                     }
                   ]
                 }
@@ -11098,8 +11156,7 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "purple",
-                      "value": null
+                      "color": "purple"
                     }
                   ]
                 }
@@ -11118,8 +11175,7 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "dark-blue",
-                      "value": null
+                      "color": "dark-blue"
                     }
                   ]
                 }
@@ -11138,8 +11194,7 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "dark-blue",
-                      "value": null
+                      "color": "dark-blue"
                     }
                   ]
                 }
@@ -11158,8 +11213,7 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "dark-purple",
-                      "value": null
+                      "color": "dark-purple"
                     }
                   ]
                 }
@@ -11178,8 +11232,7 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "dark-blue",
-                      "value": null
+                      "color": "dark-blue"
                     }
                   ]
                 }
@@ -11192,7 +11245,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 74
+        "y": 75
       },
       "id": 68,
       "options": {
@@ -11242,7 +11295,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 82
+        "y": 83
       },
       "id": 57,
       "panels": [],
@@ -11296,8 +11349,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -11439,7 +11491,7 @@
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 83
+        "y": 84
       },
       "hideTimeOverride": false,
       "id": 59,
@@ -11680,8 +11732,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -11809,7 +11860,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 89
+        "y": 90
       },
       "hideTimeOverride": false,
       "id": 60,
@@ -12143,6 +12194,6 @@
   "timezone": "browser",
   "title": "Powerwall - Power Flow",
   "uid": "RSabAvRRzZ",
-  "version": 47,
+  "version": 48,
   "weekStart": ""
 }
