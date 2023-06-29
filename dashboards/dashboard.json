@@ -2337,7 +2337,7 @@
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
-        "h": 6,
+        "h": 5,
         "w": 9,
         "x": 0,
         "y": 17
@@ -12143,6 +12143,6 @@
   "timezone": "browser",
   "title": "Powerwall - Power Flow",
   "uid": "RSabAvRRzZ",
-  "version": 49,
+  "version": 48,
   "weekStart": ""
 }
