@@ -31,6 +31,7 @@ fi
 UKN="${alertdim}Unknown${normal}"
 GOOD="${subbold}GOOD${normal}"
 CURRENT=$UKN
+ALLGOOD=1
 if [ -f VERSION ]; then
     CURRENT=`cat VERSION`
 fi
@@ -75,6 +76,7 @@ PORT="8675"
 echo -e -n "${dim} - Config File ${ENV_FILE}: "
 if [ ! -f ${ENV_FILE} ]; then
     echo -e "${alert}ERROR: Missing$"
+    ALLGOOD=0
 else
     echo -e $GOOD
 fi
@@ -93,9 +95,11 @@ if [ "$RUNNING" = "true" ]; then
         fi
     else
         echo -e "${alert}ERROR: Not Listening${normal}"
+        ALLGOOD=0
     fi
 else
   echo -e "${alert}ERROR: Stopped${normal}"
+  ALLGOOD=0
 fi
 echo -e "${dim} - Version: ${subbold}$VER"
 echo -e "${dim} - Powerwall State: ${subbold}$PWSTATE${dim} - Firmware Version: $PWVER${normal}"
@@ -115,6 +119,7 @@ CONF_FILE="telegraf.conf"
 echo -e -n "${dim} - Config File ${CONF_FILE}: "
 if [ ! -f ${CONF_FILE} ]; then
     echo -e "${alert}ERROR: Missing${normal}"
+    ALLGOOD=0
 else
     echo -e $GOOD
 fi
@@ -122,6 +127,7 @@ CONF_FILE="telegraf.local"
 echo -e -n "${dim} - Local Config File ${CONF_FILE}: "
 if [ ! -f ${CONF_FILE} ]; then
     echo -e "${alert}ERROR: Missing${normal}"
+    ALLGOOD=0
 else
     echo -e $GOOD
 fi
@@ -132,6 +138,7 @@ if [ "$RUNNING" = "true" ]; then
   VER=`docker exec --tty telegraf telegraf --version`
 else
   echo -e "${alert}ERROR: Stopped${normal}"
+  ALLGOOD=0
 fi
 echo -e "${dim} - Version: ${subbold}$VER"
 echo -e ""
@@ -146,6 +153,7 @@ PORT="8086"
 echo -e -n "${dim} - Config File ${CONF_FILE}: "
 if [ ! -f ${CONF_FILE} ]; then
     echo -e "${alert}ERROR: Missing${normal}"
+    ALLGOOD=0
 else
     echo -e $GOOD
 fi
@@ -159,9 +167,11 @@ if [ "$RUNNING" = "true" ]; then
         VER=`docker exec --tty influxdb sh -c "influx -version" 2>/dev/null`
     else
         echo -e "${alert}ERROR: Not Listening${normal}"
+        ALLGOOD=0
     fi
 else
   echo -e "ERROR: Stopped"
+  ALLGOOD=0
 fi
 echo -e "${dim} - Version: ${subbold}$VER"
 echo -e ""
@@ -177,6 +187,7 @@ ENV_FILE="grafana.env"
 echo -e -n "${dim} - Config File ${ENV_FILE}: "
 if [ ! -f ${ENV_FILE} ]; then
     echo -e "${alert}ERROR: Missing${normal}"
+    ALLGOOD=0
 else
     echo -e $GOOD
     if ! grep -q "yesoreyeram-boomtable-panel-1.5.0-alpha.3.zip" grafana.env; then
@@ -196,9 +207,11 @@ if [ "$RUNNING" = "true" ]; then
         echo -e "---"
         docker logs grafana 2>&1 | tail -11
         echo -e "---${normal}"
+        ALLGOOD=0
     fi
 else
   echo -e "${alert}ERROR: Stopped${normal}"
+  ALLGOOD=0
 fi
 echo -e "${dim} - Version: ${subbold}$VER"
 echo -e ""
@@ -214,6 +227,7 @@ PORT="8676"
 echo -e -n "${dim} - Config File ${ENV_FILE}: "
 if [ ! -f ${ENV_FILE} ]; then
     echo -e "${alertdim}Missing - weather411 not set up"
+    ALLGOOD=0
 else
     echo -e $GOOD
 fi
@@ -235,9 +249,11 @@ if [ "$RUNNING" = "true" ]; then
         echo -e "---"
         docker logs weather411 2>&1 | tail -11
         echo -e "---${normal}"
+        ALLGOOD=0
     fi
 else
     echo -e "${alert}ERROR: Stopped${normal}"
+    ALLGOOD=0
 fi
 echo -e "${dim} - Version: ${subbold}$VER"
 echo -e ""
@@ -254,6 +270,7 @@ if [ -f powerwall.extend.yml ]; then
     echo -e -n "${dim} - Config File ${ENV_FILE}: "
     if [ ! -f ${ENV_FILE} ]; then
         echo -e "${alertdim}Missing - ecowitt not set up"
+        ALLGOOD=0
     else
         echo -e $GOOD
     fi
@@ -275,10 +292,20 @@ if [ -f powerwall.extend.yml ]; then
             echo -e "---"
             docker logs weather411 2>&1 | tail -11
             echo -e "---${normal}"
+            ALLGOOD=0
         fi
     else
         echo -e "${alert}ERROR: Stopped${normal}"
+        ALLGOOD=0
     fi
     echo -e "${dim} - Version: ${subbold}$VER"
     echo -e ""
+fi
+
+if [ $ALLGOOD -ne 1 ]; then
+  echo "All tests did not succeed."
+  exit 1
+else
+  echo "All tests succeeded."
+  exit 0
 fi
