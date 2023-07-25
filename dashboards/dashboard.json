@@ -3710,7 +3710,7 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "kwh",
-          "query": "SELECT sum(\"solar\") FROM \"kwh\".\"http\" WHERE (\"solar\" > 0) GROUP BY time(1d) fill(0) tz('$tz')",
+          "query": "SELECT sum(\"solar\") FROM \"kwh\".\"http\" WHERE (\"solar\" > 0) GROUP BY time(1d) fill(null) tz('$tz')",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -3743,7 +3743,7 @@
             "uid": "${DS_INFLUXDB}"
           },
           "hide": false,
-          "query": "SELECT sum(\"from_grid\") - sum(\"to_grid\") as \"grid\" FROM \"kwh\".\"http\" WHERE $timeFilter GROUP BY time(1d) fill(0) tz('$tz')",
+          "query": "SELECT sum(\"from_grid\") - sum(\"to_grid\") as \"grid\" FROM \"kwh\".\"http\" WHERE  $timeFilter GROUP BY time(1d) fill(null) tz('$tz')",
           "rawQuery": true,
           "refId": "C",
           "resultFormat": "time_series"
@@ -12143,6 +12143,6 @@
   "timezone": "browser",
   "title": "Powerwall - Power Flow",
   "uid": "RSabAvRRzZ",
-  "version": 48,
+  "version": 49,
   "weekStart": ""
 }
