@@ -1,5 +1,14 @@
 # RELEASE NOTES
 
+## v2.9.11 - Updated Default Dashboard
+
+* Updated `dashboard.json` to isolate Powerwall+ sting data to make it easier for those without Powerwall+ to close those empty panels as raised in https://github.com/jasonacox/Powerwall-Dashboard/issues/320. Also changed browser default timezone to TZ set by user.
+* Dashboard-new formatting fixes and unlink library panels by @s-crypt in https://github.com/jasonacox/Powerwall-Dashboard/pull/316
+* Fix dashboard.json in README by @longzheng in https://github.com/jasonacox/Powerwall-Dashboard/pull/319
+* Update verify.sh to carry state of all tests back to calling shell by @vikrum in https://github.com/jasonacox/Powerwall-Dashboard/pull/321
+* Fix mean in solar energy yr panel #330 by @jasonacox in https://github.com/jasonacox/Powerwall-Dashboard/pull/331
+* Shared crosshair by @longzheng in https://github.com/jasonacox/Powerwall-Dashboard/pull/338
+
 ## v2.9.10 - Updated Default Dashboard
 
 * Updated default `dashboard.json` to incorporate timeseries migrations by @s-crypt in https://github.com/jasonacox/Powerwall-Dashboard/pull/295 and https://github.com/jasonacox/Powerwall-Dashboard/pull/297 see https://github.com/jasonacox/Powerwall-Dashboard/issues/290
