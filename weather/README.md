@@ -67,6 +67,7 @@ Docker: docker pull [jasonacox/weather411](https://hub.docker.com/r/jasonacox/we
     -v ${PWD}:/var/lib/weather \
     --name weather411 \
     --restart unless-stopped \
+    --net=host \
     jasonacox/weather411
     ```
 
@@ -114,6 +115,7 @@ The `Dockerfile` here will allow you to containerize the proxy server for clean 
     --name weather411 \
     -v ${PWD}:/var/lib/weather \
     --restart unless-stopped \
+    --net=host \
     weather411
     ```
 
