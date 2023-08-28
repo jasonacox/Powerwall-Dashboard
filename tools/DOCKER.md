@@ -4,7 +4,7 @@ Docker is a requirement for running the Dashboard. This file contains some sugge
 
 Request for help: Please open an issue or submit a pull request for add changes or additions that would help others.
 
-## Ubuntu 20.4 and Ubuntu 22.10
+## Ubuntu 20.04 and Ubuntu 22.10
 
 If you plan to use a VirtualBox virtual machine to host your Ubuntu server:
 
