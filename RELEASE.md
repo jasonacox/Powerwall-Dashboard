@@ -2,7 +2,7 @@
 
 ## v2.9.11 - Updated Default Dashboard
 
-* Updated `dashboard.json` to isolate Powerwall+ sting data to make it easier for those without Powerwall+ to close those empty panels as raised in https://github.com/jasonacox/Powerwall-Dashboard/issues/320. Also changed browser default timezone to TZ set by user.
+* Updated `dashboard.json` to isolate Powerwall+ string data to make it easier for those without Powerwall+ to close those empty panels as raised in https://github.com/jasonacox/Powerwall-Dashboard/issues/320. Also changed browser default timezone to TZ set by user.
 * Dashboard-new formatting fixes and unlink library panels by @s-crypt in https://github.com/jasonacox/Powerwall-Dashboard/pull/316
 * Fix dashboard.json in README by @longzheng in https://github.com/jasonacox/Powerwall-Dashboard/pull/319
 * Update verify.sh to carry state of all tests back to calling shell by @vikrum in https://github.com/jasonacox/Powerwall-Dashboard/pull/321
