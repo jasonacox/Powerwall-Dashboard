@@ -6,14 +6,11 @@
 # Stop on Errors
 set -e
 
-if [ ! -f VERSION ]; then
-  echo "ERROR: Missing VERSION file. Setup must run from installation directory."
-  echo ""
-  exit 1
-fi
-VERSION=`cat VERSION`
+# Change to setup directory
+cd $(dirname "$0")
+VERSION=`git describe --tag --long --dirty=-custom`
 
-echo "Powerwall Dashboard (v${VERSION}) - SETUP"
+echo "Powerwall Dashboard (${VERSION}) - SETUP"
 echo "-----------------------------------------"
 
 # Verify not running as root
@@ -75,7 +72,21 @@ PW_ENV_FILE="pypowerwall.env"
 COMPOSE_ENV_FILE="compose.env"
 TELEGRAF_LOCAL="telegraf.local"
 GF_ENV_FILE="grafana.env"
-CURRENT=`cat tz`
+
+# If tz file exists use its value
+if [ -f tz ]; then
+    CURRENT=`cat tz`
+else
+    # Try to infer TZ from system
+    if [ -L /etc/localtime ]; then
+        CURRENT=$(realpath --relative-base=/usr/share/zoneinfo /etc/localtime)
+    fi
+    # TODO: add other infer methods for systems not using /etc/localtime link
+fi
+if [ -z "${CURRENT}" ]; then
+    # Use a default
+    CURRENT="America/Los_Angeles"
+fi
 
 echo "Timezone (leave blank for ${CURRENT})"
 read -p 'Enter Timezone: ' TZ
@@ -104,8 +115,8 @@ if [ ! -f ${PW_ENV_FILE} ]; then
     echo "PW_EMAIL=${EMAIL}" > ${PW_ENV_FILE}
     echo "PW_PASSWORD=${PASSWORD}" >> ${PW_ENV_FILE}
     echo "PW_HOST=${IP}" >> ${PW_ENV_FILE}
-    echo "PW_TIMEZONE=America/Los_Angeles" >> ${PW_ENV_FILE}
-    echo "TZ=America/Los_Angeles" >> ${PW_ENV_FILE}
+    echo "PW_TIMEZONE=${TZ:-$CURRENT}" >> ${PW_ENV_FILE}
+    echo "TZ=${TZ:-$CURRENT}" >> ${PW_ENV_FILE}
     echo "PW_DEBUG=no" >> ${PW_ENV_FILE}
 fi
 
@@ -127,10 +138,10 @@ fi
 echo ""
 if [ -z "${TZ}" ]; then 
     echo "Using ${CURRENT} timezone..."; 
-    ./tz.sh "${CURRENT}";
+    ./tz.sh -y "${CURRENT}";
 else 
     echo "Setting ${TZ} timezone..."; 
-    ./tz.sh "${TZ}"; 
+    ./tz.sh -y "${TZ}"; 
 fi
 echo "-----------------------------------------"
 echo ""
@@ -171,6 +182,9 @@ if [ -f weather/weather411.conf ]; then
     echo "Fetching local weather..."
     docker restart weather411
 fi
+
+# Record installed version
+echo "$VERSION" > VERSION
 
 # Display Final Instructions
 cat << EOF

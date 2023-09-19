@@ -115,12 +115,12 @@
 [[processors.date]]
 	tag_key = "month"
 	date_format = "Jan"
-	timezone = "America/Los_Angeles"
+	timezone = "$TZ"
 
 [[processors.date]]
 	tag_key = "year"
 	date_format = "2006"
-	timezone = "America/Los_Angeles"
+	timezone = "$TZ"
 
 # Alert Data
 [[inputs.http]]
