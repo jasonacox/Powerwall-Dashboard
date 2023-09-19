@@ -18,11 +18,22 @@ compose.env
 grafana.env
 pypowerwall.env
 telegraf.local
+VERSION
+tz
 
 # Local Dev files
 *.bak
 backups/*.tgz
 influxdb/run-once-*.sql.done
+
+# Created from templates
+dashboards/dashboard-new.json
+dashboards/dashboard-min-mean-max.json
+dashboards/dashboard-no-animation.json
+dashboards/dashboard-simple.json
+dashboards/dashboard.json
+influxdb/influxdb.sql
+telegraf.conf
 
 sandbox/
 

@@ -1,40 +1,43 @@
 #!/bin/bash
-# Shell script to replace timezone values in powerwall.yml, telegraf.conf, influxdb.sql and dashboard.json
-if [ $# -eq 0 ]
-  then
+# Shell script to create files depending on TZ value from templates
+
+# This is an hidden option to not print warning message
+#  used by setup.sh script and by upgrade.sh script when
+#  updating from version without templates
+if [ "$1" == "-y" ]; then
+    PRINT_WARNING=false
+    shift 1
+fi
+
+if [ $# -eq 0 ]; then
     echo "ERROR: No timezone supplied"
     echo
     echo "USAGE: ${0} {timezone}"
     exit
 fi
 
-# Current and New TZ values
-DEFAULT="America/Los_Angeles"
-CURRENT=`cat tz`
-NEW=$1
+export TZ=$1
 
-# Replace TZ Function
-updatetz() {
-    local from=${1}
-    local to=${2}
-    sed -i.bak "s@${from}@${to}@g" powerwall.yml
-    sed -i.bak "s@${from}@${to}@g" telegraf.conf
-    sed -i.bak "s@${from}@${to}@g" influxdb/influxdb.sql
-    for i in dashboards/dashboard*.json; do
-        sed -i.bak "s@${from}@${to}@g" $i
-    done
-    sed -i.bak "s@${from}@${to}@g" pypowerwall.env
-    if [ -d "dashboards" ] 
-     then
-        for i in dashboards/*.json; do
-            sed -i.bak "s@${from}@${to}@g" $i
-        done
+TEMPLATES=(
+    $(echo dashboards/*.json.template)
+    influxdb/influxdb.sql.template
+    telegraf.conf.template
+)
+
+if ${PRINT_WARNING:-true}; then
+    echo "WARNING: the following files will be recreated from templates"
+    echo "         using TZ=$TZ; any local changes will be lost."
+    printf -- " - %s\n" "${TEMPLATES[@]%.template}"
+    echo
+    read -r -p "Continue anyway? [y/N] " response
+    if [[ ! "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+        exit 1
     fi
-}
+fi
 
-# Replace TZ values
-updatetz "${CURRENT}" "${NEW}"
-updatetz "${DEFAULT}" "${NEW}"
-    
-# Record new TZ value
-echo "${NEW}" > tz
+for template in "${TEMPLATES[@]}"; do
+    envsubst '$TZ' < "${template}" > "${template%.template}"
+done
+
+# Record TZ value
+echo "${TZ}" > tz
