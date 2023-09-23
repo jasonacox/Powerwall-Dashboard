@@ -77,6 +77,7 @@ import json
 import requests
 import resource
 from datetime import datetime
+import signal
 import sys
 import os
 from http.server import BaseHTTPRequestHandler, HTTPServer, ThreadingHTTPServer
@@ -85,7 +86,7 @@ import configparser
 from influxdb_client import InfluxDBClient
 from influxdb_client.client.write_api import SYNCHRONOUS
 
-BUILD = "0.2.1"
+BUILD = "0.2.2"
 CLI = False
 LOADED = False
 CONFIG_LOADED = False
@@ -426,6 +427,9 @@ def api(port):
             print(' CANCEL \n')
     sys.stderr.write('\r ! apiServer Exit\n')
 
+def sigTermHandler(signum, frame):
+    raise SystemExit
+
 # MAIN Thread
 if __name__ == "__main__":
     # Create threads
@@ -454,6 +458,7 @@ if __name__ == "__main__":
     if CLI:
         print("   %15s | %4s | %8s | %8s | %5s | %10s" %
             ('timezone','Temp','Humidity','Pressure','Cloud','Visibility') )
+    signal.signal(signal.SIGTERM, sigTermHandler);
     try:
         while(True):
             if CLI and 'name' in weather and weather['name'] is not None:
