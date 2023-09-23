@@ -1,5 +1,10 @@
 # RELEASE NOTES
 
+## v2.9.12 - Weather411 and pyPowerwall Updates
+
+* Fix weather411 to exit gracefully with SIGTERM by @rcasta74 in https://github.com/jasonacox/Powerwall-Dashboard/pull/354
+* Update to pyPowerwall t27 to exit gracefully with SIGTERM.
+
 ## v2.9.11 - Updated Default Dashboard
 
 * Updated `dashboard.json` to isolate Powerwall+ string data to make it easier for those without Powerwall+ to close those empty panels as raised in https://github.com/jasonacox/Powerwall-Dashboard/issues/320. Also changed browser default timezone to TZ set by user.
