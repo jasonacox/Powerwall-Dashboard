@@ -428,7 +428,7 @@ def api(port):
     sys.stderr.write('\r ! apiServer Exit\n')
 
 def sigTermHandler(signum, frame):
-    sys.exit()
+    raise SystemExit
 
 # MAIN Thread
 if __name__ == "__main__":
