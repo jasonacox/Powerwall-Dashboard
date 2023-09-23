@@ -146,6 +146,10 @@ docker start weather411
 
 ## Release Notes
 
+### 0.2.2 - Add Graceful Exit with SIGTERM
+
+* Add SIGTERM to fix condition where container does not stop gracefully as raised in #353 by @rcasta74 and #354 PR.
+
 ### 0.2.1 - Bug Fix for User/Pass
 
 * Fix access to InfluxDB where username and password and configured and required.  Impacts by InfluxDB v1 and v2. Issue reported by @sumnerboy12 in #199.
