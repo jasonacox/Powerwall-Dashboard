@@ -20,7 +20,7 @@ services:
               mode: host
 
     pypowerwall:
-        image: jasonacox/pypowerwall:0.6.2t26
+        image: jasonacox/pypowerwall:0.6.2t27
         container_name: pypowerwall
         hostname: pypowerwall
         restart: always
@@ -78,7 +78,7 @@ services:
             - influxdb
 
     weather411:
-        image: jasonacox/weather411:0.2.1
+        image: jasonacox/weather411:0.2.2
         container_name: weather411
         hostname: weather411
         restart: always
