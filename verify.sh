@@ -169,18 +169,18 @@ if [ "$RUNNING" = "true" ]; then
         echo -e "${alert}ERROR: Not Listening${normal}"
         ALLGOOD=0
     fi
+    echo -e -n "${dim} - Filesystem (./$CONTAINER): "
+    rm -f ./influxdb/WRITE
+    ERR=`docker exec -it influxdb touch /var/lib/influxdb/WRITE` || true
+    if [ -e "./influxdb/WRITE" ]; then
+        echo -e $GOOD
+        rm -f ./influxdb/WRITE
+    else
+        echo -e "${alert}ERROR: Unable to write to filesystem - check permissions${normal}"
+    fi
 else
   echo -e "ERROR: Stopped"
   ALLGOOD=0
-fi
-echo -e -n "${dim} - Filesystem (./$CONTAINER): "
-rm -f ./influxdb/WRITE
-ERR=`docker exec -it influxdb touch /var/lib/influxdb/WRITE`
-if [ -e "./influxdb/WRITE" ]; then
-    echo -e $GOOD
-    rm -f ./influxdb/WRITE
-else
-    echo -e "${alert}ERROR: Unable to write to filesystem - check permissions${normal}"
 fi
 echo -e "${dim} - Version: ${subbold}$VER"
 echo -e ""
@@ -218,18 +218,18 @@ if [ "$RUNNING" = "true" ]; then
         echo -e "---${normal}"
         ALLGOOD=0
     fi
+    echo -e -n "${dim} - Filesystem (./$CONTAINER): "
+    rm -f ./grafana/WRITE
+    ERR=`docker exec -it grafana touch /var/lib/grafana/WRITE` || true
+    if [ -e "./grafana/WRITE" ]; then
+        echo -e $GOOD
+        rm -f ./grafana/WRITE
+    else
+        echo -e "${alert}ERROR: Unable to write to filesystem - check permissions${normal}"
+    fi
 else
   echo -e "${alert}ERROR: Stopped${normal}"
   ALLGOOD=0
-fi
-echo -e -n "${dim} - Filesystem (./$CONTAINER): "
-rm -f ./grafana/WRITE
-ERR=`docker exec -it grafana touch /var/lib/grafana/WRITE`
-if [ -e "./grafana/WRITE" ]; then
-    echo -e $GOOD
-    rm -f ./grafana/WRITE
-else
-    echo -e "${alert}ERROR: Unable to write to filesystem - check permissions${normal}"
 fi
 echo -e "${dim} - Version: ${subbold}$VER"
 echo -e ""
