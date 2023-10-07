@@ -50,7 +50,16 @@ running() {
     [[ $status == ${code} ]]
 }
 
-echo -e "${bold}Verify Powerwall-Dashboard - Version ${subbold}${CURRENT}${normal} - Timezone: ${subbold}${TZ}${dim}"
+# Operating system details
+case "$OSTYPE" in
+  linux*)   OS="Linux" ;;
+  darwin*)  OS="MacOS" ;;
+  cygwin*)  OS="Windows" ;;
+  msys*)    OS="Windows" ;;
+  *)        OS="$OSTYPE" ;;
+esac
+
+echo -e "${bold}Verify Powerwall-Dashboard ${subbold}${CURRENT}${normal} on ${OS} - Timezone: ${subbold}${TZ}${dim}"
 echo -e "----------------------------------------------------------------------------"
 echo -e "This script will attempt to verify all the services needed to run"
 echo -e "Powerwall-Dashboard. Use this output when you open an issue for help:"
