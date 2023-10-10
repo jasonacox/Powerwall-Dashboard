@@ -8,8 +8,11 @@
  For more information see https://github.com/jasonacox/Powerwall-Dashboard
 
  Usage:
-    * Install the required python modules:
+    * Install the required python modules (not required if run from docker):
         pip install python-dateutil teslapy influxdb
+
+    * Or, if running as a docker container, replace below examples with:
+        docker exec -it tesla-history python3 tesla-history.py [arguments]
 
     * To use this script:
 
@@ -29,6 +32,13 @@
             and/or
         python3 tesla-history.py --yesterday
 
+    - Run as a daemon service (continually poll for history data):
+        (docker container runs in daemon mode)
+            python3 tesla-history.py --daemon
+
+    - Example when running docker container to retrieve history for today and yesterday:
+        docker exec -it tesla-history python3 tesla-history.py --today --yesterday
+
     - Something went wrong? Use --remove option to remove data imported with this tool:
         (data logged by Powerwall-Dashboard will not be affected)
             python3 tesla-history.py --start "YYYY-MM-DD hh:mm:ss" --end "YYYY-MM-DD hh:mm:ss" --remove
@@ -38,6 +48,7 @@
 """
 import sys
 import os
+import signal
 import argparse
 import configparser
 import time
@@ -57,7 +68,7 @@ try:
 except:
     sys.exit("ERROR: Missing python influxdb module. Run 'pip install influxdb'.")
 
-BUILD = "0.1.2"
+BUILD = "0.1.3"
 VERBOSE = True
 SCRIPTPATH = os.path.dirname(os.path.realpath(sys.argv[0]))
 SCRIPTNAME = os.path.basename(sys.argv[0]).split('.')[0]
@@ -106,16 +117,39 @@ def sys_exit(error=None, halt=True):
                 try:
                     time.sleep(3600)
                 except (KeyboardInterrupt, SystemExit):
-                    sys.exit("* Stopping\n")
+                    server_exit()
         else:
             sys.stderr.write("\n")
             sys.stderr.flush()
             return
     else:
-        sys.exit(error)
+        if error is not None:
+            sys.stderr.write(f"{error}\n")
+        sys.exit()
+
+def server_exit():
+    """
+    Print server shutdown notice and exit
+    """
+    sys.stdout.flush()
+    sys.stderr.write(f" ! {SCRIPTNAME} Server Exit\n")
+    sys.stderr.write("* Stopping\n")
+    sys.stderr.flush()
+    args.daemon = False
+    sys.exit()
+
+def sig_exit(signum, frame):
+    """
+    Raise SystemExit when signal caught
+    """
+    raise SystemExit
+
+# Register signal handler to exit gracefully on SIGTERM
+signal.signal(signal.SIGTERM, sig_exit)
 
 # Check for invalid argument combinations
 if args.daemon:
+    sys.stdout.flush()
     sys.stderr.write(f"{SCRIPTNAME} Server [{BUILD}]\n")
     if len(sys.argv) != 2:
         sys_exit("ERROR: argument --daemon cannot accept other arguments")
@@ -136,9 +170,8 @@ if args.config:
     # Use alternate config file if specified
     CONFIGNAME = CONFIGFILE = args.config
 
-if args.daemon:
-    # Get config file from environment variable if defined
-    CONFIGNAME = CONFIGFILE = os.getenv('TESLA_CONF', CONFIGNAME)
+# Get config file from environment variable if defined
+CONFIGNAME = CONFIGFILE = os.getenv('TESLA_CONF', CONFIGNAME)
 
 # Load Configuration File
 config = configparser.ConfigParser(allow_no_value=True)
@@ -149,14 +182,14 @@ if args.setup and os.path.exists(CONFIGFILE):
     # Prompt user to overwrite config when running setup
     print(f"\nExisting config found '{CONFIGNAME}'\n")
     while True:
-        response = input("Overwrite existing settings? [y/N] ")
-        if response.lower() == "y":
+        response = input("Overwrite existing settings? [y/N] ").strip().lower()
+        if response == "y":
             try:
                 os.remove(CONFIGFILE)
                 break
             except Exception as err:
-                sys_exit(f"\nERROR: Failed to remove config '{CONFIGNAME}' - {err}")
-        elif response.lower() in ("n", ""):
+                sys_exit(f"\nERROR: Failed to remove config '{CONFIGNAME}' - {repr(err)}")
+        elif response in ("n", ""):
             break
 if os.path.exists(CONFIGFILE):
     try:
@@ -164,15 +197,15 @@ if os.path.exists(CONFIGFILE):
 
         # Get Tesla Settings
         TUSER = config.get('Tesla', 'USER')
-        TAUTH = config.get('Tesla', 'AUTH')
+        TAUTH = os.getenv('TESLA_AUTH', config.get('Tesla', 'AUTH'))
         TDELAY = config.getint('Tesla', 'DELAY', fallback=1)
 
         if "/" not in TAUTH:
             TAUTH = f"{SCRIPTPATH}/{TAUTH}"
 
         # Get InfluxDB Settings
-        IHOST = config.get('InfluxDB', 'HOST')
-        IPORT = config.get('InfluxDB', 'PORT')
+        IHOST = os.getenv('INFLUX_HOST', config.get('InfluxDB', 'HOST'))
+        IPORT = int(os.getenv('INFLUX_PORT', config.getint('InfluxDB', 'PORT')))
         IUSER = config.get('InfluxDB', 'USER', fallback='')
         IPASS = config.get('InfluxDB', 'PASS', fallback='')
         IDB = config.get('InfluxDB', 'DB')
@@ -180,11 +213,9 @@ if os.path.exists(CONFIGFILE):
 
         # Get settings when running as a daemon
         if args.daemon:
-            IHOST = os.getenv('INFLUX_HOST', IHOST)
-            IPORT = os.getenv('INFLUX_PORT', IPORT)
-            TAUTH = os.getenv('TESLA_AUTH', TAUTH)
             WAIT = config.getint('daemon', 'WAIT', fallback=5)
             HIST = config.getint('daemon', 'HIST', fallback=60)
+            RETRY = config.getint('daemon', 'RETRY', fallback=30)
             SITE = config.getint('daemon', 'SITE', fallback=None)
             LOG = config.get('daemon', 'LOG', fallback='no')
             DEBUG = config.get('daemon', 'DEBUG', fallback='no')
@@ -195,6 +226,8 @@ if os.path.exists(CONFIGFILE):
                 WAIT = 5
             if HIST <= WAIT:
                 HIST = WAIT + 5
+            if RETRY < 1:
+                RETRY = 1
             if SITE is not None:
                 args.site = SITE
             if LOG.lower() != "yes":
@@ -207,7 +240,7 @@ if os.path.exists(CONFIGFILE):
             if RESERVE is not None and RESERVE >= 0 and RESERVE <= 100:
                 args.reserve = RESERVE
     except Exception as err:
-        sys_exit(f"ERROR: Config file '{CONFIGNAME}' - {err}")
+        sys_exit(f"ERROR: Config file '{CONFIGNAME}' - {repr(err)}")
 else:
     if args.setup:
         # Create config with default values without prompting when running setup
@@ -221,74 +254,72 @@ else:
 
     if not args.setup:
         while True:
-            response = input("Do you want to create the config now? [Y/n] ")
-            if response.lower() == "n":
+            response = input("Do you want to create the config now? [Y/n] ").strip().lower()
+            if response == "n":
                 sys_exit()
-            elif response.lower() in ("y", ""):
+            elif response in ("y", ""):
                 break
 
     print("\nTesla Account Setup")
     print("-" * 19)
 
     while True:
-        response = input("Email address: ")
+        response = input("Email address: ").strip()
         if "@" not in response:
             print("Invalid email address\n")
         else:
-            TUSER = response.strip()
+            TUSER = response
             break
 
     if not args.setup:
         # Prompt user for all other configuration settings when running interactively
-        while True:
-            response = input(f"Save auth token to: [{AUTHFILE}] ")
-            if response.strip() == "":
-                TAUTH = AUTHFILE
-            else:
-                TAUTH = response.strip()
-            break
+        response = input(f"Save auth token to: [{AUTHFILE}] ").strip()
+        if response == "":
+            TAUTH = AUTHFILE
+        else:
+            TAUTH = response
 
         print("\nInfluxDB Setup")
         print("-" * 14)
 
-        while True:
-            response = input("Host: [localhost] ")
-            if response.strip() == "":
-                IHOST = "localhost"
-            else:
-                IHOST = response.strip()
-            break
+        response = input("Host: [localhost] ").strip().lower()
+        if response == "":
+            IHOST = "localhost"
+        else:
+            IHOST = response
 
         while True:
-            response = input("Port: [8086] ")
-            if response.strip() == "":
-                IPORT = "8086"
+            response = input("Port: [8086] ").strip()
+            if response == "":
+                IPORT = 8086
             else:
-                IPORT = response.strip()
+                try:
+                    IPORT = int(response)
+                except:
+                    print("\nERROR: Invalid number\n")
+                    continue
             break
 
-        response = input("User (leave blank if not used): [blank] ")
-        IUSER = response.strip()
+        response = input("User (leave blank if not used): [blank] ").strip()
+        IUSER = response
 
-        response = input("Pass (leave blank if not used): [blank] ")
-        IPASS = response.strip()
+        response = input("Pass (leave blank if not used): [blank] ").strip()
+        IPASS = response
 
-        while True:
-            response = input("Database: [powerwall] ")
-            if response.strip() == "":
-                IDB = "powerwall"
-            else:
-                IDB = response.strip()
-            break
+        response = input("Database: [powerwall] ").strip()
+        if response == "":
+            IDB = "powerwall"
+        else:
+            IDB = response
 
     if args.setup and args.timezone not in (None, "") and tz.gettz(args.timezone) is not None:
         # Get timezone if passed when running setup
         ITZ = args.timezone
     else:
         while True:
-            response = input("Timezone (e.g. America/Los_Angeles): ")
-            if response.strip() != "":
-                ITZ = response.strip()
+            response = input("Timezone (e.g. America/Los_Angeles): ").strip()
+            if response != "":
+                ITZ = response
                 if tz.gettz(ITZ) is None:
                     print("Invalid timezone\n")
                     continue
@@ -298,7 +329,7 @@ else:
         # Set config defaults when running setup
         TAUTH = AUTHFILE
         IHOST = "localhost"
-        IPORT = "8086"
+        IPORT = 8086
         IUSER = ""
         IPASS = ""
         IDB = "powerwall"
@@ -307,6 +338,7 @@ else:
     TDELAY = 1
     WAIT = 5
     HIST = 60
+    RETRY = 30
 
     # Save config values to file
     config.optionxform = str
@@ -314,10 +346,12 @@ else:
     config['Tesla']['# Tesla Account e-mail address and Auth token file'] = None
     config['Tesla']['USER'] = TUSER
     config['Tesla']['AUTH'] = TAUTH
+    config['Tesla']['# Delay between API requests (seconds)'] = None
+    config['Tesla']['DELAY'] = str(TDELAY)
     config['InfluxDB'] = {}
     config['InfluxDB']['# InfluxDB server settings'] = None
     config['InfluxDB']['HOST'] = IHOST
-    config['InfluxDB']['PORT'] = IPORT
+    config['InfluxDB']['PORT'] = str(IPORT)
     config['InfluxDB']['# Auth (leave blank if not used)'] = None
     config['InfluxDB']['USER'] = IUSER
     config['InfluxDB']['PASS'] = IPASS
@@ -330,6 +364,8 @@ else:
     config['daemon']['WAIT'] = str(WAIT)
     config['daemon']['# Minutes of history to retrieve for each poll request'] = None
     config['daemon']['HIST'] = str(HIST)
+    config['daemon']['# Seconds to wait before retry on errors'] = None
+    config['daemon']['RETRY'] = str(RETRY)
     config['daemon']['# Enable log output for each poll request'] = None
     config['daemon']['LOG'] = "no"
     config['daemon']['# Enable debug output (print raw responses from Tesla cloud)'] = None
@@ -344,25 +380,13 @@ else:
         with open(CONFIGFILE, 'w') as configfile:
             config.write(configfile)
     except Exception as err:
-        sys_exit(f"\nERROR: Failed to save config to '{CONFIGNAME}' - {err}")
+        sys_exit(f"\nERROR: Failed to save config to '{CONFIGNAME}' - {repr(err)}")
 
     print(f"\nConfig saved to '{CONFIGNAME}'\n")
 
-if args.daemon:
-    sys.stderr.write(f"* Configuration Loaded [{os.path.realpath(CONFIGFILE)}]\n")
-    sys.stderr.write(f" + Server - Wait: {WAIT}, Hist: {HIST}, Log: {LOG}, Debug: {DEBUG}, Test: {TEST}\n")
-    sys.stderr.write(f" + Tesla - User: {TUSER}, Auth: [{os.path.realpath(TAUTH)}]")
-    if TDELAY != 1:
-        sys.stderr.write(f", Delay: {TDELAY}")
-    if RESERVE is not None:
-        sys.stderr.write(f", Reserve: {RESERVE}")
-    if SITE is not None:
-        sys.stderr.write(f", Site: {SITE}")
-    sys.stderr.write(f"\n + InfluxDB - Host: {IHOST}, Port: {IPORT}, DB: {IDB}, Timezone: {ITZ}")
-    if IUSER != "":
-        sys.stderr.write(f", User: {IUSER}, Pass: {IPASS}")
-    sys.stderr.write("\n")
-    sys.stderr.flush()
+    if args.setup:
+        # Set auth file from environment variable if defined
+        TAUTH = os.getenv('TESLA_AUTH', TAUTH)
 
 # Global Variables
 powerdata = []
@@ -377,6 +401,32 @@ backup = None
 dayloaded = None
 eventsloaded = False
 reserveloaded = False
+fetcherr = False
+queryerr = False
+writeerr = False
+influxtz = tz.gettz(ITZ)
+utctz = tz.tzutc()
+
+# Check InfluxDB timezone is valid
+if influxtz is None:
+    sys_exit(f"ERROR: Invalid timezone - {ITZ}")
+
+if args.daemon:
+    sys.stdout.flush()
+    sys.stderr.write(f"* Configuration Loaded [{os.path.realpath(CONFIGFILE)}]\n")
+    sys.stderr.write(f" + Server - Wait: {WAIT}m, Hist: {HIST}m, Retry: {RETRY}s, Log: {LOG}, Debug: {DEBUG}, Test: {TEST}\n")
+    sys.stderr.write(f" + Tesla - User: {TUSER}, Auth: [{os.path.realpath(TAUTH)}]")
+    if TDELAY != 1:
+        sys.stderr.write(f", Delay: {TDELAY}s")
+    if RESERVE is not None:
+        sys.stderr.write(f", Reserve: {RESERVE}")
+    if SITE is not None:
+        sys.stderr.write(f", Site: {SITE}")
+    sys.stderr.write(f"\n + InfluxDB - Host: {IHOST}, Port: {IPORT}, DB: {IDB}, Timezone: {ITZ}")
+    if IUSER != "":
+        sys.stderr.write(f", User: {IUSER}, Pass: {IPASS}")
+    sys.stderr.write("\n")
+    sys.stderr.flush()
 
 # Helper Functions
 def check_datetime(dt, name, newtz):
@@ -408,6 +458,40 @@ def check_datetime(dt, name, newtz):
                 f'   --{name} "{dt.replace(fold=1)}"'
         )
     return dt
+
+def get_start_end():
+    """
+    Returns start and end datetimes based on possible argument combinations
+    """
+    if args.start and args.end:
+        try:
+            # Get start and end date/time
+            s = isoparse(args.start)
+            e = isoparse(args.end)
+        except Exception as err:
+            sys_exit(f"ERROR: Invalid date - {repr(err)}")
+    else:
+        if args.today:
+            # Set start and end date/time to today
+            s = datetime.today().replace(hour=0, minute=0, second=0, microsecond=0)
+            e = datetime.today().replace(hour=23, minute=59, second=59, microsecond=0)
+        if args.yesterday:
+            if args.today:
+                # Set date/time range for both today and yesterday
+                s -= timedelta(days=1)
+            else:
+                # Set start and end date/time to yesterday
+                s = datetime.today().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=1)
+                e = datetime.today().replace(hour=23, minute=59, second=59, microsecond=0) - timedelta(days=1)
+
+    # Check start/end datetimes are valid for the configured timezone and convert to aware datetime
+    start = check_datetime(s, 'start', influxtz).astimezone(utctz)
+    end = check_datetime(e, 'end', influxtz).astimezone(utctz)
+
+    if start >= end:
+        sys_exit("ERROR: End date/time must be after start date/time")
+
+    return start, end
 
 def lookup(data, keylist):
     """
@@ -447,7 +531,7 @@ def tesla_login(email):
             print("Open the below address in your browser to login.\n")
             print(tesla.authorization_url(state=state, code_verifier=code_verifier))
         except Exception as err:
-            sys_exit(f"ERROR: Connection failure - {err}")
+            sys_exit(f"ERROR: Connection failure - {repr(err)}")
 
         print("\nAfter login, paste the URL of the 'Page Not Found' webpage below.\n")
 
@@ -459,7 +543,7 @@ def tesla_login(email):
                 tesla.fetch_token(authorization_response=input("Enter URL after login: "))
                 print("-" * 40)
             except Exception as err:
-                sys_exit(f"ERROR: Login failure - {err}")
+                sys_exit(f"ERROR: Login failure - {repr(err)}")
     else:
         # Enable retries
         tesla.close()
@@ -530,7 +614,7 @@ def tesla_login(email):
                 sitelist[siteid]['instdate'] = siteinstdate
                 sitelist[siteid]['time'] = sitetime
     except Exception as err:
-        sys_exit(f"ERROR: Failed to retrieve PRODUCT_LIST - {err}")
+        sys_exit(f"ERROR: Failed to retrieve PRODUCT_LIST - {repr(err)}")
 
     # Print list of sites
     for siteid in sitelist:
@@ -575,7 +659,7 @@ def get_power_history(start, end):
 
     Adds data points to 'powerdata' in InfluxDB Line Protocol format with tag source='cloud'
     """
-    global sitetz, tzname, tzoffset, dayloaded, power, soe
+    global fetcherr, sitetz, tzname, tzoffset, dayloaded, power, soe
 
     if sitetz is None:
         try:
@@ -610,7 +694,7 @@ def get_power_history(start, end):
                     sys_exit(f"ERROR: Invalid timezone for history data - {tzname}")
 
         except Exception as err:
-            sys_exit(f"ERROR: Failed to retrieve timezone from history data - {err}")
+            sys_exit(f"ERROR: Failed to retrieve timezone from history data - {repr(err)}")
 
     if VERBOSE:
         print(f"Retrieving data for gap: [{start.astimezone(influxtz)}] - [{end.astimezone(influxtz)}] ({str(end - start)}s)")
@@ -669,8 +753,17 @@ def get_power_history(start, end):
                         "soe": 67
                     }
                     """
+                if args.daemon and fetcherr:
+                    fetcherr = False
+                    sys.stdout.flush()
+                    sys.stderr.write(" + Retrieve history data succeeded\n")
+                    sys.stderr.flush()
             except Exception as err:
-                sys_exit(f"ERROR: Failed to retrieve history data - {err}", halt=False)
+                sys_exit(f"ERROR: Failed to retrieve history data - {repr(err)}", halt=False)
+                if args.daemon:
+                    fetcherr = True
+                    sys.stderr.write(f" ! Retrieve history data failed, retrying in {RETRY} seconds\n")
+                    sys.stderr.flush()
                 return
 
             dayloaded = day
@@ -733,7 +826,7 @@ def get_backup_history(start, end):
 
     Adds data points to 'eventdata' in InfluxDB Line Protocol format with tag source='cloud'
     """
-    global eventsloaded, backup
+    global fetcherr, eventsloaded, backup
 
     if not eventsloaded:
         if VERBOSE:
@@ -750,8 +843,17 @@ def get_backup_history(start, end):
                 "duration": 3862580
             }
             """
+            if args.daemon and fetcherr:
+                fetcherr = False
+                sys.stdout.flush()
+                sys.stderr.write(" + Retrieve history data succeeded\n")
+                sys.stderr.flush()
         except Exception as err:
-            sys_exit(f"ERROR: Failed to retrieve history data - {err}", halt=False)
+            sys_exit(f"ERROR: Failed to retrieve history data - {repr(err)}", halt=False)
+            if args.daemon:
+                fetcherr = True
+                sys.stderr.write(f" ! Retrieve history data failed, retrying in {RETRY} seconds\n")
+                sys.stderr.flush()
             return
 
         eventsloaded = True
@@ -846,24 +948,38 @@ def search_influx(start, end, datatype):
 
     Returns a list of start/end datetime ranges for the 'datatype' ('power' or 'grid' or 'reserve')
     """
-    print(f"Searching InfluxDB for data gaps ({datatype})")
+    global queryerr
+
+    if VERBOSE:
+        print(f"Searching InfluxDB for data gaps ({datatype})")
 
     # Create query for the data type specified and set gap detection threshold
     if 'power' in datatype:
         query = f"SELECT home FROM autogen.http WHERE time >= '{start.isoformat()}' AND time <= '{end.isoformat()}'"
-        maxgap = timedelta(minutes=5)
+        mingap = timedelta(minutes=5)
     elif 'grid' in datatype:
         query = f"SELECT grid_status FROM grid.http WHERE time >= '{start.isoformat()}' AND time <= '{end.isoformat()}'"
-        maxgap = timedelta(minutes=1)
+        mingap = timedelta(minutes=1)
     elif 'reserve' in datatype:
         query = f"SELECT backup_reserve_percent FROM pod.http WHERE time >= '{start.isoformat()}' AND time <= '{end.isoformat()}'"
-        maxgap = timedelta(minutes=1)
+        mingap = timedelta(minutes=1)
 
     try:
         # Execute query
         result = client.query(query)
+
+        if args.daemon and queryerr:
+            queryerr = False
+            sys.stdout.flush()
+            sys.stderr.write(" + InfluxDB query succeeded\n")
+            sys.stderr.flush()
     except Exception as err:
-        sys_exit(f"ERROR: Failed to execute InfluxDB query: {query}; {err}")
+        sys_exit(f"ERROR: Failed to execute InfluxDB query: {query}; {repr(err)}", halt=False)
+        if args.daemon:
+            queryerr = True
+            sys.stderr.write(f" ! InfluxDB query failed, retrying in {RETRY} seconds\n")
+            sys.stderr.flush()
+        return None
 
     datagap = []
     startpoint = start
@@ -877,11 +993,12 @@ def search_influx(start, end, datatype):
             if timestamp == start:
                 startfound = True
 
-            # Check if time since previous point exceeds maximum gap
+            # Check if time since previous point exceeds minimum gap
             duration = timestamp - startpoint
-            if duration > maxgap:
+            if duration > mingap:
                 endpoint = timestamp
-                print(f"* Found data gap: [{startpoint.astimezone(influxtz)}] - [{endpoint.astimezone(influxtz)}] ({str(duration)}s)")
+                if VERBOSE:
+                    print(f"* Found data gap: [{startpoint.astimezone(influxtz)}] - [{endpoint.astimezone(influxtz)}] ({str(duration)}s)")
 
                 # Ensure period falls between existing data points
                 if (startfound and startpoint == start) or startpoint > start:
@@ -898,9 +1015,10 @@ def search_influx(start, end, datatype):
         else:
             # Check last data point to end date/time
             duration = end - startpoint
-            if duration > maxgap:
+            if duration > mingap:
                 endpoint = end
-                print(f"* Found data gap: [{startpoint.astimezone(influxtz)}] - [{endpoint.astimezone(influxtz)}] ({str(duration)}s)")
+                if VERBOSE:
+                    print(f"* Found data gap: [{startpoint.astimezone(influxtz)}] - [{endpoint.astimezone(influxtz)}] ({str(duration)}s)")
 
                 # Add missing data period to list
                 period = {}
@@ -910,8 +1028,9 @@ def search_influx(start, end, datatype):
     else:
         # No points found - entire start/end range is a data gap
         duration = end - start
-        if duration > maxgap:
-            print(f"* Found data gap: [{start.astimezone(influxtz)}] - [{end.astimezone(influxtz)}] ({str(duration)}s)")
+        if duration > mingap:
+            if VERBOSE:
+                print(f"* Found data gap: [{start.astimezone(influxtz)}] - [{end.astimezone(influxtz)}] ({str(duration)}s)")
 
             # Add missing data period to list
             period = {}
@@ -925,6 +1044,8 @@ def remove_influx(start, end):
     """
     Remove imported data from InfluxDB (removes data points tagged with source='cloud')
     """
+    global queryerr
+
     if not args.daemon:
         print("Removing imported data from InfluxDB")
 
@@ -1040,13 +1161,24 @@ def remove_influx(start, end):
             # Update InfluxDB analysis data after delete
             update_influx(periods=periods)
 
+        if args.daemon and queryerr:
+            queryerr = False
+            sys.stdout.flush()
+            sys.stderr.write(" + InfluxDB query succeeded\n")
+            sys.stderr.flush()
     except Exception as err:
-        sys_exit(f"ERROR: Failed to execute InfluxDB query: {query}; {err}")
+        sys_exit(f"ERROR: Failed to execute InfluxDB query: {query}; {repr(err)}", halt=False)
+        if args.daemon:
+            queryerr = True
+            sys.stderr.write(f" ! InfluxDB query failed, retrying in {RETRY} seconds\n")
+            sys.stderr.flush()
 
 def write_influx():
     """
     Write 'powerdata', 'eventdata' and 'reservedata' Line Protocol format data points to InfluxDB
     """
+    global writeerr
+
     if args.test:
         if VERBOSE:
             print("Writing to InfluxDB (*** skipped - test mode enabled ***)")
@@ -1058,8 +1190,18 @@ def write_influx():
         client.write_points(powerdata, time_precision='s', batch_size=10000, protocol='line')
         client.write_points(eventdata, time_precision='s', batch_size=10000, retention_policy='grid', protocol='line')
         client.write_points(reservedata, time_precision='s', batch_size=10000, retention_policy='pod', protocol='line')
+
+        if args.daemon and writeerr:
+            writeerr = False
+            sys.stdout.flush()
+            sys.stderr.write(" + InfluxDB write succeeded\n")
+            sys.stderr.flush()
     except Exception as err:
-        sys_exit(f"ERROR: Failed to write to InfluxDB: {err}", halt=False)
+        sys_exit(f"ERROR: Failed to write to InfluxDB: {repr(err)}", halt=False)
+        if args.daemon:
+            writeerr = True
+            sys.stderr.write(f" ! InfluxDB write failed, retrying in {RETRY} seconds\n")
+            sys.stderr.flush()
 
 def update_influx(start=None, end=None, periods=None):
     """
@@ -1071,6 +1213,8 @@ def update_influx(start=None, end=None, periods=None):
             or
         periods     = List of start and end date/time ranges to run queries for
     """
+    global queryerr
+
     if args.test:
         if VERBOSE:
             print("Updating InfluxDB (*** skipped - test mode enabled ***)")
@@ -1187,10 +1331,33 @@ def update_influx(start=None, end=None, periods=None):
             query += f"INTO monthly.:MEASUREMENT FROM daily.http WHERE time >= '{period['start'].isoformat()}' AND time < '{period['end'].isoformat()}' "
             query += f"GROUP BY time(365d), month, year"
             client.query(query)
+
+        if args.daemon and queryerr:
+            queryerr = False
+            sys.stdout.flush()
+            sys.stderr.write(" + InfluxDB query succeeded\n")
+            sys.stderr.flush()
     except Exception as err:
-        sys_exit(f"ERROR: Failed to execute InfluxDB query: {query}; {err}", halt=False)
+        sys_exit(f"ERROR: Failed to execute InfluxDB query: {query}; {repr(err)}", halt=False)
+        if args.daemon:
+            queryerr = True
+            sys.stderr.write(f" ! InfluxDB query failed, retrying in {RETRY} seconds\n")
+            sys.stderr.flush()
 
 # MAIN
+
+# Create InfluxDB client instance
+client = InfluxDBClient(host=IHOST, port=IPORT, username=IUSER, password=IPASS, database=IDB)
+
+if args.remove and not (args.login or args.setup):
+    # Get start/end datetimes from command line arguments
+    start, end = get_start_end()
+    print(f"Removing imported data for period: [{start.astimezone(influxtz)}] - [{end.astimezone(influxtz)}] ({str(end - start)}s)\n")
+
+    # Remove imported data from InfluxDB between start and end date/time
+    remove_influx(start, end)
+    print("\nDone.")
+    sys_exit()
 
 # Login and get list of Tesla Energy sites
 sitelist = tesla_login(TUSER)
@@ -1203,10 +1370,10 @@ if len(sitelist) > 1 and args.site is None:
         # Prompt user to enter site if multiple sites found when running setup
         print("Multiple Tesla Energy sites found...")
         while True:
-            response = input("Enter Site ID: ")
-            if response.strip() != "":
+            response = input("Enter Site ID: ").strip()
+            if response != "":
                 try:
-                    SITE = int(response.strip())
+                    SITE = int(response)
                 except:
                     print("Invalid Site ID\n")
                     continue
@@ -1222,7 +1389,7 @@ if len(sitelist) > 1 and args.site is None:
             with open(CONFIGFILE, 'w') as configfile:
                 config.write(configfile)
         except Exception as err:
-            sys_exit(f"\nERROR: Failed to save config to '{CONFIGNAME}' - {err}")
+            sys_exit(f"\nERROR: Failed to save config to '{CONFIGNAME}' - {repr(err)}")
         sys_exit()
 
     if args.daemon:
@@ -1243,48 +1410,13 @@ else:
 if args.login or args.setup:
     sys_exit()
 
-if args.start and args.end:
-    try:
-        # Get start and end date/time
-        s = isoparse(args.start)
-        e = isoparse(args.end)
-    except Exception as err:
-        sys_exit(f"ERROR: Invalid date - {err}")
-else:
-    if args.today:
-        # Set start and end date/time to today
-        s = datetime.today().replace(hour=0, minute=0, second=0, microsecond=0)
-        e = datetime.today().replace(hour=23, minute=59, second=59, microsecond=0)
-    if args.yesterday:
-        if args.today:
-            # Set date/time range for both today and yesterday
-            s -= timedelta(days=1)
-        else:
-            # Set start and end date/time to yesterday
-            s = datetime.today().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=1)
-            e = datetime.today().replace(hour=23, minute=59, second=59, microsecond=0) - timedelta(days=1)
-
-# Get site info and timezones
-site = siteinfo['site']
-influxtz = tz.gettz(ITZ)
-utctz = tz.tzutc()
-
-# Check InfluxDB timezone is valid
-if influxtz is None:
-    sys_exit(f"ERROR: Invalid timezone - {ITZ}")
-
 if args.daemon:
     # Set initial start/end datetimes when running as a daemon
     end = datetime.now(tz=influxtz).astimezone(utctz).replace(microsecond=0) - timedelta(minutes=WAIT + 2)
     start = end - timedelta(minutes=HIST)
 else:
-    # Check start/end datetimes are valid for the configured timezone and convert to aware datetime
-    start = check_datetime(s, 'start', influxtz).astimezone(utctz)
-    end = check_datetime(e, 'end', influxtz).astimezone(utctz)
-
-    if start >= end:
-        sys_exit("ERROR: End date/time must be after start date/time")
-
+    # Get start/end datetimes from command line arguments
+    start, end = get_start_end()
     print(f"Running for period: [{start.astimezone(influxtz)}] - [{end.astimezone(influxtz)}] ({str(end - start)}s)\n")
 
 # Get site current time
@@ -1303,16 +1435,10 @@ if not args.daemon:
     if start >= end:
         sys_exit("ERROR: No data available for this date/time range")
 
-# Create InfluxDB client instance
-client = InfluxDBClient(host=IHOST, port=IPORT, username=IUSER, password=IPASS, database=IDB)
-powergaps = gridgaps = reservegaps = None
+# Get site info
+site = siteinfo['site']
 
-if args.remove:
-    # Remove imported data from InfluxDB between start and end date/time
-    remove_influx(start, end)
-    print("\nDone.")
-    sys_exit()
-elif args.force:
+if args.force:
     # Retrieve power history data between start and end date/time (skip search for gaps)
     get_power_history(start, end)
     print()
@@ -1331,7 +1457,6 @@ elif args.daemon:
         print("* Server Started")
         print(f" + Retrieving {HIST} minutes of history every {WAIT} minutes")
         sys.stdout.flush()
-        time.sleep(30)
         while True:
             currentts = datetime.now(tz=influxtz).astimezone(utctz).replace(microsecond=0) - timedelta(minutes=2)
             # Check if wait time passed
@@ -1340,7 +1465,7 @@ elif args.daemon:
                 end = currentts
                 start = end - timedelta(minutes=HIST)
             else:
-                time.sleep(5)
+                time.sleep(1)
                 continue
 
             # Re-initialise globals
@@ -1375,10 +1500,17 @@ elif args.daemon:
                 if powerdata:
                     # Update InfluxDB analysis data
                     update_influx(start, end)
+
+            if fetcherr or queryerr or writeerr:
+                # If an error occurred, reset the end time to wait for the configured retry delay
+                end = datetime.now(tz=influxtz).astimezone(utctz).replace(microsecond=0) - timedelta(minutes=2) + timedelta(minutes=-WAIT, seconds=RETRY)
+
             sys.stdout.flush()
     except (KeyboardInterrupt, SystemExit):
-        sys.exit("* Stopping\n")
+        server_exit()
 else:
+    powergaps = gridgaps = reservegaps = None
+
     # Search InfluxDB for power usage data gaps
     powergaps = search_influx(start, end, 'power usage')
     print() if powergaps else print("* None found\n")
