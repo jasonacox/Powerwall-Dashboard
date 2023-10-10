@@ -5,7 +5,7 @@ services:
         image: influxdb:1.8
         container_name: influxdb
         hostname: influxdb
-        restart: always
+        restart: unless-stopped
         volumes:
             - type: bind
               source: ./influxdb.conf
@@ -15,55 +15,49 @@ services:
               source: ./influxdb
               target: /var/lib/influxdb
         ports:
-            - target: 8086
-              published: 8086
-              mode: host
+            - "${INFLUXDB_PORTS:-8086:8086}"
 
     grafana:
         image: grafana/grafana:9.1.2-ubuntu
         container_name: grafana
         hostname: grafana
-        restart: always
-        user: "${GRAFANAUSER}"
+        restart: unless-stopped
+        user: "${GRAFANAUSER:-1000:1000}"
         volumes:
             - type: bind
               source: ./grafana
               target: /var/lib/grafana
         ports:
-            - target: 9000
-              published: 9000
-              mode: host
+            - "${GRAFANA_PORTS:-9000:9000}"
         env_file:
             - grafana.env
         depends_on:
             - influxdb
 
     weather411:
-        image: jasonacox/weather411:0.2.1
+        image: jasonacox/weather411:0.2.2
         container_name: weather411
         hostname: weather411
-        restart: always
-        user: "1000:1000"
+        restart: unless-stopped
+        user: "${PWD_USER:-1000:1000}"
         volumes:
             - type: bind
               source: ./weather
               target: /var/lib/weather
               read_only: true
         ports:
-            - target: 8676
-              published: 8676
-              mode: host
+            - "${WEATHER411_PORTS:-8676:8676}"
         environment:
             - WEATHERCONF=/var/lib/weather/weather411.conf
         depends_on:
             - influxdb
 
     tesla-history:
-        image: jasonacox/tesla-history:0.1.2
+        image: jasonacox/tesla-history:0.1.3
         container_name: tesla-history
         hostname: tesla-history
-        restart: always
-        user: "1000:1000"
+        restart: unless-stopped
+        user: "${PWD_USER:-1000:1000}"
         volumes:
             - type: bind
               source: ./tesla-history
