@@ -11,7 +11,7 @@ CONF_SRC="weather/weather411.conf.sample"
 if [ "$EUID" -eq 0 ]; then 
   echo "ERROR: Running this as root will cause permission issues."
   echo ""
-  echo "Please ensure your local user in in the docker group and run without sudo."
+  echo "Please ensure your local user is in the docker group and run without sudo."
   echo "   sudo usermod -aG docker \$USER"
   echo "   $0"
   echo ""

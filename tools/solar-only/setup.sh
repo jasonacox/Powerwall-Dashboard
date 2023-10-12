@@ -20,7 +20,7 @@ echo "-----------------------------------------"
 if [ "$EUID" -eq 0 ]; then
   echo "ERROR: Running this as root will cause permission issues."
   echo ""
-  echo "Please ensure your local user in in the docker group and run without sudo."
+  echo "Please ensure your local user is in the docker group and run without sudo."
   echo "   sudo usermod -aG docker \$USER"
   echo "   $0"
   echo ""
@@ -144,16 +144,14 @@ fi
 echo "Setup tesla-history..."
 if type winpty > /dev/null 2>&1; then
     # Windows special case
-    winpty docker exec -it -w /var/lib/tesla-history tesla-history python3 tesla-history.py --setup --timezone "${TZ}"
+    winpty docker exec -it tesla-history python3 tesla-history.py --setup --timezone "${TZ}"
 else
-    docker exec -it -w /var/lib/tesla-history tesla-history python3 tesla-history.py --setup --timezone "${TZ}"
+    docker exec -it tesla-history python3 tesla-history.py --setup --timezone "${TZ}"
 fi
 
 # Restart tesla-history
-if [ -f tesla-history/tesla-history.conf ] && [ -f tesla-history/tesla-history.auth ]; then
-    echo "Restarting tesla-history..."
-    docker restart tesla-history
-fi
+echo "Restarting tesla-history..."
+docker restart tesla-history
 
 # Display Final Instructions
 cat << EOF
