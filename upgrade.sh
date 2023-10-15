@@ -4,23 +4,24 @@
 set -e
 
 # Set Globals
-VERSION="2.9.12"
+VERSION="2.10.0"
 CURRENT="Unknown"
 COMPOSE_ENV_FILE="compose.env"
 TELEGRAF_LOCAL="telegraf.local"
+PW_ENV_FILE="pypowerwall.env"
 if [ -f VERSION ]; then
     CURRENT=`cat VERSION`
 fi
 
 # Verify not running as root
 if [ "$EUID" -eq 0 ]; then
-  echo "ERROR: Running this as root will cause permission issues."
-  echo ""
-  echo "Please ensure your local user is in the docker group and run without sudo."
-  echo "   sudo usermod -aG docker \$USER"
-  echo "   $0"
-  echo ""
-  exit 1
+    echo "ERROR: Running this as root will cause permission issues."
+    echo ""
+    echo "Please ensure your local user is in the docker group and run without sudo."
+    echo "   sudo usermod -aG docker \$USER"
+    echo "   $0"
+    echo ""
+    exit 1
 fi
 
 # Service Running Helper Function
@@ -50,10 +51,9 @@ echo "This script will attempt to upgrade you to the latest version without"
 echo "removing existing data. A backup is still recommended."
 echo ""
 
-# Stop upgrade if the installation is key files are missing
-ENV_FILE="pypowerwall.env"
-if [ ! -f ${ENV_FILE} ]; then
-    echo "ERROR: Missing ${ENV_FILE} - This means you have not run 'setup.sh' or"
+# Stop upgrade if the installation is missing key files
+if [ ! -f ${PW_ENV_FILE} ]; then
+    echo "ERROR: Missing ${PW_ENV_FILE} - This means you have not run 'setup.sh' or"
     echo "       you have an older version that cannot be updated automatically."
     echo "       Run 'git pull' and resolve any conflicts then run the 'setup.sh'"
     echo "       script to re-enter your Powerwall credentials."
@@ -96,7 +96,7 @@ fi
 
 # Check for latest Grafana settings (required in 2.6.2)
 if ! grep -q "yesoreyeram-boomtable-panel-1.5.0-alpha.3.zip" grafana.env; then
-  echo "Your Grafana environmental settings are outdated."
+    echo "Your Grafana environmental settings are outdated."
     read -r -p "Upgrade grafana.env? [y/N] " response
     if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]
     then
@@ -113,11 +113,31 @@ fi
 # Silently create default docker compose env file if needed.
 if [ ! -f ${COMPOSE_ENV_FILE} ]; then
     cp "${COMPOSE_ENV_FILE}.sample" "${COMPOSE_ENV_FILE}"
+else
+    # Convert GRAFANAUSER to PWD_USER in existing compose env file (required in 2.10.0)
+    sed -i "s@GRAFANAUSER@PWD_USER@g" "${COMPOSE_ENV_FILE}"
+    if grep -q "^PWD_USER=\"1000:1000\"" "${COMPOSE_ENV_FILE}"; then
+        sed -i "s@^PWD_USER=\"1000:1000\"@#PWD_USER=\"1000:1000\"@g" "${COMPOSE_ENV_FILE}"
+    fi
 fi
 
 # Create default telegraf local file if needed.
 if [ ! -f ${TELEGRAF_LOCAL} ]; then
     cp "${TELEGRAF_LOCAL}.sample" "${TELEGRAF_LOCAL}"
+fi
+
+# Check for PW_STYLE setting and add if missing
+if ! grep -q "PW_STYLE" ${PW_ENV_FILE}; then
+    echo "Your pypowerwall environmental settings are missing PW_STYLE."
+    echo "Adding..."
+    echo "PW_STYLE=grafana-dark" >> ${PW_ENV_FILE}
+fi
+
+# Check to see that TZ is set in pypowerwall
+if ! grep -q "TZ=" ${PW_ENV_FILE}; then
+    echo "Your pypowerwall environmental settings are missing TZ."
+    echo "Adding..."
+    echo "TZ=America/Los_Angeles" >> ${PW_ENV_FILE}
 fi
 
 # Check to see if Weather Data is Available
@@ -133,22 +153,15 @@ if [ ! -f weather/weather411.conf ]; then
     fi
 fi
 
-# Check to see that TZ is set in pypowerwall
-if ! grep -q "TZ=" pypowerwall.env; then
-    echo "Your pypowerwall environmental settings are missing TZ."
-    echo "Adding..."
-    echo "TZ=America/Los_Angeles" >> pypowerwall.env
-fi
-
-# Make sure stack is running
-echo ""
-echo "Start Powerwall-Dashboard stack..."
-./compose-dash.sh up -d
-
 # Set Timezone
 echo ""
 echo "Setting Timezone back to ${TZ}..."
 ./tz.sh "${TZ}"
+
+# Update Powerwall-Dashboard stack
+echo ""
+echo "Updating Powerwall-Dashboard stack..."
+./compose-dash.sh up -d
 
 # Update Influxdb
 echo ""
@@ -165,32 +178,32 @@ docker exec --tty influxdb sh -c "influx -import -path=/var/lib/influxdb/influxd
 cd influxdb
 for f in run-once*.sql; do
     if [ ! -f "${f}.done" ]; then
-        echo "Executing single run query $f file...";
+        echo "Executing single run query $f file..."
         docker exec --tty influxdb sh -c "influx -import -path=/var/lib/influxdb/${f}"
         echo "OK" > "${f}.done"
     fi
 done
 cd ..
 
-# Delete pyPowerwall for Upgrade
+# Delete pyPowerwall
 echo ""
-echo "Delete and Upgrade pyPowerwall to Latest"
+echo "Deleting old pyPowerwall..."
 docker stop pypowerwall
 docker rm pypowerwall
 
-# Delete telegraf for Upgrade
+# Delete telegraf
 echo ""
-echo "Delete and Upgrade telegraf to Latest"
+echo "Deleting old telegraf..."
 docker stop telegraf
 docker rm telegraf
 
-# Delete weather411 for Upgrade
+# Delete weather411
 echo ""
-echo "Delete and Upgrade weather411 to Latest"
+echo "Deleting old weather411..."
 docker stop weather411
 docker rm weather411
 
-# Restart Stack
+# Restart Stack and Rebuild containers
 echo ""
 echo "Restarting Powerwall-Dashboard stack..."
 ./compose-dash.sh up -d

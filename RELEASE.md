@@ -1,5 +1,15 @@
 # RELEASE NOTES
 
+## v2.10.0 - Docker Compose and Container Updates
+
+* Update versions: Telegraf (v1.28.2) and pyPowerwall (v0.6.2t28)
+* Updated to pyPowerwall Proxy t28 to support newer Grafana versions. Adds new PW_STYLE setting for `grafana-dark` mode.
+* Updated `setup.sh` and `upgrades.sh` to support adding additional PW_STYLE setting.
+* Docker Compose Config Improvements by @mcbirse - ref #366
+* Update `powerwall.yml` to use variables for "user" and "ports" in containers, per #357 and #360 noted by @hulkster
+* Updated `compose.env.sample` with explanation of latest supported options
+* Updated `powerwall.yml` to use "unless-stopped" as the default restart policy for containers going forward
+
 ## v2.9.12 - Weather411 and pyPowerwall Updates
 
 * Fix weather411 to exit gracefully with SIGTERM by @rcasta74 in https://github.com/jasonacox/Powerwall-Dashboard/pull/354

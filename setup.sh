@@ -107,6 +107,7 @@ if [ ! -f ${PW_ENV_FILE} ]; then
     echo "PW_TIMEZONE=America/Los_Angeles" >> ${PW_ENV_FILE}
     echo "TZ=America/Los_Angeles" >> ${PW_ENV_FILE}
     echo "PW_DEBUG=no" >> ${PW_ENV_FILE}
+    echo "PW_STYLE=grafana-dark" >> ${PW_ENV_FILE}
 fi
 
 # Create Grafana Settings if missing (required in 2.4.0)
