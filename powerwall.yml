@@ -20,7 +20,7 @@ services:
               mode: host
 
     pypowerwall:
-        image: jasonacox/pypowerwall:0.6.2t27
+        image: jasonacox/pypowerwall:0.6.2t28
         container_name: pypowerwall
         hostname: pypowerwall
         restart: always
@@ -33,7 +33,7 @@ services:
             - pypowerwall.env
 
     telegraf:
-        image: telegraf:1.26.1
+        image: telegraf:1.28.2
         container_name: telegraf
         hostname: telegraf
         restart: always
@@ -59,7 +59,7 @@ services:
             - pypowerwall
 
     grafana:
-        image: grafana/grafana:9.1.2-ubuntu
+        image: grafana/grafana:9.4.14-ubuntu
         container_name: grafana
         hostname: grafana
         restart: always
