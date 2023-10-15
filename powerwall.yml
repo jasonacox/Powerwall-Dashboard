@@ -5,7 +5,7 @@ services:
         image: influxdb:1.8
         container_name: influxdb
         hostname: influxdb
-        restart: always
+        restart: unless-stopped
         volumes:
             - type: bind
               source: ./influxdb.conf
@@ -15,20 +15,16 @@ services:
               source: ./influxdb
               target: /var/lib/influxdb
         ports:
-            - target: 8086
-              published: 8086
-              mode: host
+            - "${INFLUXDB_PORTS:-8086:8086}"
 
     pypowerwall:
         image: jasonacox/pypowerwall:0.6.2t28
         container_name: pypowerwall
         hostname: pypowerwall
-        restart: always
-        user: "1000:1000"
+        restart: unless-stopped
+        user: "${PWD_USER:-1000:1000}"
         ports:
-            - target: 8675
-              published: 8675
-              mode: host
+            - "${PYPOWERWALL_PORTS:-8675:8675}"
         env_file:
             - pypowerwall.env
 
@@ -36,8 +32,8 @@ services:
         image: telegraf:1.28.2
         container_name: telegraf
         hostname: telegraf
-        restart: always
-        user: "1000:1000"
+        restart: unless-stopped
+        user: "${PWD_USER:-1000:1000}"
         command: [
             "telegraf",
             "--config",
@@ -62,16 +58,14 @@ services:
         image: grafana/grafana:9.4.14-ubuntu
         container_name: grafana
         hostname: grafana
-        restart: always
-        user: "${GRAFANAUSER}"
+        restart: unless-stopped
+        user: "${PWD_USER:-1000:1000}"
         volumes:
             - type: bind
               source: ./grafana
               target: /var/lib/grafana
         ports:
-            - target: 9000
-              published: 9000
-              mode: host
+            - "${GRAFANA_PORTS:-9000:9000}"
         env_file:
             - grafana.env
         depends_on:
@@ -81,17 +75,15 @@ services:
         image: jasonacox/weather411:0.2.2
         container_name: weather411
         hostname: weather411
-        restart: always
-        user: "1000:1000"
+        restart: unless-stopped
+        user: "${PWD_USER:-1000:1000}"
         volumes:
             - type: bind
               source: ./weather
               target: /var/lib/weather
               read_only: true
         ports:
-            - target: 8676
-              published: 8676
-              mode: host
+            - "${WEATHER411_PORTS:-8676:8676}"
         environment:
             - WEATHERCONF=/var/lib/weather/weather411.conf
         depends_on:

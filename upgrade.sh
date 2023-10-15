@@ -15,13 +15,13 @@ fi
 
 # Verify not running as root
 if [ "$EUID" -eq 0 ]; then
-  echo "ERROR: Running this as root will cause permission issues."
-  echo ""
-  echo "Please ensure your local user is in the docker group and run without sudo."
-  echo "   sudo usermod -aG docker \$USER"
-  echo "   $0"
-  echo ""
-  exit 1
+    echo "ERROR: Running this as root will cause permission issues."
+    echo ""
+    echo "Please ensure your local user is in the docker group and run without sudo."
+    echo "   sudo usermod -aG docker \$USER"
+    echo "   $0"
+    echo ""
+    exit 1
 fi
 
 # Service Running Helper Function
@@ -51,7 +51,7 @@ echo "This script will attempt to upgrade you to the latest version without"
 echo "removing existing data. A backup is still recommended."
 echo ""
 
-# Stop upgrade if the installation is key files are missing
+# Stop upgrade if the installation is missing key files
 if [ ! -f ${PW_ENV_FILE} ]; then
     echo "ERROR: Missing ${PW_ENV_FILE} - This means you have not run 'setup.sh' or"
     echo "       you have an older version that cannot be updated automatically."
@@ -96,7 +96,7 @@ fi
 
 # Check for latest Grafana settings (required in 2.6.2)
 if ! grep -q "yesoreyeram-boomtable-panel-1.5.0-alpha.3.zip" grafana.env; then
-  echo "Your Grafana environmental settings are outdated."
+    echo "Your Grafana environmental settings are outdated."
     read -r -p "Upgrade grafana.env? [y/N] " response
     if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]
     then
@@ -113,6 +113,12 @@ fi
 # Silently create default docker compose env file if needed.
 if [ ! -f ${COMPOSE_ENV_FILE} ]; then
     cp "${COMPOSE_ENV_FILE}.sample" "${COMPOSE_ENV_FILE}"
+else
+    # Convert GRAFANAUSER to PWD_USER in existing compose env file (required in 2.10.0)
+    sed -i "s@GRAFANAUSER@PWD_USER@g" "${COMPOSE_ENV_FILE}"
+    if grep -q "^PWD_USER=\"1000:1000\"" "${COMPOSE_ENV_FILE}"; then
+        sed -i "s@^PWD_USER=\"1000:1000\"@#PWD_USER=\"1000:1000\"@g" "${COMPOSE_ENV_FILE}"
+    fi
 fi
 
 # Create default telegraf local file if needed.
@@ -172,7 +178,7 @@ docker exec --tty influxdb sh -c "influx -import -path=/var/lib/influxdb/influxd
 cd influxdb
 for f in run-once*.sql; do
     if [ ! -f "${f}.done" ]; then
-        echo "Executing single run query $f file...";
+        echo "Executing single run query $f file..."
         docker exec --tty influxdb sh -c "influx -import -path=/var/lib/influxdb/${f}"
         echo "OK" > "${f}.done"
     fi
