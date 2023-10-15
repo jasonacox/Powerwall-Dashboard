@@ -22,3 +22,6 @@ echo ""
 echo "* VERIFY jasonacox/${CONTAINER}:latest"
 docker buildx imagetools inspect jasonacox/${CONTAINER} | grep Platform
 echo ""
+echo "* VERIFY jasonacox/${CONTAINER}:${VER}"
+docker buildx imagetools inspect jasonacox/${CONTAINER} | grep Platform
+echo ""
