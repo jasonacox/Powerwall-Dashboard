@@ -55,11 +55,11 @@ fi
 echo "Running Docker Compose..."
 if docker-compose version > /dev/null 2>&1; then
     # Build Docker (v1)
-    docker-compose -f powerwall.yml $pwextend $1 $2 $3
+    docker-compose -f powerwall.yml $pwextend $@
 else
     if docker compose version > /dev/null 2>&1; then
         # Build Docker (v2)
-        docker compose -f powerwall.yml $pwextend $1 $2 $3
+        docker compose -f powerwall.yml $pwextend $@
     else
         echo "ERROR: docker-compose/docker compose is not available or not running."
         echo "This script requires docker-compose or docker compose."
