@@ -1,5 +1,11 @@
 # RELEASE NOTES
 
+## v2.10.0 - Grafana Updates
+
+* Update versions: Grafana (v9.4.14), Telegraf (v1.28.2) and pyPowerwall (v0.6.2t28)
+* Updated to pyPowerwall Proxy t28 to support newer Grafana version. Adds new PW_STYLE setting for `grafana-dark` mode.
+* Updated `setup.sh` and `upgrades.sh` to support adding additional PW_STYLE setting.
+
 ## v2.9.12 - Weather411 and pyPowerwall Updates
 
 * Fix weather411 to exit gracefully with SIGTERM by @rcasta74 in https://github.com/jasonacox/Powerwall-Dashboard/pull/354
