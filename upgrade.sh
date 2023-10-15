@@ -4,10 +4,11 @@
 set -e
 
 # Set Globals
-VERSION="2.9.12"
+VERSION="2.10.0"
 CURRENT="Unknown"
 COMPOSE_ENV_FILE="compose.env"
 TELEGRAF_LOCAL="telegraf.local"
+PW_ENV_FILE="pypowerwall.env"
 if [ -f VERSION ]; then
     CURRENT=`cat VERSION`
 fi
@@ -51,9 +52,8 @@ echo "removing existing data. A backup is still recommended."
 echo ""
 
 # Stop upgrade if the installation is key files are missing
-ENV_FILE="pypowerwall.env"
-if [ ! -f ${ENV_FILE} ]; then
-    echo "ERROR: Missing ${ENV_FILE} - This means you have not run 'setup.sh' or"
+if [ ! -f ${PW_ENV_FILE} ]; then
+    echo "ERROR: Missing ${PW_ENV_FILE} - This means you have not run 'setup.sh' or"
     echo "       you have an older version that cannot be updated automatically."
     echo "       Run 'git pull' and resolve any conflicts then run the 'setup.sh'"
     echo "       script to re-enter your Powerwall credentials."
@@ -120,6 +120,20 @@ if [ ! -f ${TELEGRAF_LOCAL} ]; then
     cp "${TELEGRAF_LOCAL}.sample" "${TELEGRAF_LOCAL}"
 fi
 
+# Check for PW_STYLE setting and add if missing
+if ! grep -q "PW_STYLE" ${PW_ENV_FILE}; then
+    echo "Your pypowerwall environmental settings are missing PW_STYLE."
+    echo "Adding..."
+    echo "PW_STYLE=grafana-dark" >> ${PW_ENV_FILE}
+fi
+
+# Check to see that TZ is set in pypowerwall
+if ! grep -q "TZ=" ${PW_ENV_FILE}; then
+    echo "Your pypowerwall environmental settings are missing TZ."
+    echo "Adding..."
+    echo "TZ=America/Los_Angeles" >> ${PW_ENV_FILE}
+fi
+
 # Check to see if Weather Data is Available
 if [ ! -f weather/weather411.conf ]; then
     echo "This version (${VERSION}) allows you to add local weather data."
@@ -133,22 +147,15 @@ if [ ! -f weather/weather411.conf ]; then
     fi
 fi
 
-# Check to see that TZ is set in pypowerwall
-if ! grep -q "TZ=" pypowerwall.env; then
-    echo "Your pypowerwall environmental settings are missing TZ."
-    echo "Adding..."
-    echo "TZ=America/Los_Angeles" >> pypowerwall.env
-fi
-
-# Make sure stack is running
-echo ""
-echo "Start Powerwall-Dashboard stack..."
-./compose-dash.sh up -d
-
 # Set Timezone
 echo ""
 echo "Setting Timezone back to ${TZ}..."
 ./tz.sh "${TZ}"
+
+# Update Powerwall-Dashboard stack
+echo ""
+echo "Updating Powerwall-Dashboard stack..."
+./compose-dash.sh up -d
 
 # Update Influxdb
 echo ""
@@ -172,25 +179,25 @@ for f in run-once*.sql; do
 done
 cd ..
 
-# Delete pyPowerwall for Upgrade
+# Delete pyPowerwall
 echo ""
-echo "Delete and Upgrade pyPowerwall to Latest"
+echo "Deleting old pyPowerwall..."
 docker stop pypowerwall
 docker rm pypowerwall
 
-# Delete telegraf for Upgrade
+# Delete telegraf
 echo ""
-echo "Delete and Upgrade telegraf to Latest"
+echo "Deleting old telegraf..."
 docker stop telegraf
 docker rm telegraf
 
-# Delete weather411 for Upgrade
+# Delete weather411
 echo ""
-echo "Delete and Upgrade weather411 to Latest"
+echo "Deleting old weather411..."
 docker stop weather411
 docker rm weather411
 
-# Restart Stack
+# Restart Stack and Rebuild containers
 echo ""
 echo "Restarting Powerwall-Dashboard stack..."
 ./compose-dash.sh up -d
