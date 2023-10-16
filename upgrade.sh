@@ -115,9 +115,9 @@ if [ ! -f ${COMPOSE_ENV_FILE} ]; then
     cp "${COMPOSE_ENV_FILE}.sample" "${COMPOSE_ENV_FILE}"
 else
     # Convert GRAFANAUSER to PWD_USER in existing compose env file (required in 2.10.0)
-    sed -i "s@GRAFANAUSER@PWD_USER@g" "${COMPOSE_ENV_FILE}"
+    sed -i.bak "s@GRAFANAUSER@PWD_USER@g" "${COMPOSE_ENV_FILE}"
     if grep -q "^PWD_USER=\"1000:1000\"" "${COMPOSE_ENV_FILE}"; then
-        sed -i "s@^PWD_USER=\"1000:1000\"@#PWD_USER=\"1000:1000\"@g" "${COMPOSE_ENV_FILE}"
+        sed -i.bak "s@^PWD_USER=\"1000:1000\"@#PWD_USER=\"1000:1000\"@g" "${COMPOSE_ENV_FILE}"
     fi
 fi
 
