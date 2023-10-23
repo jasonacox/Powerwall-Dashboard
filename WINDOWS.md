@@ -43,7 +43,13 @@ You will need to carry out this setup in several phases, and will need to **term
 
 You will want several terminal windows open - [Windows Terminal](https://aka.ms/terminal) is ideal as you can configure it to start **administrative** sessions of command prompts, powershell, and regular sessions of command prompts, powershell, and Ubuntu (WSL) tabs.
 
+### Install prerequisites
+* Install Hyper-V Server Role (and tools) - from an **administrative** Powershell `Install-WindowsFeature -Name Hyper-V -IncludeManagementTools -Restart`
+
+### Initial WSL Install / Update
 * Install WSL and check that your preferred distro is running WSL 2 as per the instructions above at [Upgrading WSL1 to WSL2](#upgrading-wsl1-to-wsl2)
+
+### Enable systemd
 * Enable systemd
     * logged into WSL, `sudo nano /etc/wsl.conf`
     * Add the following section to this file
@@ -52,15 +58,104 @@ You will want several terminal windows open - [Windows Terminal](https://aka.ms/
 [boot]
 systemd=true
 ```
-   * From a command prompt `wsl --shutdown`
+* From a command prompt `wsl --shutdown`
+
+### Enable Bridged Networking and DHCP Allocation
+* Create a Virtual Network Bridge to enable your WSL instance to be accessible from the rest of your LAN
+* From an **administrative** Powershell prompt
+    * List Network Adaptors on your host the first item in each line is the name you'll use for creating the bridge (then status, then description)
+    * `foreach ($net in Get-NetAdapter) {Write-Host $net.Name,":",$net.Status,":"$net.InterfaceDescription}`
+    * Create a Virtual Switch for the appropriate (e.g. main / LAN) adaptor by name - use *WSLBridge* for example as the suggested name
+    * `New-VMSwitch -Name WSLBridge -NetAdapterName LAN -AllowManagementOS $true`
+    * If you are remoted into your server, you will lose connectivity momentarily, but it will reconnect.
+* From an **administrative** Command (not Powershell) prompt
+    * Change to the home directory `CD %userprofile%`
+    * Edit (or create) .wslconfig `notepad .wslconfig`
+    * Set up the .wslconfig as shown in the example below.  Explanation follows.
+ 
+```
+# Settings apply across all Linux distros running on WSL 2
+[wsl2]
+networkingMode = bridged
+vmSwitch = WSLBridge
+#ipv6 = true
+#macAddress = AA:BB:CC:DD:EE:FF
+
+# Enable experimental features
+[experimental]
+#sparseVhd=true
+#autoMemoryReclaim=dropcache
+```
+
+* networkingMode = bridged enables bridged networking 
+* vmSwitch = WSLBridge specifies the bridge to use, which in turn specifies the host adapter to bridge to
+* ipv6 specifies whether or not to enable IPV6 networking.  Uncomment if you want to enable
+* macAddress will be uncommented in a subsequent step once you've identified the MAC address assigned by the WSL VM
+ 
+#### Experimental Features
+Experimental Features require a preview version of WSL - install by `wsl --update; wsl --update --pre-release`
+* sparseVhd enables SparseVHDs, which can save (a lot) of space in the VHDs
+* autoMemoryReclaim enables memory reclamation, which can free up memory, particularly after docker builds
+
+Once you have enabled these settings in .wslconfig, shutdown your WSL instance with `wsl --shutdown` from a command prompt, then re-start WSL
+Log into WSL, and type `ip a`
+
+You should see something like this - note the link/ether and inet values for eth0
+```
+2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
+    link/ether aa:bb:cc:dd:ee:ff brd ff:ff:ff:ff:ff:ff
+    inet 192.168.1.125/24 brd 192.168.1.255 scope global eth0
+       valid_lft forever preferred_lft forever
+```
+
+Grab the mac address listed, and use this to set up a DHPC reservation in your router with a hostname (e.g. wsl2) and update your .wslconfig file with this mac address, and uncomment the line.
+`wsl --shutdown` to shutdown WSL, then restart, and WSL should come up on the DHCP allocated IP address, and if you log in, `ip a` should show the new IP address.  You probably can't ping it yet, without Windows Firewall changes, but it's there on that IP.
+
+Open up the firewall port that Grafana will use, so that it's ready on first run, for later: **administrator** command prompt `netsh advfirewall firewall add rule name= "Powerwall-Dashboard" dir=in action=allow protocol=TCP localport=9000`
+
+### Docker Setup
+
+The Docker installation reference [is here](https://docs.docker.com/engine/install/ubuntu/) but at the time of documenation, the following steps are correct:
+* `Remove any old versions: for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do sudo apt-get remove $pkg; done`
+* Add Docker's official GPG Key
+```
+# Add Docker's official GPG key:
+sudo apt-get update
+sudo apt-get install ca-certificates curl gnupg
+sudo install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+sudo chmod a+r /etc/apt/keyrings/docker.gpg
+
+# Add the repository to Apt sources:
+echo \
+  "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+  "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update
+```
+* Install Docker `sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin`
+* Check Docker Runs `sudo docker run hello-world`
+* Create the Docker Group `sudo groupadd docker`
+* Add your user to that group `sudo usermod -aG docker $USER`
+* Log out of WSL, then log back in
+* Check Docker Runs without SUDO `docker run hello-world`
+* Configure Docker to start on WSL Startup
+```
+sudo systemctl enable docker.service
+sudo systemctl enable containerd.service
+sudo systemctl start docker.service
+sudo systemctl start containerd.service
+systemctl status docker.service
+systemctl status containerd.service
+```
 
 
-* docker ([install help](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/tools/DOCKER.md))
-* docker-compose (works with docker compose (v2) as well)
-* You should not need to run `sudo` to install this tool. See [Docker Errors](https://github.com/jasonacox/Powerwall-Dashboard#docker-errors) below for help.
-* TCP ports: 8086 (InfluxDB), 8675 (pyPowerwall), and 9000 (Grafana)
 
-## Setup
+
+
+
+
+
 
 Clone this repo on the host that will run the dashboard:
 
