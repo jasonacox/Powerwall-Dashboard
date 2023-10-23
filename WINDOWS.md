@@ -11,7 +11,7 @@ For many reasons, you probably want to upgrade from WSL1 to WSL2.
 
 To upgrade, you need to be running at least version 1093 of Windows 10 - you can check by running `winver`
 
-If you happen to have installed WSL to play around, and have an old version around, you might want to update the version of that installed distro (but, then again, it might be an old distro, so that might not be the best idea; if it doesn't have anything useful, you might be better of starting with a brand new, up to date Ubuntu distro).
+If you happen to have installed WSL to play around, and have an old version around, you might want to update the version of that installed distro (but, then again, it might be an old distro, so that might not be the best idea; if it doesn't have anything useful, you might be better off starting with a brand new, up to date Ubuntu distro).
 
 In any case, the best way to get the core WSL2 components installed, and updated is
 
