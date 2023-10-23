@@ -52,8 +52,7 @@ You will want several terminal windows open - [Windows Terminal](https://aka.ms/
 [boot]
 systemd=true
 ```
-    
-    * From a command prompt `wsl --shutdown`
+   * From a command prompt `wsl --shutdown`
 
 
 * docker ([install help](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/tools/DOCKER.md))
