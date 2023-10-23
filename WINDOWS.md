@@ -172,6 +172,11 @@ systemctl status containerd.service
 * Shutdown WSL
 * Test the Task - WSL should Start
  
+![image](https://github.com/BJReplay/Powerwall-Dashboard/assets/37993507/c21e35e1-24a2-41c2-b5d6-dd30503207b6)
+![image](https://github.com/BJReplay/Powerwall-Dashboard/assets/37993507/e39603d8-dd8b-4676-be89-efd2b64f6d91)
+![image](https://github.com/BJReplay/Powerwall-Dashboard/assets/37993507/e67f2caa-cb4b-44c2-85d7-6fd23935f212)
+![image](https://github.com/BJReplay/Powerwall-Dashboard/assets/37993507/860d1486-06e2-4dee-9d41-e442a7fc52e6)
+![image](https://github.com/BJReplay/Powerwall-Dashboard/assets/37993507/3119ed48-9e8c-44df-859e-fce27dfcbe7d)
 
 
 ### Powerwall-Dashboard Installation
