@@ -24,7 +24,7 @@ The host system will require:
 
 * docker ([install help](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/tools/DOCKER.md))
 * docker-compose (works with docker compose (v2) as well)
-* You should not need to run `sudo` to install this tool. See [Docker Errors](README.md#docker-errors) below for help.
+* You should not need to run `sudo` to install this tool. See [Docker Errors](#docker-errors) below for help.
 * TCP ports: 8086 (InfluxDB), 8675 (pyPowerwall), and 9000 (Grafana)
 
 ## Setup
@@ -47,7 +47,7 @@ Run the interactive setup script that will ask you for your Powerwall details an
   * _If you get docker errors during the setup, see the [Docker Errors](#docker-errors) section below._
   * _For Windows 11 users, see the [Windows 11 Instructions](#windows-11-instructions) below._
 
-Follow the **[Grafana Setup](README.md#grafana-setup)** instructions provided (or see below) to complete the setup.
+Follow the **[Grafana Setup](#grafana-setup)** instructions provided (or see below) to complete the setup.
 
 ## Option 2 - Manual Install
 
