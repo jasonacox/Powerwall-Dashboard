@@ -1,24 +1,33 @@
-# Powerwall-Dashboard
+# Windows Installation Details for WSL1 to WSL2 and No Docker Desktop 
 
-Monitoring Dashboard for the Tesla Powerwall using Grafana, InfluxDB, Telegraf and pyPowerwall.
+## Upgrading WSL1 to WSL2
 
-![Animation](https://user-images.githubusercontent.com/13752647/198901193-6f5d3f34-3ef6-4d6d-95ff-892a3763541b.png)
-![Monthly](https://user-images.githubusercontent.com/836718/214475577-2a633228-4db0-41b8-8738-51642222f462.png)
-![Yearly](https://user-images.githubusercontent.com/836718/214475014-4ba090dd-bca8-475f-bbdc-6d80ad5afbb0.png)
-![Powerwall+](https://user-images.githubusercontent.com/836718/214475810-bc5748fd-5a6f-4fd7-869b-88ba3f06346c.png)
-![FreqVoltage](https://user-images.githubusercontent.com/836718/214475204-d049c0c8-1b2c-4fb7-b015-0a638a33adde.png)
-![Alerts](https://user-images.githubusercontent.com/836718/214474307-9c85de97-3730-4e2c-a4a1-0173be3e0ea1.png)
-![Weather](https://user-images.githubusercontent.com/836718/214474825-75686470-03a9-41cc-b827-f54dc323f93e.png)
+If you have previously tried out Windows Subsystem for Linux (WSL) on Windows 10, you may have the original WSL1 version installed.
 
-## Dashboards
+For many reasons, you probably want to upgrade from WSL1 to WSL2.
 
-The default [dashboard.json](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/dashboards/dashboard.json) shown above, pulls in the live power flows from the Powerwall web portal and embeds that animation in the Grafana dashboard.
+To upgrade, you need to be running at least version 1093 of Windows 10 - you can check by running `winver`
 
-A non-animated version of the dashboard is also available using [dashboard-no-animation.json](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/dashboards/dashboard-no-animation.json)
+If you happen to have installed WSL to play around, and have an old version around, you might want to update the version of that installed distro (but, then again, it might be an old distro, so that might not be the best idea; if it doesn't have anything useful, you might be better of starting with a brand new, up to date Ubuntu distro).
 
-![Dashboard](https://user-images.githubusercontent.com/13752647/155657200-4309306d-84c1-40b7-8f4c-32ef0e8d2efe.png)
+In any case, the best way to get the core WSL2 components installed, and updated is
 
-## Requirements
+  ```
+    wsl.exe --install
+    wsl.exe --update
+  ```
+
+To then check if you have any WSL 1 distros installed, you can run the `wsl -l -v` command that will show you the version of any distros
+
+  ```
+  NAME      STATE           VERSION
+* Ubuntu    Running         2
+  ```
+
+If any are running version 1, you can upgrade them to version 1 with `wsl --set-version <distro-name> 2`, for example `wsl --set-version Ubuntu 2`
+
+
+## Running without Docker Desktop
 
 The host system will require:
 
@@ -212,43 +221,9 @@ The equations that are used to compute the estimated savings:
 
 Installing Powerwall-Dashboard on a Windows 11 host requires some additional setup. Install and Setup using administrator PowerShell or Windows Command Prompt:
 
-See [WINDOWS.md](https://github.com/jasonacox/Powerwall-Dashboard/WINDOWS.md) for notes on how to upgrade your WSL installation from WSL1 to WSL2 if required, or for an installation without Docker Desktop - only recommended for very advanced users.
-
-* (optionally) install *Windows Terminal* [Windows Terminal](https://aka.ms/terminal)
-* Install WSL `wsl --install` with an linux distro (recommend Ubuntu - this is the default WSL linux distro if you install with wsl --install)
-* Install *Docker Desktop* for Windows [Docker Desktop](https://www.docker.com/products/docker-desktop/)
-* Start your WSL from the (Ubuntu or your chosen distro) shortcut that will have been set up when you installed WSL or from Windows Terminal
-* Make sure you are in your home directory `cd ~`
-* Clone repo (`git clone https://github.com/jasonacox/Powerwall-Dashboard.git`)
+* Install WSL (wsl --install) with an OS (recommend Ubuntu)
+* Install *Git for Windows* (https://gitforwindows.org/)
+* Install *Docker Desktop* for Windows (https://www.docker.com/)
+* From *Git Bash* prompt, Clone repo (`git clone https://github.com/jasonacox/Powerwall-Dashboard.git`)
 * Run `cd Powerwall-Dashboard`
 * Run `./setup.sh`
-
-#### Tips and Tricks
-
-Since [pyPowerwall proxy](https://github.com/jasonacox/pypowerwall/tree/main/proxy) is part of this dashboard stack, you can query it to get raw data (read only) from the Powerwall API.  This includes some aggregate functions you might find useful for other projects.  I use this for [ESP32 driven display](https://github.com/jasonacox/Powerwall-Display) for example. Replace localhost with the address of the system running the dashboard:
-
-* pyPowerwall stats: http://localhost:8675/stats
-* Powerwall firmware version and uptime: http://localhost:8675/api/status
-* Powerwall temperatures: http://localhost:8675/temps
-* Powerwall device vitals: http://localhost:8675/vitals
-* Powerwall strings: http://localhost:8675/strings
-* Powerwall battery level: http://localhost:8675/soe
-* Key power data in CSV format (grid, home, solar, battery, batterylevel): http://localhost:8675/csv
-
-Since [weather411](https://hub.docker.com/r/jasonacox/weather411) is part of this dashboard stack (if you set it up) you can query it to get current weather data from its built-in API.
-
-* Current stats of weather411 service: http://localhost:8676/stats
-* Current conditions: http://localhost:8676/
-* Current conditions in JSON: http://localhost:8676/json
-
-**Data Retention and Backups**
-InfluxDB is configured to use a infinite retention policy (see [influxdb.sql](../influxdb/influxdb.sql)).  It uses continuous queries to downsample Powerwall data and preserve disk space.  However, this does not safeguard the data from accidental deletion or corruption.  It is recommend that you set up a backup plan to snapshot the data for disaster recovery. See [backups](backups/) for some suggestions.
-
-### Credits
-
-* This project is based on the great work by mihailescu2m at [https://github.com/mihailescu2m/powerwall_monitor](https://github.com/mihailescu2m/powerwall_monitor) and has been modified to use pypowerwall as a proxy to the Powerwall and includes solar String, Inverter and Powerwall Temperature graphs for Powerwall+ systems.
-* Grafana at https://github.com/grafana/grafana
-* Telegraf at https://github.com/influxdata/telegraf
-* InfluxDB at https://github.com/influxdata/influxdb
-* pyPowerwall at https://github.com/jasonacox/pypowerwall
-* Special thanks to the entire Powerwall-Dashboard community for the great engagement, contributions and encouragement! See [RELEASE notes](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/RELEASE.md#release-notes) for the ever growing list of improvements, tools and cast members making this project possible.
