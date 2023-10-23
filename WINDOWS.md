@@ -36,7 +36,7 @@ The host system will require:
 
 * The Hyper-V server role must be installed (this can be installed on Windows Workstation - it doesn't need to be Windows Server)
 * This works best with an accessible DHCP server like a home router that allows for DHCP reservations so that you can allocate a static lease and host name to your WSL VM
-* You need a degree of familiarity with Powershell or Hyper-V
+* You need a degree of familiarity with Powershell and Hyper-V
 * If you want WSL and Powerwall Dashboard to automatically restart after a server reboot, you'll need a windows account with a password (a passwordless account will not work)
  
 You will need to carry out this setup in several phases, and will need to **terminate WSL** in between several steps.
@@ -64,8 +64,9 @@ systemd=true
 * Create a Virtual Network Bridge to enable your WSL instance to be accessible from the rest of your LAN
 * From an **administrative** Powershell prompt
     * List Network Adaptors on your host the first item in each line is the name you'll use for creating the bridge (then status, then description)
-    * `foreach ($net in Get-NetAdapter) {Write-Host $net.Name,":",$net.Status,":"$net.InterfaceDescription}`
+    * `foreach ($net in Get-NetAdapter) {Write-Host $net.Name,":",$net.Status,":",$net.InterfaceDescription}`
     * Create a Virtual Switch for the appropriate (e.g. main / LAN) adaptor by name - use *WSLBridge* for example as the suggested name
+    * LAN is the name of the network adaptor in the example below - use the name returned by the previous command, you might see something like Ethernet 2, Ethernet, or something else.  Surround with Double Quotes if the name has spaces.
     * `New-VMSwitch -Name WSLBridge -NetAdapterName LAN -AllowManagementOS $true`
     * If you are remoted into your server, you will lose connectivity momentarily, but it will reconnect.
 * From an **administrative** Command (not Powershell) prompt
@@ -116,8 +117,8 @@ Open up the firewall port that Grafana will use, so that it's ready on first run
 
 ### Docker Setup
 
-The Docker installation reference [is here](https://docs.docker.com/engine/install/ubuntu/) but at the time of documenation, the following steps are correct:
-* `Remove any old versions: for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do sudo apt-get remove $pkg; done`
+The Docker installation reference [is here](https://docs.docker.com/engine/install/ubuntu/) but at the time of documentation, the following steps are correct:
+* Remove any old versions: `for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do sudo apt-get remove $pkg; done`
 * Add Docker's official GPG Key
 ```
 # Add Docker's official GPG key:
@@ -153,7 +154,7 @@ systemctl status containerd.service
 ### Create Windows Task Schedule Task to Restart WSL 
 
 * Create a Task (don't choose Basic Task, so you can correctly set all the options) - see example screenshots below
-    * Make sure you use the account that has set up WSL and this account has a pssword
+    * Make sure you use the account that has set up WSL and this account has a password
     * Choose Run whether user is logged on or not
     * Configure for Windows 10
     * Name the task Windows 10
@@ -163,7 +164,7 @@ systemctl status containerd.service
 * Set up one action
     * Start a program
     * `wsl` for the program
-    * Replace <YOURUSERNAME> in the argument `-u root -e sh -c "touch startup.log && service docker start && tmux new-session -d -s keepalive && /home/user/<YOURUSERNAME>/Powerwall-Dashboard/backfill.sh"`
+    * Replace USERNAME in the argument with your linux username - usually all lower case `-u root -e sh -c "touch startup.log && service docker start && tmux new-session -d -s keepalive && /home/user/USERNAME/Powerwall-Dashboard/backfill.sh"`
 * Modify the Conditions
     * Default Conditions should be OK - see example image below
 * Modify the Settings
