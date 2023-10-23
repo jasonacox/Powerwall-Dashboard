@@ -1,4 +1,7 @@
-# Windows Installation Details for WSL1 to WSL2 and No Docker Desktop 
+# Windows Installation Detailed Instructions
+
+1. [Upgrading WSL1 to WSL2](#upgrading-wsl1-to-wsl2)
+2. [Running without Docker Desktop](#running-without-docker-desktop)
 
 ## Upgrading WSL1 to WSL2
 
@@ -12,17 +15,17 @@ If you happen to have installed WSL to play around, and have an old version arou
 
 In any case, the best way to get the core WSL2 components installed, and updated is
 
-  ```
-    wsl.exe --install
-    wsl.exe --update
-  ```
+```
+wsl.exe --install
+wsl.exe --update
+```
 
 To then check if you have any WSL 1 distros installed, you can run the `wsl -l -v` command that will show you the version of any distros
 
-  ```
+```
   NAME      STATE           VERSION
 * Ubuntu    Running         2
-  ```
+```
 
 If any are running version 1, you can upgrade them to version 1 with `wsl --set-version <distro-name> 2`, for example `wsl --set-version Ubuntu 2`
 
@@ -30,6 +33,28 @@ If any are running version 1, you can upgrade them to version 1 with `wsl --set-
 ## Running without Docker Desktop
 
 The host system will require:
+
+* The Hyper-V server role must be installed (this can be installed on Windows Workstation - it doesn't need to be Windows Server)
+* This works best with an accessible DHCP server like a home router that allows for DHCP reservations so that you can allocate a static lease and host name to your WSL VM
+* You need a degree of familiarity with Powershell or Hyper-V
+* If you want WSL and Powerwall Dashboard to automatically restart after a server reboot, you'll need a windows account with a password (a passwordless account will not work)
+ 
+You will need to carry out this setup in several phases, and will need to **terminate WSL** in between several steps.
+
+You will want several terminal windows open - [Windows Terminal](https://aka.ms/terminal) is ideal as you can configure it to start **administrative** sessions of command prompts, powershell, and regular sessions of command prompts, powershell, and Ubuntu (WSL) tabs.
+
+* Install WSL and check that your preferred distro is running WSL 2 as per the instructions above at [Upgrading WSL1 to WSL2](#upgrading-wsl1-to-wsl2)
+* Enable systemd
+    * logged into WSL, `sudo nano /etc/wsl.conf`
+    * Add the following section to this file
+    
+```
+[boot]
+systemd=true
+```
+    
+    * From a command prompt `wsl --shutdown`
+
 
 * docker ([install help](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/tools/DOCKER.md))
 * docker-compose (works with docker compose (v2) as well)
