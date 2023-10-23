@@ -174,6 +174,5 @@ systemctl status containerd.service
 
 
 ### Powerwall-Dashboard Installation
-Run the remainder of the Powerwall Dashboard Installation as per the Quick Start or Manual Installation 
-https://github.com/jasonacox/Powerwall-Dashboard#option-1---quick-start
+Run the remainder of the Powerwall Dashboard Installation as per the Quick Start [README](README.md#option-1---quick-start) or Manual Installation 
 

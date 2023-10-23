@@ -24,7 +24,7 @@ The host system will require:
 
 * docker ([install help](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/tools/DOCKER.md))
 * docker-compose (works with docker compose (v2) as well)
-* You should not need to run `sudo` to install this tool. See [Docker Errors](https://github.com/jasonacox/Powerwall-Dashboard#docker-errors) below for help.
+* You should not need to run `sudo` to install this tool. See [Docker Errors](README.md#docker-errors) below for help.
 * TCP ports: 8086 (InfluxDB), 8675 (pyPowerwall), and 9000 (Grafana)
 
 ## Setup
@@ -44,10 +44,10 @@ Run the interactive setup script that will ask you for your Powerwall details an
     ./setup.sh
   ```
 
-  * _If you get docker errors during the setup, see the [Docker Errors](https://github.com/jasonacox/Powerwall-Dashboard#docker-errors) section below._
-  * _For Windows 11 users, see the [Windows 11 Instructions](https://github.com/jasonacox/Powerwall-Dashboard#windows-11-instructions) below._
+  * _If you get docker errors during the setup, see the [Docker Errors](#docker-errors) section below._
+  * _For Windows 11 users, see the [Windows 11 Instructions](#windows-11-instructions) below._
 
-Follow the **[Grafana Setup](https://github.com/jasonacox/Powerwall-Dashboard#grafana-setup)** instructions provided (or see below) to complete the setup.
+Follow the **[Grafana Setup](README.md#grafana-setup)** instructions provided (or see below) to complete the setup.
 
 ## Option 2 - Manual Install
 
@@ -212,7 +212,7 @@ The equations that are used to compute the estimated savings:
 
 Installing Powerwall-Dashboard on a Windows 11 host requires some additional setup. Install and Setup using **administrator** PowerShell or Windows Command Prompt:
 
-If required, see [WINDOWS.md](https://github.com/jasonacox/Powerwall-Dashboard/WINDOWS.md) for notes on how to upgrade your WSL installation from WSL1 to WSL2, or for an installation *without Docker Desktop* - only recommended for very advanced users.
+If required, see [WINDOWS.md](WINDOWS.md) for notes on how to upgrade your WSL installation from WSL1 to WSL2, or for an installation *without Docker Desktop* - only recommended for very advanced users.
 
 * (optional) install *Windows Terminal* [Windows Terminal](https://aka.ms/terminal)
 * Install WSL `wsl --install` with an linux distro (recommend Ubuntu - this is the default WSL linux distro if you install with wsl --install)
@@ -251,4 +251,4 @@ InfluxDB is configured to use a infinite retention policy (see [influxdb.sql](..
 * Telegraf at https://github.com/influxdata/telegraf
 * InfluxDB at https://github.com/influxdata/influxdb
 * pyPowerwall at https://github.com/jasonacox/pypowerwall
-* Special thanks to the entire Powerwall-Dashboard community for the great engagement, contributions and encouragement! See [RELEASE notes](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/RELEASE.md#release-notes) for the ever growing list of improvements, tools and cast members making this project possible.
+* Special thanks to the entire Powerwall-Dashboard community for the great engagement, contributions and encouragement! See [RELEASE notes](RELEASE.md#release-notes) for the ever growing list of improvements, tools and cast members making this project possible.
