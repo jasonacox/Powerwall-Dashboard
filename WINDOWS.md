@@ -117,6 +117,21 @@ Open up the firewall port that Grafana will use, so that it's ready on first run
 
 ### Docker Setup
 
+If you installed Ubuntu 22.04 (which is likely as it is an up to date release), Docker won't run unless you change iptables to use iptables legacy.  This is because 22.04LTS uses iptables-nft by default.
+* `sudo update-alternatives --config iptables`
+* Choose Option 1 (iptables-legacy)
+* Hit Enter
+
+```
+There are 2 choices for the alternative iptables (providing /usr/sbin/iptables).
+
+  Selection    Path                       Priority   Status
+------------------------------------------------------------
+  0            /usr/sbin/iptables-nft      20        auto mode
+* 1            /usr/sbin/iptables-legacy   10        manual mode
+  2            /usr/sbin/iptables-nft      20        manual mode
+```
+
 The Docker installation reference [is here](https://docs.docker.com/engine/install/ubuntu/) but at the time of documentation, the following steps are correct:
 * Remove any old versions: `for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do sudo apt-get remove $pkg; done`
 * Add Docker's official GPG Key
@@ -164,7 +179,7 @@ systemctl status containerd.service
 * Set up one action
     * Start a program
     * `wsl` for the program
-    * Replace USERNAME in the argument with your linux username - usually all lower case `-u root -e sh -c "touch startup.log && service docker start && tmux new-session -d -s keepalive && /home/user/USERNAME/Powerwall-Dashboard/backfill.sh"`
+    * Arguments are `-u root -e sh -c "touch startup.log && service docker start && tmux new-session -d -s keepalive"` - this touches a file (so that you can see when it last ran), ensures that the docker service is started, and starts a background tmux session to keep WSL running.
 * Modify the Conditions
     * Default Conditions should be OK - see example image below
 * Modify the Settings
