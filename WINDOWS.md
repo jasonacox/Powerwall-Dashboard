@@ -27,7 +27,7 @@ To then check if you have any WSL 1 distros installed, you can run the `wsl -l -
 * Ubuntu    Running         2
 ```
 
-If any are running version 1, you can upgrade them to version 1 with `wsl --set-version <distro-name> 2`, for example `wsl --set-version Ubuntu 2`
+If any are running version 1, you can upgrade them to version 2 with `wsl --set-version <distro-name> 2`, for example `wsl --set-version Ubuntu 2`
 
 
 ## Running without Docker Desktop
