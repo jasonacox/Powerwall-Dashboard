@@ -215,7 +215,7 @@ Installing Powerwall-Dashboard on a Windows 11 host requires some additional set
 If required, see [WINDOWS.md](WINDOWS.md) for notes on how to upgrade your WSL installation from WSL1 to WSL2, or for an installation *without Docker Desktop* - only recommended for very advanced users.
 
 * (optional) install *Windows Terminal* [Windows Terminal](https://aka.ms/terminal)
-* Install WSL `wsl --install` with an linux distro (recommend Ubuntu - this is the default WSL linux distro if you install with wsl --install)
+* Install WSL `wsl --install` with a Linux distro (recommend Ubuntu - this is the default WSL Linux distro if you install with wsl --install)
 * Install *Docker Desktop* for Windows [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 * Start your WSL from the shortcut for Ubuntu (or your chosen distro) that will have been set up when you installed WSL or from Windows Terminal
 * Make sure you are in your home directory `cd ~`
