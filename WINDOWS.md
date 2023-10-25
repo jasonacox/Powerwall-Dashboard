@@ -5,7 +5,7 @@
 
 ## Upgrading WSL1 to WSL2
 
-If you have previously tried out Windows Subsystem for Linux (WSL) on Windows 10, you may have the original WSL1 version installed.
+If you have previously tried out Windows Subsystem for Linux (WSL), you may have the original WSL1 version installed.
 
 For many reasons, you probably want to upgrade from WSL1 to WSL2.
 
@@ -36,7 +36,7 @@ The host system will require:
 
 * The Hyper-V server role must be installed (this can be installed on Windows Workstation - it doesn't need to be Windows Server)
 * This works best with an accessible DHCP server like a home router that allows for DHCP reservations so that you can allocate a static lease and host name to your WSL VM
-* You need a degree of familiarity with Powershell and Hyper-V
+* You need a degree of familiarity with PowerShell and Hyper-V
 * If you want WSL and Powerwall Dashboard to automatically restart after a server reboot, you'll need a windows account with a password (a passwordless account will not work)
  
 You will need to carry out this setup in several phases, and will need to **terminate WSL** in between several steps.
@@ -44,7 +44,7 @@ You will need to carry out this setup in several phases, and will need to **term
 You will want several terminal windows open - [Windows Terminal](https://aka.ms/terminal) is ideal as you can configure it to start **administrative** sessions of command prompts, powershell, and regular sessions of command prompts, powershell, and Ubuntu (WSL) tabs.
 
 ### Install prerequisites
-* Install Hyper-V Server Role (and tools) - from an **administrative** Powershell `Install-WindowsFeature -Name Hyper-V -IncludeManagementTools -Restart`
+* Install Hyper-V Server Role (and tools) - from an **administrative** PowerShell `Install-WindowsFeature -Name Hyper-V -IncludeManagementTools -Restart`
 
 ### Initial WSL Install / Update
 * Install WSL and check that your preferred distro is running WSL 2 as per the instructions above at [Upgrading WSL1 to WSL2](#upgrading-wsl1-to-wsl2)
@@ -62,14 +62,14 @@ systemd=true
 
 ### Enable Bridged Networking and DHCP Allocation
 * Create a Virtual Network Bridge to enable your WSL instance to be accessible from the rest of your LAN
-* From an **administrative** Powershell prompt
+* From an **administrative** PowerShell prompt
     * List Network Adaptors on your host the first item in each line is the name you'll use for creating the bridge (then status, then description)
     * `foreach ($net in Get-NetAdapter) {Write-Host $net.Name,":",$net.Status,":",$net.InterfaceDescription}`
     * Create a Virtual Switch for the appropriate (e.g. main / LAN) adaptor by name - use *WSLBridge* for example as the suggested name
     * LAN is the name of the network adaptor in the example below - use the name returned by the previous command, you might see something like Ethernet 2, Ethernet, or something else.  Surround with Double Quotes if the name has spaces.
     * `New-VMSwitch -Name WSLBridge -NetAdapterName LAN -AllowManagementOS $true`
     * If you are remoted into your server, you will lose connectivity momentarily, but it will reconnect.
-* From an **administrative** Command (not Powershell) prompt
+* From an **administrative** Command (not PowerShell) prompt
     * Change to the home directory `CD %userprofile%`
     * Edit (or create) .wslconfig `notepad .wslconfig`
     * Set up the .wslconfig as shown in the example below.  Explanation follows.
@@ -98,7 +98,8 @@ Experimental Features require a preview version of WSL - install by `wsl --updat
 * sparseVhd enables SparseVHDs, which can save (a lot) of space in the VHDs
 * autoMemoryReclaim enables memory reclamation, which can free up memory, particularly after docker builds
 
-Once you have enabled these settings in .wslconfig, shutdown your WSL instance with `wsl --shutdown` from a command prompt, then re-start WSL
+Once you have enabled these settings in .wslconfig, shutdown your WSL instance with `wsl --shutdown` from a command prompt, then re-start WSL.
+
 Log into WSL, and type `ip a`
 
 You should see something like this - note the link/ether and inet values for eth0
@@ -171,8 +172,8 @@ systemctl status containerd.service
 * Create a Task (don't choose Basic Task, so you can correctly set all the options) - see example screenshots below
     * Make sure you use the account that has set up WSL and this account has a password
     * Choose Run whether user is logged on or not
-    * Configure for Windows 10
-    * Name the task Windows 10
+    * Configure for Windows 11
+    * Name the task Windows 11
 * Set up two triggers
     * Startup - Delay task for 1 Minute - to give Windows time to Boot
     * Statup - Delay task for 5 Minutes - this is a back up for the first task, just in case.
