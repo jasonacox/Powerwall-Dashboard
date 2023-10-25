@@ -34,10 +34,11 @@ If any are running version 1, you can upgrade them to version 2 with `wsl --set-
 
 The host system will require:
 
+* Windows 11 - although in theory this should work on Windows 10, it has only been tested on Windows 11, and the advice on getting it working Windows 10 is don't bother, upgrade to Windows 11 instead.
 * The Hyper-V server role must be installed (this can be installed on Windows Workstation - it doesn't need to be Windows Server)
 * This works best with an accessible DHCP server like a home router that allows for DHCP reservations so that you can allocate a static lease and host name to your WSL VM
 * You need a degree of familiarity with PowerShell and Hyper-V
-* If you want WSL and Powerwall Dashboard to automatically restart after a server reboot, you'll need a windows account with a password (a passwordless account will not work)
+* If you want WSL and Powerwall Dashboard to automatically restart after a server reboot, you'll need a windows account with a password (a passwordless account will not work, because you can't save the credentials for Windows Task Scheduler)
  
 You will need to carry out this setup in several phases, and will need to **terminate WSL** in between several steps.
 
@@ -167,16 +168,16 @@ systemctl status docker.service
 systemctl status containerd.service
 ```
 
-### Create Windows Task Schedule Task to Restart WSL 
+### Create Windows Task Scheduler Task to Start WSL when the Windows host Starts (or Restarts)
 
 * Create a Task (don't choose Basic Task, so you can correctly set all the options) - see example screenshots below
     * Make sure you use the account that has set up WSL and this account has a password
     * Choose Run whether user is logged on or not
-    * Configure for Windows 11
-    * Name the task Windows 11
+    * Configure for Windows 10
+    * Name the task Start WSL
 * Set up two triggers
     * Startup - Delay task for 1 Minute - to give Windows time to Boot
-    * Statup - Delay task for 5 Minutes - this is a back up for the first task, just in case.
+    * Startup - Delay task for 5 Minutes - this is a back up for the first task, just in case.
 * Set up one action
     * Start a program
     * `wsl` for the program
