@@ -216,7 +216,7 @@ If required, see [WINDOWS.md](WINDOWS.md) for notes on how to upgrade your WSL i
 
 * (optional) install *Windows Terminal* [Windows Terminal](https://aka.ms/terminal)
 * Install WSL `wsl --install` with a Linux distro (recommend Ubuntu - this is the default WSL Linux distro if you install with wsl --install)
-* Install *Docker Desktop* for Windows [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+* Install *Docker Desktop* for Windows [Docker Desktop](https://www.docker.com/products/docker-desktop/) (after install, note sign in is optional, and to ensure the docker engine starts automatically go to Settings and select _Start Docker Desktop when you log in_)
 * Start your WSL from the shortcut for Ubuntu (or your chosen distro) that will have been set up when you installed WSL or from Windows Terminal
 * Make sure you are in your home directory `cd ~`
 * Clone repo (`git clone https://github.com/jasonacox/Powerwall-Dashboard.git`)
