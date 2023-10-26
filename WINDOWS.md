@@ -34,7 +34,7 @@ If any are running version 1, you can upgrade them to version 2 with `wsl --set-
 
 The host system will require:
 
-* Windows 11 - although in theory this should work on Windows 10, it has only been tested on Windows 11, and the advice on getting it working Windows 10 is don't bother, upgrade to Windows 11 instead.
+* Windows 11 - although in theory this should work on Windows 10, it has only been tested on Windows 11, and the advice on getting it working on Windows 10 is don't bother, upgrade to Windows 11 instead
 * The Hyper-V server role must be installed (this can be installed on Windows Workstation - it doesn't need to be Windows Server)
 * This works best with an accessible DHCP server like a home router that allows for DHCP reservations so that you can allocate a static lease and host name to your WSL VM
 * You need a degree of familiarity with PowerShell and Hyper-V
