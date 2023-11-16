@@ -6,16 +6,17 @@
 # Files
 CONF_FILE="weather/weather411.conf"
 CONF_SRC="weather/weather411.conf.sample"
+COMPOSE_ENV_FILE="compose.env"
 
 # Verify not running as root
-if [ "$EUID" -eq 0 ]; then 
-  echo "ERROR: Running this as root will cause permission issues."
-  echo ""
-  echo "Please ensure your local user is in the docker group and run without sudo."
-  echo "   sudo usermod -aG docker \$USER"
-  echo "   $0"
-  echo ""
-  exit 1
+if [ "$EUID" -eq 0 ]; then
+    echo "ERROR: Running this as root will cause permission issues."
+    echo ""
+    echo "Please ensure your local user is in the docker group and run without sudo."
+    echo "   sudo usermod -aG docker \$USER"
+    echo "   $0"
+    echo ""
+    exit 1
 fi
 
 # Docker Dependency Check - moved to compose-dash.sh, 14/10/22
@@ -46,7 +47,52 @@ else
     exit 0
 fi
 
-# Configuration File 
+# Check for missing docker compose env file
+if [ ! -f ${COMPOSE_ENV_FILE} ]; then
+    echo "ERROR: Missing compose.env file."
+    echo "Please run setup.sh or copy compose.env.sample to compose.env."
+    exit 1
+fi
+
+# Compose Profiles Helper Functions
+get_profile() {
+    if [ ! -f ${COMPOSE_ENV_FILE} ]; then
+        return 1
+    else
+        unset COMPOSE_PROFILES
+        . "${COMPOSE_ENV_FILE}"
+    fi
+    # Check COMPOSE_PROFILES for profile
+    IFS=',' read -a PROFILES <<< ${COMPOSE_PROFILES}
+    for p in "${PROFILES[@]}"; do
+        if [ "${p}" == "${1}" ]; then
+            return 0
+        fi
+    done
+    return 1
+}
+
+add_profile() {
+    # Create default docker compose env file if needed.
+    if [ ! -f ${COMPOSE_ENV_FILE} ]; then
+        cp "${COMPOSE_ENV_FILE}.sample" "${COMPOSE_ENV_FILE}"
+    fi
+    if ! get_profile "${1}"; then
+        # Add profile to COMPOSE_PROFILES and save to env file
+        PROFILES+=("${1}")
+        if [ -z "${COMPOSE_PROFILES}" ]; then
+            if grep -q "^#COMPOSE_PROFILES=" "${COMPOSE_ENV_FILE}"; then
+                sed -i.bak "s@^#COMPOSE_PROFILES=.*@COMPOSE_PROFILES=$(IFS=,; echo "${PROFILES[*]}")@g" "${COMPOSE_ENV_FILE}"
+            else
+                echo -e "\nCOMPOSE_PROFILES=$(IFS=,; echo "${PROFILES[*]}")" >> "${COMPOSE_ENV_FILE}"
+            fi
+        else
+            sed -i.bak "s@^COMPOSE_PROFILES=.*@COMPOSE_PROFILES=$(IFS=,; echo "${PROFILES[*]}")@g" "${COMPOSE_ENV_FILE}"
+        fi
+    fi
+}
+
+# Configuration File
 if [ -f ${CONF_FILE} ]; then
     echo "Existing Configuration Found"
     echo ""
@@ -63,15 +109,19 @@ if [ -f ${CONF_FILE} ]; then
     else
         echo "Using existing ${CONF_FILE}."
         echo ""
+        if ! get_profile "weather411"; then
+            add_profile "weather411"
+            if [ "${1}" != "setup" ]; then
+                . compose-dash.sh up -d
+            fi
+        fi
         exit 0
     fi
 fi
 
 # Get OpenWeatherMap data from user
 if [ ! -f ${CONF_FILE} ]; then
-    if [ -f ${CONF_SRC} ]; then
-        cp "${CONF_SRC}" "${CONF_FILE}"
-    else
+    if [ ! -f ${CONF_SRC} ]; then
         echo "ERROR: You are missing the ${CONF_SRC} file - please pull the latest"
         echo "       from https://github.com/jasonacox/Powerwall-Dashboard and try again."
         exit 1
@@ -83,7 +133,7 @@ if [ ! -f ${CONF_FILE} ]; then
     echo "   3. Click on 'API Keys' tab and copy 'Key' value and paste below."
     echo ""
     read -p 'Enter OpenWeatherMap API Key: ' APIKEY
-    if [ -z "${APIKEY}" ]; then 
+    if [ -z "${APIKEY}" ]; then
         echo "ERROR: A key is required. Exiting now."
         exit 0
     fi
@@ -92,12 +142,12 @@ if [ ! -f ${CONF_FILE} ]; then
     echo "   For help go to https://jasonacox.github.io/Powerwall-Dashboard/location.html"
     echo ""
     read -p 'Enter Latitude: ' LAT
-    if [ -z "${LAT}" ]; then 
+    if [ -z "${LAT}" ]; then
         echo "ERROR: Valid coordinates are required. Exiting now."
         exit 0
     fi
     read -p 'Enter Longitude: ' LON
-    if [ -z "${LON}" ]; then 
+    if [ -z "${LON}" ]; then
         echo "ERROR: Valid coordinates are required. Exiting now."
         exit 0
     fi
@@ -108,8 +158,6 @@ if [ ! -f ${CONF_FILE} ]; then
         echo "    M)etric = temperature in Celsius"
         echo "    I)mperial = temperature in Fahrenheit"
         echo "    S)tandard = temperature in Kelvin"
-        echo ""
-        echo "    Note: This only applies to weather data, Powerwall data is metric."
         echo ""
         read -p 'Enter M, I or S: ' response
         if [[ "$response" =~ ^([sS])$ ]]; then
@@ -128,6 +176,8 @@ if [ ! -f ${CONF_FILE} ]; then
         echo "      You may see errors or no data until it is fully activated."
         break
     done
+    cp "${CONF_SRC}" "${CONF_FILE}"
+    add_profile "weather411"
 fi
 
 # Replace configuration data with user input
@@ -146,6 +196,8 @@ if [[ "${1}" == "setup" ]]; then
 else
     # run docker compose in current shell.
     . compose-dash.sh up -d
+    echo "Fetching local weather..."
+    docker restart weather411
     echo "Weather Setup Complete"
     echo ""
 fi
