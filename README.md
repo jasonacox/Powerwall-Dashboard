@@ -12,9 +12,9 @@ Monitoring Dashboard for the Tesla Powerwall using Grafana, InfluxDB, Telegraf a
 
 ## Dashboards
 
-The default [dashboard.json](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/dashboards/dashboard.json) shown above, pulls in the live power flows from the Powerwall web portal and embeds that animation in the Grafana dashboard.
+The default [dashboard.json](dashboards/dashboard.json) shown above, pulls in the live power flows from the Powerwall web portal and embeds that animation in the Grafana dashboard.
 
-A non-animated version of the dashboard is also available using [dashboard-no-animation.json](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/dashboards/dashboard-no-animation.json)
+A non-animated version of the dashboard is also available using [dashboard-no-animation.json](dashboards/dashboard-no-animation.json)
 
 ![Dashboard](https://user-images.githubusercontent.com/13752647/155657200-4309306d-84c1-40b7-8f4c-32ef0e8d2efe.png)
 
@@ -22,7 +22,7 @@ A non-animated version of the dashboard is also available using [dashboard-no-an
 
 The host system will require:
 
-* docker ([install help](https://github.com/jasonacox/Powerwall-Dashboard/blob/main/tools/DOCKER.md))
+* docker ([install help](tools/DOCKER.md))
 * docker-compose (works with docker compose (v2) as well)
 * You should not need to run `sudo` to install this tool. See [Docker Errors](#docker-errors) below for help.
 * TCP ports: 8086 (InfluxDB), 8675 (pyPowerwall), and 9000 (Grafana)
@@ -37,13 +37,31 @@ Clone this repo on the host that will run the dashboard:
 
 ## Option 1 - Quick Start
 
-Run the interactive setup script that will ask you for your Powerwall details and Local *timezone*. To find your timezone, see the second column in this table: [https://en.wikipedia.org/wiki/List_of_tz_database_time_zones](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List).
+Run the interactive setup script that will ask you for your setup details.
 
   ```bash
     cd Powerwall-Dashboard
     ./setup.sh
   ```
 
+The dashboard can be installed in two different configurations.
+
+  ```
+    Powerwall Dashboard (v3.0.0) - SETUP
+    -----------------------------------------
+    Select configuration profile:
+
+    1 - default     (Powerwall w/ Gateway on LAN)
+    2 - solar-only  (No Gateway - data retrieved from Tesla Cloud)
+  ```
+
+Powerwall owners should select `option 1` (default).
+
+However, if you are Tesla Solar owner and don't have a Powerwall, you can select `option 2` (solar-only) and the dashboard will be installed in [Solar Only](tools/solar-only/) mode.
+
+Next, you will then be asked for your Local *timezone*, and your Powerwall details or Tesla Cloud login details. To find your timezone, see the second column in this table: [https://en.wikipedia.org/wiki/List_of_tz_database_time_zones](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List)
+
+  * _If you experience issues with your Powerwall or Tesla Cloud login details, re-run `setup.sh` to try again._
   * _If you get docker errors during the setup, see the [Docker Errors](#docker-errors) section below._
   * _For Windows 11 users, see the [Windows 11 Instructions](#windows-11-instructions) below._
 
@@ -74,9 +92,9 @@ You will want to set your local timezone by editing `pypowerwall.env`, `telegraf
       PW_DEBUG=no
   ```
 
-* Copy `compose.env.sample` to `compose.env` - you do not need to edit these defaults unless you are running a non-standard install such as docker rootless.
+* Copy `compose.env.sample` to `compose.env` and uncomment and modify the `COMPOSE_PROFILES` variable based on your setup. You do not need to edit the other defaults unless you are running a non-standard install such as docker rootless or require custom ports.
 
-* Copy `telegraf.local.sample` to `telegraf.local`. If you want to monitor custom measurements for your site (most users don't need this), add the required telegraf.conf TOML entries to this file. Once created, this file is not overwritten by upgrades or future runs of setup.sh. 
+* Copy `telegraf.local.sample` to `telegraf.local`. If you want to monitor custom measurements for your site (most users don't need this), add the required telegraf.conf TOML entries to this file. Once created, this file is not overwritten by upgrades or future runs of setup.sh.
 
 * Copy `grafana.env.sample` to `grafana.env` - you do not need to edit these defaults. However, there are optional settings for alert notifications and HTTPS.
 
@@ -123,15 +141,16 @@ Note: It can take a while for InfluxDB to start.  Also the influxdb.sql file is 
   - Enter your latitude and longitude. You can use this [web page](https://jasonacox.github.io/Powerwall-Dashboard/location.html) to find your GPS location if you don't know).
   - Click "Save & test" button
 
-* From `Dashboard\Browse` select `New/Import`, and upload one of the dashboard files below (in [dashboards folder](https://github.com/jasonacox/Powerwall-Dashboard/tree/main/dashboards)):
+* From `Dashboard\Browse` select `New/Import`, and upload one of the dashboard files below (in [dashboards folder](dashboards)):
 
   1. `dashboard.json` - Dashboard with the live trend graph, monthly power graphs, an animated power flow diagram and a Powerwall+ section that includes String data, temperature, voltage and frequency graphs. This also includes a "grid status" graph below the animation to identify and track grid outages.
-  2. `dashboard-no-animation.json` - Similar to above but without the animated power flow diagram.  
+  2. `dashboard-no-animation.json` - Similar to above but without the animated power flow diagram.
   3. `dashboard-simple.json` - Similar to above but without the Powerwall+ metrics.
+  4. `dashboard-solar-only.json` - For Tesla [Solar Only](tools/solar-only/) users, similar to above but without the animated power flow diagram or the Powerwall+ metrics.
 
 ### Notes
 
-* The database queries are set to use `America/Los_Angeles` as the timezone. Remember to edit the database commands [influxdb.sql](influxdb/influxdb.sql) and [powerwall.yml](powerwall.yml) with your own timezone. During import of dashboards into Grafana you'll be prompted to enter your timezone for queries.
+* The database queries are set to use `America/Los_Angeles` as the timezone. Remember to edit the database commands [influxdb.sql](influxdb/influxdb.sql) with your own timezone. During import of dashboards into Grafana you'll be prompted to enter your timezone for queries.
 
 ### Upgrading
 
