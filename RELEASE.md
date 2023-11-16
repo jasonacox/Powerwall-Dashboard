@@ -1,5 +1,9 @@
 # RELEASE NOTES
 
+## v3.0.0 - Integrate Solar Only Support
+
+* TODO
+
 ## v2.10.0 - Docker Compose and Container Updates
 
 * Update versions: Telegraf (v1.28.2) and pyPowerwall (v0.6.2t28)
