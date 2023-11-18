@@ -2,7 +2,11 @@
 
 ## v3.0.0 - Integrate Solar Only Support
 
-* TODO
+* Added Solar Only support as a setup option when installing Powerwall Dashboard by @mcbirse in https://github.com/jasonacox/Powerwall-Dashboard/pull/386 see https://github.com/jasonacox/Powerwall-Dashboard/issues/183 and https://github.com/jasonacox/Powerwall-Dashboard/tree/main/tools/solar-only
+* Updated Solar Only dashboard with user adjustable tz and cost variables, and removed Grid Status & Current State panels
+* Updated Docker Compose environment to support compose profiles and updated setup, upgrade and verify scripts
+* Added checks to setup script for common issues such as user/group problems
+* Added migration for beta Solar Only installs to upgrade script
 
 ## v2.10.0 - Docker Compose and Container Updates
 
