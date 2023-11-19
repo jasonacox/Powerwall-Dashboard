@@ -12,6 +12,9 @@
 # Stop on Errors
 set -e
 
+# Set Globals
+COMPOSE_ENV_FILE="compose.env"
+
 # Check for Arguments
 if [ -z "$1" ]
   then
@@ -51,11 +54,32 @@ if [ -f "powerwall.extend.yml" ]; then
 else
     pwextend=""
 fi
+# Compose Profiles Helper Functions
+get_profile() {
+    if [ ! -f ${COMPOSE_ENV_FILE} ]; then
+        return 1
+    else
+        unset COMPOSE_PROFILES
+        . "${COMPOSE_ENV_FILE}"
+    fi
+    # Check COMPOSE_PROFILES for profile
+    IFS=',' read -a PROFILES <<< ${COMPOSE_PROFILES}
+    for p in "${PROFILES[@]}"; do
+        if [ "${p}" == "${1}" ]; then
+            return 0
+        fi
+    done
+    return 1
+}
 
 echo "Running Docker Compose..."
 if docker-compose version > /dev/null 2>&1; then
     # Build Docker (v1)
-    docker-compose -f powerwall.yml $pwextend $@
+    pwconfig="powerwall-v1.yml"
+    if get_profile "solar-only"; then
+        pwconfig="powerwall-v1-solar.yml"
+    fi
+    docker-compose -f $pwconfig $pwextend $@
 else
     if docker compose version > /dev/null 2>&1; then
         # Build Docker (v2)
