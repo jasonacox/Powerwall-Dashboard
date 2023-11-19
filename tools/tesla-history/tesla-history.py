@@ -8,8 +8,11 @@
  For more information see https://github.com/jasonacox/Powerwall-Dashboard
 
  Usage:
-    * Install the required python modules:
+    * Install the required python modules (not required if run from docker):
         pip install python-dateutil teslapy influxdb
+
+    * Or, if running as a docker container, replace below examples with:
+        docker exec -it tesla-history python3 tesla-history.py [arguments]
 
     * To use this script:
 
@@ -29,6 +32,13 @@
             and/or
         python3 tesla-history.py --yesterday
 
+    - Run as a daemon service (continually poll for history data):
+        (docker container runs in daemon mode)
+            python3 tesla-history.py --daemon
+
+    - Example when running docker container to retrieve history for today and yesterday:
+        docker exec -it tesla-history python3 tesla-history.py --today --yesterday
+
     - Something went wrong? Use --remove option to remove data imported with this tool:
         (data logged by Powerwall-Dashboard will not be affected)
             python3 tesla-history.py --start "YYYY-MM-DD hh:mm:ss" --end "YYYY-MM-DD hh:mm:ss" --remove
@@ -38,6 +48,7 @@
 """
 import sys
 import os
+import signal
 import argparse
 import configparser
 import time
@@ -57,6 +68,8 @@ try:
 except:
     sys.exit("ERROR: Missing python influxdb module. Run 'pip install influxdb'.")
 
+BUILD = "0.1.4"
+VERBOSE = True
 SCRIPTPATH = os.path.dirname(os.path.realpath(sys.argv[0]))
 SCRIPTNAME = os.path.basename(sys.argv[0]).split('.')[0]
 CONFIGNAME = CONFIGFILE = f"{SCRIPTNAME}.conf"
@@ -73,6 +86,10 @@ group.add_argument('--site', type=int, help='site id (required for Tesla account
 group.add_argument('--reserve', type=int, help='also search for backup reserve percent data gaps and set to value')
 group.add_argument('--force', action="store_true", help='force import for date/time range (skip search for data gaps)')
 group.add_argument('--remove', action="store_true", help='remove imported data from InfluxDB for date/time range')
+group.add_argument('--daemon', action="store_true", help='run as a daemon service (continually poll for history data)')
+group.add_argument('--setup', action="store_true", help=argparse.SUPPRESS)
+group.add_argument('--timezone', help=argparse.SUPPRESS)
+group.add_argument('--version', action="store_true", help=argparse.SUPPRESS)
 group = parser.add_argument_group('date/time range options')
 group.add_argument('--start', help='start date and time ("YYYY-MM-DD hh:mm:ss")')
 group.add_argument('--end', help='end date and time ("YYYY-MM-DD hh:mm:ss")')
@@ -80,148 +97,309 @@ group.add_argument('--today', action="store_true", help='set start/end range to 
 group.add_argument('--yesterday', action="store_true", help='set start/end range to "yesterday"')
 args = parser.parse_args()
 
-# Check for invalid argument combinations
-if len(sys.argv) == 1:
-    parser.print_help(sys.stderr)
+if args.version:
+    print(f"{BUILD}")
     sys.exit()
-if (args.start or args.end) and (args.today or args.yesterday):
-    parser.error("arguments --start and --end cannot be used with --today or --yesterday")
-if (args.start and not args.end) or (args.end and not args.start):
-    parser.error("both arguments --start and --end are required")
-if not args.login and not ((args.start and args.end) or (args.today or args.yesterday)):
-    parser.error("missing arguments: --start/end or --today/yesterday")
-if args.reserve is not None and (args.reserve < 0 or args.reserve > 100):
-    parser.error(f"argument --reserve: invalid value: '{args.reserve}'")
+
+def sys_exit(error=None, halt=True):
+    """
+    Wrapper for sys.exit() for daemon mode support
+        * when running interactively, exit as normal with sys.exit()
+        * when running as a daemon, either go to sleep or return
+
+    Args:
+        error   = output error message to stderr
+        halt    = if true and running as a daemon, go to sleep forever, otherwise return if false
+    """
+    if args.daemon:
+        sys.stdout.flush()
+        if error is not None:
+            sys.stderr.write(error)
+        if halt:
+            sys.stderr.write("... Fix and restart.\n")
+            sys.stderr.flush()
+            while True:
+                try:
+                    time.sleep(3600)
+                except (KeyboardInterrupt, SystemExit):
+                    server_exit()
+        else:
+            sys.stderr.write("\n")
+            sys.stderr.flush()
+            return
+    else:
+        if error is not None:
+            sys.stderr.write(f"{error}\n")
+        sys.exit()
+
+def server_exit():
+    """
+    Print server shutdown notice and exit
+    """
+    sys.stdout.flush()
+    sys.stderr.write(f" ! {SCRIPTNAME} Server Exit\n")
+    sys.stderr.write("* Stopping\n")
+    sys.stderr.flush()
+    args.daemon = False
+    sys.exit()
+
+def sig_exit(signum, frame):
+    """
+    Raise SystemExit when signal caught
+    """
+    raise SystemExit
+
+# Register signal handler to exit gracefully on SIGTERM
+signal.signal(signal.SIGTERM, sig_exit)
+
+# Check for invalid argument combinations
+if args.daemon:
+    sys.stdout.flush()
+    sys.stderr.write(f"{SCRIPTNAME} Server [{BUILD}]\n")
+    if len(sys.argv) != 2:
+        sys_exit("ERROR: argument --daemon cannot accept other arguments")
+else:
+    if len(sys.argv) == 1:
+        parser.print_help(sys.stderr)
+        sys_exit()
+    if (args.start or args.end) and (args.today or args.yesterday):
+        parser.error("arguments --start and --end cannot be used with --today or --yesterday")
+    if (args.start and not args.end) or (args.end and not args.start):
+        parser.error("both arguments --start and --end are required")
+    if not (args.login or args.setup) and not ((args.start and args.end) or (args.today or args.yesterday)):
+        parser.error("missing arguments: --start/end or --today/yesterday")
+    if args.reserve is not None and (args.reserve < 0 or args.reserve > 100):
+        parser.error(f"argument --reserve: invalid value: '{args.reserve}'")
 
 if args.config:
     # Use alternate config file if specified
     CONFIGNAME = CONFIGFILE = args.config
+
+# Get config file from environment variable if defined
+CONFIGNAME = CONFIGFILE = os.getenv('TESLA_CONF', CONFIGNAME)
 
 # Load Configuration File
 config = configparser.ConfigParser(allow_no_value=True)
 if not os.path.exists(CONFIGFILE) and "/" not in CONFIGFILE:
     # Look for config file in script location if not found
     CONFIGFILE = f"{SCRIPTPATH}/{CONFIGFILE}"
+if args.setup and os.path.exists(CONFIGFILE):
+    # Prompt user to overwrite config when running setup
+    print(f"\nExisting config found '{CONFIGNAME}'\n")
+    while True:
+        response = input("Overwrite existing settings? [y/N] ").strip().lower()
+        if response == "y":
+            try:
+                os.remove(CONFIGFILE)
+                break
+            except Exception as err:
+                sys_exit(f"\nERROR: Failed to remove config '{CONFIGNAME}' - {repr(err)}")
+        elif response in ("n", ""):
+            break
 if os.path.exists(CONFIGFILE):
     try:
         config.read(CONFIGFILE)
 
         # Get Tesla Settings
         TUSER = config.get('Tesla', 'USER')
-        TAUTH = config.get('Tesla', 'AUTH')
+        TAUTH = os.getenv('TESLA_AUTH', config.get('Tesla', 'AUTH'))
         TDELAY = config.getint('Tesla', 'DELAY', fallback=1)
 
         if "/" not in TAUTH:
             TAUTH = f"{SCRIPTPATH}/{TAUTH}"
 
         # Get InfluxDB Settings
-        IHOST = config.get('InfluxDB', 'HOST')
-        IPORT = config.get('InfluxDB', 'PORT')
+        IHOST = os.getenv('INFLUX_HOST', config.get('InfluxDB', 'HOST'))
+        IPORT = int(os.getenv('INFLUX_PORT', config.getint('InfluxDB', 'PORT')))
         IUSER = config.get('InfluxDB', 'USER', fallback='')
         IPASS = config.get('InfluxDB', 'PASS', fallback='')
         IDB = config.get('InfluxDB', 'DB')
         ITZ = config.get('InfluxDB', 'TZ')
-    except Exception as err:
-        sys.exit(f"ERROR: Config file '{CONFIGNAME}' - {err}")
-else:
-    # Config not found - prompt user for configuration and save settings
-    print(f"\nConfig file '{CONFIGNAME}' not found\n")
 
-    while True:
-        response = input("Do you want to create the config now? [Y/n] ")
-        if response.lower() == "n":
-            sys.exit()
-        elif response.lower() in ("y", ""):
-            break
+        # Get settings when running as a daemon
+        if args.daemon:
+            WAIT = config.getint('daemon', 'WAIT', fallback=5)
+            HIST = config.getint('daemon', 'HIST', fallback=60)
+            RETRY = config.getint('daemon', 'RETRY', fallback=30)
+            SITE = config.getint('daemon', 'SITE', fallback=None)
+            LOG = config.get('daemon', 'LOG', fallback='no')
+            DEBUG = config.get('daemon', 'DEBUG', fallback='no')
+            TEST = config.get('daemon', 'TEST', fallback='no')
+            RESERVE = config.getint('daemon', 'RESERVE', fallback=None)
+
+            if WAIT < 5:
+                WAIT = 5
+            if HIST <= WAIT:
+                HIST = WAIT + 5
+            if RETRY < 1:
+                RETRY = 1
+            if SITE is not None:
+                args.site = SITE
+            if LOG.lower() != "yes":
+                VERBOSE = False
+            if DEBUG.lower() == "yes":
+                VERBOSE = True
+                args.debug = True
+            if TEST.lower() == "yes":
+                args.test = True
+            if RESERVE is not None and RESERVE >= 0 and RESERVE <= 100:
+                args.reserve = RESERVE
+    except Exception as err:
+        sys_exit(f"ERROR: Config file '{CONFIGNAME}' - {repr(err)}")
+else:
+    if args.setup:
+        # Create config with default values without prompting when running setup
+        print(f"\nCreating config file '{CONFIGNAME}'")
+    else:
+        # Config not found - prompt user for configuration and save settings
+        print(f"\nConfig file '{CONFIGNAME}' not found\n")
+
+    if args.daemon:
+        sys_exit("ERROR: No config file")
+
+    if not args.setup:
+        while True:
+            response = input("Do you want to create the config now? [Y/n] ").strip().lower()
+            if response == "n":
+                sys_exit()
+            elif response in ("y", ""):
+                break
 
     print("\nTesla Account Setup")
     print("-" * 19)
 
     while True:
-        response = input("Email address: ")
+        response = input("Email address: ").strip()
         if "@" not in response:
             print("Invalid email address\n")
         else:
-            TUSER = response.strip()
+            TUSER = response
             break
 
-    while True:
-        response = input(f"Save auth token to: [{AUTHFILE}] ")
-        if response.strip() == "":
+    if not args.setup:
+        # Prompt user for all other configuration settings when running interactively
+        response = input(f"Save auth token to: [{AUTHFILE}] ").strip()
+        if response == "":
             TAUTH = AUTHFILE
         else:
-            TAUTH = response.strip()
-        break
+            TAUTH = response
 
-    print("\nInfluxDB Setup")
-    print("-" * 14)
+        print("\nInfluxDB Setup")
+        print("-" * 14)
 
-    while True:
-        response = input("Host: [localhost] ")
-        if response.strip() == "":
+        response = input("Host: [localhost] ").strip().lower()
+        if response == "":
             IHOST = "localhost"
         else:
-            IHOST = response.strip()
-        break
+            IHOST = response
 
-    while True:
-        response = input("Port: [8086] ")
-        if response.strip() == "":
-            IPORT = "8086"
-        else:
-            IPORT = response.strip()
-        break
-
-    response = input("User (leave blank if not used): [blank] ")
-    IUSER = response.strip()
-
-    response = input("Pass (leave blank if not used): [blank] ")
-    IPASS = response.strip()
-
-    while True:
-        response = input("Database: [powerwall] ")
-        if response.strip() == "":
-            IDB = "powerwall"
-        else:
-            IDB = response.strip()
-        break
-
-    while True:
-        response = input("Timezone (e.g. America/Los_Angeles): ")
-        if response.strip() != "":
-            ITZ = response.strip()
-            if tz.gettz(ITZ) is None:
-                print("Invalid timezone\n")
-                continue
+        while True:
+            response = input("Port: [8086] ").strip()
+            if response == "":
+                IPORT = 8086
+            else:
+                try:
+                    IPORT = int(response)
+                except:
+                    print("\nERROR: Invalid number\n")
+                    continue
             break
 
-    # Set config values
+        response = input("User (leave blank if not used): [blank] ").strip()
+        IUSER = response
+
+        response = input("Pass (leave blank if not used): [blank] ").strip()
+        IPASS = response
+
+        response = input("Database: [powerwall] ").strip()
+        if response == "":
+            IDB = "powerwall"
+        else:
+            IDB = response
+
+    if args.setup and args.timezone not in (None, "") and tz.gettz(args.timezone) is not None:
+        # Get timezone if passed when running setup
+        ITZ = args.timezone
+    else:
+        while True:
+            response = input("Timezone (e.g. America/Los_Angeles): ").strip()
+            if response != "":
+                ITZ = response
+                if tz.gettz(ITZ) is None:
+                    print("Invalid timezone\n")
+                    continue
+                break
+
+    if args.setup:
+        # Set config defaults when running setup
+        TAUTH = AUTHFILE
+        IHOST = "localhost"
+        IPORT = 8086
+        IUSER = ""
+        IPASS = ""
+        IDB = "powerwall"
+
+    # Set other config defaults
+    TDELAY = 1
+    WAIT = 5
+    HIST = 60
+    RETRY = 30
+
+    # Save config values to file
     config.optionxform = str
     config['Tesla'] = {}
+    config['Tesla']['# Tesla Account e-mail address and Auth token file'] = None
     config['Tesla']['USER'] = TUSER
     config['Tesla']['AUTH'] = TAUTH
+    config['Tesla']['# Delay between API requests (seconds)'] = None
+    config['Tesla']['DELAY'] = str(TDELAY)
     config['InfluxDB'] = {}
+    config['InfluxDB']['# InfluxDB server settings'] = None
     config['InfluxDB']['HOST'] = IHOST
-    config['InfluxDB']['PORT'] = IPORT
+    config['InfluxDB']['PORT'] = str(IPORT)
+    config['InfluxDB']['# Auth (leave blank if not used)'] = None
     config['InfluxDB']['USER'] = IUSER
     config['InfluxDB']['PASS'] = IPASS
+    config['InfluxDB']['# Database name and timezone'] = None
     config['InfluxDB']['DB'] = IDB
     config['InfluxDB']['TZ'] = ITZ
-    TDELAY = 1
+    config['daemon'] = {}
+    config['daemon']['; Config options when running as a daemon (i.e. docker container)'] = None
+    config['daemon']['# Minutes to wait between poll requests'] = None
+    config['daemon']['WAIT'] = str(WAIT)
+    config['daemon']['# Minutes of history to retrieve for each poll request'] = None
+    config['daemon']['HIST'] = str(HIST)
+    config['daemon']['# Seconds to wait before retry on errors'] = None
+    config['daemon']['RETRY'] = str(RETRY)
+    config['daemon']['# Enable log output for each poll request'] = None
+    config['daemon']['LOG'] = "no"
+    config['daemon']['# Enable debug output (print raw responses from Tesla cloud)'] = None
+    config['daemon']['DEBUG'] = "no"
+    config['daemon']['# Enable test mode (disable writing to InfluxDB)'] = None
+    config['daemon']['TEST'] = "no"
+    config['daemon']['# If multiple Tesla Energy sites exist, uncomment below and enter Site ID'] = None
+    config['daemon']['# SITE = 123456789'] = None
 
     try:
         # Write config file
         with open(CONFIGFILE, 'w') as configfile:
             config.write(configfile)
     except Exception as err:
-        sys.exit(f"\nERROR: Failed to save config to '{CONFIGNAME}' - {err}")
+        sys_exit(f"\nERROR: Failed to save config to '{CONFIGNAME}' - {repr(err)}")
 
     print(f"\nConfig saved to '{CONFIGNAME}'\n")
+
+    if args.setup:
+        # Set auth file from environment variable if defined
+        TAUTH = os.getenv('TESLA_AUTH', TAUTH)
 
 # Global Variables
 powerdata = []
 eventdata = []
 reservedata = []
+powergaps = None
+gridgaps = None
+reservegaps = None
 sitetz = None
 tzname = None
 tzoffset = False
@@ -231,6 +409,32 @@ backup = None
 dayloaded = None
 eventsloaded = False
 reserveloaded = False
+fetcherr = False
+queryerr = False
+writeerr = False
+influxtz = tz.gettz(ITZ)
+utctz = tz.tzutc()
+
+# Check InfluxDB timezone is valid
+if influxtz is None:
+    sys_exit(f"ERROR: Invalid timezone - {ITZ}")
+
+if args.daemon:
+    sys.stdout.flush()
+    sys.stderr.write(f"* Configuration Loaded [{os.path.realpath(CONFIGFILE)}]\n")
+    sys.stderr.write(f" + Server - Wait: {WAIT}m, Hist: {HIST}m, Retry: {RETRY}s, Log: {LOG}, Debug: {DEBUG}, Test: {TEST}\n")
+    sys.stderr.write(f" + Tesla - User: {TUSER}, Auth: [{os.path.realpath(TAUTH)}]")
+    if TDELAY != 1:
+        sys.stderr.write(f", Delay: {TDELAY}s")
+    if RESERVE is not None:
+        sys.stderr.write(f", Reserve: {RESERVE}")
+    if SITE is not None:
+        sys.stderr.write(f", Site: {SITE}")
+    sys.stderr.write(f"\n + InfluxDB - Host: {IHOST}, Port: {IPORT}, DB: {IDB}, Timezone: {ITZ}")
+    if IUSER != "":
+        sys.stderr.write(f", User: {IUSER}, Pass: {IPASS}")
+    sys.stderr.write("\n")
+    sys.stderr.flush()
 
 # Helper Functions
 def check_datetime(dt, name, newtz):
@@ -252,16 +456,50 @@ def check_datetime(dt, name, newtz):
         dt = dt.replace(tzinfo=newtz)
 
     if not tz.datetime_exists(dt):
-        sys.exit(f'ERROR: {name.title()} date/time "{dt.strftime("%Y-%m-%d %H:%M:%S")}" does not exist for timezone {dt.tzname()} (DST change?)')
+        sys_exit(f'ERROR: {name.title()} date/time "{dt.strftime("%Y-%m-%d %H:%M:%S")}" does not exist for timezone {dt.tzname()} (DST change?)')
 
     if naive and tz.datetime_ambiguous(dt):
-        sys.exit(f'ERROR: Ambiguous {name} date/time "{dt.strftime("%Y-%m-%d %H:%M:%S")}" for timezone {dt.tzname()} (DST change?)\n\n'
+        sys_exit(f'ERROR: Ambiguous {name} date/time "{dt.strftime("%Y-%m-%d %H:%M:%S")}" for timezone {dt.tzname()} (DST change?)\n\n'
                 f'Re-run with desired timezone offset:\n'
                 f'   --{name} "{dt.replace(fold=0)}"\n'
                 f'or\n'
                 f'   --{name} "{dt.replace(fold=1)}"'
         )
     return dt
+
+def get_start_end():
+    """
+    Returns start and end datetimes based on possible argument combinations
+    """
+    if args.start and args.end:
+        try:
+            # Get start and end date/time
+            s = isoparse(args.start)
+            e = isoparse(args.end)
+        except Exception as err:
+            sys_exit(f"ERROR: Invalid date - {repr(err)}")
+    else:
+        if args.today:
+            # Set start and end date/time to today
+            s = datetime.today().replace(hour=0, minute=0, second=0, microsecond=0)
+            e = datetime.today().replace(hour=23, minute=59, second=59, microsecond=0)
+        if args.yesterday:
+            if args.today:
+                # Set date/time range for both today and yesterday
+                s -= timedelta(days=1)
+            else:
+                # Set start and end date/time to yesterday
+                s = datetime.today().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=1)
+                e = datetime.today().replace(hour=23, minute=59, second=59, microsecond=0) - timedelta(days=1)
+
+    # Check start/end datetimes are valid for the configured timezone and convert to aware datetime
+    start = check_datetime(s, 'start', influxtz).astimezone(utctz)
+    end = check_datetime(e, 'end', influxtz).astimezone(utctz)
+
+    if start >= end:
+        sys_exit("ERROR: End date/time must be after start date/time")
+
+    return start, end
 
 def lookup(data, keylist):
     """
@@ -290,6 +528,9 @@ def tesla_login(email):
     tesla = Tesla(email, cache_file=TAUTH)
 
     if not tesla.authorized:
+        if args.daemon:
+            sys_exit("ERROR: Tesla auth token invalid or missing. Run interactively with --login option to create")
+
         # Login to Tesla account and cache token
         state = tesla.new_state()
         code_verifier = tesla.new_code_verifier()
@@ -298,7 +539,7 @@ def tesla_login(email):
             print("Open the below address in your browser to login.\n")
             print(tesla.authorization_url(state=state, code_verifier=code_verifier))
         except Exception as err:
-            sys.exit(f"ERROR: Connection failure - {err}")
+            sys_exit(f"ERROR: Connection failure - {repr(err)}")
 
         print("\nAfter login, paste the URL of the 'Page Not Found' webpage below.\n")
 
@@ -310,7 +551,7 @@ def tesla_login(email):
                 tesla.fetch_token(authorization_response=input("Enter URL after login: "))
                 print("-" * 40)
             except Exception as err:
-                sys.exit(f"ERROR: Login failure - {err}")
+                sys_exit(f"ERROR: Login failure - {repr(err)}")
     else:
         # Enable retries
         tesla.close()
@@ -320,7 +561,8 @@ def tesla_login(email):
     try:
         # Get list of Tesla Energy sites
         for site in tesla.battery_list() + tesla.solar_list():
-            if args.debug: print(site)
+            if args.debug:
+                print(site)
 
             # Retrieve site id and name
             siteid = lookup(site, ['energy_site_id'])
@@ -333,9 +575,11 @@ def tesla_login(email):
                 continue
             try:
                 # Retrieve site name, site timezone and install date
-                if args.debug: print(f"Get SITE_CONFIG for Site ID {siteid}")
+                if args.debug:
+                    print(f"Get SITE_CONFIG for Site ID {siteid}")
                 data = site.api('SITE_CONFIG')
-                if args.debug: print(data)
+                if args.debug:
+                    print(data)
                 if isinstance(data, JsonDict) and 'response' in data:
                     d = data['response']
                     if sitename is None:
@@ -359,9 +603,11 @@ def tesla_login(email):
 
             try:
                 # Retrieve site current time
-                if args.debug: print(f"Get SITE_DATA for Site ID {siteid}")
+                if args.debug:
+                    print(f"Get SITE_DATA for Site ID {siteid}")
                 data = site.api('SITE_DATA')
-                if args.debug: print(data)
+                if args.debug:
+                    print(data)
                 sitetime = isoparse(data['response']['timestamp'])
             except:
                 sitetime = "No 'live status' returned"
@@ -376,7 +622,7 @@ def tesla_login(email):
                 sitelist[siteid]['instdate'] = siteinstdate
                 sitelist[siteid]['time'] = sitetime
     except Exception as err:
-        sys.exit(f"ERROR: Failed to retrieve PRODUCT_LIST - {err}")
+        sys_exit(f"ERROR: Failed to retrieve PRODUCT_LIST - {repr(err)}")
 
     # Print list of sites
     for siteid in sitelist:
@@ -421,11 +667,12 @@ def get_power_history(start, end):
 
     Adds data points to 'powerdata' in InfluxDB Line Protocol format with tag source='cloud'
     """
-    global sitetz, tzname, tzoffset, dayloaded, power, soe
+    global fetcherr, sitetz, tzname, tzoffset, dayloaded, power, soe
 
     if sitetz is None:
         try:
-            if args.debug: print("Get timezone from CALENDAR_HISTORY_DATA")
+            if args.debug:
+                print("Get timezone from CALENDAR_HISTORY_DATA")
 
             # Retrieve current history data to determine site timezone
             data = site.get_calendar_history_data(kind='power', end_date=sitetime.replace(second=59).isoformat())
@@ -440,22 +687,25 @@ def get_power_history(start, end):
             if not data:
                 data = site.get_calendar_history_data(kind='power', end_date=start.replace(second=59).isoformat())
             if not data:
-                if args.debug: print(f"No history returned, setting timezone to {ITZ}")
+                if args.debug:
+                    print(f"No history returned, setting timezone to {ITZ}")
                 sitetz = influxtz
                 tzname = ITZ
             else:
-                if args.debug: print(data)
+                if args.debug:
+                    print(data)
 
                 # Get timezone name or offset from history data
                 sitetz, tzname, tzoffset = get_timezone(data)
 
                 if sitetz is None:
-                    sys.exit(f"ERROR: Invalid timezone for history data - {tzname}")
+                    sys_exit(f"ERROR: Invalid timezone for history data - {tzname}")
 
         except Exception as err:
-            sys.exit(f"ERROR: Failed to retrieve timezone from history data - {err}")
+            sys_exit(f"ERROR: Failed to retrieve timezone from history data - {repr(err)}")
 
-    print(f"Retrieving data for gap: [{start.astimezone(influxtz)}] - [{end.astimezone(influxtz)}] ({str(end - start)}s)")
+    if VERBOSE:
+        print(f"Retrieving data for gap: [{start.astimezone(influxtz)}] - [{end.astimezone(influxtz)}] ({str(end - start)}s)")
 
     # Set time to end of day for daily calendar history data retrieval
     day = start.astimezone(sitetz).replace(hour=23, minute=59, second=59, tzinfo=None)
@@ -466,12 +716,14 @@ def get_power_history(start, end):
     while day <= endday:
         # Get this day's history if not already loaded
         if day != dayloaded:
-            print(f"* Loading daily history: [{day.strftime('%Y-%m-%d')}] ({tzname})")
+            if VERBOSE:
+                print(f"* Loading daily history: [{day.strftime('%Y-%m-%d')}] ({tzname})")
             time.sleep(TDELAY)
             try:
                 # Retrieve current day 'power' history ('power' data returned in 5 minute intervals)
                 power = site.get_calendar_history_data(kind='power', end_date=day.replace(tzinfo=sitetz).isoformat())
-                if args.debug: print(power)
+                if args.debug:
+                    print(power)
                 """ Example 'time_series' response:
                 {
                     "timestamp": "2022-04-18T12:10:00+10:00",
@@ -488,7 +740,7 @@ def get_power_history(start, end):
                     histtz, tzdata, tzoffset = get_timezone(power)
 
                     if histtz is None:
-                        sys.exit(f"ERROR: Invalid timezone for history data - {tzdata}")
+                        sys_exit(f"ERROR: Invalid timezone for history data - {tzdata}")
 
                     if sitetz != histtz:
                         # Update site timezone if mismatch found and re-run from next start day
@@ -501,15 +753,26 @@ def get_power_history(start, end):
                 if isinstance(site, Battery):
                     # Retrieve current day 'soe' history ('soe' data returned in 15 minute intervals)
                     soe = site.get_calendar_history_data(kind='soe', end_date=day.replace(tzinfo=sitetz).isoformat())
-                    if args.debug: print(soe)
+                    if args.debug:
+                        print(soe)
                     """ Example 'time_series' response:
                     {
                         "timestamp": "2022-04-18T12:00:00+10:00",
                         "soe": 67
                     }
                     """
+                if args.daemon and fetcherr:
+                    fetcherr = False
+                    sys.stdout.flush()
+                    sys.stderr.write(" + Retrieve history data succeeded\n")
+                    sys.stderr.flush()
             except Exception as err:
-                sys.exit(f"ERROR: Failed to retrieve history data - {err}")
+                sys_exit(f"ERROR: Failed to retrieve history data - {repr(err)}", halt=False)
+                if args.daemon:
+                    fetcherr = True
+                    sys.stderr.write(f" ! Retrieve history data failed, retrying in {RETRY} seconds\n")
+                    sys.stderr.flush()
+                return
 
             dayloaded = day
 
@@ -571,27 +834,40 @@ def get_backup_history(start, end):
 
     Adds data points to 'eventdata' in InfluxDB Line Protocol format with tag source='cloud'
     """
-    global eventsloaded, backup
+    global fetcherr, eventsloaded, backup
 
     if not eventsloaded:
-        print("Retrieving backup event history")
+        if VERBOSE:
+            print("Retrieving backup event history")
         time.sleep(TDELAY)
         try:
             # Retrieve full backup event history
             backup = site.get_history_data(kind='backup')
-            if args.debug: print(backup)
+            if args.debug:
+                print(backup)
             """ Example 'events' response (event duration in ms):
             {
                 "timestamp": "2022-04-19T20:55:53+10:00",
                 "duration": 3862580
             }
             """
+            if args.daemon and fetcherr:
+                fetcherr = False
+                sys.stdout.flush()
+                sys.stderr.write(" + Retrieve history data succeeded\n")
+                sys.stderr.flush()
         except Exception as err:
-            sys.exit(f"ERROR: Failed to retrieve history data - {err}")
+            sys_exit(f"ERROR: Failed to retrieve history data - {repr(err)}", halt=False)
+            if args.daemon:
+                fetcherr = True
+                sys.stderr.write(f" ! Retrieve history data failed, retrying in {RETRY} seconds\n")
+                sys.stderr.flush()
+            return
 
         eventsloaded = True
 
-    print(f"* Creating grid status data: [{start.astimezone(influxtz)}] - [{end.astimezone(influxtz)}] ({str(end - start)}s)")
+    if VERBOSE:
+        print(f"* Creating grid status data: [{start.astimezone(influxtz)}] - [{end.astimezone(influxtz)}] ({str(end - start)}s)")
 
     # Create baseline grid_status=1 points aligned to minute intervals for full start/end range
     gridstatus = []
@@ -623,7 +899,8 @@ def get_backup_history(start, end):
                     gridpoint['grid_status'] = 0
 
                     if not printed:
-                        print(event)
+                        if VERBOSE:
+                            print(event)
                         printed = True
 
     # Create event data for import to InfluxDB
@@ -645,10 +922,12 @@ def set_reserve_history(start, end):
     global reserveloaded
 
     if not reserveloaded:
-        print(f"Setting missing backup reserve percent history to '{args.reserve}'")
+        if VERBOSE:
+            print(f"Setting missing backup reserve percent history to '{args.reserve}'")
         reserveloaded = True
 
-    print(f"* Creating reserve pct data: [{start.astimezone(influxtz)}] - [{end.astimezone(influxtz)}] ({str(end - start)}s)")
+    if VERBOSE:
+        print(f"* Creating reserve pct data: [{start.astimezone(influxtz)}] - [{end.astimezone(influxtz)}] ({str(end - start)}s)")
 
     # Create baseline backup_reserve_percent=RESERVE points aligned to minute intervals for full start/end range
     reservepct = []
@@ -677,24 +956,38 @@ def search_influx(start, end, datatype):
 
     Returns a list of start/end datetime ranges for the 'datatype' ('power' or 'grid' or 'reserve')
     """
-    print(f"Searching InfluxDB for data gaps ({datatype})")
+    global queryerr
+
+    if VERBOSE:
+        print(f"Searching InfluxDB for data gaps ({datatype})")
 
     # Create query for the data type specified and set gap detection threshold
     if 'power' in datatype:
         query = f"SELECT home FROM autogen.http WHERE time >= '{start.isoformat()}' AND time <= '{end.isoformat()}'"
-        maxgap = timedelta(minutes=5)
+        mingap = timedelta(minutes=5)
     elif 'grid' in datatype:
         query = f"SELECT grid_status FROM grid.http WHERE time >= '{start.isoformat()}' AND time <= '{end.isoformat()}'"
-        maxgap = timedelta(minutes=1)
+        mingap = timedelta(minutes=1)
     elif 'reserve' in datatype:
         query = f"SELECT backup_reserve_percent FROM pod.http WHERE time >= '{start.isoformat()}' AND time <= '{end.isoformat()}'"
-        maxgap = timedelta(minutes=1)
+        mingap = timedelta(minutes=1)
 
     try:
         # Execute query
         result = client.query(query)
+
+        if args.daemon and queryerr:
+            queryerr = False
+            sys.stdout.flush()
+            sys.stderr.write(" + InfluxDB query succeeded\n")
+            sys.stderr.flush()
     except Exception as err:
-        sys.exit(f"ERROR: Failed to execute InfluxDB query: {query}; {err}")
+        sys_exit(f"ERROR: Failed to execute InfluxDB query: {query}; {repr(err)}", halt=False)
+        if args.daemon:
+            queryerr = True
+            sys.stderr.write(f" ! InfluxDB query failed, retrying in {RETRY} seconds\n")
+            sys.stderr.flush()
+        return None
 
     datagap = []
     startpoint = start
@@ -708,11 +1001,12 @@ def search_influx(start, end, datatype):
             if timestamp == start:
                 startfound = True
 
-            # Check if time since previous point exceeds maximum gap
+            # Check if time since previous point exceeds minimum gap
             duration = timestamp - startpoint
-            if duration > maxgap:
+            if duration > mingap:
                 endpoint = timestamp
-                print(f"* Found data gap: [{startpoint.astimezone(influxtz)}] - [{endpoint.astimezone(influxtz)}] ({str(duration)}s)")
+                if VERBOSE:
+                    print(f"* Found data gap: [{startpoint.astimezone(influxtz)}] - [{endpoint.astimezone(influxtz)}] ({str(duration)}s)")
 
                 # Ensure period falls between existing data points
                 if (startfound and startpoint == start) or startpoint > start:
@@ -729,9 +1023,10 @@ def search_influx(start, end, datatype):
         else:
             # Check last data point to end date/time
             duration = end - startpoint
-            if duration > maxgap:
+            if duration > mingap:
                 endpoint = end
-                print(f"* Found data gap: [{startpoint.astimezone(influxtz)}] - [{endpoint.astimezone(influxtz)}] ({str(duration)}s)")
+                if VERBOSE:
+                    print(f"* Found data gap: [{startpoint.astimezone(influxtz)}] - [{endpoint.astimezone(influxtz)}] ({str(duration)}s)")
 
                 # Add missing data period to list
                 period = {}
@@ -741,8 +1036,9 @@ def search_influx(start, end, datatype):
     else:
         # No points found - entire start/end range is a data gap
         duration = end - start
-        if duration > maxgap:
-            print(f"* Found data gap: [{start.astimezone(influxtz)}] - [{end.astimezone(influxtz)}] ({str(duration)}s)")
+        if duration > mingap:
+            if VERBOSE:
+                print(f"* Found data gap: [{start.astimezone(influxtz)}] - [{end.astimezone(influxtz)}] ({str(duration)}s)")
 
             # Add missing data period to list
             period = {}
@@ -756,7 +1052,10 @@ def remove_influx(start, end):
     """
     Remove imported data from InfluxDB (removes data points tagged with source='cloud')
     """
-    print("Removing imported data from InfluxDB")
+    global queryerr
+
+    if not args.daemon:
+        print("Removing imported data from InfluxDB")
 
     # Query definitions (sanity check data points before and after delete)
     power = f"SELECT * FROM autogen.http WHERE source='cloud' AND time >= '{start.isoformat()}' AND time <= '{end.isoformat()}'"
@@ -778,7 +1077,8 @@ def remove_influx(start, end):
         # Create list of start/end periods for InfluxDB update after delete
         if ptspower > 0:
             for point in result.get_points():
-                if args.debug: print(f"Remove data point: {point}")
+                if args.debug:
+                    print(f"Remove data point: {point}")
                 timestamp = isoparse(point['time']).astimezone(utctz)
 
                 if startpoint is None:
@@ -822,14 +1122,17 @@ def remove_influx(start, end):
         ptstotal = ptspower + ptsgrid + ptsreserve
 
         if ptstotal == 0:
-            print("* No data points found\n")
+            if not args.daemon:
+                print("* No data points found")
             return
 
         for point in result.get_points():
-            if args.debug: print(f"Remove data point: {point}")
+            if args.debug:
+                print(f"Remove data point: {point}")
 
         if args.test:
-            print(f"* {ptstotal} data points to be removed (*** skipped - test mode enabled ***)\n")
+            if not args.daemon:
+                print(f"* {ptstotal} data points to be removed (*** skipped - test mode enabled ***)")
             return
 
         # Delete data points where source='cloud'
@@ -859,30 +1162,54 @@ def remove_influx(start, end):
 
         # Total number of data points after delete (should be zero)
         ptstotalnow = ptspowernow + ptsgridnow + ptsreservenow
-        print(f"* {ptstotal - ptstotalnow} of {ptstotal} data points removed\n")
+        if not args.daemon:
+            print(f"* {ptstotal - ptstotalnow} of {ptstotal} data points removed")
 
-        if periods:
+        if periods and not args.daemon:
             # Update InfluxDB analysis data after delete
             update_influx(periods=periods)
 
+        if args.daemon and queryerr:
+            queryerr = False
+            sys.stdout.flush()
+            sys.stderr.write(" + InfluxDB query succeeded\n")
+            sys.stderr.flush()
     except Exception as err:
-        sys.exit(f"ERROR: Failed to execute InfluxDB query: {query}; {err}")
+        sys_exit(f"ERROR: Failed to execute InfluxDB query: {query}; {repr(err)}", halt=False)
+        if args.daemon:
+            queryerr = True
+            sys.stderr.write(f" ! InfluxDB query failed, retrying in {RETRY} seconds\n")
+            sys.stderr.flush()
 
 def write_influx():
     """
     Write 'powerdata', 'eventdata' and 'reservedata' Line Protocol format data points to InfluxDB
     """
+    global writeerr
+
     if args.test:
-        print("Writing to InfluxDB (*** skipped - test mode enabled ***)")
+        if VERBOSE:
+            print("Writing to InfluxDB (*** skipped - test mode enabled ***)")
         return
 
-    print("Writing to InfluxDB")
+    if VERBOSE:
+        print("Writing to InfluxDB")
     try:
         client.write_points(powerdata, time_precision='s', batch_size=10000, protocol='line')
         client.write_points(eventdata, time_precision='s', batch_size=10000, retention_policy='grid', protocol='line')
         client.write_points(reservedata, time_precision='s', batch_size=10000, retention_policy='pod', protocol='line')
+
+        if args.daemon and writeerr:
+            writeerr = False
+            sys.stdout.flush()
+            sys.stderr.write(" + InfluxDB write succeeded\n")
+            sys.stderr.flush()
     except Exception as err:
-        sys.exit(f"ERROR: Failed to write to InfluxDB: {err}")
+        sys_exit(f"ERROR: Failed to write to InfluxDB: {repr(err)}", halt=False)
+        if args.daemon:
+            writeerr = True
+            sys.stderr.write(f" ! InfluxDB write failed, retrying in {RETRY} seconds\n")
+            sys.stderr.flush()
 
 def update_influx(start=None, end=None, periods=None):
     """
@@ -894,11 +1221,15 @@ def update_influx(start=None, end=None, periods=None):
             or
         periods     = List of start and end date/time ranges to run queries for
     """
+    global queryerr
+
     if args.test:
-        print("Updating InfluxDB (*** skipped - test mode enabled ***)")
+        if VERBOSE:
+            print("Updating InfluxDB (*** skipped - test mode enabled ***)")
         return
 
-    print("Updating InfluxDB")
+    if VERBOSE:
+        print("Updating InfluxDB")
 
     # Create list of hourly/daily/monthly time periods to run queries for
     hourly = []
@@ -1008,19 +1339,71 @@ def update_influx(start=None, end=None, periods=None):
             query += f"INTO monthly.:MEASUREMENT FROM daily.http WHERE time >= '{period['start'].isoformat()}' AND time < '{period['end'].isoformat()}' "
             query += f"GROUP BY time(365d), month, year"
             client.query(query)
+
+        if args.daemon and queryerr:
+            queryerr = False
+            sys.stdout.flush()
+            sys.stderr.write(" + InfluxDB query succeeded\n")
+            sys.stderr.flush()
     except Exception as err:
-        sys.exit(f"ERROR: Failed to execute InfluxDB query: {query}; {err}")
+        sys_exit(f"ERROR: Failed to execute InfluxDB query: {query}; {repr(err)}", halt=False)
+        if args.daemon:
+            queryerr = True
+            sys.stderr.write(f" ! InfluxDB query failed, retrying in {RETRY} seconds\n")
+            sys.stderr.flush()
 
 # MAIN
+
+# Create InfluxDB client instance
+client = InfluxDBClient(host=IHOST, port=IPORT, username=IUSER, password=IPASS, database=IDB)
+
+if args.remove and not (args.login or args.setup):
+    # Get start/end datetimes from command line arguments
+    start, end = get_start_end()
+    print(f"Removing imported data for period: [{start.astimezone(influxtz)}] - [{end.astimezone(influxtz)}] ({str(end - start)}s)\n")
+
+    # Remove imported data from InfluxDB between start and end date/time
+    remove_influx(start, end)
+    print("\nDone.")
+    sys_exit()
 
 # Login and get list of Tesla Energy sites
 sitelist = tesla_login(TUSER)
 
 # Check for energy sites
 if len(sitelist) == 0:
-    sys.exit("ERROR: No Tesla Energy sites found")
+    sys_exit("ERROR: No Tesla Energy sites found")
 if len(sitelist) > 1 and args.site is None:
-    sys.exit('ERROR: Multiple Tesla Energy sites found - select site with option --site "Site ID"')
+    if args.setup:
+        # Prompt user to enter site if multiple sites found when running setup
+        print("Multiple Tesla Energy sites found...")
+        while True:
+            response = input("Enter Site ID: ").strip()
+            if response != "":
+                try:
+                    SITE = int(response)
+                except:
+                    print("Invalid Site ID\n")
+                    continue
+                if SITE not in sitelist:
+                    print(f"Site ID '{SITE}' not found\n")
+                    continue
+                break
+        print("-" * 40)
+        config['daemon'].pop('# SITE = 123456789')
+        config['daemon']['SITE'] = str(SITE)
+        try:
+            # Write config file
+            with open(CONFIGFILE, 'w') as configfile:
+                config.write(configfile)
+        except Exception as err:
+            sys_exit(f"\nERROR: Failed to save config to '{CONFIGNAME}' - {repr(err)}")
+        sys_exit()
+
+    if args.daemon:
+        sys_exit('ERROR: Multiple Tesla Energy sites found - edit config to select "Site ID"')
+    else:
+        sys_exit('ERROR: Multiple Tesla Energy sites found - select site with option --site "Site ID"')
 
 # Get site from sitelist
 if args.site is None:
@@ -1029,78 +1412,41 @@ else:
     if args.site in sitelist:
         siteinfo = sitelist[args.site]
     else:
-        sys.exit(f'ERROR: Site ID "{args.site}" not found')
+        sys_exit(f'ERROR: Site ID "{args.site}" not found')
 
-# Exit if login option given
-if args.login:
-    sys.exit()
+# Exit if login or setup option given
+if args.login or args.setup:
+    sys_exit()
 
-if args.start and args.end:
-    try:
-        # Get start and end date/time
-        s = isoparse(args.start)
-        e = isoparse(args.end)
-    except Exception as err:
-        sys.exit(f"ERROR: Invalid date - {err}")
+if args.daemon:
+    # Set initial start/end datetimes when running as a daemon
+    end = datetime.now(tz=influxtz).astimezone(utctz).replace(microsecond=0) - timedelta(minutes=WAIT + 2)
+    start = end - timedelta(minutes=HIST)
 else:
-    if args.today:
-        # Set start and end date/time to today
-        s = datetime.today().replace(hour=0, minute=0, second=0, microsecond=0)
-        e = datetime.today().replace(hour=23, minute=59, second=59, microsecond=0)
-    if args.yesterday:
-        if args.today:
-            # Set date/time range for both today and yesterday
-            s -= timedelta(days=1)
-        else:
-            # Set start and end date/time to yesterday
-            s = datetime.today().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=1)
-            e = datetime.today().replace(hour=23, minute=59, second=59, microsecond=0) - timedelta(days=1)
+    # Get start/end datetimes from command line arguments
+    start, end = get_start_end()
+    print(f"Running for period: [{start.astimezone(influxtz)}] - [{end.astimezone(influxtz)}] ({str(end - start)}s)\n")
 
-# Get site info and timezones
-site = siteinfo['site']
-influxtz = tz.gettz(ITZ)
-utctz = tz.tzutc()
-
-# Check InfluxDB timezone is valid
-if influxtz is None:
-    sys.exit(f"ERROR: Invalid timezone - {ITZ}")
-
-# Check start/end datetimes are valid for the configured timezone and convert to aware datetime
-start = check_datetime(s, 'start', influxtz).astimezone(utctz)
-end = check_datetime(e, 'end', influxtz).astimezone(utctz)
-
-if start >= end:
-    sys.exit("ERROR: End date/time must be after start date/time")
-
-print(f"Running for period: [{start.astimezone(influxtz)}] - [{end.astimezone(influxtz)}] ({str(end - start)}s)\n")
-
-# Limit start/end between install date and site current time
+# Get site current time
 if type(siteinfo['time']) is str:
     sitetime = datetime.now(tz=influxtz).astimezone(utctz).replace(microsecond=0)
 else:
     sitetime = siteinfo['time'].astimezone(utctz)
-siteinstdate = siteinfo['instdate'].astimezone(utctz)
-if start < siteinstdate:
-    start = siteinstdate
-if end > sitetime - timedelta(minutes=2):
-    end = sitetime - timedelta(minutes=2)
-if start >= end:
-    sys.exit("ERROR: No data available for this date/time range")
 
-try:
-    # Connect to InfluxDB
-    client = InfluxDBClient(host=IHOST, port=IPORT, username=IUSER, password=IPASS, database=IDB)
-except Exception as err:
-    sys.exit(f"ERROR: Failed to connect to InfluxDB: {err}")
+if not args.daemon:
+    # Limit start/end between install date and site current time
+    siteinstdate = siteinfo['instdate'].astimezone(utctz)
+    if start < siteinstdate:
+        start = siteinstdate
+    if end > sitetime - timedelta(minutes=2):
+        end = sitetime - timedelta(minutes=2)
+    if start >= end:
+        sys_exit("ERROR: No data available for this date/time range")
 
-powergaps = gridgaps = reservegaps = None
+# Get site info
+site = siteinfo['site']
 
-if args.remove:
-    # Remove imported data from InfluxDB between start and end date/time
-    remove_influx(start, end)
-    print("Done.")
-    sys.exit()
-elif args.force:
+if args.force:
     # Retrieve power history data between start and end date/time (skip search for gaps)
     get_power_history(start, end)
     print()
@@ -1110,9 +1456,66 @@ elif args.force:
         get_backup_history(start, end)
         print()
 
-    if args.reserve is not None:
-        set_reserve_history(start, end)
-        print()
+        if args.reserve is not None:
+            # Set backup reserve percent history data
+            set_reserve_history(start, end)
+            print()
+elif args.daemon:
+    try:
+        print("* Server Started")
+        print(f" + Retrieving {HIST} minutes of history every {WAIT} minutes")
+        sys.stdout.flush()
+        while True:
+            currentts = datetime.now(tz=influxtz).astimezone(utctz).replace(microsecond=0) - timedelta(minutes=2)
+            # Check if wait time passed
+            if currentts >= end + timedelta(minutes=WAIT):
+                # Update start/end range to get history data to current time
+                end = currentts
+                start = end - timedelta(minutes=HIST)
+            else:
+                time.sleep(1)
+                continue
+
+            # Re-initialise globals
+            powerdata.clear()
+            eventdata.clear()
+            reservedata.clear()
+            dayloaded = None
+            eventsloaded = False
+            reserveloaded = False
+
+            # Retrieve power history data
+            get_power_history(start, end)
+
+            if isinstance(site, Battery):
+                # Retrieve backup history data
+                get_backup_history(start, end)
+
+                if args.reserve is not None:
+                    # Set backup reserve percent history data
+                    set_reserve_history(start, end)
+
+            if powerdata or eventdata or reservedata:
+                if powerdata:
+                    # Remove previously written data points
+                    if VERBOSE:
+                        print("Clearing InfluxDB data")
+                    remove_influx(start, end)
+
+                # Write new data points to InfluxDB
+                write_influx()
+
+                if powerdata:
+                    # Update InfluxDB analysis data
+                    update_influx(start, end)
+
+            if fetcherr or queryerr or writeerr:
+                # If an error occurred, reset the end time to wait for the configured retry delay
+                end = datetime.now(tz=influxtz).astimezone(utctz).replace(microsecond=0) - timedelta(minutes=2) + timedelta(minutes=-WAIT, seconds=RETRY)
+
+            sys.stdout.flush()
+    except (KeyboardInterrupt, SystemExit):
+        server_exit()
 else:
     # Search InfluxDB for power usage data gaps
     powergaps = search_influx(start, end, 'power usage')
@@ -1123,14 +1526,14 @@ else:
         gridgaps = search_influx(start, end, 'grid status')
         print() if gridgaps else print("* None found\n")
 
-    if args.reserve is not None:
-        # Search InfluxDB for backup reserve percent data gaps
-        reservegaps = search_influx(start, end, 'backup reserve percent')
-        print() if reservegaps else print("* None found\n")
+        if args.reserve is not None:
+            # Search InfluxDB for backup reserve percent data gaps
+            reservegaps = search_influx(start, end, 'backup reserve percent')
+            print() if reservegaps else print("* None found\n")
 
     if not (powergaps or gridgaps or reservegaps):
         print("Done.")
-        sys.exit()
+        sys_exit()
 
     if powergaps:
         # Retrieve power history data for each gap period
@@ -1151,7 +1554,7 @@ else:
         print()
 
 if not (powerdata or eventdata or reservedata):
-    sys.exit("ERROR: No data returned for this date/time range")
+    sys_exit("ERROR: No data returned for this date/time range")
 
 # Write data points to InfluxDB
 write_influx()

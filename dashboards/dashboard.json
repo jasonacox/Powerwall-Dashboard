@@ -1439,7 +1439,7 @@
             ]
           ],
           "tags": [],
-          "tz": "America/Los_Angeles"
+          "tz": "$tz"
         },
         {
           "alias": "sync",
@@ -12156,6 +12156,6 @@
   "timezone": "${VAR_TZ}",
   "title": "Powerwall - Power Flow",
   "uid": "RSabAvRRzZ",
-  "version": 50,
+  "version": 51,
   "weekStart": ""
 }

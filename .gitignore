@@ -16,6 +16,7 @@
 # Local Settings
 compose.env
 grafana.env
+powerwall.extend.yml
 pypowerwall.env
 telegraf.local
 
@@ -38,3 +39,9 @@ influxdb/data/
 weather/uploadtest.sh
 weather/weather411.conf
 weather/weather411.conf.orig
+weather/contrib/ecowitt/ecowitt.conf
+
+tools/tesla-history/tesla-history.auth
+tools/tesla-history/tesla-history.conf
+tools/weather-history/weather-history.conf
+tools/ecowitt-weather-history/ecowitt-weather-history.conf
