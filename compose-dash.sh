@@ -73,17 +73,17 @@ get_profile() {
 }
 
 echo "Running Docker Compose..."
-if docker-compose version > /dev/null 2>&1; then
-    # Build Docker (v1)
-    pwconfig="powerwall-v1.yml"
-    if get_profile "solar-only"; then
-        pwconfig="powerwall-v1-solar.yml"
-    fi
-    docker-compose -f $pwconfig $pwextend $@
+if docker compose version > /dev/null 2>&1; then
+    # Build Docker (v2)
+    docker compose -f powerwall.yml $pwextend $@
 else
-    if docker compose version > /dev/null 2>&1; then
-        # Build Docker (v2)
-        docker compose -f powerwall.yml $pwextend $@
+    if docker-compose version > /dev/null 2>&1; then
+        # Build Docker (v1)
+        pwconfig="powerwall-v1.yml"
+        if get_profile "solar-only"; then
+            pwconfig="powerwall-v1-solar.yml"
+        fi
+        docker-compose -f $pwconfig $pwextend $@
     else
         echo "ERROR: docker-compose/docker compose is not available or not running."
         echo "This script requires docker-compose or docker compose."
