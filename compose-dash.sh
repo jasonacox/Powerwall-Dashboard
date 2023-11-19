@@ -79,9 +79,19 @@ if docker compose version > /dev/null 2>&1; then
 else
     if docker-compose version > /dev/null 2>&1; then
         # Build Docker (v1)
-        pwconfig="powerwall-v1.yml"
-        if get_profile "solar-only"; then
-            pwconfig="powerwall-v1-solar.yml"
+        if docker-compose -f powerwall.yml config > /dev/null 2>&1; then
+            pwconfig="powerwall.yml"
+        else
+            echo "** WARNING **"
+            echo "    You have an old version of docker-compose that will"
+            echo "    be depreciated in a future release. Please upgrade or"
+            echo "    report your use case to the Powerwall-Dashboard project."
+            echo ""
+            echo "Applying workaround for old docker-compose..."
+            pwconfig="powerwall-v1.yml"
+            if get_profile "solar-only"; then
+                pwconfig="powerwall-v1-solar.yml"
+            fi
         fi
         docker-compose -f $pwconfig $pwextend $@
     else

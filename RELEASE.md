@@ -1,5 +1,11 @@
 # RELEASE NOTES
 
+## v3.0.2 - Docker-Compose Fixes
+
+* Add future deprecation WARNING for older docker-compose versions.
+* Add support for docker-compose >= 1.28.0 to use compose profiles.
+* Change logic in `compose-dash.sh` to default to Docker compose V2.
+
 ## v3.0.1 - Fix for Docker-Compose V1
 
 * This fixes an issue introduced by v3.0.0 for old Docker-Compose V1 systems in https://github.com/jasonacox/Powerwall-Dashboard/pull/389
