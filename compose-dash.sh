@@ -12,6 +12,9 @@
 # Stop on Errors
 set -e
 
+# Set Globals
+COMPOSE_ENV_FILE="compose.env"
+
 # Check for Arguments
 if [ -z "$1" ]
   then
