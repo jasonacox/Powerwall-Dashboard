@@ -1,5 +1,10 @@
 # RELEASE NOTES
 
+## v3.0.1 - Fix for Docker-Compose V1
+
+* This fixes an issue introduced by v3.0.0 for old Docker-Compose V1 systems in https://github.com/jasonacox/Powerwall-Dashboard/pull/389
+* Updates example backup script to use `xz` compression in #337
+
 ## v3.0.0 - Integrate Solar Only Support
 
 * Added Solar Only support as a setup option when installing Powerwall Dashboard by @mcbirse in https://github.com/jasonacox/Powerwall-Dashboard/pull/386 see https://github.com/jasonacox/Powerwall-Dashboard/issues/183 and https://github.com/jasonacox/Powerwall-Dashboard/tree/main/tools/solar-only
