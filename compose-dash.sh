@@ -38,13 +38,13 @@ if ! docker info > /dev/null 2>&1; then
 fi
 
 # Load environment variables for compose
-if [ ! -f "compose.env" ]; then
-    echo "ERROR: Missing compose.env file."
-    echo "Please run setup.sh or copy compose.env.sample to compose.env."
+if [ ! -f ${COMPOSE_ENV_FILE} ]; then
+    echo "ERROR: Missing ${COMPOSE_ENV_FILE} file."
+    echo "Please run setup.sh or copy ${COMPOSE_ENV_FILE}.sample to ${COMPOSE_ENV_FILE}."
     exit 1
 fi
 set -a
-. compose.env
+. "${COMPOSE_ENV_FILE}"
 set +a
 
 # Docker Compose Extension Check
@@ -79,9 +79,19 @@ if docker compose version > /dev/null 2>&1; then
 else
     if docker-compose version > /dev/null 2>&1; then
         # Build Docker (v1)
-        pwconfig="powerwall-v1.yml"
-        if get_profile "solar-only"; then
-            pwconfig="powerwall-v1-solar.yml"
+        if docker-compose -f powerwall.yml config > /dev/null 2>&1; then
+            pwconfig="powerwall.yml"
+        else
+            echo "** WARNING **"
+            echo "    You have an old version of docker-compose that will"
+            echo "    be deprecated in a future release. Please upgrade or"
+            echo "    report your use case to the Powerwall-Dashboard project."
+            echo ""
+            echo "Applying workaround for old docker-compose..."
+            pwconfig="powerwall-v1.yml"
+            if get_profile "solar-only"; then
+                pwconfig="powerwall-v1-solar.yml"
+            fi
         fi
         docker-compose -f $pwconfig $pwextend $@
     else
