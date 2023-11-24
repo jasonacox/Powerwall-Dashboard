@@ -15,17 +15,28 @@
 
 # Local Settings
 compose.env
+compose-left.env
 grafana.env
 powerwall.extend.yml
 pypowerwall.env
+pypowerwall-left.env
 telegraf.local
+telegraf-left.local
 
 # Local Dev files
 *.bak
 backups/*.tgz
 influxdb/run-once-*.sql.done
+influxdb-left/run-once-*.sql.done
 
 sandbox/
+
+bin/
+env/
+include/
+
+lib/
+lib64/
 
 grafana/alerting/
 grafana/csv/
@@ -35,6 +46,9 @@ grafana/plugins/
 influxdb/meta/
 influxdb/wal/
 influxdb/data/
+influxdb-left/meta/
+influxdb-left/wal/
+influxdb-left/data/
 
 weather/uploadtest.sh
 weather/weather411.conf

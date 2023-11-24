@@ -67,7 +67,7 @@
     {
       "type": "datasource",
       "id": "influxdb",
-      "name": "InfluxDB",
+      "name": "InfluxDB-Left",
       "version": "1.0.0"
     },
     {
@@ -1060,7 +1060,7 @@
       "id": 13,
       "links": [],
       "options": {
-        "content": "<style>\ndiv.powerDiv {\n      width: 100%;\n      height: 100%;\n      overflow: hidden;\n      background: url(public/img/load_big.gif) center center no-repeat;\n    }\ndiv.firmwareDiv {\n      width: 100%;\n      position: absolute;\n      text-align: center;\n      left: 0;\n      bottom: 0;\n      overflow: hidden;\n    }\niframe.powerFrame {\n      width: 400px;\n      height: 300px;\n      transform: scale(0);\n      transform-origin: center;\n      position: absolute;\n      left: 50%;\n      top: 50%;\n      border-style: none;\n    }\n</style>\n<div class=\"powerDiv\">\n    <iframe id=\"frame8675\" class=\"powerFrame\" src=\"/public/img/grafana_icon.svg\">IFRAME not supported by browser.</iframe>\n</div>\n<div class=\"firmwareDiv\">\n  <p class=\"version\" style=\"color:gray; text-align: center;\">Firmware</p>\n</div>\n<script>\n// Scale Animation when Window is Resized\nfunction scale() {\n  document.querySelectorAll('.powerFrame').forEach(scaled => {\n    parent = scaled.parentNode;\n    ratio = Math.min(1,parent.offsetWidth / scaled.offsetWidth, parent.offsetHeight / scaled.offsetHeight);\n    scaled.style.transform = 'translate(-50%, -50%) scale(' + ratio + ')';\n  })\n}\nwindow.addEventListener('resize', function(e){ scale(); }, false);\n\n// Display Firmware Version\nfunction showversion() {\n    var pwver = window.location.protocol + \"//\" + window.location.hostname + \":8675/version\";\n    $.getJSON(pwver, function(data) {\n        var text = `Firmware: ${data.version.split(\" \")[0]}`;\n        $(\".version\").html(text);\n    });\n    setTimeout(showversion, 60000);\n}\nshowversion();\n\n// Load Animation from pyPowerwall\nvar powerFrame = document.getElementById('frame8675');\npowerFrame.onload = function() {\n  // remove animated gif from background now that frame downloaded...\n  this.parentNode.setAttribute('style','background: none');\n  // and scale the frame to fit...\n  scale();\n}\npowerFrame.src = window.location.protocol + \"//\" + window.location.hostname + \":8675/\";\n</script>",
+        "content": "<style>\ndiv.powerDiv {\n      width: 100%;\n      height: 100%;\n      overflow: hidden;\n      background: url(public/img/load_big.gif) center center no-repeat;\n    }\ndiv.firmwareDiv {\n      width: 100%;\n      position: absolute;\n      text-align: center;\n      left: 0;\n      bottom: 0;\n      overflow: hidden;\n    }\niframe.powerFrame {\n      width: 400px;\n      height: 300px;\n      transform: scale(0);\n      transform-origin: center;\n      position: absolute;\n      left: 50%;\n      top: 50%;\n      border-style: none;\n    }\n</style>\n<div class=\"powerDiv\">\n    <iframe id=\"frame8675\" class=\"powerFrame\" src=\"/public/img/grafana_icon.svg\">IFRAME not supported by browser.</iframe>\n</div>\n<div class=\"firmwareDiv\">\n  <p class=\"version\" style=\"color:gray; text-align: center;\">Firmware</p>\n</div>\n<script>\n// Scale Animation when Window is Resized\nfunction scale() {\n  document.querySelectorAll('.powerFrame').forEach(scaled => {\n    parent = scaled.parentNode;\n    ratio = Math.min(1,parent.offsetWidth / scaled.offsetWidth, parent.offsetHeight / scaled.offsetHeight);\n    scaled.style.transform = 'translate(-50%, -50%) scale(' + ratio + ')';\n  })\n}\nwindow.addEventListener('resize', function(e){ scale(); }, false);\n\n// Display Firmware Version\nfunction showversion() {\n    var pwver = window.location.protocol + \"//\" + window.location.hostname + \":8685/version\";\n    $.getJSON(pwver, function(data) {\n        var text = `Firmware: ${data.version.split(\" \")[0]}`;\n        $(\".version\").html(text);\n    });\n    setTimeout(showversion, 60000);\n}\nshowversion();\n\n// Load Animation from pyPowerwall\nvar powerFrame = document.getElementById('frame8675');\npowerFrame.onload = function() {\n  // remove animated gif from background now that frame downloaded...\n  this.parentNode.setAttribute('style','background: none');\n  // and scale the frame to fit...\n  scale();\n}\npowerFrame.src = window.location.protocol + \"//\" + window.location.hostname + \":8685/\";\n</script>",
         "mode": "html"
       },
       "pluginVersion": "9.1.2",
@@ -12155,7 +12155,7 @@
   },
   "timezone": "${VAR_TZ}",
   "title": "Powerwall - Power Flow",
-  "uid": "RSabAvRRzZ",
+  "uid": "RSabAvRRzY",
   "version": 51,
   "weekStart": ""
 }

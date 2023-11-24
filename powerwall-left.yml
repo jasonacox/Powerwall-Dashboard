@@ -1,0 +1,116 @@
+version: "3.5"
+
+services:
+    influxdb-left:
+        image: influxdb:1.8
+        container_name: influxdb-left
+        hostname: influxdb-left
+        restart: unless-stopped
+        volumes:
+            - type: bind
+              source: ./influxdb-left.conf
+              target: /etc/influxdb/influxdb-left.conf
+              read_only: true
+            - type: bind
+              source: ./influxdb-left
+              target: /var/lib/influxdb-left
+        ports:
+            - "${INFLUXDB_PORTS:-8096:8086}"
+
+    pypowerwall-left:
+        image: jasonacox/pypowerwall:0.6.2t28
+        container_name: pypowerwall-left
+        hostname: pypowerwall-left
+        restart: unless-stopped
+        user: "${PWD_USER:-1000:1000}"
+        ports:
+            - "${PYPOWERWALL_PORTS:-8685:8675}"
+        env_file:
+            - pypowerwall-left.env
+        profiles:
+            - default
+
+    telegraf-left:
+        image: telegraf:1.28.2
+        container_name: telegraf-left
+        hostname: telegraf-left
+        restart: unless-stopped
+        user: "${PWD_USER:-1000:1000}"
+        command: [
+            "telegraf",
+            "--config",
+            "/etc/telegraf/telegraf-left.conf",
+            "--config-directory",
+            "/etc/telegraf/telegraf-left.d"
+        ]
+        volumes:
+            - type: bind
+              source: ./telegraf-left.conf
+              target: /etc/telegraf/telegraf-left.conf
+              read_only: true
+            - type: bind
+              source: ./telegraf-left.local
+              target: /etc/telegraf/telegraf-left.d/local.conf
+              read_only: true
+        depends_on:
+            - influxdb-left
+            - pypowerwall-left
+        profiles:
+            - default
+
+    grafana:
+        image: grafana/grafana:9.1.2-ubuntu
+        container_name: grafana
+        hostname: grafana
+        restart: unless-stopped
+        user: "${PWD_USER:-1000:1000}"
+        volumes:
+            - type: bind
+              source: ./grafana
+              target: /var/lib/grafana
+        ports:
+            - "${GRAFANA_PORTS:-9000:9000}"
+        env_file:
+            - grafana.env
+        depends_on:
+            - influxdb-left
+
+    weather411:
+        image: jasonacox/weather411:0.2.2
+        container_name: weather411
+        hostname: weather411
+        restart: unless-stopped
+        user: "${PWD_USER:-1000:1000}"
+        volumes:
+            - type: bind
+              source: ./weather
+              target: /var/lib/weather
+              read_only: true
+        ports:
+            - "${WEATHER411_PORTS:-8676:8676}"
+        environment:
+            - WEATHERCONF=/var/lib/weather/weather411.conf
+        depends_on:
+            - influxdb-left
+        profiles:
+            - weather411
+
+    tesla-history:
+        image: jasonacox/tesla-history:0.1.4
+        container_name: tesla-history
+        hostname: tesla-history
+        restart: unless-stopped
+        user: "${PWD_USER:-1000:1000}"
+        volumes:
+            - type: bind
+              source: ./tools/tesla-history
+              target: /var/lib/tesla-history
+        environment:
+            - INFLUX_HOST=influxdb-left
+            - INFLUX_PORT=8096
+            - TESLA_CONF=/var/lib/tesla-history/tesla-history.conf
+            - TESLA_AUTH=/var/lib/tesla-history/tesla-history.auth
+        depends_on:
+            - influxdb-left
+        profiles:
+            - solar-only
