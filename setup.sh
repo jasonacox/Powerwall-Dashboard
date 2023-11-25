@@ -106,6 +106,7 @@ add_profile() {
 }
 
 upd_profile() {
+    # Update existing profile in COMPOSE_PROFILES and save to env file
     if get_profile "${1}"; then
         for i in "${!PROFILES[@]}"; do
             if [ "${PROFILES[$i]}" == "${1}" ]; then
@@ -169,7 +170,7 @@ do
     fi
     if [ ! -z "${current}" ] && [ "${NEW_PROFILE}" != "${PROFILE}" ]; then
         echo ""
-        read -r -p "You are already using the ${profdesc} configuration, are you sure you wish to change? [y/N]" response
+        read -r -p "You are already using the ${profdesc} configuration, are you sure you wish to change? [y/N] " response
         if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]
         then
             echo ""
@@ -266,6 +267,7 @@ if [ "${NEW_PROFILE}" != "${PROFILE}" ]; then
     ./compose-dash.sh down
     upd_profile "${PROFILE}" "${NEW_PROFILE}"
     PROFILE="${NEW_PROFILE}"
+    echo ""
 fi
 
 if [ "${PROFILE}" == "default" ]
