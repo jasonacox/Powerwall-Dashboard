@@ -486,11 +486,6 @@ get_stats()
             then
                 proxyfail=0
 
-                send_alert "$ERRORS" \
-                    "Proxy request successful" \
-                    "Request via proxy for $( echo $@ ) has now succeeded" \
-                    "$result"
-
             elif [ $proxyfail -eq 2 ] && [ $proxyactive -eq 0 ]
             then
                 proxyactive=1
