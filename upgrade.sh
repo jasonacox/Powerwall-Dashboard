@@ -362,18 +362,17 @@ echo "Restarting Powerwall-Dashboard stack..."
 # Display Final Instructions
 if [ "${PROFILE}" == "solar-only" ]
 then
-    DASHBOARD="dashboard-solar-only.json"
+    DASHBOARD="'dashboard-solar-only.json' or 'dashboard-no-animation.json'"
 else
-    DASHBOARD="dashboard.json"
+    DASHBOARD="'dashboard.json'"
 fi
 cat << EOF
 
 ---------------[ Update Dashboard ]---------------
 Open Grafana at http://localhost:9000/
 
-From 'Dashboard/Browse', select 'New/Import', and
-upload '${DASHBOARD}' located in the folder
-${PWD}/dashboards/
+From 'Dashboard\Browse', select 'New/Import', browse to ${PWD}/dashboards
+and upload ${DASHBOARD}.
 
 Please note, you may need to select data sources
 for 'InfluxDB' and 'Sun and Moon' via the
