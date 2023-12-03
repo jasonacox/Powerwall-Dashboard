@@ -1,8 +1,17 @@
 # RELEASE NOTES
 
-## v3.0.3 - TODO
+## v3.0.3 - Setup Profiles Updates
 
-* TODO
+* Updated `setup.sh` process descriptions to include Tesla Cloud data source in profile options (see below). This is currently the only option for Powerwall 3 owners (see #387) by @mcbirse
+* Update `setup.sh` to allow config changes.
+* Added weather data to `dashboard-no-animation.json` dashboard.
+* [[Tools](https://github.com/jasonacox/Powerwall-Dashboard/tree/main/tools)] - Revise `pwstatus` and `weather-history` retry handling by @mcbirse.
+
+```
+1 - Local Access (Powerwall 1, 2, or + using extended data from Tesla Gateway on LAN) - Default
+2 - Tesla Cloud (Solar-only, Powerwall 1, 2, +, or 3 using data from Tesla Cloud)
+```
+
 
 ## v3.0.2 - Docker-Compose Fixes
 
