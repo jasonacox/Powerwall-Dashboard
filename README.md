@@ -244,7 +244,7 @@ If required, see [WINDOWS.md](WINDOWS.md) for notes on how to upgrade your WSL i
 
 #### Powerwall 3
 
-The new Powerwall 3 does not currently provide a customer accessible API on the local network. Work is ongoing to determine if there is a way to get the rich set of data that is available directly from its predecesors (Powerall 2/+). In the meantime, users can use the "Tesla Cloud" profile to generate the basic graph data. See details in the Powerwall 3 Support issue: https://github.com/jasonacox/Powerwall-Dashboard/issues/387 
+The new Powerwall 3 does not currently provide a customer accessible API on the local network. Work is ongoing to determine if there is a way to get the rich set of data that is available directly from its predecesors (Powerwall 2/+). In the meantime, users can use the "Tesla Cloud" profile to generate the basic graph data. See details in the Powerwall 3 Support issue: https://github.com/jasonacox/Powerwall-Dashboard/issues/387
 
 #### Tips and Tricks
 
