@@ -89,6 +89,7 @@ parser.add_argument('-d', '--debug', action='store_true', help='enable debug out
 group = parser.add_argument_group('advanced options')
 group.add_argument('--config', help=f'specify an alternate config file (default: {CONFIGNAME})')
 group.add_argument('--w411conf', help='specify Weather411 config file to set defaults from during setup')
+group.add_argument('--non-interactive', action='store_true', help='do not display interactive prompts (write data and exit on errors)')
 group.add_argument('--force', action='store_true', help='force import for date/time range (skip search for data gaps)')
 group.add_argument('--remove', action='store_true', help='remove imported data from InfluxDB for date/time range')
 group = parser.add_argument_group('date/time range options')
@@ -436,6 +437,7 @@ stdcall = f"https://api.openweathermap.org/data/2.5/weather?lat={OWLAT}&lon={OWL
 weatherdata = []
 weathergaps = None
 currdata = None
+halted = False
 finished = False
 
 # Helper Functions
@@ -498,6 +500,32 @@ def lprmap(data, key, value, valtype=None):
         return f",{key}={lpr(v)}"
     return ""
 
+def halt_get_weather():
+    """
+    Show program halted prompt, allowing user to resume, write current data, or abort
+    """
+    global halted, finished
+
+    if args.non_interactive:
+        finished = True
+        return
+
+    print()
+    while True:
+        try:
+            response = input("Program halted - R)esume, Q)uit (write data), or A)bort: [R/Q/A] ").strip().lower()
+        except KeyboardInterrupt:
+            print()
+        else:
+            if response == "r":
+                halted = True
+                return
+            elif response == "q":
+                finished = True
+                return
+            elif response == "a":
+                sys.exit()
+
 # OpenWeatherMap Functions
 def get_weather_history(start, end):
     """
@@ -505,7 +533,7 @@ def get_weather_history(start, end):
 
     Adds data points to 'weatherdata' in InfluxDB Line Protocol format with tag source='timemachine'
     """
-    global currdata, finished
+    global currdata, halted, finished
 
     print(f"Retrieving data for gap: [{start.astimezone(influxtz)}] - [{end.astimezone(influxtz)}] ({str(end - start)}s)")
 
@@ -589,25 +617,19 @@ def get_weather_history(start, end):
                 finished = True
                 return
             else:
-                sys.exit(f"\nERROR: Bad response from OpenWeatherMap for {url} - {response.reason}: {response.text}")
+                print(f"\nERROR: Bad response from OpenWeatherMap for {url} - {response.reason}: {response.text}")
+                halt_get_weather()
+                if finished:
+                    return
         except KeyboardInterrupt:
-            print()
-            while True:
-                try:
-                    response = input("Program halted - R)esume, Q)uit (write data), or A)bort: [R/Q/A] ").strip().lower()
-                except KeyboardInterrupt:
-                    print()
-                else:
-                    if response == "r":
-                        halted = True
-                        break
-                    elif response == "q":
-                        finished = True
-                        return
-                    elif response == "a":
-                        sys.exit()
+            halt_get_weather()
+            if finished:
+                return
         except Exception as err:
-            sys.exit(f"\nERROR: Failed to retrieve history data - {err}")
+            print(f"\nERROR: Failed to retrieve history data - {err}")
+            halt_get_weather()
+            if finished:
+                return
 
         if not halted:
             # Increment time to next interval

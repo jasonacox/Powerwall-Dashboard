@@ -371,12 +371,22 @@ get_stats()
             then
                 if [ $proxyfail -eq 0 ]
                 then
+                    proxyfail=1
+
+                    log_msg "Waiting $RETRY seconds before request retry"
+
+                    sleep $RETRY &
+                    wait $!
+                    continue
+
+                elif [ $proxyfail -eq 1 ]
+                then
                     send_alert "$ERRORS" \
                         "Proxy request failed" \
                         "Request via proxy for $( echo $@ ) failed, switching to direct" \
                         "$result"
                 fi
-                proxyfail=1
+                proxyfail=2
                 proxyactive=0
                 continue
             fi
@@ -410,12 +420,22 @@ get_stats()
             then
                 if [ $proxyfail -eq 0 ]
                 then
+                    proxyfail=1
+
+                    log_msg "Waiting $RETRY seconds before request retry"
+
+                    sleep $RETRY &
+                    wait $!
+                    continue
+
+                elif [ $proxyfail -eq 1 ]
+                then
                     send_alert "$ERRORS" \
                         "Proxy error code returned" \
                         "Request via proxy for $( echo $@ ) returned error, switching to direct" \
                         "$result"
                 fi
-                proxyfail=1
+                proxyfail=2
                 proxyactive=0
                 continue
             fi
@@ -462,11 +482,15 @@ get_stats()
             requestfail=0
             errcodefail=0
 
-            if [ $proxyfail -eq 1 ] && [ $proxyactive -eq 0 ]
+            if [ $proxyfail -eq 1 ]
+            then
+                proxyfail=0
+
+            elif [ $proxyfail -eq 2 ] && [ $proxyactive -eq 0 ]
             then
                 proxyactive=1
 
-            elif [ $proxyfail -eq 1 ] && [ $proxyactive -eq 1 ]
+            elif [ $proxyfail -eq 2 ] && [ $proxyactive -eq 1 ]
             then
                 proxyfail=0
 

@@ -105,6 +105,19 @@ add_profile() {
     fi
 }
 
+upd_profile() {
+    # Update existing profile in COMPOSE_PROFILES and save to env file
+    if get_profile "${1}"; then
+        for i in "${!PROFILES[@]}"; do
+            if [ "${PROFILES[$i]}" == "${1}" ]; then
+                PROFILES[$i]="${2}"
+                sed -i.bak "s@^COMPOSE_PROFILES=.*@COMPOSE_PROFILES=$(IFS=,; echo "${PROFILES[*]}")@g" "${COMPOSE_ENV_FILE}"
+                break
+            fi
+        done
+    fi
+}
+
 # Docker Dependency Check
 if ! docker info > /dev/null 2>&1; then
     echo "ERROR: docker is not available or not running."
@@ -123,31 +136,57 @@ fi
 # Check COMPOSE_PROFILES for existing configuration profile
 if get_profile "default"; then
     PROFILE="default"
+    current="[1] "
+    profdesc="Local Access"
 elif get_profile "solar-only"; then
     PROFILE="solar-only"
+    current="[2] "
+    profdesc="Tesla Cloud"
 else
-    # Prompt for configuration profile if not set
-    echo "Select configuration profile:"
-    echo ""
-    echo " 1 - default     (Powerwall w/ Gateway on LAN)"
-    echo " 2 - solar-only  (No Gateway - data retrieved from Tesla Cloud)"
-    echo ""
-    while :
-    do
-        read -r -p "Select profile: " response
-        if [ "${response}" == "1" ]; then
-            PROFILE="default"
-        elif [ "${response}" == "2" ]; then
-            PROFILE="solar-only"
+    PROFILE="none"
+    current=""
+    profdesc="None"
+fi
+
+# Prompt for configuration profile
+echo "Select configuration profile:"
+echo ""
+echo "Current: ${profdesc}"
+echo ""
+echo " 1 - Local Access (Powerwall 1, 2, or + using extended data from Tesla Gateway on LAN) - Default"
+echo " 2 - Tesla Cloud  (Solar-only, Powerwall 1, 2, +, or 3 using data from Tesla Cloud)"
+echo ""
+while :
+do
+    read -r -p "Select profile: ${current}" response
+    if [ "${response}" == "1" ]; then
+        NEW_PROFILE="default"
+    elif [ "${response}" == "2" ]; then
+        NEW_PROFILE="solar-only"
+    elif [ -z "${response}" ] && [ ! -z "${current}" ]; then
+        NEW_PROFILE="${PROFILE}"
+    else
+        continue
+    fi
+    if [ ! -z "${current}" ] && [ "${NEW_PROFILE}" != "${PROFILE}" ]; then
+        echo ""
+        read -r -p "You are already using the ${profdesc} configuration, are you sure you wish to change? [y/N] " response
+        if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]
+        then
+            echo ""
+            break
         else
-            continue
+            echo "Cancel"
+            exit 1
         fi
+    else
         # Add selected profile to COMPOSE_PROFILES
+        PROFILE="${NEW_PROFILE}"
         add_profile "${PROFILE}"
         echo ""
         break
-    done
-fi
+    fi
+done
 
 # Check if running as non-default user (not required for Windows Git Bash)
 if ! type winpty > /dev/null 2>&1; then
@@ -220,6 +259,16 @@ CURRENT=`cat tz`
 echo "Timezone (leave blank for ${CURRENT})"
 read -p 'Enter Timezone: ' TZ
 echo ""
+
+# Switch configuration profile
+if [ "${NEW_PROFILE}" != "${PROFILE}" ]; then
+    echo "Changing configuration"
+    echo ""
+    ./compose-dash.sh down
+    upd_profile "${PROFILE}" "${NEW_PROFILE}"
+    PROFILE="${NEW_PROFILE}"
+    echo ""
+fi
 
 if [ "${PROFILE}" == "default" ]
 then
@@ -328,9 +377,9 @@ fi
 # Display Final Instructions
 if [ "${PROFILE}" == "solar-only" ]
 then
-    DASHBOARD="dashboard-solar-only.json"
+    DASHBOARD="'dashboard-solar-only.json' or 'dashboard-no-animation.json'"
 else
-    DASHBOARD="dashboard.json"
+    DASHBOARD="'dashboard.json'"
 fi
 cat << EOF
 ------------------[ Final Setup Instructions ]-----------------
@@ -351,7 +400,7 @@ Follow these instructions for *Grafana Setup*:
   - Enter your latitude and longitude (tool here: https://bit.ly/3wYNaI1 )
   - Click "Save & test" button
 
-* From 'Dashboard\Browse', select 'New/Import', and upload '${DASHBOARD}'
-  from the ${PWD}/dashboards folder.
+* From 'Dashboard\Browse', select 'New/Import', browse to ${PWD}/dashboards
+  and upload ${DASHBOARD}.
 
 EOF
