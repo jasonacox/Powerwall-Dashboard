@@ -47,17 +47,17 @@ Run the interactive setup script that will ask you for your setup details.
 The dashboard can be installed in two different configurations.
 
   ```
-    Powerwall Dashboard (v3.0.0) - SETUP
+    Powerwall Dashboard (v3.0.3) - SETUP
     -----------------------------------------
     Select configuration profile:
 
-    1 - default     (Powerwall w/ Gateway on LAN)
-    2 - solar-only  (No Gateway - data retrieved from Tesla Cloud)
+    1 - Local Access (Powerwall 1, 2, or + using LAN) - Default
+    2 - Tesla Cloud  (Solar-only, Powerwall 1, 2, +, or 3)
   ```
 
-Powerwall owners should select `option 1` (default).
+Powerwall 1, 2 or + owners should select `option 1` (Local Access).
 
-However, if you are Tesla Solar owner and don't have a Powerwall, you can select `option 2` (solar-only) and the dashboard will be installed in [Solar Only](tools/solar-only/) mode.
+If you are Tesla Solar owner and don't have a Powerwall, you can select `option 2` (Tesla Cloud) and the dashboard will be installed to pull the data available from the Tesla Cloud API (e.g. [Solar Only Mode](tools/solar-only/)) This mode also works for Powerwall 3 owners, but will not provide all the details or fidelity that the "Local Access" profile offers.
 
 Next, you will then be asked for your Local *timezone*, and your Powerwall details or Tesla Cloud login details. To find your timezone, see the second column in this table: [https://en.wikipedia.org/wiki/List_of_tz_database_time_zones](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List)
 
@@ -241,6 +241,10 @@ If required, see [WINDOWS.md](WINDOWS.md) for notes on how to upgrade your WSL i
 * Clone repo (`git clone https://github.com/jasonacox/Powerwall-Dashboard.git`)
 * Run `cd Powerwall-Dashboard`
 * Run `./setup.sh`
+
+#### Powerwall 3
+
+The new Powerwall 3 does not currently provide a customer accessible API on the local network. Work is ongoing to determine if there is a way to get the rich set of data that is available directly from its predecesors (Powerall 2/+). In the meantime, users can use the "Tesla Cloud" profile to generate the basic graph data. See details in the Powerwall 3 Support issue: https://github.com/jasonacox/Powerwall-Dashboard/issues/387 
 
 #### Tips and Tricks
 
