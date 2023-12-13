@@ -1,5 +1,9 @@
 # RELEASE NOTES
 
+## v3.0.4 - Bug Fix for MacOS
+
+* Fix `upgrade.sh` to address issue where get_profile() function incorrectly reads compose.env causing upgrade failure. Closes issue #400.
+
 ## v3.0.3 - Setup Profiles Updates
 
 * Updated `setup.sh` process descriptions to include Tesla Cloud data source in profile options (see below). This is currently the only option for Powerwall 3 owners (see #387) by @mcbirse

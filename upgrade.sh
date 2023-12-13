@@ -4,7 +4,7 @@
 set -e
 
 # Set Globals
-VERSION="3.0.3"
+VERSION="3.0.4"
 CURRENT="Unknown"
 COMPOSE_ENV_FILE="compose.env"
 TELEGRAF_LOCAL="telegraf.local"
@@ -49,7 +49,7 @@ get_profile() {
         . "${COMPOSE_ENV_FILE}"
     fi
     # Check COMPOSE_PROFILES for profile
-    IFS=',' read -a PROFILES <<< ${COMPOSE_PROFILES}
+    IFS=',' read -ra PROFILES <<< "${COMPOSE_PROFILES}"
     for p in "${PROFILES[@]}"; do
         if [ "${p}" == "${1}" ]; then
             return 0
