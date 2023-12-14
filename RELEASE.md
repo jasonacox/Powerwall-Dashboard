@@ -1,8 +1,10 @@
 # RELEASE NOTES
 
-## v3.0.4 - Bug Fix for MacOS
+## v3.0.5 - Bug Fix for MacOS
 
-* Fix `upgrade.sh` to address issue where get_profile() function incorrectly reads compose.env causing upgrade failure. Closes issue #400.
+* README: fix "Powerall" typo in Powerwall 3 section by @kenyon in #399
+* v3.0.4 - Fix `upgrade.sh` to address issue where get_profile() function incorrectly reads compose.env causing upgrade failure by @jasonacox in #401 Closes issue #400.
+* v3.0.5 - Fix `setup.sh`, `compose-dash.sh`, `verify.sh` and `weather.sh` by @mcbrise in https://github.com/jasonacox/Powerwall-Dashboard/commit/45428ab56aa18ef2a04dce0f56e527b0a48c606d
 
 ## v3.0.3 - Setup Profiles Updates
 
