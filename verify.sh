@@ -65,7 +65,7 @@ get_profile() {
         . "${COMPOSE_ENV_FILE}"
     fi
     # Check COMPOSE_PROFILES for profile
-    IFS=',' read -a PROFILES <<< ${COMPOSE_PROFILES}
+    IFS=',' read -ra PROFILES <<< "${COMPOSE_PROFILES}"
     for p in "${PROFILES[@]}"; do
         if [ "${p}" == "${1}" ]; then
             return 0
