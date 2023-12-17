@@ -53,12 +53,12 @@ docker exec influxdb influxd backup -database powerwall /var/lib/influxdb/backup
 # Backup Powerwall-Dashboard Data
 echo "Backing up Powerwall-Dashboard Data (influxdb)"
 cd  ${DASHBOARD}
-tar -zcvf ${BACKUP_FOLDER}/Powerwall-Dashboard.$STAMP.tgz influxdb 
+tar -Jcvf ${BACKUP_FOLDER}/Powerwall-Dashboard.$STAMP.tar.xz influxdb 
 
 # Cleanup Old Backups
 echo "Cleaning up old backups"
 rm -rf ${DASHBOARD}/influxdb/backups/*        # Delete InfluxDB snapshots after backup
-find ${BACKUP_FOLDER}/Powerwall-Dashboard.*tgz -mtime +${KEEP} -type f -delete
+find ${BACKUP_FOLDER}/Powerwall-Dashboard.*tar.xz -mtime +${KEEP} -type f -delete
 echo "Done"
 ```
 
@@ -73,8 +73,8 @@ Naturally, whatever backup plan you decide to do, make sure you test it. Copy th
     ```
 3. Restore backup files
     ```bash
-    # From Powerwall-Dashboard folder 
-    tar -zxvf /backup/Powerwall-Dashboard.xyz.tgz
+    # Inside the Powerwall-Dashboard folder, extract the backup archive
+    tar -Jxvf /backup/Powerwall-Dashboard.xyz.tar.xz
     ```
 4. Start containers
     ```bash
