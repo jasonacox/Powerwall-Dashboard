@@ -2,8 +2,8 @@
 
 ## v3.0.6 - Powerflow Animation Update
 
-* Update to latest pypowerwall proxy t29: 
-* Default page loaded by proxy (http://pypowerwall/) will render Powerflow Animation. Animation assets (html, css, js, images, fonts, svg) will render from local filesystem instead of pulling from Powerwall TEG portal resulting in faster render time.
+* Update to latest pypowerwall proxy t29:
+* Default page loaded by proxy (http://localhost:8675/) will render Powerflow Animation. Animation assets (html, css, js, images, fonts, svg) will render from local filesystem instead of pulling from Powerwall TEG portal resulting in faster render time.
 
 ## v3.0.5 - Bug Fix for MacOS
 
