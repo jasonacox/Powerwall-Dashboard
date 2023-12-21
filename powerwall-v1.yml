@@ -18,7 +18,7 @@ services:
             - "${INFLUXDB_PORTS:-8086:8086}"
 
     pypowerwall:
-        image: jasonacox/pypowerwall:0.6.4t29
+        image: jasonacox/pypowerwall:0.6.4t32
         container_name: pypowerwall
         hostname: pypowerwall
         restart: unless-stopped
