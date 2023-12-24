@@ -8,6 +8,7 @@ set -e
 
 # Set Globals
 COMPOSE_ENV_FILE="compose.env"
+INFLUXDB_ENV_FILE="influxdb.env"
 TELEGRAF_LOCAL="telegraf.local"
 PW_ENV_FILE="pypowerwall.env"
 GF_ENV_FILE="grafana.env"
@@ -305,6 +306,11 @@ then
     if [ ! -f ${TELEGRAF_LOCAL} ]; then
         cp "${TELEGRAF_LOCAL}.sample" "${TELEGRAF_LOCAL}"
     fi
+fi
+
+# Create InfluxDB env file if missing (required in 3.0.7)
+if [ ! -f ${INFLUXDB_ENV_FILE} ]; then
+    cp "${INFLUXDB_ENV_FILE}.sample" "${INFLUXDB_ENV_FILE}"
 fi
 
 # Create Grafana Settings if missing (required in 2.4.0)

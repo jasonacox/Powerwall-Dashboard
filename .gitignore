@@ -16,6 +16,7 @@
 # Local Settings
 compose.env
 grafana.env
+influxdb.env
 powerwall.extend.yml
 pypowerwall.env
 telegraf.local

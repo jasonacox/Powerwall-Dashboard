@@ -4,9 +4,10 @@
 set -e
 
 # Set Globals
-VERSION="3.0.6"
+VERSION="3.0.7"
 CURRENT="Unknown"
 COMPOSE_ENV_FILE="compose.env"
+INFLUXDB_ENV_FILE="influxdb.env"
 TELEGRAF_LOCAL="telegraf.local"
 PW_ENV_FILE="pypowerwall.env"
 GF_ENV_FILE="grafana.env"
@@ -208,6 +209,11 @@ echo ""
 git stash
 git pull --rebase
 echo ""
+
+# Create InfluxDB env file if missing (required in 3.0.7)
+if [ ! -f ${INFLUXDB_ENV_FILE} ]; then
+    cp "${INFLUXDB_ENV_FILE}.sample" "${INFLUXDB_ENV_FILE}"
+fi
 
 # Create Grafana Settings if missing (required in 2.4.0)
 if [ ! -f ${GF_ENV_FILE} ]; then
