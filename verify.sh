@@ -240,9 +240,17 @@ echo -e "-----------------------------------------------------------------------
 CONTAINER="influxdb"
 VER=$UKN
 CONF_FILE="influxdb.conf"
+ENV_FILE="influxdb.env"
 PORT="8086"
 echo -e -n "${dim} - Config File ${CONF_FILE}: "
 if [ ! -f ${CONF_FILE} ]; then
+    echo -e "${alert}ERROR: Missing${normal}"
+    ALLGOOD=0
+else
+    echo -e $GOOD
+fi
+echo -e -n "${dim} - Environment File ${ENV_FILE}: "
+if [ ! -f ${ENV_FILE} ]; then
     echo -e "${alert}ERROR: Missing${normal}"
     ALLGOOD=0
 else

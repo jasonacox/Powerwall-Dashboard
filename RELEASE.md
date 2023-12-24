@@ -1,5 +1,12 @@
 # RELEASE NOTES
 
+## v3.0.7 - InfluxDB Environment Variables
+
+* Add support to define InfluxDB configuration options by environment variable by @mcbirse. This allows the default configuration settings to be overridden and addresses https://github.com/jasonacox/Powerwall-Dashboard/discussions/408 raised by @youzer-name
+* Change InfluxDB statistics recording to false by default to reduce CPU load by @youzer-name in https://github.com/jasonacox/Powerwall-Dashboard/pull/410
+* Update example backup script to use tar.xz (-J option) by @s-crypt in https://github.com/jasonacox/Powerwall-Dashboard/pull/404 and https://github.com/jasonacox/Powerwall-Dashboard/pull/405 see https://github.com/jasonacox/Powerwall-Dashboard/issues/337
+* [[Tools](https://github.com/jasonacox/Powerwall-Dashboard/tree/main/tools)] - default to bash in `pwstatus` script for better compatibility by @mcbirse see https://github.com/jasonacox/Powerwall-Dashboard/discussions/249#discussioncomment-7935882
+
 ## v3.0.6 - Powerflow Animation Update
 
 * Update to latest pypowerwall proxy t29:

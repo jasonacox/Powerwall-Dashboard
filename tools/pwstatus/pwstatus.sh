@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ###############################################################################
 # Powerwall status monitor and API request dumper
 #   Author: Michael Birse (for Powerwall-Dashboard by Jason A. Cox)

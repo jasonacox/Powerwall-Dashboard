@@ -94,6 +94,8 @@ You will want to set your local timezone by editing `pypowerwall.env`, `telegraf
 
 * Copy `compose.env.sample` to `compose.env` and uncomment and modify the `COMPOSE_PROFILES` variable based on your setup. You do not need to edit the other defaults unless you are running a non-standard install such as docker rootless or require custom ports.
 
+* Copy `influxdb.env.sample` to `influxdb.env`. You do not need to edit this file, however if you have a custom setup, environment variables can be added to override the default InfluxDB configuration.
+
 * Copy `telegraf.local.sample` to `telegraf.local`. If you want to monitor custom measurements for your site (most users don't need this), add the required telegraf.conf TOML entries to this file. Once created, this file is not overwritten by upgrades or future runs of setup.sh.
 
 * Copy `grafana.env.sample` to `grafana.env` - you do not need to edit these defaults. However, there are optional settings for alert notifications and HTTPS.

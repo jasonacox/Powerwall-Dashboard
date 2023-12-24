@@ -16,6 +16,8 @@ services:
               target: /var/lib/influxdb
         ports:
             - "${INFLUXDB_PORTS:-8086:8086}"
+        env_file:
+            - influxdb.env
 
     grafana:
         image: grafana/grafana:9.1.2-ubuntu
