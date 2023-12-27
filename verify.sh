@@ -167,6 +167,9 @@ else
         if running http://localhost:$PORT/stats 200 0 2>/dev/null; then
             echo -e $GOOD
             VER=`curl --silent http://localhost:$PORT/stats | awk '{print $2" "$3" "$4}' | cut -d\" -f 2 2>/dev/null`
+            SITENAME=`curl --silent http://localhost:$PORT/stats | grep "site_name" | sed 's/.*"site_name": "\(.*\)",.*/\1/' 2>/dev/null`
+            CLOUDMODE=`curl --silent http://localhost:$PORT/stats | sed 's/.*"cloudmode": \(.*\), "siteid".*/\1/' 2>/dev/null`
+            SITEID=`curl --silent http://localhost:$PORT/stats | sed 's/.*"siteid": \(.*\), "counter".*/\1/' 2>/dev/null`
             # check connection with powerwall
             if running http://localhost:$PORT/version 200 0 2>/dev/null; then
                 PWSTATE="CONNECTED"
@@ -184,7 +187,15 @@ else
         ALLGOOD=0
     fi
     echo -e "${dim} - Version: ${subbold}$VER"
-    echo -e "${dim} - Powerwall State: ${subbold}$PWSTATE${dim} - Firmware Version: $PWVER${normal}"
+    echo -e "${dim} - Powerwall State: ${subbold}$PWSTATE${dim} - Firmware Version: ${subbold}$PWVER${normal}"
+    if [ -n "$SITENAME" ]; then
+        SITEID="$SITEID ($SITENAME)"
+    fi
+    if [ "$CLOUDMODE" = "true" ]; then
+        echo -e "${dim} - Cloud Mode: ${subbold}YES ${dim}- Site ID: ${subbold}$SITEID"
+    else
+        echo -e "${dim} - Cloud Mode: ${subbold}NO"
+    fi
     # Check to see that TZ is set in pypowerwall
     if [ -f ${ENV_FILE} ] && ! grep -q "TZ=" ${ENV_FILE}; then
         echo -e "${dim} - ${alertdim}ERROR: Your pypowerwall settings are missing TZ.${normal}"
