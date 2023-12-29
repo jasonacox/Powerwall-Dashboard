@@ -1,5 +1,14 @@
 # RELEASE NOTES
 
+## v4.0.0 - Cloud Mode Support
+
+* Using pypowerwall for both local and cloud mode (replaces Tesla-history service, but the Tesla-history tool will continue to be used to fill in historic data or gaps) - See related https://github.com/jasonacox/pypowerwall/pull/59
+* Removal of Docker Compose profiles (helps with some older systems that don't fully support this) and the v1 related legacy support.
+* Updated `setup.sh` and `upgrade.sh`  to support transition to pyPowerwall for cloud mode.
+* Updated `verify.sh` to support cloud mode metrics.
+* Updated dashboard for solar-only users to include power flow animation panel.
+
+
 ## v3.0.7 - InfluxDB Environment Variables
 
 * Add support to define InfluxDB configuration options by environment variable by @mcbirse. This allows the default configuration settings to be overridden and addresses https://github.com/jasonacox/Powerwall-Dashboard/discussions/408 raised by @youzer-name
