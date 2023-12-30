@@ -20,17 +20,14 @@ services:
             - influxdb.env
 
     pypowerwall:
-        image: jasonacox/pypowerwall:0.7.1t35
+        image: jasonacox/pypowerwall:0.7.2t36
         container_name: pypowerwall
         hostname: pypowerwall
         restart: unless-stopped
         volumes:
             - type: bind
-              source: ./.pypowerwall.auth
-              target: /app/.pypowerwall.auth
-            - type: bind
-              source: ./.pypowerwall.site
-              target: /app/.pypowerwall.site
+              source: .auth
+              target: /app/.auth
         user: "${PWD_USER:-1000:1000}"
         ports:
             - "${PYPOWERWALL_PORTS:-8675:8675}"
