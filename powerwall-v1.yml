@@ -20,7 +20,7 @@ services:
             - influxdb.env
 
     pypowerwall:
-        image: jasonacox/pypowerwall:0.7.2t36
+        image: jasonacox/pypowerwall:0.7.3t37
         container_name: pypowerwall
         hostname: pypowerwall
         restart: unless-stopped
@@ -31,6 +31,8 @@ services:
         user: "${PWD_USER:-1000:1000}"
         ports:
             - "${PYPOWERWALL_PORTS:-8675:8675}"
+        environment:
+            - PW_AUTH_PATH=.auth
         env_file:
             - pypowerwall.env
 
