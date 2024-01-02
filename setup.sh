@@ -12,8 +12,6 @@ INFLUXDB_ENV_FILE="influxdb.env"
 TELEGRAF_LOCAL="telegraf.local"
 PW_ENV_FILE="pypowerwall.env"
 GF_ENV_FILE="grafana.env"
-PW_AUTH_FILE=".pypowerwall.auth"
-PW_SITE_FILE=".pypowerwall.site"
 
 if [ ! -f VERSION ]; then
     echo "ERROR: Missing VERSION file. Setup must run from installation directory."
@@ -255,14 +253,6 @@ if [[ -f "/etc/os-release" ]]; then
             exit 1
         fi
     fi
-fi
-
-# Check for PW_AUTH_FILE and PW_SITE_FILE - create bind point if missing
-if [ ! -f ${PW_AUTH_FILE} ]; then
-    touch ${PW_AUTH_FILE}
-fi
-if [ ! -f ${PW_SITE_FILE} ]; then
-    touch ${PW_SITE_FILE}
 fi
 
 CURRENT=`cat tz`
