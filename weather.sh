@@ -54,44 +54,6 @@ if [ ! -f ${COMPOSE_ENV_FILE} ]; then
     exit 1
 fi
 
-# Compose Profiles Helper Functions
-get_profile() {
-    if [ ! -f ${COMPOSE_ENV_FILE} ]; then
-        return 1
-    else
-        unset COMPOSE_PROFILES
-        . "${COMPOSE_ENV_FILE}"
-    fi
-    # Check COMPOSE_PROFILES for profile
-    IFS=',' read -ra PROFILES <<< "${COMPOSE_PROFILES}"
-    for p in "${PROFILES[@]}"; do
-        if [ "${p}" == "${1}" ]; then
-            return 0
-        fi
-    done
-    return 1
-}
-
-add_profile() {
-    # Create default docker compose env file if needed.
-    if [ ! -f ${COMPOSE_ENV_FILE} ]; then
-        cp "${COMPOSE_ENV_FILE}.sample" "${COMPOSE_ENV_FILE}"
-    fi
-    if ! get_profile "${1}"; then
-        # Add profile to COMPOSE_PROFILES and save to env file
-        PROFILES+=("${1}")
-        if [ -z "${COMPOSE_PROFILES}" ]; then
-            if grep -q "^#COMPOSE_PROFILES=" "${COMPOSE_ENV_FILE}"; then
-                sed -i.bak "s@^#COMPOSE_PROFILES=.*@COMPOSE_PROFILES=$(IFS=,; echo "${PROFILES[*]}")@g" "${COMPOSE_ENV_FILE}"
-            else
-                echo -e "\nCOMPOSE_PROFILES=$(IFS=,; echo "${PROFILES[*]}")" >> "${COMPOSE_ENV_FILE}"
-            fi
-        else
-            sed -i.bak "s@^COMPOSE_PROFILES=.*@COMPOSE_PROFILES=$(IFS=,; echo "${PROFILES[*]}")@g" "${COMPOSE_ENV_FILE}"
-        fi
-    fi
-}
-
 # Configuration File
 if [ -f ${CONF_FILE} ]; then
     echo "Existing Configuration Found"
@@ -109,11 +71,8 @@ if [ -f ${CONF_FILE} ]; then
     else
         echo "Using existing ${CONF_FILE}."
         echo ""
-        if ! get_profile "weather411"; then
-            add_profile "weather411"
-            if [ "${1}" != "setup" ]; then
-                . compose-dash.sh up -d
-            fi
+        if [ "${1}" != "setup" ]; then
+            . compose-dash.sh up -d
         fi
         exit 0
     fi
@@ -177,7 +136,6 @@ if [ ! -f ${CONF_FILE} ]; then
         break
     done
     cp "${CONF_SRC}" "${CONF_FILE}"
-    add_profile "weather411"
 fi
 
 # Replace configuration data with user input
