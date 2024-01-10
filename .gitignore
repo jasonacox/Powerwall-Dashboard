@@ -21,6 +21,10 @@ powerwall.extend.yml
 pypowerwall.env
 telegraf.local
 
+# Auth files
+.auth/.pypowerwall.auth
+.auth/.pypowerwall.site
+
 # Local Dev files
 *.bak
 backups/*.tgz
