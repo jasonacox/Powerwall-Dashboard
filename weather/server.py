@@ -86,12 +86,17 @@ import configparser
 from influxdb_client import InfluxDBClient
 from influxdb_client.client.write_api import SYNCHRONOUS
 
-BUILD = "0.2.2"
+BUILD = "0.2.3"
 CLI = False
 LOADED = False
 CONFIG_LOADED = False
 CONFIGFILE = os.getenv("WEATHERCONF", "weather411.conf")
 URL = "https://api.openweathermap.org/data/2.5/weather"
+
+# Signal handler - Exit on SIGTERM
+def sigTermHandler(signum, frame):
+    raise SystemExit
+signal.signal(signal.SIGTERM, sigTermHandler)
 
 # Load Configuration File
 config = configparser.ConfigParser(allow_no_value=True)
@@ -131,7 +136,10 @@ else:
     sys.stderr.write("Weather411 Server %s\nERROR: No config file. Fix and restart.\n" % BUILD)
     sys.stderr.flush()
     while(True):
-        time.sleep(3600)
+        try:
+            time.sleep(3600)
+        except (KeyboardInterrupt, SystemExit):
+            sys.exit()
 
 # Logging
 log = logging.getLogger(__name__)
@@ -427,9 +435,6 @@ def api(port):
             print(' CANCEL \n')
     sys.stderr.write('\r ! apiServer Exit\n')
 
-def sigTermHandler(signum, frame):
-    raise SystemExit
-
 # MAIN Thread
 if __name__ == "__main__":
     # Create threads
@@ -458,7 +463,6 @@ if __name__ == "__main__":
     if CLI:
         print("   %15s | %4s | %8s | %8s | %5s | %10s" %
             ('timezone','Temp','Humidity','Pressure','Cloud','Visibility') )
-    signal.signal(signal.SIGTERM, sigTermHandler);
     try:
         while(True):
             if CLI and 'name' in weather and weather['name'] is not None:
