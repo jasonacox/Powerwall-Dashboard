@@ -54,23 +54,6 @@ if [ -f "powerwall.extend.yml" ]; then
 else
     pwextend=""
 fi
-# Compose Profiles Helper Functions
-get_profile() {
-    if [ ! -f ${COMPOSE_ENV_FILE} ]; then
-        return 1
-    else
-        unset COMPOSE_PROFILES
-        . "${COMPOSE_ENV_FILE}"
-    fi
-    # Check COMPOSE_PROFILES for profile
-    IFS=',' read -ra PROFILES <<< "${COMPOSE_PROFILES}"
-    for p in "${PROFILES[@]}"; do
-        if [ "${p}" == "${1}" ]; then
-            return 0
-        fi
-    done
-    return 1
-}
 
 echo "Running Docker Compose..."
 if docker compose version > /dev/null 2>&1; then
@@ -79,21 +62,7 @@ if docker compose version > /dev/null 2>&1; then
 else
     if docker-compose version > /dev/null 2>&1; then
         # Build Docker (v1)
-        if docker-compose -f powerwall.yml config > /dev/null 2>&1; then
-            pwconfig="powerwall.yml"
-        else
-            echo "** WARNING **"
-            echo "    You have an old version of docker-compose that will"
-            echo "    be deprecated in a future release. Please upgrade or"
-            echo "    report your use case to the Powerwall-Dashboard project."
-            echo ""
-            echo "Applying workaround for old docker-compose..."
-            pwconfig="powerwall-v1.yml"
-            if get_profile "solar-only"; then
-                pwconfig="powerwall-v1-solar.yml"
-            fi
-        fi
-        docker-compose -f $pwconfig $pwextend $@
+        docker-compose -f powerwall.yml $pwextend $@
     else
         echo "ERROR: docker-compose/docker compose is not available or not running."
         echo "This script requires docker-compose or docker compose."
