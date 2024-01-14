@@ -340,9 +340,9 @@ if [ -f weather/weather411.conf ]; then
 fi
 
 # Display Final Instructions
-if [ "${config}" == "Tesla Cloud" ]
+if ! grep -qE "^PW_HOST=.+" "${PW_ENV_FILE}"
 then
-    DASHBOARD="'dashboard-solar-only.json' or 'dashboard-no-animation.json'"
+    DASHBOARD="'dashboard.json' or 'dashboard-solar-only.json'"
 else
     DASHBOARD="'dashboard.json'"
 fi
