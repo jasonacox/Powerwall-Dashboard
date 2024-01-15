@@ -290,7 +290,12 @@ echo "-----------------------------------------"
 # Run Local Access mode network scan
 if [ "${config}" == "Local Access" ] && ! grep -qE "^PW_HOST=.+" "${PW_ENV_FILE}"; then
     echo "Running network scan... (press Ctrl-C to interrupt)"
-    docker exec -it pypowerwall python3 -m pypowerwall scan -ip=$(ip route get 8.8.8.8 | awk '{ print $NF }')
+    if type winpty > /dev/null 2>&1; then
+        IP=$(netstat -rn | grep "0.0.0.0" | awk '{ print $4 }' | head -1)
+    else
+        IP=$(ip route get 8.8.8.8 | awk '{ print $7 }')
+    fi
+    docker exec -it pypowerwall python3 -m pypowerwall scan -ip=${IP}
     echo "-----------------------------------------"
     echo "Enter address for Powerwall... (or leave blank to switch to Tesla Cloud mode)"
     read -p 'IP Address: ' IP
