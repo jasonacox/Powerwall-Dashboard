@@ -293,9 +293,9 @@ if [ "${config}" == "Local Access" ] && ! grep -qE "^PW_HOST=.+" "${PW_ENV_FILE}
     # Get local IP based on the operating system
     OS=$(uname -s)
     case $OS in
-        Linux*) IP=$(ip route get 8.8.8.8 | awk '{ print $7 }') ;;
-        Darwin*) IP=$(ifconfig | grep 'inet ' | grep -v '127.0.0.1' | awk '{print $2}') ;;
-        CYGWIN*|MINGW*|MSYS*) IP=$(netstat -rn | grep "0.0.0.0" | awk '{ print $4 }' | head -1) ;;
+        Linux*) IP=$(ip route get 8.8.8.8 2>/dev/null | awk '{ print $7 }') ;;
+        Darwin*) IP=$(ifconfig 2>/dev/null | grep 'inet ' | grep -v '127.0.0.1' | awk '{print $2}') ;;
+        CYGWIN*|MINGW*|MSYS*) IP=$(netstat -rn 2>/dev/null | grep "0.0.0.0" | awk '{ print $4 }' | head -1) ;;
         *) IP=""
     esac
     docker exec -it pypowerwall python3 -m pypowerwall scan -ip=${IP}
