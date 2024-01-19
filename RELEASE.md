@@ -2,11 +2,11 @@
 
 ## v4.0.0 - Cloud Mode Support
 
-* Using pypowerwall for both local and cloud mode (replaces Tesla-history service, but the Tesla-history tool will continue to be used to fill in historic data or gaps) - See related https://github.com/jasonacox/pypowerwall/pull/59
+* Using pyPowerwall for both Local Access and Tesla Cloud mode by @jasonacox and @mcbirse in https://github.com/jasonacox/Powerwall-Dashboard/pull/414 (replaces Tesla-history service, but the Tesla-history tool will continue to be used to fill in historic data or gaps) - See related https://github.com/jasonacox/pypowerwall/pull/59
 * Removal of Docker Compose profiles (helps with some older systems that don't fully support this) and the v1 related legacy support.
-* Updated `setup.sh` and `upgrade.sh`  to support transition to pyPowerwall for cloud mode.
-* Updated `verify.sh` to support cloud mode metrics.
-* Updated dashboard for solar-only users to include power flow animation panel.
+* Updated `setup.sh` and `upgrade.sh` to support transition to pyPowerwall for Tesla Cloud mode.
+* Updated `verify.sh` to support Tesla Cloud mode.
+* Updated dashboard for solar-only users to include Powerflow Animation panel.
 
 ## v3.0.8 - Critical Bug Fix
 

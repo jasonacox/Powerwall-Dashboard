@@ -47,17 +47,17 @@ Run the interactive setup script that will ask you for your setup details.
 The dashboard can be installed in two different configurations.
 
   ```
-    Powerwall Dashboard (v3.0.3) - SETUP
+    Powerwall Dashboard (v4.0.0) - SETUP
     -----------------------------------------
-    Select configuration profile:
+    Select configuration mode:
 
-    1 - Local Access (Powerwall 1, 2, or + using LAN) - Default
-    2 - Tesla Cloud  (Solar-only, Powerwall 1, 2, +, or 3)
+    1 - Local Access (Powerwall 1, 2, or + using the Tesla Gateway on LAN) - Default
+    2 - Tesla Cloud  (Solar-only systems or Powerwalls without LAN access)
   ```
 
-Powerwall 1, 2 or + owners should select `option 1` (Local Access).
+For Powerwall 1, 2 or + owners with a Tesla Gateway accessible on their LAN, select `option 1` (Local Access).
 
-If you are Tesla Solar owner and don't have a Powerwall, you can select `option 2` (Tesla Cloud) and the dashboard will be installed to pull the data available from the Tesla Cloud API (e.g. [Solar Only Mode](tools/solar-only/)) This mode also works for Powerwall 3 owners, but will not provide all the details or fidelity that the "Local Access" profile offers.
+For Tesla Solar owners or Powerwalls without LAN access, select `option 2` (Tesla Cloud) and the dashboard will be installed to pull the data available from the Tesla Cloud API. This mode works for [Solar Only](tools/solar-only/) and Powerwall 3 owners, but will not provide all the details or fidelity that the "Local Access" mode offers.
 
 Next, you will then be asked for your Local *timezone*, and your Powerwall details or Tesla Cloud login details. To find your timezone, see the second column in this table: [https://en.wikipedia.org/wiki/List_of_tz_database_time_zones](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List)
 
@@ -92,7 +92,9 @@ You will want to set your local timezone by editing `pypowerwall.env`, `telegraf
       PW_DEBUG=no
   ```
 
-* Copy `compose.env.sample` to `compose.env` and uncomment and modify the `COMPOSE_PROFILES` variable based on your setup. You do not need to edit the other defaults unless you are running a non-standard install such as docker rootless or require custom ports.
+* For Tesla Solar owners or Powerwalls without LAN access, to configure pyPowerwall in Tesla Cloud mode instead of Local Access mode, edit `pypowerwall.env` and leave the `PW_HOST=` setting blank. NOTE: Once the docker containers have started, an additional step is then required to login to your Tesla Account by running the command `docker exec -it pypowerwall python3 -m pypowerwall setup`.
+
+* Copy `compose.env.sample` to `compose.env`. You do not need to edit the other defaults unless you are running a non-standard install such as docker rootless or require custom ports.
 
 * Copy `influxdb.env.sample` to `influxdb.env`. You do not need to edit this file, however if you have a custom setup, environment variables can be added to override the default InfluxDB configuration.
 
@@ -246,7 +248,7 @@ If required, see [WINDOWS.md](WINDOWS.md) for notes on how to upgrade your WSL i
 
 #### Powerwall 3
 
-The new Powerwall 3 does not currently provide a customer accessible API on the local network. Work is ongoing to determine if there is a way to get the rich set of data that is available directly from its predecesors (Powerwall 2/+). In the meantime, users can use the "Tesla Cloud" profile to generate the basic graph data. See details in the Powerwall 3 Support issue: https://github.com/jasonacox/Powerwall-Dashboard/issues/387
+The new Powerwall 3 does not currently provide a customer accessible API on the local network. Work is ongoing to determine if there is a way to get the rich set of data that is available directly from its predecessors (Powerwall 2/+). In the meantime, users can use the "Tesla Cloud" mode to generate the basic graph data. See details in the Powerwall 3 Support issue: https://github.com/jasonacox/Powerwall-Dashboard/issues/387
 
 #### Tips and Tricks
 

@@ -100,8 +100,8 @@ echo "Select configuration mode:"
 echo ""
 echo "Current: ${config}"
 echo ""
-echo " 1 - Local Access (Powerwall 1, 2, or + using extended data from Tesla Gateway on LAN) - Default"
-echo " 2 - Tesla Cloud  (Solar-only, Powerwall 1, 2, +, or 3 using data from Tesla Cloud)"
+echo " 1 - Local Access (Powerwall 1, 2, or + using the Tesla Gateway on LAN) - Default"
+echo " 2 - Tesla Cloud  (Solar-only systems or Powerwalls without LAN access)"
 echo ""
 while :; do
     read -r -p "Select mode: ${choice}" response
@@ -293,9 +293,9 @@ if [ "${config}" == "Local Access" ] && ! grep -qE "^PW_HOST=.+" "${PW_ENV_FILE}
     # Get local IP based on the operating system
     OS=$(uname -s)
     case $OS in
-        Linux*) IP=$(ip route get 8.8.8.8 2>/dev/null | awk '{ print $7 }') ;;
+        Linux*) IP=$(ip route get 8.8.8.8 2>/dev/null | awk '{print $7}') ;;
         Darwin*) IP=$(ifconfig 2>/dev/null | grep 'inet ' | grep -v '127.0.0.1' | awk '{print $2}') ;;
-        CYGWIN*|MINGW*|MSYS*) IP=$(netstat -rn 2>/dev/null | grep "0.0.0.0" | awk '{ print $4 }' | head -1) ;;
+        CYGWIN*|MINGW*|MSYS*) IP=$(netstat -rn 2>/dev/null | grep "0.0.0.0" | awk '{print $4}' | head -1) ;;
         *) IP=""
     esac
     docker exec -it pypowerwall python3 -m pypowerwall scan -ip=${IP}

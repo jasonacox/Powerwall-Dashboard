@@ -149,9 +149,9 @@ if [ "${PROFILE}" == "solar-only" ]; then
     mkdir -p .auth
     cp tools/tesla-history/tesla-history.auth .auth/.pypowerwall.auth
     if grep -qE "^SITE = [0-9].+" tools/tesla-history/tesla-history.conf; then
-        grep -E "^SITE = [0-9].+" tools/tesla-history/tesla-history.conf | awk '{ print $NF }' > .auth/.pypowerwall.site
+        grep -E "^SITE = [0-9].+" tools/tesla-history/tesla-history.conf | awk '{print $NF}' > .auth/.pypowerwall.site
     fi
-    EMAIL=$(grep -E "^USER = .+@.+" tools/tesla-history/tesla-history.conf | awk '{ print $NF }')
+    EMAIL=$(grep -E "^USER = .+@.+" tools/tesla-history/tesla-history.conf | awk '{print $NF}')
     echo "PW_EMAIL=${EMAIL}" > ${PW_ENV_FILE}
     echo "PW_PASSWORD=${PASSWORD}" >> ${PW_ENV_FILE}
     echo "PW_HOST=${IP}" >> ${PW_ENV_FILE}
