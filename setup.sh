@@ -68,57 +68,6 @@ running() {
     [[ $status == ${code} ]]
 }
 
-# Compose Profiles Helper Functions
-get_profile() {
-    if [ ! -f ${COMPOSE_ENV_FILE} ]; then
-        return 1
-    else
-        unset COMPOSE_PROFILES
-        . "${COMPOSE_ENV_FILE}"
-    fi
-    # Check COMPOSE_PROFILES for profile
-    IFS=',' read -ra PROFILES <<< "${COMPOSE_PROFILES}"
-    for p in "${PROFILES[@]}"; do
-        if [ "${p}" == "${1}" ]; then
-            return 0
-        fi
-    done
-    return 1
-}
-
-add_profile() {
-    # Create default docker compose env file if needed.
-    if [ ! -f ${COMPOSE_ENV_FILE} ]; then
-        cp "${COMPOSE_ENV_FILE}.sample" "${COMPOSE_ENV_FILE}"
-    fi
-    if ! get_profile "${1}"; then
-        # Add profile to COMPOSE_PROFILES and save to env file
-        PROFILES+=("${1}")
-        if [ -z "${COMPOSE_PROFILES}" ]; then
-            if grep -q "^#COMPOSE_PROFILES=" "${COMPOSE_ENV_FILE}"; then
-                sed -i.bak "s@^#COMPOSE_PROFILES=.*@COMPOSE_PROFILES=$(IFS=,; echo "${PROFILES[*]}")@g" "${COMPOSE_ENV_FILE}"
-            else
-                echo -e "\nCOMPOSE_PROFILES=$(IFS=,; echo "${PROFILES[*]}")" >> "${COMPOSE_ENV_FILE}"
-            fi
-        else
-            sed -i.bak "s@^COMPOSE_PROFILES=.*@COMPOSE_PROFILES=$(IFS=,; echo "${PROFILES[*]}")@g" "${COMPOSE_ENV_FILE}"
-        fi
-    fi
-}
-
-upd_profile() {
-    # Update existing profile in COMPOSE_PROFILES and save to env file
-    if get_profile "${1}"; then
-        for i in "${!PROFILES[@]}"; do
-            if [ "${PROFILES[$i]}" == "${1}" ]; then
-                PROFILES[$i]="${2}"
-                sed -i.bak "s@^COMPOSE_PROFILES=.*@COMPOSE_PROFILES=$(IFS=,; echo "${PROFILES[*]}")@g" "${COMPOSE_ENV_FILE}"
-                break
-            fi
-        done
-    fi
-}
-
 # Docker Dependency Check
 if ! docker info > /dev/null 2>&1; then
     echo "ERROR: docker is not available or not running."
@@ -134,46 +83,44 @@ if ! docker-compose version > /dev/null 2>&1; then
     fi
 fi
 
-# Check COMPOSE_PROFILES for existing configuration profile
-if get_profile "default"; then
-    PROFILE="default"
-    current="[1] "
-    profdesc="Local Access"
-elif get_profile "solar-only"; then
-    PROFILE="solar-only"
-    current="[2] "
-    profdesc="Tesla Cloud"
+# Check PW_ENV_FILE for existing configuration
+if [ ! -f ${PW_ENV_FILE} ]; then
+    choice=""
+    config="None"
+elif grep -qE "^PW_HOST=.+" "${PW_ENV_FILE}"; then
+    choice="[1] "
+    config="Local Access"
 else
-    PROFILE="none"
-    current=""
-    profdesc="None"
+    choice="[2] "
+    config="Tesla Cloud"
 fi
 
-# Prompt for configuration profile
-echo "Select configuration profile:"
+# Prompt for configuration
+echo "Select configuration mode:"
 echo ""
-echo "Current: ${profdesc}"
+echo "Current: ${config}"
 echo ""
-echo " 1 - Local Access (Powerwall 1, 2, or + using extended data from Tesla Gateway on LAN) - Default"
-echo " 2 - Tesla Cloud  (Solar-only, Powerwall 1, 2, +, or 3 using data from Tesla Cloud)"
+echo " 1 - Local Access (Powerwall 1, 2, or + using the Tesla Gateway on LAN) - Default"
+echo " 2 - Tesla Cloud  (Solar-only systems or Powerwalls without LAN access)"
 echo ""
-while :
-do
-    read -r -p "Select profile: ${current}" response
+while :; do
+    read -r -p "Select mode: ${choice}" response
     if [ "${response}" == "1" ]; then
-        NEW_PROFILE="default"
+        selected="Local Access"
     elif [ "${response}" == "2" ]; then
-        NEW_PROFILE="solar-only"
-    elif [ -z "${response}" ] && [ ! -z "${current}" ]; then
-        NEW_PROFILE="${PROFILE}"
+        selected="Tesla Cloud"
+    elif [ -z "${response}" ] && [ ! -z "${choice}" ]; then
+        selected="${config}"
     else
         continue
     fi
-    if [ ! -z "${current}" ] && [ "${NEW_PROFILE}" != "${PROFILE}" ]; then
+    if [ ! -z "${choice}" ] && [ "${selected}" != "${config}" ]; then
         echo ""
-        read -r -p "You are already using the ${profdesc} configuration, are you sure you wish to change? [y/N] " response
+        read -r -p "You are already using the ${config} configuration, are you sure you wish to change? [y/N] " response
         if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]
         then
+            config="${selected}"
+            rm ${PW_ENV_FILE}
             echo ""
             break
         else
@@ -181,13 +128,16 @@ do
             exit 1
         fi
     else
-        # Add selected profile to COMPOSE_PROFILES
-        PROFILE="${NEW_PROFILE}"
-        add_profile "${PROFILE}"
+        config="${selected}"
         echo ""
         break
     fi
 done
+
+# Create default docker compose env file if needed.
+if [ ! -f ${COMPOSE_ENV_FILE} ]; then
+    cp "${COMPOSE_ENV_FILE}.sample" "${COMPOSE_ENV_FILE}"
+fi
 
 # Check if running as non-default user (not required for Windows Git Bash)
 if ! type winpty > /dev/null 2>&1; then
@@ -261,51 +211,50 @@ echo "Timezone (leave blank for ${CURRENT})"
 read -p 'Enter Timezone: ' TZ
 echo ""
 
-# Switch configuration profile
-if [ "${NEW_PROFILE}" != "${PROFILE}" ]; then
-    echo "Changing configuration"
+# Powerwall Credentials
+if [ -f ${PW_ENV_FILE} ]; then
+    echo "Current Credentials:"
     echo ""
-    ./compose-dash.sh down
-    upd_profile "${PROFILE}" "${NEW_PROFILE}"
-    PROFILE="${NEW_PROFILE}"
+    cat ${PW_ENV_FILE}
     echo ""
+    read -r -p "Update these credentials? [y/N] " response
+    if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+        rm ${PW_ENV_FILE}
+        echo ""
+    else
+        echo "Using existing ${PW_ENV_FILE}."
+    fi
 fi
 
-if [ "${PROFILE}" == "default" ]
-then
-    # Powerwall Credentials
-    if [ -f ${PW_ENV_FILE} ]; then
-        echo "Current Powerwall Credentials:"
-        echo ""
-        cat ${PW_ENV_FILE}
-        echo ""
-        read -r -p "Update these credentials? [y/N] " response
-        if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
-            rm ${PW_ENV_FILE}
-        else
-            echo "Using existing ${PW_ENV_FILE}."
-        fi
-    fi
-
-    # Create Powerwall Settings
-    if [ ! -f ${PW_ENV_FILE} ]; then
+# Create Powerwall Settings
+if [ ! -f ${PW_ENV_FILE} ]; then
+    if [ "${config}" == "Local Access" ]; then
         echo "Enter credentials for Powerwall..."
-        read -p 'Password: ' PASSWORD
-        read -p 'Email: ' EMAIL
-        read -p 'IP Address: ' IP
-        echo "PW_EMAIL=${EMAIL}" > ${PW_ENV_FILE}
-        echo "PW_PASSWORD=${PASSWORD}" >> ${PW_ENV_FILE}
-        echo "PW_HOST=${IP}" >> ${PW_ENV_FILE}
-        echo "PW_TIMEZONE=America/Los_Angeles" >> ${PW_ENV_FILE}
-        echo "TZ=America/Los_Angeles" >> ${PW_ENV_FILE}
-        echo "PW_DEBUG=no" >> ${PW_ENV_FILE}
-        echo "PW_STYLE=grafana-dark" >> ${PW_ENV_FILE}
+        while [ -z "${PASSWORD}" ]; do
+            read -p 'Password: ' PASSWORD
+        done
+        while [ -z "${EMAIL}" ]; do
+            read -p 'Email: ' EMAIL
+        done
+        read -p 'IP Address (leave blank to scan network): ' IP
+    else
+        echo "Enter email address for Tesla Account..."
+        while [ -z "${EMAIL}" ]; do
+            read -p 'Email: ' EMAIL
+        done
     fi
+    echo "PW_EMAIL=${EMAIL}" > ${PW_ENV_FILE}
+    echo "PW_PASSWORD=${PASSWORD}" >> ${PW_ENV_FILE}
+    echo "PW_HOST=${IP}" >> ${PW_ENV_FILE}
+    echo "PW_TIMEZONE=America/Los_Angeles" >> ${PW_ENV_FILE}
+    echo "TZ=America/Los_Angeles" >> ${PW_ENV_FILE}
+    echo "PW_DEBUG=no" >> ${PW_ENV_FILE}
+    echo "PW_STYLE=grafana-dark" >> ${PW_ENV_FILE}
+fi
 
-    # Create default telegraf local file if needed.
-    if [ ! -f ${TELEGRAF_LOCAL} ]; then
-        cp "${TELEGRAF_LOCAL}.sample" "${TELEGRAF_LOCAL}"
-    fi
+# Create default telegraf local file if needed.
+if [ ! -f ${TELEGRAF_LOCAL} ]; then
+    cp "${TELEGRAF_LOCAL}.sample" "${TELEGRAF_LOCAL}"
 fi
 
 # Create InfluxDB env file if missing (required in 3.0.7)
@@ -338,6 +287,38 @@ fi
 ./compose-dash.sh up -d
 echo "-----------------------------------------"
 
+# Run Local Access mode network scan
+if [ "${config}" == "Local Access" ] && ! grep -qE "^PW_HOST=.+" "${PW_ENV_FILE}"; then
+    echo "Running network scan... (press Ctrl-C to interrupt)"
+    # Get local IP based on the operating system
+    OS=$(uname -s)
+    case $OS in
+        Linux*) IP=$(ip route get 8.8.8.8 2>/dev/null | awk '{print $7}') ;;
+        Darwin*) IP=$(ifconfig 2>/dev/null | grep 'inet ' | grep -v '127.0.0.1' | awk '{print $2}') ;;
+        CYGWIN*|MINGW*|MSYS*) IP=$(netstat -rn 2>/dev/null | grep "0.0.0.0" | awk '{print $4}' | head -1) ;;
+        *) IP=""
+    esac
+    docker exec -it pypowerwall python3 -m pypowerwall scan -ip=${IP}
+    echo "-----------------------------------------"
+    echo "Enter address for Powerwall... (or leave blank to switch to Tesla Cloud mode)"
+    read -p 'IP Address: ' IP
+    echo ""
+    if [ -z "${IP}" ]; then
+        config="Tesla Cloud"
+    fi
+    sed -i.bak "s@^PW_HOST=.*@PW_HOST=${IP}@g" "${PW_ENV_FILE}"
+    ./compose-dash.sh up -d
+    echo "-----------------------------------------"
+fi
+
+# Run Tesla Cloud mode setup
+if [ "${config}" == "Tesla Cloud" ]; then
+    docker exec -it pypowerwall python3 -m pypowerwall setup -email=$(grep -E "^PW_EMAIL=.+" "${PW_ENV_FILE}" | cut -d= -f2)
+    echo "Restarting..."
+    docker restart pypowerwall
+    echo "-----------------------------------------"
+fi
+
 # Set up Influx
 echo "Waiting for InfluxDB to start..."
 until running http://localhost:8086/ping 204 2>/dev/null; do
@@ -361,29 +342,15 @@ done
 cd ..
 
 # Restart weather411 to force a sample
-if [ -f weather/weather411.conf ] && get_profile "weather411"; then
+if [ -f weather/weather411.conf ]; then
     echo "Fetching local weather..."
     docker restart weather411
 fi
 
-if [ "${PROFILE}" == "solar-only" ]
-then
-    # Setup tesla-history
-    if [ -z "${TZ}" ]; then
-        TZ="${CURRENT}"
-    fi
-    echo "Setup tesla-history..."
-    docker exec -it tesla-history python3 tesla-history.py --setup --timezone "${TZ}"
-
-    # Restart tesla-history
-    echo "Restarting tesla-history..."
-    docker restart tesla-history
-fi
-
 # Display Final Instructions
-if [ "${PROFILE}" == "solar-only" ]
+if ! grep -qE "^PW_HOST=.+" "${PW_ENV_FILE}"
 then
-    DASHBOARD="'dashboard-solar-only.json' or 'dashboard-no-animation.json'"
+    DASHBOARD="'dashboard.json' or 'dashboard-solar-only.json'"
 else
     DASHBOARD="'dashboard.json'"
 fi

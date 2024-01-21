@@ -1,0 +1,20 @@
+version: "3.5"
+
+services:
+    tesla-history:
+        image: jasonacox/tesla-history:0.1.4
+        container_name: tesla-history
+        hostname: tesla-history
+        restart: unless-stopped
+        user: "${PWD_USER:-1000:1000}"
+        volumes:
+            - type: bind
+              source: ./tools/tesla-history
+              target: /var/lib/tesla-history
+        environment:
+            - INFLUX_HOST=influxdb
+            - INFLUX_PORT=8086
+            - TESLA_CONF=/var/lib/tesla-history/tesla-history.conf
+            - TESLA_AUTH=/var/lib/tesla-history/tesla-history.auth
+        depends_on:
+            - influxdb

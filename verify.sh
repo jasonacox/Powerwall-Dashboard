@@ -1,4 +1,6 @@
 #!/bin/bash
+#
+# Setup Verification Tool for Powerwall Dashboard
 
 # Stop on Errors
 set -e
@@ -56,24 +58,6 @@ running() {
     [[ $status == ${code} ]]
 }
 
-# Compose Profiles Helper Function
-get_profile() {
-    if [ ! -f ${COMPOSE_ENV_FILE} ]; then
-        return 1
-    else
-        unset COMPOSE_PROFILES
-        . "${COMPOSE_ENV_FILE}"
-    fi
-    # Check COMPOSE_PROFILES for profile
-    IFS=',' read -ra PROFILES <<< "${COMPOSE_PROFILES}"
-    for p in "${PROFILES[@]}"; do
-        if [ "${p}" == "${1}" ]; then
-            return 0
-        fi
-    done
-    return 1
-}
-
 # Operating system details
 case "$OSTYPE" in
     linux*)     OS="Linux" ;;
@@ -92,51 +76,9 @@ echo -e ""
 
 # Check compose env file
 COMPOSE_ENV_FILE="compose.env"
-CP_NONE=1
-CP_DEFAULT=0
-CP_SOLAR_ONLY=0
-CP_WEATHER411=0
 if [ ! -f ${COMPOSE_ENV_FILE} ]; then
     echo -e " - ${alert}ERROR: You are missing ${COMPOSE_ENV_FILE}${normal}"
     ALLGOOD=0
-else
-    # Check COMPOSE_PROFILES for enabled profiles
-    if get_profile "default"; then
-        CP_DEFAULT=1
-    fi
-    if get_profile "solar-only"; then
-        CP_SOLAR_ONLY=1
-    fi
-    if get_profile "weather411"; then
-        CP_WEATHER411=1
-    fi
-    if [ ${CP_DEFAULT} -eq 1 ] || [ ${CP_SOLAR_ONLY} -eq 1 ]; then
-        CP_NONE=0
-    fi
-fi
-echo -e ""
-
-# configuration
-echo -e "${bold}Checking configuration${dim}"
-echo -e "----------------------------------------------------------------------------"
-echo -e -n "${dim} - Dashboard configuration: "
-if [ $CP_NONE -eq 1 ]; then
-    echo -e "${alert}ERROR: No config profile selected${normal}"
-    ALLGOOD=0
-elif [ ${CP_DEFAULT} -eq 1 ] && [ ${CP_SOLAR_ONLY} -eq 1 ]; then
-    echo -e "${alert}ERROR: Both 'default' and 'solar-only' enabled${normal}"
-    ALLGOOD=0
-elif [ ${CP_DEFAULT} -eq 1 ]; then
-    echo -e "${subbold}default${dim}"
-elif [ ${CP_SOLAR_ONLY} -eq 1 ]; then
-    echo -e "${subbold}solar-only${dim}"
-fi
-echo -e -n "${dim} - EnvVar COMPOSE_PROFILES: "
-if [ -z ${COMPOSE_PROFILES} ]; then
-    echo -e "${alert}ERROR: Missing${normal}"
-    ALLGOOD=0
-else
-    echo -e "${COMPOSE_PROFILES}"
 fi
 echo -e ""
 
@@ -148,48 +90,63 @@ VER=$UKN
 PWVER=$UKN
 PWSTATE="${alert}ERROR: Not Connected${dim}"
 ENV_FILE="pypowerwall.env"
+AUTH_FILE=".auth/.pypowerwall.auth"
 PORT="8675"
-if [ $CP_DEFAULT -ne 1 ] && [ $CP_NONE -ne 1 ]; then
-    echo -e "${dim} - Skipped: Only required in 'default' configuration"
+echo -e -n "${dim} - Config File ${ENV_FILE}: "
+if [ ! -f ${ENV_FILE} ]; then
+    echo -e "${alert}ERROR: Missing${normal}"
+    ALLGOOD=0
 else
-    echo -e -n "${dim} - Config File ${ENV_FILE}: "
-    if [ ! -f ${ENV_FILE} ]; then
-        echo -e "${alert}ERROR: Missing${normal}"
-        ALLGOOD=0
-    else
+    echo -e $GOOD
+fi
+echo -e -n "${dim} - Container ($CONTAINER): "
+RUNNING=$(docker inspect --format="{{.State.Running}}" $CONTAINER 2>/dev/null) || true
+if [ "$RUNNING" = "true" ]; then
+    echo -e $GOOD
+    echo -e -n "${dim} - Service (port $PORT): "
+    if running http://localhost:$PORT/stats 200 0 2>/dev/null; then
         echo -e $GOOD
-    fi
-    echo -e -n "${dim} - Container ($CONTAINER): "
-    RUNNING=$(docker inspect --format="{{.State.Running}}" $CONTAINER 2>/dev/null) || true
-    if [ "$RUNNING" = "true" ]; then
-        echo -e $GOOD
-        echo -e -n "${dim} - Service (port $PORT): "
-        if running http://localhost:$PORT/stats 200 0 2>/dev/null; then
-            echo -e $GOOD
-            VER=`curl --silent http://localhost:$PORT/stats | awk '{print $2" "$3" "$4}' | cut -d\" -f 2 2>/dev/null`
-            # check connection with powerwall
-            if running http://localhost:$PORT/version 200 0 2>/dev/null; then
-                PWSTATE="CONNECTED"
-                PWVER=`curl --silent http://localhost:$PORT/version | awk '{print $2}' | cut -d\" -f 2 2>/dev/null`
-            fi
-        else
-            echo -e "${alert}ERROR: Not Listening${normal}"
-            ALLGOOD=0
+        VER=`curl --silent http://localhost:$PORT/stats | awk '{print $2" "$3" "$4}' | cut -d\" -f 2 2>/dev/null`
+        SITENAME=`curl --silent http://localhost:$PORT/stats | grep "site_name" | sed 's/.*"site_name": "\(.*\)",.*/\1/' 2>/dev/null`
+        CLOUDMODE=`curl --silent http://localhost:$PORT/stats | sed 's/.*"cloudmode": \(.*\), "siteid".*/\1/' 2>/dev/null`
+        SITEID=`curl --silent http://localhost:$PORT/stats | sed 's/.*"siteid": \(.*\), "counter".*/\1/' 2>/dev/null`
+        # check connection with powerwall
+        if running http://localhost:$PORT/version 200 0 2>/dev/null; then
+            PWSTATE="CONNECTED"
+            PWVER=`curl --silent http://localhost:$PORT/version | awk '{print $2}' | cut -d\" -f 2 2>/dev/null`
         fi
-    elif [ "$RUNNING" = "false" ]; then
-        echo -e "${alert}ERROR: Stopped${normal}"
-        ALLGOOD=0
     else
-        echo -e "${alert}ERROR: Missing${normal}"
+        echo -e "${alert}ERROR: Not Listening${normal}"
+        LISTENING="false"
         ALLGOOD=0
     fi
-    echo -e "${dim} - Version: ${subbold}$VER"
-    echo -e "${dim} - Powerwall State: ${subbold}$PWSTATE${dim} - Firmware Version: $PWVER${normal}"
-    # Check to see that TZ is set in pypowerwall
-    if [ -f ${ENV_FILE} ] && ! grep -q "TZ=" ${ENV_FILE}; then
-        echo -e "${dim} - ${alertdim}ERROR: Your pypowerwall settings are missing TZ.${normal}"
-        ALLGOOD=0
+elif [ "$RUNNING" = "false" ]; then
+    echo -e "${alert}ERROR: Stopped${normal}"
+    ALLGOOD=0
+else
+    echo -e "${alert}ERROR: Missing${normal}"
+    ALLGOOD=0
+fi
+echo -e "${dim} - Version: ${subbold}$VER"
+echo -e "${dim} - Powerwall State: ${subbold}$PWSTATE${dim} - Firmware Version: ${subbold}$PWVER${normal}"
+if [ -n "$SITENAME" ]; then
+    SITEID="$SITEID ($SITENAME)"
+fi
+if [ "$CLOUDMODE" = "true" ]; then
+    echo -e "${dim} - Cloud Mode: ${subbold}YES ${dim}- Site ID: ${subbold}$SITEID"
+elif [ "$LISTENING" = "false" ] && [ -f ${ENV_FILE} ] && ! grep -qE "^PW_HOST=.+" "${ENV_FILE}"; then
+    echo -e "${dim} - Cloud Mode: ${subbold}YES ${dim}- ${alert}ERROR: Not Connected to Tesla Cloud${normal}"
+    if [ ! -f "${AUTH_FILE}" ]; then
+        echo -e "${dim} - Auth File ${AUTH_FILE}: ${alert}ERROR: Missing${normal}"
     fi
+    ALLGOOD=0
+else
+    echo -e "${dim} - Cloud Mode: ${subbold}NO"
+fi
+# Check to see that TZ is set in pypowerwall
+if [ -f ${ENV_FILE} ] && ! grep -q "TZ=" ${ENV_FILE}; then
+    echo -e "${dim} - ${alertdim}ERROR: Your pypowerwall settings are missing TZ.${normal}"
+    ALLGOOD=0
 fi
 echo -e ""
 
@@ -200,38 +157,34 @@ CONTAINER="telegraf"
 VER=$UKN
 PORT=""
 CONF_FILE="telegraf.conf"
-if [ $CP_DEFAULT -ne 1 ] && [ $CP_NONE -ne 1 ]; then
-    echo -e "${dim} - Skipped: Only required in 'default' configuration"
+echo -e -n "${dim} - Config File ${CONF_FILE}: "
+if [ ! -f ${CONF_FILE} ]; then
+    echo -e "${alert}ERROR: Missing${normal}"
+    ALLGOOD=0
 else
-    echo -e -n "${dim} - Config File ${CONF_FILE}: "
-    if [ ! -f ${CONF_FILE} ]; then
-        echo -e "${alert}ERROR: Missing${normal}"
-        ALLGOOD=0
-    else
-        echo -e $GOOD
-    fi
-    CONF_FILE="telegraf.local"
-    echo -e -n "${dim} - Local Config File ${CONF_FILE}: "
-    if [ ! -f ${CONF_FILE} ]; then
-        echo -e "${alert}ERROR: Missing${normal}"
-        ALLGOOD=0
-    else
-        echo -e $GOOD
-    fi
-    echo -e -n "${dim} - Container ($CONTAINER): "
-    RUNNING=$(docker inspect --format="{{.State.Running}}" $CONTAINER 2>/dev/null) || true
-    if [ "$RUNNING" = "true" ]; then
-        echo -e $GOOD
-        VER=`v=$(docker exec --tty $CONTAINER sh -c "telegraf --version") && echo "$v" || echo "$UKN"`
-    elif [ "$RUNNING" = "false" ]; then
-        echo -e "${alert}ERROR: Stopped${normal}"
-        ALLGOOD=0
-    else
-        echo -e "${alert}ERROR: Missing${normal}"
-        ALLGOOD=0
-    fi
-    echo -e "${dim} - Version: ${subbold}$VER"
+    echo -e $GOOD
 fi
+CONF_FILE="telegraf.local"
+echo -e -n "${dim} - Local Config File ${CONF_FILE}: "
+if [ ! -f ${CONF_FILE} ]; then
+    echo -e "${alert}ERROR: Missing${normal}"
+    ALLGOOD=0
+else
+    echo -e $GOOD
+fi
+echo -e -n "${dim} - Container ($CONTAINER): "
+RUNNING=$(docker inspect --format="{{.State.Running}}" $CONTAINER 2>/dev/null) || true
+if [ "$RUNNING" = "true" ]; then
+    echo -e $GOOD
+    VER=`v=$(docker exec --tty $CONTAINER sh -c "telegraf --version") && echo "$v" || echo "$UKN"`
+elif [ "$RUNNING" = "false" ]; then
+    echo -e "${alert}ERROR: Stopped${normal}"
+    ALLGOOD=0
+else
+    echo -e "${alert}ERROR: Missing${normal}"
+    ALLGOOD=0
+fi
+echo -e "${dim} - Version: ${subbold}$VER"
 echo -e ""
 
 # influxdb
@@ -340,16 +293,14 @@ fi
 echo -e "${dim} - Version: ${subbold}$VER"
 echo -e ""
 
-# tesla-history
-echo -e "${bold}Checking tesla-history${dim}"
-echo -e "----------------------------------------------------------------------------"
-CONTAINER="tesla-history"
-VER=$UKN
-CONF_FILE="tools/tesla-history/tesla-history.conf"
-AUTH_FILE="tools/tesla-history/tesla-history.auth"
-if [ $CP_SOLAR_ONLY -ne 1 ] && [ $CP_NONE -ne 1 ]; then
-    echo -e "${dim} - Skipped: Only required in 'solar-only' configuration"
-else
+if grep -q "tesla-history" powerwall.extend.yml 2>/dev/null; then
+    # tesla-history
+    echo -e "${bold}Checking tesla-history${dim}"
+    echo -e "----------------------------------------------------------------------------"
+    CONTAINER="tesla-history"
+    VER=$UKN
+    CONF_FILE="tools/tesla-history/tesla-history.conf"
+    AUTH_FILE="tools/tesla-history/tesla-history.auth"
     echo -e -n "${dim} - Config File ${CONF_FILE}: "
     if [ ! -f ${CONF_FILE} ]; then
         echo -e "${alert}ERROR: Missing${normal}"
@@ -377,8 +328,8 @@ else
         ALLGOOD=0
     fi
     echo -e "${dim} - Version: ${subbold}$VER"
+    echo -e ""
 fi
-echo -e ""
 
 # weather411
 echo -e "${bold}Checking weather411${dim}"
@@ -388,16 +339,9 @@ VER=$UKN
 WEATHER=$UKN
 ENV_FILE="weather/weather411.conf"
 PORT="8676"
-if [ $CP_WEATHER411 -ne 1 ]; then
-    echo -e "${dim} - Skipped: weather411 not set up"
+if [ ! -f ${ENV_FILE} ]; then
+    echo -e "${dim} - Skipped: weather411 not set up (missing ${ENV_FILE})"
 else
-    echo -e -n "${dim} - Config File ${ENV_FILE}: "
-    if [ ! -f ${ENV_FILE} ]; then
-        echo -e "${alert}ERROR: Missing${normal}"
-        ALLGOOD=0
-    else
-        echo -e $GOOD
-    fi
     echo -e -n "${dim} - Container ($CONTAINER): "
     RUNNING=$(docker inspect --format="{{.State.Running}}" $CONTAINER 2>/dev/null) || true
     if [ "$RUNNING" = "true" ]; then

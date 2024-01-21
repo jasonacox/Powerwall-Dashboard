@@ -20,17 +20,21 @@ services:
             - influxdb.env
 
     pypowerwall:
-        image: jasonacox/pypowerwall:0.7.6t39
+        image: jasonacox/pypowerwall:0.7.7t40
         container_name: pypowerwall
         hostname: pypowerwall
         restart: unless-stopped
+        volumes:
+            - type: bind
+              source: .auth
+              target: /app/.auth
         user: "${PWD_USER:-1000:1000}"
         ports:
             - "${PYPOWERWALL_PORTS:-8675:8675}"
+        environment:
+            - PW_AUTH_PATH=.auth
         env_file:
             - pypowerwall.env
-        profiles:
-            - default
 
     telegraf:
         image: telegraf:1.28.2
@@ -57,8 +61,6 @@ services:
         depends_on:
             - influxdb
             - pypowerwall
-        profiles:
-            - default
 
     grafana:
         image: grafana/grafana:9.1.2-ubuntu
@@ -78,7 +80,7 @@ services:
             - influxdb
 
     weather411:
-        image: jasonacox/weather411:0.2.2
+        image: jasonacox/weather411:0.2.3
         container_name: weather411
         hostname: weather411
         restart: unless-stopped
@@ -94,25 +96,3 @@ services:
             - WEATHERCONF=/var/lib/weather/weather411.conf
         depends_on:
             - influxdb
-        profiles:
-            - weather411
-
-    tesla-history:
-        image: jasonacox/tesla-history:0.1.4
-        container_name: tesla-history
-        hostname: tesla-history
-        restart: unless-stopped
-        user: "${PWD_USER:-1000:1000}"
-        volumes:
-            - type: bind
-              source: ./tools/tesla-history
-              target: /var/lib/tesla-history
-        environment:
-            - INFLUX_HOST=influxdb
-            - INFLUX_PORT=8086
-            - TESLA_CONF=/var/lib/tesla-history/tesla-history.conf
-            - TESLA_AUTH=/var/lib/tesla-history/tesla-history.auth
-        depends_on:
-            - influxdb
-        profiles:
-            - solar-only
