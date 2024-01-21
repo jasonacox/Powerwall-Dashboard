@@ -1,6 +1,6 @@
 # Powerwall-Dashboard
 
-Monitoring Dashboard for the Tesla Powerwall using Grafana, InfluxDB, Telegraf and pyPowerwall.
+Monitoring Dashboard for Tesla Solar and Powerwall systems using Grafana, InfluxDB, Telegraf and pyPowerwall.
 
 ![Animation](https://user-images.githubusercontent.com/13752647/198901193-6f5d3f34-3ef6-4d6d-95ff-892a3763541b.png)
 ![Monthly](https://user-images.githubusercontent.com/836718/214475577-2a633228-4db0-41b8-8738-51642222f462.png)
@@ -12,7 +12,7 @@ Monitoring Dashboard for the Tesla Powerwall using Grafana, InfluxDB, Telegraf a
 
 ## Dashboards
 
-The default [dashboard.json](dashboards/dashboard.json) shown above, pulls in the live power flows from the Powerwall web portal and embeds that animation in the Grafana dashboard.
+The default [dashboard.json](dashboards/dashboard.json) shown above, pulls in live power data from the local Tesla Energy Gateway or the Tesla Cloud and displays that on the Grafana dashboard. A power flow animation is rendered by the pyPowerwall container using that live data.
 
 A non-animated version of the dashboard is also available using [dashboard-no-animation.json](dashboards/dashboard-no-animation.json)
 
@@ -55,7 +55,7 @@ The dashboard can be installed in two different configurations.
     2 - Tesla Cloud  (Solar-only systems or Powerwalls without LAN access)
   ```
 
-For Powerwall 1, 2 or + owners with a Tesla Gateway accessible on their LAN, select `option 1` (Local Access).
+For Powerwall 1, 2 or + owners with a Tesla Energy Gateway accessible on their LAN, select `option 1` (Local Access).
 
 For Tesla Solar owners or Powerwalls without LAN access, select `option 2` (Tesla Cloud) and the dashboard will be installed to pull the data available from the Tesla Cloud API. This mode works for [Solar Only](tools/solar-only/) and Powerwall 3 owners, but will not provide all the details or fidelity that the "Local Access" mode offers.
 
