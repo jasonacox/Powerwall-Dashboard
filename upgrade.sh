@@ -1,4 +1,6 @@
 #!/bin/bash
+#
+# Interactive Upgrade Script for Powerwall Dashboard
 
 # Stop on Errors
 set -e

@@ -1,4 +1,6 @@
 #!/bin/bash
+#
+# Setup Verification Tool for Powerwall Dashboard
 
 # Stop on Errors
 set -e
