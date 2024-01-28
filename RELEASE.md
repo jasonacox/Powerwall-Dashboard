@@ -1,5 +1,9 @@
 # RELEASE NOTES
 
+## v4.0.1 - Powerwall Voltages
+
+* Added CQs and updated `dashboard.json` to include voltages from battery block vitals by @mcbirse in https://github.com/jasonacox/Powerwall-Dashboard/pull/426. This addresses users no longer seeing Powerwall voltages in the dashboard with firmware 23.44.0 or later - See related https://github.com/jasonacox/Powerwall-Dashboard/discussions/109#discussioncomment-8263020
+
 ## v4.0.0 - Cloud Mode Support
 
 * Using pyPowerwall for both Local Access and Tesla Cloud mode by @jasonacox and @mcbirse in https://github.com/jasonacox/Powerwall-Dashboard/pull/414 (replaces Tesla-history service, but the Tesla-history tool will continue to be used to fill in historic data or gaps) - See related https://github.com/jasonacox/pypowerwall/pull/59
@@ -10,7 +14,7 @@
 
 ## v3.0.8 - Critical Bug Fix
 
-* Fixes bug in pypowerwall proxy container version before `jasonacox/pypowerwall:0.7.6t39` related to API calls and 404 HTTP status codes handling.CPowerwall Firmware version 23.44.0 has eliminated /api/devices/vitals resulting in a 404 response from the Powerwall Gateway (TEG) when this is requested. There was a bug in the pypowerwall code that will treat this 404 like an authentication failure which will result in attempts to log in over and over, eventually hitting the rate limit. This is especially impactful for those using the proxy for things like Powerwall-Dashboard as the rate limit will prohibit other data gathering.
+* Fixes bug in pypowerwall proxy container version before `jasonacox/pypowerwall:0.7.6t39` related to API calls and 404 HTTP status codes handling. Powerwall Firmware version 23.44.0 has eliminated /api/devices/vitals resulting in a 404 response from the Powerwall Gateway (TEG) when this is requested. There was a bug in the pypowerwall code that will treat this 404 like an authentication failure which will result in attempts to log in over and over, eventually hitting the rate limit. This is especially impactful for those using the proxy for things like Powerwall-Dashboard as the rate limit will prohibit other data gathering.
 
 ## v3.0.7 - InfluxDB Environment Variables
 
