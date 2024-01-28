@@ -9143,16 +9143,13 @@
         "overrides": [
           {
             "matcher": {
-              "id": "byName",
-              "options": "Solar Energy"
+              "id": "byRegexp",
+              "options": ".*[ ](L[1-2])\\b"
             },
             "properties": [
               {
-                "id": "color",
-                "value": {
-                  "fixedColor": "yellow",
-                  "mode": "fixed"
-                }
+                "id": "custom.axisPlacement",
+                "value": "right"
               }
             ]
           }
