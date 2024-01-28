@@ -11026,6 +11026,150 @@
             ]
           ],
           "tags": []
+        },
+        {
+          "alias": "PW1",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "hide": false,
+          "query": "SELECT mean(\"PW1_v_out\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": true,
+          "refId": "AQ",
+          "resultFormat": "time_series"
+        },
+        {
+          "alias": "PW2",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "hide": false,
+          "query": "SELECT mean(\"PW2_v_out\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": true,
+          "refId": "AR",
+          "resultFormat": "time_series"
+        },
+        {
+          "alias": "PW3",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "hide": false,
+          "query": "SELECT mean(\"PW3_v_out\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": true,
+          "refId": "AS",
+          "resultFormat": "time_series"
+        },
+        {
+          "alias": "PW4",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "hide": false,
+          "query": "SELECT mean(\"PW4_v_out\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": true,
+          "refId": "AT",
+          "resultFormat": "time_series"
+        },
+        {
+          "alias": "PW5",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "hide": false,
+          "query": "SELECT mean(\"PW5_v_out\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": true,
+          "refId": "AU",
+          "resultFormat": "time_series"
+        },
+        {
+          "alias": "PW6",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "hide": false,
+          "query": "SELECT mean(\"PW6_v_out\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": true,
+          "refId": "AV",
+          "resultFormat": "time_series"
+        },
+        {
+          "alias": "PW7",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "hide": false,
+          "query": "SELECT mean(\"PW7_v_out\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": true,
+          "refId": "AW",
+          "resultFormat": "time_series"
+        },
+        {
+          "alias": "PW8",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "hide": false,
+          "query": "SELECT mean(\"PW8_v_out\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": true,
+          "refId": "AX",
+          "resultFormat": "time_series"
+        },
+        {
+          "alias": "PW9",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "hide": false,
+          "query": "SELECT mean(\"PW9_v_out\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": true,
+          "refId": "AY",
+          "resultFormat": "time_series"
+        },
+        {
+          "alias": "PW10",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "hide": false,
+          "query": "SELECT mean(\"PW10_v_out\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": true,
+          "refId": "AZ",
+          "resultFormat": "time_series"
+        },
+        {
+          "alias": "PW11",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "hide": false,
+          "query": "SELECT mean(\"PW11_v_out\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": true,
+          "refId": "BA",
+          "resultFormat": "time_series"
+        },
+        {
+          "alias": "PW12",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "hide": false,
+          "query": "SELECT mean(\"PW12_v_out\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": true,
+          "refId": "BB",
+          "resultFormat": "time_series"
         }
       ],
       "title": "Voltages",
@@ -12156,6 +12300,6 @@
   "timezone": "${VAR_TZ}",
   "title": "Powerwall - Power Flow",
   "uid": "RSabAvRRzZ",
-  "version": 51,
+  "version": 52,
   "weekStart": ""
 }
