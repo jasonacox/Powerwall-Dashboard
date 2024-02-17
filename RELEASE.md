@@ -1,5 +1,11 @@
 # RELEASE NOTES
 
+## v4.0.2 - Dashboard Update
+
+* Update default `dashboard.json` to not connect null values over 1hr threshhold (corrctly representing data gaps) by @youzer-name in #430.
+* Stack powerwall current energy values in Powerwall Capacity panel by @youzer-name in #430.
+* Add "Off Grid" indicators to the bottom of the Frequency and Voltages panels by @youzer-name in #430.
+
 ## v4.0.1 - Powerwall Voltages
 
 * Added CQs and updated `dashboard.json` to include voltages from battery block vitals by @mcbirse in https://github.com/jasonacox/Powerwall-Dashboard/pull/426. This addresses users no longer seeing Powerwall voltages in the dashboard with firmware 23.44.0 or later - See related https://github.com/jasonacox/Powerwall-Dashboard/discussions/109#discussioncomment-8263020
