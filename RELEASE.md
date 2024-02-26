@@ -1,5 +1,10 @@
 # RELEASE NOTES
 
+## v4.0.3 - Cloud Mode Fixes
+
+* Fix enumeration of energy sites during `cloud mode` setup to handle incomplete sites with Unknown names or types by @dcgibbons in https://github.com/jasonacox/pypowerwall/pull/72 
+* pyPowerwall Proxy t41 Updates - Bug fixes for Solar-Only systems using `cloud mode` (see https://github.com/jasonacox/Powerwall-Dashboard/issues/437).
+
 ## v4.0.2 - Dashboard Update
 
 * Update default `dashboard.json` to not connect null values over 1hr threshhold (corrctly representing data gaps) by @youzer-name in #430.
