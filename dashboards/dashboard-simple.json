@@ -233,7 +233,7 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "autogen",
-          "query": "SELECT \"mean_load_instant_power\" FROM \"http\" WHERE $timeFilter tz('$tz')",
+          "query": "SELECT \"mean_load_instant_power\" FROM \"http\" WHERE $timeFilter tz('${tz:raw}')",
           "rawQuery": false,
           "refId": "A",
           "resultFormat": "time_series",
@@ -252,7 +252,7 @@
             ]
           ],
           "tags": [],
-          "tz": "$tz"
+          "tz": "${tz:raw}"
         },
         {
           "alias": "Solar Energy",
@@ -289,7 +289,7 @@
             ]
           ],
           "tags": [],
-          "tz": "$tz"
+          "tz": "${tz:raw}"
         },
         {
           "alias": "Powerwall",
@@ -309,7 +309,7 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "autogen",
-          "query": "SELECT mean(from_pw) - mean(to_pw) FROM autogen.http WHERE $timeFilter GROUP BY time(5m) tz('$tz')",
+          "query": "SELECT mean(from_pw) - mean(to_pw) FROM autogen.http WHERE $timeFilter GROUP BY time(5m) tz('${tz:raw}')",
           "rawQuery": true,
           "refId": "C",
           "resultFormat": "time_series",
@@ -328,7 +328,7 @@
             ]
           ],
           "tags": [],
-          "tz": "$tz"
+          "tz": "${tz:raw}"
         },
         {
           "alias": "Grid Usage",
@@ -354,7 +354,7 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT mean(from_grid) - mean(to_grid) FROM autogen.http WHERE $timeFilter GROUP BY time(5m) tz('$tz')",
+          "query": "SELECT mean(from_grid) - mean(to_grid) FROM autogen.http WHERE $timeFilter GROUP BY time(5m) tz('${tz:raw}')",
           "rawQuery": true,
           "refId": "D",
           "resultFormat": "time_series",
@@ -373,7 +373,7 @@
             ]
           ],
           "tags": [],
-          "tz": "$tz"
+          "tz": "${tz:raw}"
         },
         {
           "alias": "Charge",
@@ -424,7 +424,7 @@
             ]
           ],
           "tags": [],
-          "tz": "$tz"
+          "tz": "${tz:raw}"
         },
         {
           "datasource": {
@@ -561,7 +561,7 @@
             ]
           ],
           "tags": [],
-          "tz": "$tz"
+          "tz": "${tz:raw}"
         }
       ],
       "title": "Powerwall",
@@ -640,7 +640,7 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT  (1+from_solar/abs(from_solar))*from_solar/2  FROM (SELECT integral(solar)/1000/3600 - integral(to_pw)/1000/3600 - integral(to_grid)/1000/3600  AS from_solar FROM autogen.http WHERE  $timeFilter tz('$tz'))",
+          "query": "SELECT  (1+from_solar/abs(from_solar))*from_solar/2  FROM (SELECT integral(solar)/1000/3600 - integral(to_pw)/1000/3600 - integral(to_grid)/1000/3600  AS from_solar FROM autogen.http WHERE  $timeFilter tz('${tz:raw}'))",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -694,7 +694,7 @@
             ]
           ],
           "tags": [],
-          "tz": "$tz"
+          "tz": "${tz:raw}"
         },
         {
           "alias": "From Grid",
@@ -730,7 +730,7 @@
             ]
           ],
           "tags": [],
-          "tz": "$tz"
+          "tz": "${tz:raw}"
         }
       ],
       "title": "Self-powered",
@@ -828,7 +828,7 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT fp FROM (SELECT sum(\"from_pw\")  * $avg_per_kwh AS fp FROM kwh.http WHERE  $timeFilter tz('$tz'))",
+          "query": "SELECT fp FROM (SELECT sum(\"from_pw\")  * $avg_per_kwh AS fp FROM kwh.http WHERE  $timeFilter tz('${tz:raw}'))",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -871,7 +871,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT s - (tp + tg) FROM (SELECT sum(\"solar\") * $avg_per_kwh AS s,  sum(\"to_pw\")  * $avg_per_kwh AS tp, sum(\"to_grid\") * $avg_per_kwh AS tg FROM kwh.http WHERE  $timeFilter tz('$tz'))",
+          "query": "SELECT s - (tp + tg) FROM (SELECT sum(\"solar\") * $avg_per_kwh AS s,  sum(\"to_pw\")  * $avg_per_kwh AS tp, sum(\"to_grid\") * $avg_per_kwh AS tg FROM kwh.http WHERE  $timeFilter tz('${tz:raw}'))",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "time_series",
@@ -914,7 +914,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT tg FROM (SELECT sum(\"to_pw\")  * $avg_per_kwh AS tp, sum(\"solar\") * $avg_per_kwh AS s, sum(\"to_grid\") * $avg_per_kwh AS tg FROM kwh.http WHERE  $timeFilter tz('$tz'))",
+          "query": "SELECT tg FROM (SELECT sum(\"to_pw\")  * $avg_per_kwh AS tp, sum(\"solar\") * $avg_per_kwh AS s, sum(\"to_grid\") * $avg_per_kwh AS tg FROM kwh.http WHERE  $timeFilter tz('${tz:raw}'))",
           "rawQuery": true,
           "refId": "C",
           "resultFormat": "time_series",
@@ -941,7 +941,7 @@
             "uid": "${DS_INFLUXDB}"
           },
           "hide": false,
-          "query": "SELECT tg + (s - tp - tg ) + fp FROM (SELECT sum(\"to_pw\")  * $avg_per_kwh AS tp, sum(\"solar\") * $avg_per_kwh AS s, sum(\"to_grid\") * $avg_per_kwh AS tg, sum(\"from_pw\") * $avg_per_kwh AS fp FROM kwh.http WHERE  $timeFilter tz('$tz'))\n",
+          "query": "SELECT tg + (s - tp - tg ) + fp FROM (SELECT sum(\"to_pw\")  * $avg_per_kwh AS tp, sum(\"solar\") * $avg_per_kwh AS s, sum(\"to_grid\") * $avg_per_kwh AS tg, sum(\"from_pw\") * $avg_per_kwh AS fp FROM kwh.http WHERE  $timeFilter tz('${tz:raw}'))\n",
           "rawQuery": true,
           "refId": "D",
           "resultFormat": "time_series"
@@ -1275,7 +1275,7 @@
             ]
           ],
           "tags": [],
-          "tz": "$tz"
+          "tz": "${tz:raw}"
         }
       ],
       "title": "Home Usage",
@@ -1378,7 +1378,7 @@
             ]
           ],
           "tags": [],
-          "tz": "$tz"
+          "tz": "${tz:raw}"
         }
       ],
       "title": "From Powerwall",
@@ -1481,7 +1481,7 @@
             ]
           ],
           "tags": [],
-          "tz": "$tz"
+          "tz": "${tz:raw}"
         }
       ],
       "title": "From Grid",
@@ -1584,7 +1584,7 @@
             ]
           ],
           "tags": [],
-          "tz": "$tz"
+          "tz": "${tz:raw}"
         }
       ],
       "title": "Solar Energy",
@@ -1687,7 +1687,7 @@
             ]
           ],
           "tags": [],
-          "tz": "$tz"
+          "tz": "${tz:raw}"
         }
       ],
       "title": "To Powerwall",
@@ -1790,7 +1790,7 @@
             ]
           ],
           "tags": [],
-          "tz": "$tz"
+          "tz": "${tz:raw}"
         }
       ],
       "title": "To Grid",
@@ -1915,7 +1915,7 @@
             ]
           ],
           "tags": [],
-          "tz": "$tz"
+          "tz": "${tz:raw}"
         }
       ],
       "thresholds": [],
@@ -2048,7 +2048,7 @@
               "value": "0"
             }
           ],
-          "tz": "$tz"
+          "tz": "${tz:raw}"
         }
       ],
       "thresholds": [],
@@ -2175,7 +2175,7 @@
             ]
           ],
           "tags": [],
-          "tz": "$tz"
+          "tz": "${tz:raw}"
         }
       ],
       "thresholds": [],
@@ -2309,7 +2309,7 @@
             ]
           ],
           "tags": [],
-          "tz": "$tz"
+          "tz": "${tz:raw}"
         },
         {
           "alias": "To Grid",
@@ -2358,7 +2358,7 @@
             ]
           ],
           "tags": [],
-          "tz": "$tz"
+          "tz": "${tz:raw}"
         }
       ],
       "thresholds": [],
@@ -2498,7 +2498,7 @@
               "value": "0"
             }
           ],
-          "tz": "$tz"
+          "tz": "${tz:raw}"
         }
       ],
       "thresholds": [],
