@@ -1,5 +1,9 @@
 # RELEASE NOTES
 
+## v4.0.4 - Cloud Grid Status
+
+* Update to pyPowerwall v0.7.9 - Bug fix to render correct grid status for Solar-Only systems on `cloud mode` (see https://github.com/jasonacox/Powerwall-Dashboard/issues/437)
+
 ## v4.0.3 - Cloud Mode Fixes
 
 * Fix enumeration of energy sites during `cloud mode` setup to handle incomplete sites with Unknown names or types by @dcgibbons in https://github.com/jasonacox/pypowerwall/pull/72 
