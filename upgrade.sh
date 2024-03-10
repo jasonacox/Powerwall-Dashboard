@@ -6,7 +6,7 @@
 set -e
 
 # Set Globals
-VERSION="4.1.0"
+VERSION="4.1.1"
 CURRENT="Unknown"
 COMPOSE_ENV_FILE="compose.env"
 INFLUXDB_ENV_FILE="influxdb.env"
@@ -196,63 +196,23 @@ if [ ! -f ${GF_ENV_FILE} ]; then
     cp "${GF_ENV_FILE}.sample" "${GF_ENV_FILE}"
 fi
 
-# Previously, this block checked for the existence of a marker plugin and overwrote
-# grafana.env with a copy of grafana.env.sample. The new version updates plugins only
-# and doesn't modify other parts of grafana.env. This may result in creeping differences
-# in the sample and active env files.
-# Create variables as script gets unwieldy otherwise.
-core_env=PWD_CORE_PLUGINS
-old_core=$(sed -n "s/^${core_env}=//p" ${GF_ENV_FILE})
-new_core=$(sed -n "s/^${core_env}=//p" ${GF_ENV_FILE}.sample)
-
-if [ "${old_core}" == "" ]; then
-    # This if block is a run once - could move to a separate tool,
-    # or just delete 6 or 12 months in the future (Aug '24 - Mar '25), as everyone 
-    # will probably have been forced to update anyway by then due to
-    # Tesla firmware updates (on 23.44 as of this code). 
-
-    echo "Updating '${GF_ENV_FILE}' structure. '.old' backup file created."
-
-    old_core=$(sed -n "s/^GF_INSTALL_PLUGINS=//p" ${GF_ENV_FILE})
-    update_gf_file="# Plugins updated to use ${core_env}.\n# See '${GF_ENV_FILE}.sample' for details."
-    update_gf_file="${update_gf_file}\n${core_env}=${old_core}"
-    update_gf_file="${update_gf_file}\nGF_INSTALL_PLUGINS=\${${core_env}}" 
-
-    # Force update of grafana env file with new PWD_CORE_PLUGINS structure.
-    sed -i.old -e "s@^GF_INSTALL_PLUGINS=.*@${update_gf_file}@" $GF_ENV_FILE
-fi
-
-if [ "${old_core}" == "${new_core}" ]; then
-    echo "Grafana plugin list is current. No action required."
-else
-    echo
-    echo "Grafana plugin list has changed."
-    echo
-    echo "You appear to be running an older Grafana configuration with"
-    echo "plugins that are different to the current recommended list."
-    echo "This script can update your plugins to the current recommendations."
-    echo "If you have installed custom plugins or want to keep it as"
-    echo "it is, answer 'n' below and the script will provide instructions for"
-    echo "manual checks/updates."
-    echo 
-    read -r -p "Do you want to update your Grafana plugin list? [y/N] " response
+# Check for latest Grafana settings (required in 2.6.2)
+if ! grep -q "Updated v4.1.1" "${GF_ENV_FILE}"; then
+    echo "Your Grafana environmental settings are outdated."
+    echo "  Updating these are not rquired but could add some enhancements."
+    echo "  If you upgrade, any custom settings you made will be removed and"
+    echo "  current settings will be backed up."
+    read -r -p "Upgrade ${GF_ENV_FILE}? [y/N] " response
     if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]
     then
-        sed -i.bak -e "s@^${core_env}=.*@${core_env}=${new_core}@" $GF_ENV_FILE
+        cp "${GF_ENV_FILE}" "${GF_ENV_FILE}.bak"
+        cp "${GF_ENV_FILE}.sample" "${GF_ENV_FILE}"
+        echo "Updated - Old settings backed up to ${GF_ENV_FILE}.bak"
         docker stop grafana
         docker rm grafana
-        # Probably safe to delete all plugins as grafana downloads everything everytime anyway.
-        rm -fr ./grafana/plugins/*
     else
-        echo
-        echo "    Okay. Your grafana plugin list has not been updated."
-        echo 
-        echo "However, this version of Powerwall-Dashboard may need new plugins"
-        echo "for the latest grafana dashboard. To address this, please"
-        echo "check the list of required plugins (listed in ${core_env} in"
-        echo "'${GF_ENV_FILE}.sample') and make sure all of these plugins are"
-        echo "added to ${core_env}' in '${GF_ENV_FILE}'."
-    fi    
+        echo "No Change"
+    fi
 fi
 
 # Silently create default docker compose env file if needed.

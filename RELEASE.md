@@ -1,5 +1,9 @@
 # RELEASE NOTES
 
+## v4.1.1 - Revert Change
+
+* Problems identified with older `docker-compose` versions. Revering upgrade.sh changes but pushing new plugin list in `grafana.env.sample` for new installations.
+
 ## v4.1.0 - Grafana Plugin Updates
 
 * Update plugin list for Grafana, removing unneeded plugins (e.g. `flux datasource`) and adding logic to upgrade script to prune old `grafana.env` settings by @BuongiornoTexas in #442 #433
