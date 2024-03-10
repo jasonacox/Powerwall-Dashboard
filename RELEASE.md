@@ -1,5 +1,10 @@
 # RELEASE NOTES
 
+## v4.0.4 - Dashboard Updates
+
+* Updated timezone variable in `dashboard.json` to tz:text to ensure the Time Zone string is output as-is. This will make upgrading Grafana easier later on and future-proof the variables by @s-crypt in #439.
+* Removed $tz from any queries that do not have a GROUP BY statement by @s-crypt in #439..
+
 ## v4.0.3 - Cloud Mode Fixes
 
 * Fix enumeration of energy sites during `cloud mode` setup to handle incomplete sites with Unknown names or types by @dcgibbons in https://github.com/jasonacox/pypowerwall/pull/72 
