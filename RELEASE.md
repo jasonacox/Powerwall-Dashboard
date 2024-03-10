@@ -3,7 +3,8 @@
 ## v4.0.5 - Dashboard Updates
 
 * Updated timezone variable in `dashboard.json` to tz:text to ensure the Time Zone string is output as-is. This will make upgrading Grafana easier later on and future-proof the variables by @s-crypt in #439.
-* Removed $tz from any queries that do not have a GROUP BY statement by @s-crypt in #439..
+* Removed $tz from any queries that do not have a GROUP BY statement by @s-crypt in #439.
+* Updated pyPowerwall Proxy t42 - Adds Power Flow Animation style (set PW_STYLE="solar") for Solar-Only display. Removes the Powerwall image and related text to display a Grid + Solar + Home power flow animation.
 
 ## v4.0.4 - Cloud Grid Status
 
