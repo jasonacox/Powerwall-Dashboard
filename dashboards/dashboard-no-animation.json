@@ -622,7 +622,7 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "autogen",
-          "query": "SELECT \"mean_load_instant_power\" FROM \"http\" WHERE $timeFilter tz('$tz')",
+          "query": "SELECT \"mean_load_instant_power\" FROM \"http\" WHERE $timeFilter ",
           "rawQuery": false,
           "refId": "A",
           "resultFormat": "time_series",
@@ -715,7 +715,7 @@
             ]
           ],
           "tags": [],
-          "tz": "$tz"
+          "tz": "${tz:text}"
         },
         {
           "alias": "Grid Usage",
@@ -760,7 +760,7 @@
             ]
           ],
           "tags": [],
-          "tz": "$tz"
+          "tz": "${tz:text}"
         },
         {
           "alias": "Charge",
@@ -1132,7 +1132,7 @@
             ]
           ],
           "tags": [],
-          "tz": "$tz"
+          "tz": "${tz:text}"
         }
       ],
       "title": "Powerwall",
@@ -1196,7 +1196,7 @@
             "type": "influxdb",
             "uid": "${DS_INFLUXDB}"
           },
-          "query": "SELECT  (1+from_solar/abs(from_solar))*from_solar/2  FROM (SELECT integral(solar)/1000/3600 - integral(to_pw)/1000/3600 - integral(to_grid)/1000/3600  AS from_solar FROM autogen.http WHERE  $timeFilter tz('$tz'))",
+          "query": "SELECT  (1+from_solar/abs(from_solar))*from_solar/2  FROM (SELECT integral(solar)/1000/3600 - integral(to_pw)/1000/3600 - integral(to_grid)/1000/3600  AS from_solar FROM autogen.http WHERE  $timeFilter )",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series"
@@ -1237,7 +1237,7 @@
             ]
           ],
           "tags": [],
-          "tz": "$tz"
+          "tz": "${tz:text}"
         },
         {
           "alias": "From Grid",
@@ -1275,7 +1275,7 @@
             ]
           ],
           "tags": [],
-          "tz": "$tz"
+          "tz": "${tz:text}"
         }
       ],
       "title": "Self-Powered",
@@ -1358,7 +1358,7 @@
             "type": "influxdb",
             "uid": "${DS_INFLUXDB}"
           },
-          "query": "SELECT fp FROM (SELECT sum(\"from_pw\")  * $avg_per_kwh AS fp FROM kwh.http WHERE  $timeFilter tz('$tz'))",
+          "query": "SELECT fp FROM (SELECT sum(\"from_pw\")  * $avg_per_kwh AS fp FROM kwh.http WHERE  $timeFilter )",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series"
@@ -1370,7 +1370,7 @@
             "uid": "${DS_INFLUXDB}"
           },
           "hide": false,
-          "query": "SELECT s - (tp + tg) FROM (SELECT sum(\"solar\") * $avg_per_kwh AS s,  sum(\"to_pw\")  * $avg_per_kwh AS tp, sum(\"to_grid\") * $avg_per_kwh AS tg FROM kwh.http WHERE  $timeFilter tz('$tz'))\n",
+          "query": "SELECT s - (tp + tg) FROM (SELECT sum(\"solar\") * $avg_per_kwh AS s,  sum(\"to_pw\")  * $avg_per_kwh AS tp, sum(\"to_grid\") * $avg_per_kwh AS tg FROM kwh.http WHERE  $timeFilter )\n",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "time_series"
@@ -1382,7 +1382,7 @@
             "uid": "${DS_INFLUXDB}"
           },
           "hide": false,
-          "query": "SELECT tg FROM (SELECT sum(\"to_pw\")  * $avg_per_kwh AS tp, sum(\"solar\") * $avg_per_kwh AS s, sum(\"to_grid\") * $avg_per_kwh AS tg FROM kwh.http WHERE  $timeFilter tz('$tz'))\n",
+          "query": "SELECT tg FROM (SELECT sum(\"to_pw\")  * $avg_per_kwh AS tp, sum(\"solar\") * $avg_per_kwh AS s, sum(\"to_grid\") * $avg_per_kwh AS tg FROM kwh.http WHERE  $timeFilter )\n",
           "rawQuery": true,
           "refId": "C",
           "resultFormat": "time_series"
@@ -1394,7 +1394,7 @@
             "uid": "${DS_INFLUXDB}"
           },
           "hide": false,
-          "query": "SELECT tg + (s - tp - tg ) + fp FROM (SELECT sum(\"to_pw\")  * $avg_per_kwh AS tp, sum(\"solar\") * $avg_per_kwh AS s, sum(\"to_grid\") * $avg_per_kwh AS tg, sum(\"from_pw\") * $avg_per_kwh AS fp FROM kwh.http WHERE  $timeFilter tz('$tz'))\n",
+          "query": "SELECT tg + (s - tp - tg ) + fp FROM (SELECT sum(\"to_pw\")  * $avg_per_kwh AS tp, sum(\"solar\") * $avg_per_kwh AS s, sum(\"to_grid\") * $avg_per_kwh AS tg, sum(\"from_pw\") * $avg_per_kwh AS fp FROM kwh.http WHERE  $timeFilter )\n",
           "rawQuery": true,
           "refId": "D",
           "resultFormat": "time_series"
@@ -1731,7 +1731,7 @@
             ]
           ],
           "tags": [],
-          "tz": "$tz"
+          "tz": "${tz:text}"
         }
       ],
       "title": "Home Usage",
@@ -1834,7 +1834,7 @@
             ]
           ],
           "tags": [],
-          "tz": "$tz"
+          "tz": "${tz:text}"
         }
       ],
       "title": "From Powerwall",
@@ -1937,7 +1937,7 @@
             ]
           ],
           "tags": [],
-          "tz": "$tz"
+          "tz": "${tz:text}"
         }
       ],
       "title": "From Grid",
@@ -2041,7 +2041,7 @@
             ]
           ],
           "tags": [],
-          "tz": "$tz"
+          "tz": "${tz:text}"
         }
       ],
       "title": "Solar Energy",
@@ -2144,7 +2144,7 @@
             ]
           ],
           "tags": [],
-          "tz": "$tz"
+          "tz": "${tz:text}"
         }
       ],
       "title": "To Powerwall",
@@ -2247,7 +2247,7 @@
             ]
           ],
           "tags": [],
-          "tz": "$tz"
+          "tz": "${tz:text}"
         }
       ],
       "title": "To Grid",
@@ -2359,7 +2359,7 @@
             ]
           ],
           "tags": [],
-          "tz": "$tz"
+          "tz": "${tz:text}"
         }
       ],
       "thresholds": [],
@@ -2494,7 +2494,7 @@
               "value": "0"
             }
           ],
-          "tz": "$tz"
+          "tz": "${tz:text}"
         }
       ],
       "thresholds": [],
@@ -2623,7 +2623,7 @@
             ]
           ],
           "tags": [],
-          "tz": "$tz"
+          "tz": "${tz:text}"
         }
       ],
       "thresholds": [],
@@ -2760,7 +2760,7 @@
             ]
           ],
           "tags": [],
-          "tz": "$tz"
+          "tz": "${tz:text}"
         },
         {
           "alias": "To Grid",
@@ -2809,7 +2809,7 @@
             ]
           ],
           "tags": [],
-          "tz": "$tz"
+          "tz": "${tz:text}"
         }
       ],
       "thresholds": [],
@@ -2961,7 +2961,7 @@
               "value": "0"
             }
           ],
-          "tz": "$tz"
+          "tz": "${tz:text}"
         },
         {
           "alias": "Home Usage",
@@ -3010,7 +3010,7 @@
               "value": "0"
             }
           ],
-          "tz": "$tz"
+          "tz": "${tz:text}"
         }
       ],
       "thresholds": [],
