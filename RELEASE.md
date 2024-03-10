@@ -1,9 +1,13 @@
 # RELEASE NOTES
 
-## v4.0.4 - Dashboard Updates
+## v4.0.5 - Dashboard Updates
 
 * Updated timezone variable in `dashboard.json` to tz:text to ensure the Time Zone string is output as-is. This will make upgrading Grafana easier later on and future-proof the variables by @s-crypt in #439.
 * Removed $tz from any queries that do not have a GROUP BY statement by @s-crypt in #439..
+
+## v4.0.4 - Cloud Grid Status
+
+* Update to pyPowerwall v0.7.9 - Bug fix to render correct grid status for Solar-Only systems on cloud mode (see #437)
 
 ## v4.0.3 - Cloud Mode Fixes
 
