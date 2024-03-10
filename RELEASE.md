@@ -1,5 +1,9 @@
 # RELEASE NOTES
 
+## v4.1.0 - Grafana Plugin Updates
+
+* Update plugin list for Grafana, removing unneeded plugins (e.g. `flux datasource`) and adding logic to upgrade script to prune old `grafana.env` settings by @BuongiornoTexas in #442 #433
+
 ## v4.0.4 - Cloud Grid Status
 
 * Update to pyPowerwall v0.7.9 - Bug fix to render correct grid status for Solar-Only systems on `cloud mode` (see https://github.com/jasonacox/Powerwall-Dashboard/issues/437)
