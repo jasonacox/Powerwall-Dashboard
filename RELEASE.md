@@ -1,5 +1,9 @@
 # RELEASE NOTES
 
+## v4.1.0 - Grafana Plugin Updates
+
+* Update plugin list for Grafana, removing unneeded plugins (e.g. `flux datasource`) and adding logic to upgrade script to prune old `grafana.env` settings by @BuongiornoTexas in #442 #433
+
 ## v4.0.5 - Dashboard Updates
 
 * Updated timezone variable in `dashboard.json` to tz:text to ensure the Time Zone string is output as-is. This will make upgrading Grafana easier later on and future-proof the variables by @s-crypt in #439.
