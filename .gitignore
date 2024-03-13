@@ -50,3 +50,5 @@ tools/tesla-history/tesla-history.auth
 tools/tesla-history/tesla-history.conf
 tools/weather-history/weather-history.conf
 tools/ecowitt-weather-history/ecowitt-weather-history.conf
+tools/export/export.csv
+tools/export/export.xz
