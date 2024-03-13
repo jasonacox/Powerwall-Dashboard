@@ -4,7 +4,7 @@ This script will pull the raw data from the Powerwall Dashboard database (Influx
 
 ## Usage
 
-```bash
+```
 python3 export.py
 
 Usage: export.py [today|yesterday|all] or [YYYY-mm-dd] [YYYY-mm-dd]
