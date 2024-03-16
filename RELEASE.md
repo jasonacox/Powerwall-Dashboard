@@ -1,5 +1,9 @@
 # RELEASE NOTES
 
+## v4.1.2 - Cache 404 Responses
+
+* Update pyPowerwall to v0.7.10 to add cache and extended TTL for 404 responses from Powerwall as identified in issue jasonacox/Powerwall-Dashboard#449 by @jgleigh. This will help reduce load on Powerwall gateway that may be causing rate limiting for some users (Firmware 23.44.0+).
+
 ## v4.1.1 - Revert Change
 
 * Problems identified with older `docker-compose` versions. Revering upgrade.sh changes but pushing new plugin list in `grafana.env.sample` for new installations.
