@@ -2,7 +2,9 @@
 
 ## v4.1.2 - Cache 404 Responses
 
-* Update pyPowerwall to v0.7.10 to add cache and extended TTL for 404 responses from Powerwall as identified in issue jasonacox/Powerwall-Dashboard#449 by @jgleigh. This will help reduce load on Powerwall gateway that may be causing rate limiting for some users (Firmware 23.44.0+).
+* Updated pyPowerwall to v0.7.11 to add cache and extended TTL for 404 responses from Powerwall as identified in issue jasonacox/Powerwall-Dashboard#449 by @jgleigh. This will help reduce load on Powerwall gateway that may be causing rate limiting for some users (Firmware 23.44.0+).
+* Updated logic to disable vitals API calls for Firmware 23.44.0+
+* Added rate limit detection (429) and cooldown mode to allow Powerwall gateway time to recover.
 
 ## v4.1.1 - Revert Change
 
