@@ -1,5 +1,9 @@
 # RELEASE NOTES
 
+## v4.1.3 - Alerts & Strings
+
+* Updated to using pyPowerwall to v0.7.12 which brings some Alerts and String data back for systems with Firmware 23.44.0+. New library uses `/api/solar_powerwall` instead of now depreciated `/api/devices/vitals` by @DerickJohnson in https://github.com/jasonacox/pypowerwall/pull/75 and by @jasonacox in https://github.com/jasonacox/pypowerwall/pull/76.
+
 ## v4.1.2 - Cache 404 Responses
 
 * Updated pyPowerwall to v0.7.11 to add cache and extended TTL for 404 responses from Powerwall as identified in issue jasonacox/Powerwall-Dashboard#449 by @jgleigh. This will help reduce load on Powerwall gateway that may be causing rate limiting for some users (Firmware 23.44.0+).
