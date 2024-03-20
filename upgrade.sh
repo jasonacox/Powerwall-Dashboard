@@ -83,6 +83,23 @@ if [ ! -f ${PW_ENV_FILE} ] && [ "${PROFILE}" != "solar-only" ]; then
     exit 1
 fi
 
+echo "Checking Docker Compose..."
+if docker compose version > /dev/null 2>&1; then
+    # Build Docker (v2)
+    echo "INFO: Docker Compose V2 Found: OK to Continue"
+else
+    if docker-compose version > /dev/null 2>&1; then
+        # Build Docker (v1)
+        echo "ERROR: Docker Compose V1 Found: Upgrade Required"
+        echo "See Migration Instructions at https://docs.docker.com/compose/migrate/"
+    else
+        echo "ERROR: Docker Compose is not available."
+        echo "This script requires Docker Compose."
+        echo "Please install and try again."
+    fi
+    exit 1
+fi
+
 # Verify Upgrade
 read -r -p "Upgrade - Proceed? [y/N] " response
 if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]
