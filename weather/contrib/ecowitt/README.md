@@ -90,8 +90,6 @@ Docker: docker pull [jasonacox/ecowitt](https://hub.docker.com/r/jasonacox/ecowi
     Save the following into a file called powerwall.extend.yml in your Powerwall-Dashboard folder
 
     ```yaml
-    version: "3.5"
-
     services:
         ecowitt:
             # Uncomment next line to build locally
