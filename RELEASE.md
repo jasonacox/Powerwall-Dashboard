@@ -1,5 +1,9 @@
 # RELEASE NOTES
 
+## v4.2.0 - Remove Docker V1
+
+* Remove support for Docker V1 since it is obsolete. Upgrade progress will alert V1 users to upgrade to V2 before proceeding. Updates by @BJReplay in https://github.com/jasonacox/Powerwall-Dashboard/pull/454.
+
 ## v4.1.3 - Alerts & Strings
 
 * Updated to using pyPowerwall to v0.7.12 which brings some Alerts and String data back for systems with Firmware 23.44.0+. New library uses `/api/solar_powerwall` instead of now depreciated `/api/devices/vitals` by @DerickJohnson in https://github.com/jasonacox/pypowerwall/pull/75 and by @jasonacox in https://github.com/jasonacox/pypowerwall/pull/76.

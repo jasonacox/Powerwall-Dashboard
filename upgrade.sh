@@ -6,7 +6,7 @@
 set -e
 
 # Set Globals
-VERSION="4.1.3"
+VERSION="4.2.0"
 CURRENT="Unknown"
 COMPOSE_ENV_FILE="compose.env"
 INFLUXDB_ENV_FILE="influxdb.env"
@@ -80,6 +80,23 @@ if [ ! -f ${PW_ENV_FILE} ] && [ "${PROFILE}" != "solar-only" ]; then
     echo ""
     echo "Exiting"
     rm -f tmp.sh
+    exit 1
+fi
+
+echo "Checking Docker Compose..."
+if docker compose version > /dev/null 2>&1; then
+    # Build Docker (v2)
+    echo "INFO: Docker Compose V2 Found: OK to Continue"
+else
+    if docker-compose version > /dev/null 2>&1; then
+        # Build Docker (v1)
+        echo "ERROR: Docker Compose V1 Found: Upgrade Required"
+        echo "See Migration Instructions at https://docs.docker.com/compose/migrate/"
+    else
+        echo "ERROR: Docker Compose is not available."
+        echo "This script requires Docker Compose."
+        echo "Please install and try again."
+    fi
     exit 1
 fi
 
