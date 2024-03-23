@@ -2,6 +2,31 @@
 
 InfluxDB is configured to use a infinite retention policy (see [influxdb.sql](../influxdb/influxdb.sql)).  It uses continuous queries to downsample Powerwall data and preserve disk space.  However, this does not safeguard the data from accidental deletion or corruption.  It is recommend that you set up a backup plan to snapshot the data for disaster recovery.
 
+## Transfer to a New Computer
+
+If you want to create a backup of your Powerwall Dashboard and move it to a new computer. You can follow these steps:
+
+```bash
+# Step 1 - Stop Dashboard on old computer
+./compose-dash.sh stop
+
+# Step 2- Create a backup
+sudo tar -zvcf ../Powerwall-Dashboard.tgz *
+cd ..
+
+# Step 3 - Copy the Powerwall-Dashboard.tgz to the new computer
+
+# Stop 4 - Clone Project on new computer
+git clone https://github.com/jasonacox/Powerwall-Dashboard.git
+cd Powerwall-Dashboard
+
+# Step 5 - Restore backup
+sudo tar -xvf ../Powerwall-Dashboard.tgz
+
+# Step 6 - Setup
+./setup.sh
+```
+
 ## Backup Plans
 
 Backup the Powerwall-Dashboard folder. In that folder are two important folders:
@@ -15,7 +40,7 @@ The following shows an example of how to migrate the data (influxdb) from one sy
 2. Edit the line that says DASHBOARD="/home/user/Powerwall-Dashboard" to have your dashboard location.
 3. Make the script executable with `chmod +x backup.sh`
 
-## Backup Example
+## Backup Script Example
 
 ```bash
 #!/bin/bash
