@@ -99,6 +99,7 @@ else
     fi
     exit 1
 fi
+echo ""
 
 # Verify Upgrade
 read -r -p "Upgrade - Proceed? [y/N] " response
