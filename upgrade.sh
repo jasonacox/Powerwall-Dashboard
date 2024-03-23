@@ -87,6 +87,7 @@ echo "Checking Docker Compose..."
 if docker compose version > /dev/null 2>&1; then
     # Build Docker (v2)
     echo "INFO: Docker Compose V2 Found: OK to Continue"
+    echo ""
 else
     if docker-compose version > /dev/null 2>&1; then
         # Build Docker (v1)
@@ -99,7 +100,6 @@ else
     fi
     exit 1
 fi
-echo ""
 
 # Verify Upgrade
 read -r -p "Upgrade - Proceed? [y/N] " response
