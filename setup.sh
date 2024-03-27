@@ -74,13 +74,24 @@ if ! docker info > /dev/null 2>&1; then
     echo "This script requires docker, please install and try again."
     exit 1
 fi
-if ! docker-compose version > /dev/null 2>&1; then
-    if ! docker compose version > /dev/null 2>&1; then
-        echo "ERROR: docker-compose is not available or not running."
-        echo "This script requires docker-compose or docker compose."
+
+# Verify Docker Compose Version
+if ! docker compose version > /dev/null 2>&1; then
+    if docker-compose version > /dev/null 2>&1; then
+        # Check for version information to see if it is not V1
+        COMPOSE_VERSION=`docker-compose version --short`
+        if [[ "${COMPOSE_VERSION}" == "1"* ]]; then
+            # Build Docker (v1)
+            echo "ERROR: Docker Compose V1 Found: Upgrade Required"
+            echo "See Migration Instructions at https://docs.docker.com/compose/migrate/"
+            exit 1
+        fi
+    else
+        echo "ERROR: Docker Compose is not available."
+        echo "This script requires Docker Compose."
         echo "Please install and try again."
-        exit 1
     fi
+    exit 1
 fi
 
 # Check PW_ENV_FILE for existing configuration

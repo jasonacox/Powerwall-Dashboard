@@ -1,5 +1,10 @@
 # RELEASE NOTES
 
+## v4.2.1 - Docker V2 Fix
+
+* Fixed `upgrade.sh` to support `docker-compose` (V2) command as discussed in #459.
+* Updated `setup.sh` to check for Docker Compose V2.
+
 ## v4.2.0 - Remove Docker V1
 
 * Remove support for Docker V1 since it is obsolete. Upgrade progress will alert V1 users to upgrade to V2 before proceeding. Updates by @BJReplay in https://github.com/jasonacox/Powerwall-Dashboard/pull/454.

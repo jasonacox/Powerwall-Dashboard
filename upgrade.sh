@@ -6,7 +6,7 @@
 set -e
 
 # Set Globals
-VERSION="4.2.0"
+VERSION="4.2.1"
 CURRENT="Unknown"
 COMPOSE_ENV_FILE="compose.env"
 INFLUXDB_ENV_FILE="influxdb.env"
@@ -90,9 +90,17 @@ if docker compose version > /dev/null 2>&1; then
     echo ""
 else
     if docker-compose version > /dev/null 2>&1; then
-        # Build Docker (v1)
-        echo "ERROR: Docker Compose V1 Found: Upgrade Required"
-        echo "See Migration Instructions at https://docs.docker.com/compose/migrate/"
+        # Check for version information to see if it is >= 2.0.0
+        COMPOSE_VERSION=`docker-compose version --short`
+        if [[ "${COMPOSE_VERSION}" == "2"* ]]; then
+            # Build Docker (v2)
+            echo "INFO: Docker Compose V2 Found: OK to Continue"
+        else
+            # Build Docker (v1)
+            echo "ERROR: Docker Compose V1 Found: Upgrade Required"
+            echo "See Migration Instructions at https://docs.docker.com/compose/migrate/"
+            exit 1
+        fi
     else
         echo "ERROR: Docker Compose is not available."
         echo "This script requires Docker Compose."
