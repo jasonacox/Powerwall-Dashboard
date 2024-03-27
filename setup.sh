@@ -90,8 +90,8 @@ if ! docker compose version > /dev/null 2>&1; then
         echo "ERROR: Docker Compose is not available."
         echo "This script requires Docker Compose."
         echo "Please install and try again."
+        exit 1
     fi
-    exit 1
 fi
 
 # Check PW_ENV_FILE for existing configuration
