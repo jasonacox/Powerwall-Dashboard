@@ -105,8 +105,8 @@ else
         echo "ERROR: Docker Compose is not available."
         echo "This script requires Docker Compose."
         echo "Please install and try again."
+        exit 1
     fi
-    exit 1
 fi
 
 # Verify Upgrade
