@@ -223,27 +223,27 @@ where dest.datetime_local = src.datetime_local
 - Create triggers in the kwh table to update the total cost as the data are inserted and updated. 
   - I did this in the MySQL Workbench GUI, but I think these commands are correct to do this from a command window:
  
-<details><summary>Click to expand MySQL queries</summary>
+<details><summary>Click to expand MySQL queries - edited 2024-03-30</summary>
 <p>
 
 ```
 CREATE TRIGGER `powerwall_mysql`.`kwh_BEFORE_INSERT` BEFORE INSERT ON `kwh` FOR EACH ROW
 set new.cost_solar = new.solar * 
-(select solar_price from TOU where start_date <= new.datetime_local and end_date >= new.datetime_local and locate(dayofweek(new.datetime_local), days_of_week) > 0 and time(new.datetime_local) >= start_time and time(new.datetime_local) <= end_time ) ;
+(select solar_price from TOU where start_date <= new.datetime_local and end_date >= date(new.datetime_local) and locate(dayofweek(new.datetime_local), days_of_week) > 0 and time(new.datetime_local) >= start_time and time(new.datetime_local) <= end_time ) ;
 set new.cost_grid = new.from_grid *
-(select grid_price from TOU where start_date <= new.datetime_local and end_date >= new.datetime_local and locate(dayofweek(new.datetime_local), days_of_week) > 0 and time(new.datetime_local) >= start_time and time(new.datetime_local) <= end_time ) ;
+(select grid_price from TOU where start_date <= new.datetime_local and end_date >= date(new.datetime_local) and locate(dayofweek(new.datetime_local), days_of_week) > 0 and time(new.datetime_local) >= start_time and time(new.datetime_local) <= end_time ) ;
 set new.credit_grid = new.to_grid *
-(select grid_credit from TOU where start_date <= new.datetime_local and end_date >= new.datetime_local and locate(dayofweek(new.datetime_local), days_of_week) > 0 and time(new.datetime_local) >= start_time and time(new.datetime_local) <= end_time  ) ;
+(select grid_credit from TOU where start_date <= new.datetime_local and end_date >= date(new.datetime_local) and locate(dayofweek(new.datetime_local), days_of_week) > 0 and time(new.datetime_local) >= start_time and time(new.datetime_local) <= end_time  ) ;
 ```
 
 ```
 CREATE TRIGGER `powerwall_mysql`.`kwh_BEFORE_UPDATE` BEFORE UPDATE ON `kwh` FOR EACH ROW
 set new.cost_solar = new.solar *
-(select solar_price from TOU where start_date <= new.datetime_local and end_date >= new.datetime_local and locate(dayofweek(new.datetime_local), days_of_week) > 0 and time(new.datetime_local) >= start_time and time(new.datetime_local) <= end_time  ) ;
+(select solar_price from TOU where start_date <= new.datetime_local and end_date >= date(new.datetime_local) and locate(dayofweek(new.datetime_local), days_of_week) > 0 and time(new.datetime_local) >= start_time and time(new.datetime_local) <= end_time  ) ;
 set new.cost_grid = new.from_grid *
-(select grid_price from TOU where start_date <= new.datetime_local and end_date >= new.datetime_local and locate(dayofweek(new.datetime_local), days_of_week) > 0 and time(new.datetime_local) >= start_time and time(new.datetime_local) <= end_time  ) ;
+(select grid_price from TOU where start_date <= new.datetime_local and end_date >= date(new.datetime_local) and locate(dayofweek(new.datetime_local), days_of_week) > 0 and time(new.datetime_local) >= start_time and time(new.datetime_local) <= end_time  ) ;
 set new.credit_grid = new.to_grid *
-(select grid_credit from TOU where start_date <= new.datetime_local and end_date >= new.datetime_local and locate(dayofweek(new.datetime_local), days_of_week) > 0 and time(new.datetime_local) >= start_time and time(new.datetime_local) <= end_time  ) ;
+(select grid_credit from TOU where start_date <= new.datetime_local and end_date >= date(new.datetime_local) and locate(dayofweek(new.datetime_local), days_of_week) > 0 and time(new.datetime_local) >= start_time and time(new.datetime_local) <= end_time  ) ;
 ```
 
 </p>
