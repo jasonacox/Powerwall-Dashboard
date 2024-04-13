@@ -2,7 +2,7 @@
 
 ## v4.3.0 - pyPowerwall 0.8.1
 
-* Upgrade to pyPowerwall proxy v0.8.1 - Major refactoring of code in https://github.com/jasonacox/pypowerwall/pull/77 and https://github.com/jasonacox/pypowerwall/pull/78 and addition of new Alerts.
+* Upgrade to pyPowerwall proxy v0.8.2 - Major refactoring of code in https://github.com/jasonacox/pypowerwall/pull/77 and https://github.com/jasonacox/pypowerwall/pull/78 and addition of new Alerts.
 * Disable `GF_PATHS_PROVISIONING` from `grafana.env` base to speed up Grafana startup by @BuongiornoTexas in #461
 
 ## v4.2.1 - Docker V2 Fix
