@@ -1,5 +1,32 @@
 # RELEASE NOTES
 
+## v4.3.1 - Control APIs
+
+* Upgrade to pyPowerwall v0.8.4 proxy t55
+* Fix /pod API to add time_remaining_hours and backup_reserve_percent for cloud mode.
+* Dashboard: Removed Powerwall temperature panel in default dashboard (data is no longer available with latest Firmware)
+* Added GET `/control/mode` and `/control/reserve` APIs to retrieve operating mode and back reserve settings
+* Added POST `/control/mode` and `/control/reserve` APIs to set operating mode and back reserve settings. Requires running setup and setting PW_CONTROL_SECRET for pypowerwall in `pypowerwall.env`. Use with caution.
+
+```bash
+# Setup cloud mode for pypowerwall container
+docker exec -it pypowerwall python3 -m pypowerwall setup -email=example@example.com
+
+MODE=self_consumption
+RESERVE=20
+PW_CONTROL_SECRET=mySecretKey
+
+# Set Mode
+curl -X POST -d "value=$MODE&token=$PW_CONTROL_SECRET" http://localhost:8675/control/mode
+
+# Set Reserve
+curl -X POST -d "value=$RESERVE&token=$PW_CONTROL_SECRET" http://localhost:8675/control/reserve
+
+# Read Settings
+curl http://localhost:8675/control/mode
+curl http://localhost:8675/control/reserve
+```
+
 ## v4.3.0 - pyPowerwall 0.8.2
 
 * Upgrade to pyPowerwall proxy v0.8.2 - Major refactoring of code in https://github.com/jasonacox/pypowerwall/pull/77 and https://github.com/jasonacox/pypowerwall/pull/78 and addition of new Alerts.
