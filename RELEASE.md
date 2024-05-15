@@ -1,5 +1,10 @@
 # RELEASE NOTES
 
+## v4.3.2 - Solar Only Fix
+
+* Upgrade to pyPowerwall v0.8.5 proxy t56
+* Fix bug with setup for certain Solar Only systems where clod mode process fails due to missing `site_name`. Identified by @hulkster in https://github.com/jasonacox/Powerwall-Dashboard/discussions/475
+
 ## v4.3.1 - Control APIs
 
 * Upgrade to pyPowerwall v0.8.4 proxy t55
