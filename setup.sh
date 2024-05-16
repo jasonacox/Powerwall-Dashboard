@@ -36,7 +36,7 @@ fi
 
 # Verify user in docker group (not required for Windows Git Bash)
 if ! type winpty > /dev/null 2>&1; then
-    if ! $(id -Gn 2>/dev/null | grep -qE " docker( |$)"); then
+    if ! $(id -Gn 2>/dev/null | grep -qw "docker"); then
         echo "WARNING: You do not appear to be in the docker group."
         echo ""
         echo "Please ensure your local user is in the docker group and run without sudo."
