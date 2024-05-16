@@ -1,5 +1,11 @@
 # RELEASE NOTES
 
+## v4.4.0 - FleetAPI
+
+* Upgrade to pyPowerwall v0.9.0 proxy t57 
+* Added support for using Tesla FleetAPI for cloud access.
+* Fix setup.sh for docker group permission bug identified by @hulkster in #476
+
 ## v4.3.2 - Solar Only Fix
 
 * Upgrade to pyPowerwall v0.8.5 proxy t56
