@@ -282,9 +282,8 @@ if [ ! -f ${PW_ENV_FILE} ]; then
                 if [ -z "${PW}" ]; then
                     PW_GW_PWD=""
                 else
-                    PW_GW_PWD="PW_GW_PWD=${PW}"
+                    PW_GW_PWD="${PW}"
                 fi
-
             fi
         else
             echo "The Powerwall Gateway (192.168.91.1) is not found on your LAN."
@@ -317,7 +316,9 @@ if [ ! -f ${PW_ENV_FILE} ]; then
     echo "TZ=America/Los_Angeles" >> ${PW_ENV_FILE}
     echo "PW_DEBUG=no" >> ${PW_ENV_FILE}
     echo "PW_STYLE=${PW_STYLE}" >> ${PW_ENV_FILE}
-    echo "PW_GW_PWD=${PW_GW_PWD}" >> ${PW_ENV_FILE}
+    if [ ! -z "${PW_GW_PWD}" ]; then
+        echo "PW_GW_PWD=${PW_GW_PWD}" >> ${PW_ENV_FILE}
+    fi
 fi
 
 # Create default telegraf local file if needed.
