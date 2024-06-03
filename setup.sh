@@ -12,6 +12,7 @@ INFLUXDB_ENV_FILE="influxdb.env"
 TELEGRAF_LOCAL="telegraf.local"
 PW_ENV_FILE="pypowerwall.env"
 GF_ENV_FILE="grafana.env"
+PW_STYLE="grafana-dark"
 
 if [ ! -f VERSION ]; then
     echo "ERROR: Missing VERSION file. Setup must run from installation directory."
@@ -111,8 +112,9 @@ echo "Select configuration mode:"
 echo ""
 echo "Current: ${config}"
 echo ""
-echo " 1 - Local Access (Powerwall 1, 2, or + using the Tesla Gateway on LAN) - Default"
-echo " 2 - Tesla Cloud  (Solar-only systems or Powerwalls without LAN access)"
+echo " 1 - Local Access   (Powerwall 1, 2, or + using the Tesla Gateway on LAN) - Default"
+echo " 2 - Tesla Cloud    (Solar-only systems or Powerwalls without LAN access)"
+echo " 3 - FleetAPI Cloud (Powerwall systems using Official Telsa API)"
 echo ""
 while :; do
     read -r -p "Select mode: ${choice}" response
@@ -120,6 +122,8 @@ while :; do
         selected="Local Access"
     elif [ "${response}" == "2" ]; then
         selected="Tesla Cloud"
+    elif [ "${response}" == "3" ]; then
+        selected="FleetAPI Cloud"
     elif [ -z "${response}" ] && [ ! -z "${choice}" ]; then
         selected="${config}"
     else
@@ -237,6 +241,19 @@ if [ -f ${PW_ENV_FILE} ]; then
     fi
 fi
 
+# Function to test an IP to see if it returns a ping
+function test_ip() {
+    local IP=$1
+    if [ -z "${IP}" ]; then
+        return 1
+    fi
+    if ping -c 1 -W 1 ${IP} > /dev/null 2>&1; then
+        return 0
+    else
+        return 1
+    fi
+}
+
 # Create Powerwall Settings
 if [ ! -f ${PW_ENV_FILE} ]; then
     if [ "${config}" == "Local Access" ]; then
@@ -247,12 +264,51 @@ if [ ! -f ${PW_ENV_FILE} ]; then
         while [ -z "${EMAIL}" ]; do
             read -p 'Email: ' EMAIL
         done
-        read -p 'IP Address (leave blank to scan network): ' IP
+        IP=""
+        # Can we reach 192.168.91.1
+        if test_ip "192.168.91.1"; then
+            IP="192.168.91.1"
+            echo "Found Powerwall Gateway at ${IP}"
+            read -p 'Use this IP? [Y/n] ' response
+            if [[ "$response" =~ ^([nN][oO]|[nN])$ ]]; then
+                IP=""
+            else
+                echo "Congratulations!"
+                echo "Extended Device Metrics (vitals) are available on this endpoint via TEDAPI."
+                echo "However, you will need the Gateway password to access them."
+                echo "This password is often on the QR code on the Powerwall Gateway unit."
+                echo ""
+                read -p 'Enter Gateway Password or leave blank to disable: ' PW
+                if [ -z "${PW}" ]; then
+                    PW_GW_PWD=""
+                else
+                    PW_GW_PWD="PW_GW_PWD=${PW}"
+                fi
+
+            fi
+        else
+            echo "The Powerwall Gateway (192.168.91.1) is not found on your LAN."
+            echo "Standard dashboard metrics will work but Extended data (vitals) via TEDAPI"
+            echo "will not be available. Consult the project for information on how to enable."
+            echo "Proceeding with standard metrics..."
+            echo ""
+        fi
+        if [ -z "${IP}" ]; then
+            read -p 'Powerwall IP Address (leave blank to scan network): ' IP
+        fi
     else
         echo "Enter email address for Tesla Account..."
         while [ -z "${EMAIL}" ]; do
             read -p 'Email: ' EMAIL
         done
+        echo "If you have a Solar-only system, you can customize the dashboard for Solar and"
+        echo "hide the Powerwall metrics."
+        echo ""
+        # ask if user has a solar only system
+        read -p 'Set dashboard to Solar-only system? [y/N] ' response
+        if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+            PW_STYLE="solar"
+        fi
     fi
     echo "PW_EMAIL=${EMAIL}" > ${PW_ENV_FILE}
     echo "PW_PASSWORD=${PASSWORD}" >> ${PW_ENV_FILE}
@@ -260,7 +316,8 @@ if [ ! -f ${PW_ENV_FILE} ]; then
     echo "PW_TIMEZONE=America/Los_Angeles" >> ${PW_ENV_FILE}
     echo "TZ=America/Los_Angeles" >> ${PW_ENV_FILE}
     echo "PW_DEBUG=no" >> ${PW_ENV_FILE}
-    echo "PW_STYLE=grafana-dark" >> ${PW_ENV_FILE}
+    echo "PW_STYLE=${PW_STYLE}" >> ${PW_ENV_FILE}
+    echo "PW_GW_PWD=${PW_GW_PWD}" >> ${PW_ENV_FILE}
 fi
 
 # Create default telegraf local file if needed.
@@ -325,6 +382,14 @@ fi
 # Run Tesla Cloud mode setup
 if [ "${config}" == "Tesla Cloud" ]; then
     docker exec -it pypowerwall python3 -m pypowerwall setup -email=$(grep -E "^PW_EMAIL=.+" "${PW_ENV_FILE}" | cut -d= -f2)
+    echo "Restarting..."
+    docker restart pypowerwall
+    echo "-----------------------------------------"
+fi
+
+# Run FleetAPI mode setup
+if [ "${config}" == "FleetAPI Cloud" ]; then
+    docker exec -it pypowerwall python3 -m pypowerwall fleetapi
     echo "Restarting..."
     docker restart pypowerwall
     echo "-----------------------------------------"

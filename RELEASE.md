@@ -1,10 +1,18 @@
 # RELEASE NOTES
 
-## v4.4.0 - FleetAPI
+## v4.4.0 - FleetAPI and TEDAPI
 
-* Upgrade to pyPowerwall v0.9.0 proxy t57 
-* Added support for using Tesla FleetAPI for cloud access.
+* Add TEDAPI Support for Extended Device Metrics (the return of most of `/vitals`) - This requires connecting to Powerwall WiFi directly or setting up a network route on the Dashboard host to allow it to reach the GW address (192.168.91.1).
+* Add support for Tesla's official API, [FleetAPI](https://developer.tesla.com/docs/fleet-api). This requires additional registration and configuration. Instructions are part of setup process or on the project page.
+* Run `upgrade.sh` and then run `setup.sh` to choose these new options.
+* Upgrade to [pyPowerwall v0.10.0](https://github.com/jasonacox/pypowerwall/releases/tag/v0.10.0) proxy t58 - Release addresses some issues, including fixing Solar Only grid_status issues as reported by @lsgc123 in https://github.com/jasonacox/Powerwall-Dashboard/issues/478
 * Fix setup.sh for docker group permission bug identified by @hulkster in #476
+
+* Addresses several open issues and discussions: 
+    * https://github.com/jasonacox/Powerwall-Dashboard/discussions/392
+    * https://github.com/jasonacox/Powerwall-Dashboard/discussions/402
+    * https://github.com/jasonacox/Powerwall-Dashboard/issues/436
+    * https://github.com/jasonacox/Powerwall-Dashboard/issues/472
 
 ## v4.3.2 - Solar Only Fix
 
