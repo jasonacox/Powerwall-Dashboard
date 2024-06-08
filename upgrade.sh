@@ -275,6 +275,7 @@ if ! grep -q "PW_STYLE" ${PW_ENV_FILE}; then
     else
         echo "Adding..."
         echo "PW_STYLE=grafana-dark" >> ${PW_ENV_FILE}
+    fi
 fi
 
 # Check to see that TZ is set in pypowerwall
