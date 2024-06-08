@@ -273,6 +273,7 @@ if [ ! -f ${PW_ENV_FILE} ]; then
             if [[ "$response" =~ ^([nN][oO]|[nN])$ ]]; then
                 IP=""
             else
+                echo ""
                 echo "Congratulations!"
                 echo "Extended Device Metrics (vitals) are available on this endpoint via TEDAPI."
                 echo "However, you will need the Gateway password to access them."
