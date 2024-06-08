@@ -6,7 +6,7 @@
 set -e
 
 # Set Globals
-VERSION="4.3.2"
+VERSION="4.4.0"
 CURRENT="Unknown"
 COMPOSE_ENV_FILE="compose.env"
 INFLUXDB_ENV_FILE="influxdb.env"
@@ -186,7 +186,7 @@ if [ "${PROFILE}" == "solar-only" ]; then
     echo "PW_TIMEZONE=America/Los_Angeles" >> ${PW_ENV_FILE}
     echo "TZ=America/Los_Angeles" >> ${PW_ENV_FILE}
     echo "PW_DEBUG=no" >> ${PW_ENV_FILE}
-    echo "PW_STYLE=grafana-dark" >> ${PW_ENV_FILE}
+    echo "PW_STYLE=solar" >> ${PW_ENV_FILE}
 fi
 
 # Remove use of COMPOSE_PROFILES (deprecated as of 4.0.0)
@@ -260,8 +260,21 @@ fi
 # Check for PW_STYLE setting and add if missing
 if ! grep -q "PW_STYLE" ${PW_ENV_FILE}; then
     echo "Your pypowerwall environmental settings are missing PW_STYLE."
-    echo "Adding..."
-    echo "PW_STYLE=grafana-dark" >> ${PW_ENV_FILE}
+    # Check to see if they are solar only
+    if grep -q "PW_HOST=" ${PW_ENV_FILE}; then
+        echo "Do you want to use the solar-only style?"
+        read -r -p "Use solar-only style? [y/N] " response
+        if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]
+        then
+            echo "Adding..."
+            echo "PW_STYLE=solar" >> ${PW_ENV_FILE}
+        else
+            echo "Adding..."
+            echo "PW_STYLE=grafana-dark" >> ${PW_ENV_FILE}
+        fi
+    else
+        echo "Adding..."
+        echo "PW_STYLE=grafana-dark" >> ${PW_ENV_FILE}
 fi
 
 # Check to see that TZ is set in pypowerwall
