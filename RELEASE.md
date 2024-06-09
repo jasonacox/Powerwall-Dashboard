@@ -2,8 +2,8 @@
 
 ## v4.4.1 - FleetAPI Hotfix
 
-* Update to pypowerwall v0.10.2 to fix FleetAPI setup script as raised in https://github.com/jasonacox/pypowerwall/issues/98.
-* Update `setup.sh` go add optional command line switch `-f` to set up FleetAPI mode.
+* Update to pypowerwall v0.10.2 to fix FleetAPI setup but as raised in https://github.com/jasonacox/pypowerwall/issues/98.
+* Update `setup.sh` to add optional command line switch `-f` for standalone FleetAPI mode setup.
 
 ## v4.4.0 - FleetAPI and TEDAPI
 
