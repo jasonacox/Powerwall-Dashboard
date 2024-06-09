@@ -95,6 +95,47 @@ if ! docker compose version > /dev/null 2>&1; then
     fi
 fi
 
+# Command Line Options
+while getopts ":hf" opt; do
+    case ${opt} in
+        h )
+            echo "Usage: setup.sh [-h]"
+            echo "  -h   Display this help message."
+            echo "  -f   Setup FleetAPI Cloud Mode"
+            exit 0
+            ;;
+        f )
+            echo "Setup FleetAPI Cloud Mode"
+            echo ""
+            if [ ! -f ${PW_ENV_FILE} ]; then
+                echo "ERROR: Missing ${PW_ENV_FILE}. Run setup.sh first."
+                echo ""
+                exit 1
+            fi
+            echo "This will configure FleetAPI Cloud mode for Powerwall systems."
+            echo ""
+            read -r -p "Setup FleetAPI Cloud Mode? [Y/n] " response
+            if [[ "$response" =~ ^([nN][oO]|[nN])$ ]]; then
+                echo "Cancel"
+                exit 1
+            fi
+            echo ""
+            echo "Running FleetAPI Cloud Mode Setup..."
+            echo ""
+            docker exec -it pypowerwall python3 -m pypowerwall fleetapi
+            echo ""
+            echo "Restarting..."
+            docker restart pypowerwall
+            echo "-----------------------------------------"
+            exit 0
+            ;;
+        \? )
+            echo "Invalid Option: -$OPTARG" 1>&2
+            exit 1
+            ;;
+    esac
+done
+
 # Check PW_ENV_FILE for existing configuration
 if [ ! -f ${PW_ENV_FILE} ]; then
     choice=""
