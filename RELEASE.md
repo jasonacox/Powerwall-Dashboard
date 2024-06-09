@@ -1,5 +1,10 @@
 # RELEASE NOTES
 
+## v4.4.1 - FleetAPI Hotfix
+
+* Update to pypowerwall v0.10.2 to fix FleetAPI setup but as raised in https://github.com/jasonacox/pypowerwall/issues/98.
+* Update `setup.sh` to add optional command line switch `-f` for standalone FleetAPI mode setup.
+
 ## v4.4.0 - FleetAPI and TEDAPI
 
 * Add TEDAPI Support for Extended Device Metrics (the return of most of `/vitals`) - This requires connecting to Powerwall WiFi directly or setting up a network route on the Dashboard host to allow it to reach the GW address (192.168.91.1).

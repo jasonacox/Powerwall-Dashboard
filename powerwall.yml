@@ -18,7 +18,7 @@ services:
             - influxdb.env
 
     pypowerwall:
-        image: jasonacox/pypowerwall:0.10.1t59
+        image: jasonacox/pypowerwall:0.10.2t59
         container_name: pypowerwall
         hostname: pypowerwall
         restart: unless-stopped
