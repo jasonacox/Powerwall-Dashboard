@@ -44,7 +44,7 @@ Run the interactive setup script that will ask you for your setup details.
     ./setup.sh
   ```
 
-The dashboard can be installed in two different configurations.
+The dashboard can be installed in four different configurations.
 
   ```
     Powerwall Dashboard (v4.0.0) - SETUP
@@ -54,19 +54,52 @@ The dashboard can be installed in two different configurations.
     1 - Local Access   (Powerwall 1, 2, or + using the Tesla Gateway on LAN) - Default
     2 - Tesla Cloud    (Solar-only systems or Powerwalls without LAN access)
     3 - FleetAPI Cloud (Powerwall systems using Official Telsa API)
+    4 - Powerwall 3    (Powerwall 3 using the local Tesla Gateway)
   ```
+
+Local Mode
 
 For Powerwall 1, 2 or + owners with a Tesla Energy Gateway accessible on their LAN, select `option 1` (Local Access).
 
-For Tesla Solar owners or Powerwalls without LAN access, select `option 2` (Tesla Cloud) or `option 3` (FleetAPI) and the dashboard will be installed to pull the data available from the Tesla Cloud API. This mode works for [Solar Only](tools/solar-only/) and Powerwall 3 owners, but will not provide all the details or fidelity that the "Local Access" mode offers.
+Extended Device Vitals Metrics (beta)
+
+With version v4.4.0+, pypowerwall can be set to access the TEDAPI API on the Gateway to pull additional metrics. However, it requires the Gateway Password (often found on the QR sticker on the Powerwall Gateway) and your computer will need network access to the Gateway IP (192.168.91.1). You can have your computer join the Gateway's local WiFi or you can add a network route (examples below). This should be set up before running `setup.sh` if you want this feature.
+
+```bash
+# Example - Change 192.168.0.100 to the IP address of Powerwall Gateway on your LAN
+
+# Linux Ubuntu and RPi - Can add to /etc/rc.local for persistence 
+sudo ip route add 192.168.91.1 via 192.168.0.100
+
+# MacOS 
+sudo route add -host 192.168.91.1 192.168.0.100 # Temporary 
+networksetup -setadditionalroutes Wi-Fi 192.168.91.1 255.255.255.255 192.168.0.100 # Persistent
+
+# Windows - Using persistence flag - Administrator Shell
+route -p add 192.168.91.1 mask 255.255.255.255 192.168.0.100
+```
+
+Cloud and FleetAPI Mode
+
+For Tesla Solar or Powerwall 3 owners without LAN access, select `option 2` (Tesla Owners unofficial Cloud API) or `option 3` (Tesla official FleetAPI) and the dashboard will be installed to pull data from the Tesla Cloud API. This mode should work for all systems but will have slightly less details and fidelity than the "Local Access" mode.
+
+Powerwall 3 Mode (beta)
+
+If you have access to the Powerwall Gateway (see local mode Extended Device Vitals Metrics note above), you can select option 4 to activate Powerwall 3 mode. All data will be pulled from the local Gateway TEDAPI endpoint. 
+
+Timezone
 
 Next, you will then be asked for your Local *timezone*, and your Powerwall details or Tesla Cloud login details. To find your timezone, see the second column in this table: [https://en.wikipedia.org/wiki/List_of_tz_database_time_zones](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List)
+
+Troubleshooting
 
   * _If you experience issues with your Powerwall or Tesla Cloud login details, re-run `setup.sh` to try again._
   * _If you get docker errors during the setup, see the [Docker Errors](#docker-errors) section below._
   * _For Windows 11 users, see the [Windows 11 Instructions](#windows-11-instructions) below._
 
-Follow the **[Grafana Setup](#grafana-setup)** instructions provided (or see below) to complete the setup.
+Grafana Setup
+
+Follow the **[Grafana Setup](#grafana-setup)** instructions (see below) to complete the setup.
 
 ## Option 2 - Manual Install
 

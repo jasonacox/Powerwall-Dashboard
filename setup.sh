@@ -156,7 +156,9 @@ echo ""
 echo " 1 - Local Access   (Powerwall 1, 2, or + using the Tesla Gateway on LAN) - Default"
 echo " 2 - Tesla Cloud    (Solar-only systems or Powerwalls without LAN access)"
 echo " 3 - FleetAPI Cloud (Powerwall systems using Official Telsa API)"
+echo " 4 - Powerwall 3    (Powerwall 3 using the local Tesla Gateway)"
 echo ""
+pw3=0
 while :; do
     read -r -p "Select mode: ${choice}" response
     if [ "${response}" == "1" ]; then
@@ -165,6 +167,9 @@ while :; do
         selected="Tesla Cloud"
     elif [ "${response}" == "3" ]; then
         selected="FleetAPI Cloud"
+    elif [ "${response}" == "4" ]; then
+        selected="Local Access"
+        pw3=1
     elif [ -z "${response}" ] && [ ! -z "${choice}" ]; then
         selected="${config}"
     else
@@ -298,13 +303,18 @@ function test_ip() {
 # Create Powerwall Settings
 if [ ! -f ${PW_ENV_FILE} ]; then
     if [ "${config}" == "Local Access" ]; then
-        echo "Enter credentials for Powerwall..."
-        while [ -z "${PASSWORD}" ]; do
-            read -p 'Password: ' PASSWORD
-        done
-        while [ -z "${EMAIL}" ]; do
-            read -p 'Email: ' EMAIL
-        done
+        if [ $pw3 -eq 1 ]; then
+            echo "Setting credentials for Powerwall 3..."
+            PASSWORD=""
+            EMAIL=""
+        else
+            echo "Enter credentials for Powerwall..."
+            while [ -z "${PASSWORD}" ]; do
+                read -p 'Password: ' PASSWORD
+            done
+            while [ -z "${EMAIL}" ]; do
+                read -p 'Email: ' EMAIL
+            done
         IP=""
         # Can we reach 192.168.91.1
         if test_ip "192.168.91.1"; then
@@ -329,6 +339,14 @@ if [ ! -f ${PW_ENV_FILE} ]; then
             fi
         else
             echo "The Powerwall Gateway (192.168.91.1) is not found on your LAN."
+            if [ $pw3 -eq 1 ]; then
+                echo ""
+                echo "Powerwall 3 requires access to the Gateway for pull local data."
+                echo "Ensure the Gateway is connected to your host and rerun setup."
+                echo "Alternatively you can select a Tesla Cloud mode."
+                echo ""
+                exit 1
+            fi
             echo "Standard dashboard metrics will work but Extended data (vitals) via TEDAPI"
             echo "will not be available. Consult the project for information on how to enable."
             echo "Proceeding with standard metrics..."
