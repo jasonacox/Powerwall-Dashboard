@@ -1,5 +1,10 @@
 # RELEASE NOTES
 
+## v4.4.2 - Powerwall 3 Local Support
+
+* Update to pypowerwall v0.10.4 to add support for Powerwall 3 using local Gateway only. 
+* Setup script adjusted to allow for Powerwall 3 local mode option.
+
 ## v4.4.1 - FleetAPI Hotfix
 
 * Update to pypowerwall v0.10.2 to fix FleetAPI setup but as raised in https://github.com/jasonacox/pypowerwall/issues/98.
