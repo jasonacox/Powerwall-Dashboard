@@ -315,6 +315,7 @@ if [ ! -f ${PW_ENV_FILE} ]; then
             while [ -z "${EMAIL}" ]; do
                 read -p 'Email: ' EMAIL
             done
+        fi
         IP=""
         # Can we reach 192.168.91.1
         if test_ip "192.168.91.1"; then
