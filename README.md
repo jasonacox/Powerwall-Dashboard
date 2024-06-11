@@ -44,7 +44,7 @@ Run the interactive setup script that will ask you for your setup details.
     ./setup.sh
   ```
 
-The dashboard can be installed in three different configurations.
+The dashboard can be installed in four different configurations.
 
   ```
     Powerwall Dashboard (v4.0.0) - SETUP
@@ -85,7 +85,7 @@ For Tesla Solar or Powerwall 3 owners without LAN access, select `option 2` (Tes
 
 Powerwall 3 Mode (beta)
 
-If your computer has access to the Powerwall Gateway (see local mode Extended Device Vitals Metrics note above), you can select option 4 to activate Powerwall 3 mode. All data will be pulled from the local Gateway TEDAPI endpoint. 
+If you have access to the Powerwall Gateway (see local mode Extended Device Vitals Metrics note above), you can select option 4 to activate Powerwall 3 mode. All data will be pulled from the local Gateway TEDAPI endpoint. 
 
 Timezone
 
