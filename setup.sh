@@ -293,7 +293,7 @@ function test_ip() {
     if [ -z "${IP}" ]; then
         return 1
     fi
-    if ping -c 1 -W 1 ${IP} > /dev/null 2>&1; then
+    if curl -k --head --connect-timeout 1 --silent https://${IP} > /dev/null 2>&1; then
         return 0
     else
         return 1
