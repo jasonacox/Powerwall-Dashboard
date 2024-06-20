@@ -81,7 +81,27 @@ route -p add 192.168.91.1 mask 255.255.255.255 192.168.0.100
 
 #### Powerwall 3 Mode (beta)
 
-If you have access to the Powerwall Gateway (see local mode Extended Device Vitals Metrics note above), you can select option 4 to activate Powerwall 3 mode. All data will be pulled from the local Gateway TEDAPI endpoint. 
+If you have access to the Powerwall Gateway (see local mode Extended Device Vitals Metrics note above), you can select option 4 to activate Powerwall 3 mode. All data will be pulled from the local Gateway TEDAPI endpoint.  
+
+Before running ./setup.sh  Perform the following steps:
+* copy of pypowerwall.env.sample and rename it pypowerwall.env
+* Update file contents to include PW_GW_PWD paratmeter the value being your Tesla Powerwall3 wifi password.
+* Update PW_EMAIL and PW_PASSWORD to be empty.
+* Save and run ./setups.sh
+
+Example of a working env file for Powerwall 3:
+
+```
+PW_EMAIL=
+PW_PASSWORD=
+PW_HOST=192.168.91.1
+PW_TIMEZONE=America/Los_Angeles
+TZ=America/Los_Angeles
+PW_DEBUG=no
+PW_STYLE=grafana-dark
+PW_GW_PWD=<YOUR_PW3_PASSWORD> 
+```
+
 
 ### Cloud and FleetAPI Mode
 
