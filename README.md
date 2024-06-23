@@ -81,26 +81,7 @@ route -p add 192.168.91.1 mask 255.255.255.255 192.168.0.100
 
 #### Powerwall 3 Mode (beta)
 
-If you have access to the Powerwall Gateway (see local mode Extended Device Vitals Metrics note above), you can select option 4 to activate Powerwall 3 mode. All data will be pulled from the local Gateway TEDAPI endpoint.  
-
-Before running ./setup.sh  Perform the following steps:
-* copy of pypowerwall.env.sample and rename it pypowerwall.env
-* Update file contents to include PW_GW_PWD paratmeter the value being your Tesla Powerwall3 wifi password.
-* Update PW_EMAIL and PW_PASSWORD to be empty.
-* Save and run ./setups.sh
-
-Example of a working env file for Powerwall 3:
-
-```
-PW_EMAIL=
-PW_PASSWORD=
-PW_HOST=192.168.91.1
-PW_TIMEZONE=America/Los_Angeles
-TZ=America/Los_Angeles
-PW_DEBUG=no
-PW_STYLE=grafana-dark
-PW_GW_PWD=<YOUR_PW3_PASSWORD> 
-```
+If you have access to the Powerwall Gateway (see local mode Extended Device Vitals Metrics note above), you can select option 4 to activate Powerwall 3 mode. All data will be pulled from the local Gateway TEDAPI endpoint. If you have problems with your setup for the Powerwall 3, see troubleshooting section below.
 
 
 ### Cloud and FleetAPI Mode
@@ -308,7 +289,24 @@ If required, see [WINDOWS.md](WINDOWS.md) for notes on how to upgrade your WSL i
 
 #### Powerwall 3
 
-The new Powerwall 3 does not currently provide a customer accessible API on the local network. Work is ongoing to determine if there is a way to get the rich set of data that is available directly from its predecessors (Powerwall 2/+). In the meantime, users can use the "Tesla Cloud" mode to generate the basic graph data. See details in the Powerwall 3 Support issue: https://github.com/jasonacox/Powerwall-Dashboard/issues/387
+The new Powerwall 3 does not have the local APIs that were found on the Powerwall 2/+ systems. However, it does provide APIs available via its internal Gateway WiFI access point at 192.168.91.1. If you add your Powerwall 3 to your local network (e.g. ethernet hardwire) or create a WiFi bridge to this access point, you are able to get the extended metrics from the /tedapi API. Additionally, users can use the "Tesla Cloud" mode to generate the basic graph data. It is more limited than the local APIs but does provide the core data  points. See details in the Powerwall 3 Support issue: https://github.com/jasonacox/Powerwall-Dashboard/issues/387
+
+Some have reported issues setting up their Powerwall 3 and the local 192.168.91.1 access point. Make sure that this IP address is reachable from the host running the Dashboard (e.g. `ping` or `curl` commands).
+
+Since the Powerwall 3 does not have previous generation APIs, you will need to use the `full` TEDAPI mode. This requires that the PW_EMAIL and PW_PASSWORD environmental variables are empty and that PW_GW_PWD is set to the Powerwall 3 Gateway WiFi password (usually found on the QR code on the Gateway itself).
+
+Example of a working `pypowerwall.env` file for Powerwall 3:
+
+```
+PW_EMAIL=
+PW_PASSWORD=
+PW_HOST=192.168.91.1
+PW_TIMEZONE=America/Los_Angeles
+TZ=America/Los_Angeles
+PW_DEBUG=no
+PW_STYLE=grafana-dark
+PW_GW_PWD=<YOUR_PW3_PASSWORD> 
+```
 
 #### Tips and Tricks
 
