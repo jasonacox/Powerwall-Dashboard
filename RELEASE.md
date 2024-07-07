@@ -1,9 +1,10 @@
 # RELEASE NOTES
 
-## v4.4.5 - Setup Help
+## v4.4.5 - PW3 Updates
 
 * Powerwall 3 Setup Help - If local setup is selected, it will work with the Powerwall 3 but will produce errors in pypowerwall and not have the complete data. This updates `setup.sh` so ensure Powerwall 3 setups use `full` TEDAPI mode for local access. Raised by @pavandave in https://github.com/jasonacox/Powerwall-Dashboard/issues/492.
 * Add check in `setup.sh` script to ensure user has permission to write to the current directory. Raised in https://github.com/jasonacox/Powerwall-Dashboard/discussions/494. 
+* Update to latest pypowerwall, updates TEDAPI to provide correct Powerwall firmware version. Discovered by @geptto in https://github.com/jasonacox/pypowerwall/issues/97. This function has been integrated into pypowerwall existing APIs and proxy features.
 
 ## v4.4.4 - Bug Fixes
 
