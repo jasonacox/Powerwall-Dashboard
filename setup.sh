@@ -35,6 +35,17 @@ if [ "$EUID" -eq 0 ]; then
     exit 1
 fi
 
+# Verify user has write permission to this directory
+if [ ! -w . ]; then
+    echo "ERROR: Your user ($USER) does not have write permission to this directory."
+    echo ""
+    ls -ld "$(pwd)"
+    echo ""
+    echo "Please fix file permissions and try again."
+    echo ""
+    exit 1
+fi
+
 # Verify user in docker group (not required for Windows Git Bash)
 if ! type winpty > /dev/null 2>&1; then
     if ! $(id -Gn 2>/dev/null | grep -qw "docker"); then
@@ -287,13 +298,13 @@ if [ -f ${PW_ENV_FILE} ]; then
     fi
 fi
 
-# Function to test an IP to see if it returns a ping
+# Function to test a GW IP to see if it responds
 function test_ip() {
     local IP=$1
     if [ -z "${IP}" ]; then
         return 1
     fi
-    if curl -k --head --connect-timeout 1 --silent https://${IP} > /dev/null 2>&1; then
+    if curl -k --head --connect-timeout 2 --silent https://${IP} > /dev/null 2>&1; then
         return 0
     else
         return 1
@@ -337,14 +348,27 @@ if [ ! -f ${PW_ENV_FILE} ]; then
                 else
                     PW_GW_PWD="${PW}"
                 fi
+                echo ""
+                # Double check the user doesn't have a Powerwall 3
+                if [ $pw3 -ne 1 ]; then
+                    read -p 'Do you have a Powerwall 3? [y/N] ' response
+                    if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+                        pw3=1
+                        PASSWORD=""
+                        EMAIL=""
+                    fi
+                    echo ""
+                fi
             fi
         else
             echo "The Powerwall Gateway (192.168.91.1) is not found on your LAN."
             if [ $pw3 -eq 1 ]; then
                 echo ""
                 echo "Powerwall 3 requires access to the Gateway for pull local data."
-                echo "Ensure the Gateway is connected to your host and rerun setup."
+                echo "Ensure the Gateway can be reached by your host and rerun setup."
                 echo "Alternatively you can select a Tesla Cloud mode."
+                echo ""
+                echo "Test: curl -k --head https://192.168.91.1"
                 echo ""
                 exit 1
             fi
