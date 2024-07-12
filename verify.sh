@@ -107,9 +107,11 @@ if [ "$RUNNING" = "true" ]; then
     if running http://localhost:$PORT/stats 200 0 2>/dev/null; then
         echo -e $GOOD
         VER=`curl --silent http://localhost:$PORT/stats | awk '{print $2" "$3" "$4}' | cut -d\" -f 2 2>/dev/null`
-        SITENAME=`curl --silent http://localhost:$PORT/stats | grep "site_name" | sed 's/.*"site_name": "\(.*\)",.*/\1/' 2>/dev/null`
-        CLOUDMODE=`curl --silent http://localhost:$PORT/stats | sed 's/.*"cloudmode": \(.*\), "siteid".*/\1/' 2>/dev/null`
+        SITENAME=`curl --silent http://localhost:$PORT/stats | sed 's/.*"site_name": "\(.*\)", "cloudmode".*/\1/' 2>/dev/null`
+        CLOUDMODE=`curl --silent http://localhost:$PORT/stats | sed 's/.*"cloudmode": \(.*\), "fleetapi".*/\1/' 2>/dev/null`
         SITEID=`curl --silent http://localhost:$PORT/stats | sed 's/.*"siteid": \(.*\), "counter".*/\1/' 2>/dev/null`
+        TEDAPI=`curl --silent http://localhost:$PORT/stats | sed 's/.*"tedapi": \(.*\), "tedapi_mode".*/\1/' 2>/dev/null`
+        TEDAPIMODE=`curl --silent http://localhost:$PORT/stats | sed 's/.*"tedapi_mode": "\(.*\)", "siteid".*/\1/' 2>/dev/null`
         # check connection with powerwall
         if running http://localhost:$PORT/version 200 0 2>/dev/null; then
             PWSTATE="CONNECTED"
@@ -128,14 +130,22 @@ else
     ALLGOOD=0
 fi
 echo -e "${dim} - Version: ${subbold}$VER"
-echo -e "${dim} - Powerwall State: ${subbold}$PWSTATE${dim} - Firmware Version: ${subbold}$PWVER${normal}"
+echo -e "${dim} - Powerwall State: ${subbold}$PWSTATE${dim} - Firmware: ${subbold}$PWVER${dim}"
 if [ -n "$SITENAME" ]; then
+    echo -e "${dim} - Site Name: ${subbold}$SITENAME${normal}"
     SITEID="$SITEID ($SITENAME)"
 fi
 if running https://192.168.91.1/tedapi/din 403 0 2>/dev/null; then
-    echo -e "${dim} - Powerwall Gateway TEDAPI: ${subbold}Available (192.168.91.1)${dim}"
+    # if TEDAPI = "true" show connected
+    if [ "$TEDAPI" = "true" ]; then
+        VAL="${subbold}Connected ${dim}- Mode: ${subbold}${TEDAPIMODE}"
+    else
+        VAL="${alert}Not Connected"
+    fi
+    echo -e "${dim} - Gateway TEDAPI: ${subbold}Available ${dim}(192.168.91.1)"
+    echo -e "${dim} - TEDAPI Vitals: ${VAL} ${dim}"
 else
-    echo -e "${dim} - Powerwall Gateway TEDAPI: ${normal}Not Available (192.168.91.1)${normal}"
+    echo -e "${dim} - Powerwall Gateway TEDAPI: ${normal}Not Available ${dim}(192.168.91.1)"
 fi
 if [ "$CLOUDMODE" = "true" ]; then
     echo -e "${dim} - Cloud Mode: ${subbold}YES ${dim}- Site ID: ${subbold}$SITEID"
