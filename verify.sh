@@ -54,7 +54,7 @@ running() {
     else
         head=""
     fi
-    local status=$(curl ${head} --location --connect-timeout 5 --write-out %{http_code} --silent --output /dev/null ${url})
+    local status=$(curl ${head} -k --location --connect-timeout 5 --write-out %{http_code} --silent --output /dev/null ${url})
     [[ $status == ${code} ]]
 }
 
@@ -132,6 +132,11 @@ echo -e "${dim} - Powerwall State: ${subbold}$PWSTATE${dim} - Firmware Version: 
 if [ -n "$SITENAME" ]; then
     SITEID="$SITEID ($SITENAME)"
 fi
+if running https://192.168.91.1/tedapi/din 403 0 2>/dev/null; then
+    echo -e "${dim} - Powerwall Gateway TEDAPI: ${subbold}Available (192.168.91.1)${dim}"
+else
+    echo -e "${dim} - Powerwall Gateway TEDAPI: ${normal}Not Available (192.168.91.1)${normal}"
+fi
 if [ "$CLOUDMODE" = "true" ]; then
     echo -e "${dim} - Cloud Mode: ${subbold}YES ${dim}- Site ID: ${subbold}$SITEID"
 elif [ "$LISTENING" = "false" ] && [ -f ${ENV_FILE} ] && ! grep -qE "^PW_HOST=.+" "${ENV_FILE}"; then
@@ -141,7 +146,7 @@ elif [ "$LISTENING" = "false" ] && [ -f ${ENV_FILE} ] && ! grep -qE "^PW_HOST=.+
     fi
     ALLGOOD=0
 else
-    echo -e "${dim} - Cloud Mode: ${subbold}NO"
+    echo -e "${dim} - Cloud Mode: ${normal}NO"
 fi
 # Check to see that TZ is set in pypowerwall
 if [ -f ${ENV_FILE} ] && ! grep -q "TZ=" ${ENV_FILE}; then
