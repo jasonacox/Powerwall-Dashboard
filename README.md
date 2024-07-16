@@ -209,6 +209,7 @@ Check the logs of the services using:
 * Docker terminating with `error 139`:  InfluxDB does not run reliably on older models of Raspberry Pi.
 * Grafana Error: Invalid interval string, expecting a number followed by one of "Mwdhmsy" - This indicates that the Grafana setup for InfluxDB is missing the time unit, "s", in the "Min time interval" field:
   - Min time interval: `5s`
+* PyPowerwall Error: If you are getting `LoginError: Invalid Powerwall Login` errors but have double checked your password and are sure it is correct, try using the last 5 characters of the password written on the Powerwall Gateway.
 
 #### Missing Powerwalls or String data?
 
