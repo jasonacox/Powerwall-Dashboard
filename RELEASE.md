@@ -3,6 +3,7 @@
 ## v4.4.6 - Current and Voltage
 
 * Add data points for system current and voltages (solar, home, grid and powerwall). Includes continuous queries and dashboard.json update. Currently only viable for local mode, non-PW3, systems.
+* Upgrade pypowerwall proxy to v0.10.9 to include TEDAPI mode patch that adds computed voltage and current to aggregates (https://github.com/jasonacox/pypowerwall/pull/107).
 
 ## v4.4.5 - PW3 Updates
 
