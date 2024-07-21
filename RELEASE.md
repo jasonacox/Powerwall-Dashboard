@@ -1,5 +1,9 @@
 # RELEASE NOTES
 
+## v4.4.6 - Current and Voltage
+
+* Add data points for system current and voltages (solar, home, grid and powerwall). Includes continuous queries and dashboard.json update. Currently only viable for local mode, non-PW3, systems.
+
 ## v4.4.5 - PW3 Updates
 
 * Powerwall 3 Setup Help - If local setup is selected, it will work with the Powerwall 3 but will produce errors in pypowerwall and not have the complete data. This updates `setup.sh` so ensure Powerwall 3 setups use `full` TEDAPI mode for local access. Raised by @pavandave in https://github.com/jasonacox/Powerwall-Dashboard/issues/492.
