@@ -68,7 +68,7 @@ With version v4.4.0+, pypowerwall can be set to access the TEDAPI API on the Gat
 ```bash
 # Example - Change 192.168.0.100 to the IP address of Powerwall Gateway on your LAN
 
-# Linux Ubuntu and RPi - Can add to /etc/rc.local for persistence 
+# Linux / RPi - Add to netplan, /etc/rc.local or /etc/network/if-up.d/static-route for persistence 
 sudo ip route add 192.168.91.1 via 192.168.0.100
 
 # MacOS 
