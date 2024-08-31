@@ -4,7 +4,7 @@
 # Handle common extensions
 Dockerfile        text
 *.conf            text
-*.env             text
+*.env             text    eol=lf
 *.flux            text
 *.html            text    diff=html
 *.json            text
