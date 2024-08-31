@@ -448,9 +448,9 @@ fi
 
 # Set up Sun and Moon data provider
 if [ -f grafana/sunandmoon.yml ]; then
-    sed -i.bak "s@zzLAT@${LAT}@g" grafana/sunandmoon.yml
-    sed -i.bak "s@zzLONG@${LONG}@g" grafana/sunandmoon.yml
-    cp grafana/sunandmoon.yml grafana/provisioning/datasources/sunandmoon.yml
+    cp grafana/sunandmoon.yml grafana/provisions/datasources/sunandmoon.yml
+    sed -i "s@zzLAT@${LAT}@g" grafana/provisions/datasources/sunandmoon.yml
+    sed -i "s@zzLONG@${LONG}@g" grafana/provisions/datasources/sunandmoon.yml
 fi
 
 # Build Docker in current environment
