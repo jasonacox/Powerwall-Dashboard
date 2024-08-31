@@ -1,0 +1,7 @@
+apiVersion: 1
+
+datasources:
+  - name: Sun and Moon
+    type: grafana-sunandmoon-datasource
+    latitude: zzLAT
+    longitude: zzLONG

@@ -80,6 +80,15 @@ running() {
     [[ $status == ${code} ]]
 }
 
+# Get latitude and longitude 
+LAT="0.0"
+LONG="0.0"
+PYTHON=$(command -v python3 || command -v python)
+if [ -n "${PYTHON}" ]; then
+    LAT=$(curl -s https://freeipapi.com/api/json | "${PYTHON}" -c "import sys, json; print(json.load(sys.stdin)['latitude'])")
+    LONG=$(curl -s https://freeipapi.com/api/json | "${PYTHON}" -c "import sys, json; print(json.load(sys.stdin)['longitude'])")
+fi
+
 # Docker Dependency Check
 if ! docker info > /dev/null 2>&1; then
     echo "ERROR: docker is not available or not running."
@@ -437,6 +446,13 @@ if [ -f weather.sh ]; then
     ./weather.sh setup
 fi
 
+# Set up Sun and Moon data provider
+if [ -f grafana/sunandmoon.yml ]; then
+    sed -i.bak "s@zzLAT@${LAT}@g" grafana/sunandmoon.yml
+    sed -i.bak "s@zzLONG@${LONG}@g" grafana/sunandmoon.yml
+    cp grafana/sunandmoon.yml grafana/provisioning/datasources/sunandmoon.yml
+fi
+
 # Build Docker in current environment
 ./compose-dash.sh up -d
 echo "-----------------------------------------"
@@ -521,21 +537,22 @@ cat << EOF
 
 Open Grafana at http://localhost:9000/ ... use admin/admin for login.
 
-Follow these instructions for *Grafana Setup*:
+To complete *Grafana Setup*:
 
-* From 'Configuration\Data Sources' add 'InfluxDB' database with:
-  - Name: 'InfluxDB'
+* From 'Dashboard\Browse', select 'New/Import', browse to ${PWD}/dashboards
+  and upload ${DASHBOARD}.
+
+NOTE: The datasources for InfluxDB and SunAndMoon are already configured.
+If you need to modify them via Configuration\Data Sources:
+
+* InfluxDB
   - URL: 'http://influxdb:8086'
   - Database: 'powerwall'
   - Min time interval: '5s'
   - Click "Save & test" button
 
-* From 'Configuration\Data Sources' add 'Sun and Moon' database with:
-  - Name: 'Sun and Moon'
+* Sun and Moon
   - Enter your latitude and longitude (tool here: https://bit.ly/3wYNaI1 )
   - Click "Save & test" button
-
-* From 'Dashboard\Browse', select 'New/Import', browse to ${PWD}/dashboards
-  and upload ${DASHBOARD}.
 
 EOF
