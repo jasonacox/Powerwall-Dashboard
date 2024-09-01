@@ -447,8 +447,8 @@ if [ -f weather.sh ]; then
 fi
 
 # Set up Sun and Moon data provider
-if [ -f grafana/sunandmoon.yml ]; then
-    cp grafana/sunandmoon.yml grafana/provisions/datasources/sunandmoon.yml
+if [ -f grafana/sunandmoon-template.yml ]; then
+    cp grafana/sunandmoon-template.yml grafana/provisions/datasources/sunandmoon.yml
     sed -i "s@zzLAT@${LAT}@g" grafana/provisions/datasources/sunandmoon.yml
     sed -i "s@zzLONG@${LONG}@g" grafana/provisions/datasources/sunandmoon.yml
 fi
