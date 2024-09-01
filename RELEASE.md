@@ -1,5 +1,11 @@
 # RELEASE NOTES
 
+## v4.5.0 - Auto Provision Datasources
+
+* Setup: Automatically set up the InfluxDB and Sun-and-Moon data sources in Grafana by @longzheng in https://github.com/jasonacox/Powerwall-Dashboard/pull/512 
+* This adds an "(auto provisioned)" suffix to the data source name to prevent breaking exiting installations and to allow custom configurations.
+* Setup now attempts to automatically detect latitude and longitude for Sun-and-Moon and Weather setup.
+
 ## v4.4.6 - Current and Voltage
 
 * Add data points for system current and voltages (solar, home, grid and powerwall). Includes continuous queries and dashboard.json update. Currently only viable for local mode, non-PW3, systems.
