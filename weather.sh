@@ -21,6 +21,16 @@ fi
 
 # Docker Dependency Check - moved to compose-dash.sh, 14/10/22
 
+# Get latitude and longitude 
+LAT="0.0"
+LONG="0.0"
+PYTHON=$(command -v python3 || command -v python)
+if [ -n "${PYTHON}" ]; then
+    IP_RESPONSE=$(curl -s https://freeipapi.com/api/json)
+    LAT=$(echo "$IP_RESPONSE" | "${PYTHON}" -c "import sys, json; print(json.load(sys.stdin)['latitude'])")
+    LONG=$(echo "$IP_RESPONSE" | "${PYTHON}" -c "import sys, json; print(json.load(sys.stdin)['longitude'])")
+fi
+
 # Setup Weather?
 echo "Weather Data Setup"
 echo "-----------------------------------------"
@@ -98,17 +108,21 @@ if [ ! -f ${CONF_FILE} ]; then
     fi
     echo ""
     echo "Enter your location coordinates to determine weather in your location."
-    echo "   For help go to https://jasonacox.github.io/Powerwall-Dashboard/location.html"
-    echo ""
-    read -p 'Enter Latitude: ' LAT
-    if [ -z "${LAT}" ]; then
-        echo "ERROR: Valid coordinates are required. Exiting now."
-        exit 0
+    # check to see if LAT and LONG are not 0.0
+    if [ "${LAT}" == "0.0" ] || [ "${LONG}" == "0.0" ]; then
+        echo "   Your current location could not be automatically determined."
+        echo "   For help go to https://jasonacox.github.io/Powerwall-Dashboard/location.html"
+    else
+        echo "   Your current location appears to be Latitude: ${LAT}, Longitude: ${LONG}"
     fi
-    read -p 'Enter Longitude: ' LON
-    if [ -z "${LON}" ]; then
-        echo "ERROR: Valid coordinates are required. Exiting now."
-        exit 0
+    echo ""
+    read -p 'Enter Latitude (default: '${LAT}'): ' USER_LAT
+    if [ -n "${USER_LAT}" ]; then
+        LAT="${USER_LAT}"
+    fi
+    read -p 'Enter Longitude (default '${LON}'): ' USER_LONG
+    if [ -n "${USER_LONG}" ]; then
+        LON="${USER_LONG}"
     fi
     while :
     do

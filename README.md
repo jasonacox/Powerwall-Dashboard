@@ -164,21 +164,27 @@ You will want to set your local timezone by editing `pypowerwall.env`, `telegraf
 
 Note: It can take a while for InfluxDB to start.  Also the influxdb.sql file is set to use `America/Los_Angeles` as timezone. Use the `tz.sh` script or manually update the database commands above to replace `America/Los_Angeles` with your own timezone.
 
-## Grafana Setup
+### Grafana Setup
 
 * Open up Grafana in a browser at `http://<server ip>:9000` and login with `admin/admin`
 
-* From `Configuration\Data Sources` add `InfluxDB` database with:
+#### Create Datasources
+
+* As of v4.5.0, the setup script will auto provision data sources for you. However, you can manually set them up as well by following these two steps:
+
+1. From `Configuration\Data Sources` add `InfluxDB` database with:
   - Name: `InfluxDB`
   - URL: `http://influxdb:8086`
   - Database: `powerwall`
   - Min time interval: `5s`
   - Click "Save & test" button
 
-* From `Configuration\Data Sources` add `Sun and Moon` database with:
+2. From `Configuration\Data Sources` add `Sun and Moon` database with:
   - Name: `Sun and Moon`
   - Enter your latitude and longitude. You can use this [web page](https://jasonacox.github.io/Powerwall-Dashboard/location.html) to find your GPS location if you don't know).
   - Click "Save & test" button
+
+#### Import Dashboard
 
 * From `Dashboard\Browse` select `New/Import`, and upload one of the dashboard files below (in [dashboards folder](dashboards)):
 
