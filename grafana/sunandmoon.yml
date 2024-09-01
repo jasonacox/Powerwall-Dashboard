@@ -2,6 +2,7 @@ apiVersion: 1
 
 datasources:
   - name: Sun and Moon
-    type: grafana-sunandmoon-datasource
-    latitude: zzLAT
-    longitude: zzLONG
+    type: fetzerch-sunandmoon-datasource
+    jsonData: 
+      latitude: zzLAT 
+      longitude: zzLONG
