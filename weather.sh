@@ -120,9 +120,9 @@ if [ ! -f ${CONF_FILE} ]; then
     if [ -n "${USER_LAT}" ]; then
         LAT="${USER_LAT}"
     fi
-    read -p 'Enter Longitude (default '${LON}'): ' USER_LONG
+    read -p 'Enter Longitude (default '${LONG}'): ' USER_LONG
     if [ -n "${USER_LONG}" ]; then
-        LON="${USER_LONG}"
+        LONG="${USER_LONG}"
     fi
     while :
     do
@@ -156,7 +156,7 @@ fi
 sed -i.bak \
     -e "s@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@${APIKEY}@g" \
     -e "s@xxx.xxxx@${LAT}@g" \
-    -e "s@yyy.yyyy@${LON}@g" \
+    -e "s@yyy.yyyy@${LONG}@g" \
     -e "s@UNITS = metric@UNITS = ${UNITS}@g" \
     "${CONF_FILE}"
 
