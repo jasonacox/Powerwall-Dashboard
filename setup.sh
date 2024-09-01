@@ -85,8 +85,9 @@ LAT="0.0"
 LONG="0.0"
 PYTHON=$(command -v python3 || command -v python)
 if [ -n "${PYTHON}" ]; then
-    LAT=$(curl -s https://freeipapi.com/api/json | "${PYTHON}" -c "import sys, json; print(json.load(sys.stdin)['latitude'])")
-    LONG=$(curl -s https://freeipapi.com/api/json | "${PYTHON}" -c "import sys, json; print(json.load(sys.stdin)['longitude'])")
+    IP_RESPONSE=$(curl -s https://freeipapi.com/api/json)
+    LAT=$(echo "$IP_RESPONSE" | "${PYTHON}" -c "import sys, json; print(json.load(sys.stdin)['latitude'])")
+    LONG=$(echo "$IP_RESPONSE" | "${PYTHON}" -c "import sys, json; print(json.load(sys.stdin)['longitude'])")
 fi
 
 # Docker Dependency Check
