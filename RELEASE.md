@@ -1,5 +1,10 @@
 # RELEASE NOTES
 
+## v4.5.1 - Powerwall 3 Metrics
+
+* Updates pyPowerwall to v0.11.0 to include PW3 Vitals
+* Updates InfluxDB CQs to include Strings E-F and expands support for up to 6 Inverters (sets of Strings)
+
 ## v4.5.0 - Auto Provision Datasources
 
 * Setup: Automatically set up the InfluxDB and Sun-and-Moon data sources in Grafana by @longzheng in https://github.com/jasonacox/Powerwall-Dashboard/pull/512 

@@ -1,16 +1,16 @@
 {
   "__inputs": [
     {
-      "name": "DS_INFLUXDB",
-      "label": "InfluxDB",
+      "name": "DS_INFLUXDB_(AUTO PROVISIONED)",
+      "label": "InfluxDB (auto provisioned)",
       "description": "",
       "type": "datasource",
       "pluginId": "influxdb",
       "pluginName": "InfluxDB"
     },
     {
-      "name": "DS_SUN_AND MOON",
-      "label": "Sun and Moon",
+      "name": "DS_SUN_AND MOON (AUTO PROVISIONED)",
+      "label": "Sun and Moon (auto provisioned)",
       "description": "",
       "type": "datasource",
       "pluginId": "fetzerch-sunandmoon-datasource",
@@ -44,7 +44,7 @@
       "type": "datasource",
       "id": "fetzerch-sunandmoon-datasource",
       "name": "Sun and Moon",
-      "version": "0.3.0"
+      "version": "0.3.3"
     },
     {
       "type": "grafana",
@@ -622,7 +622,7 @@
           "alias": "Home Usage",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -659,7 +659,7 @@
           "alias": "Solar Energy",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -695,7 +695,7 @@
           "alias": "Powerwall",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -734,7 +734,7 @@
           "alias": "Grid Usage",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -779,7 +779,7 @@
           "alias": "Charge",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -828,7 +828,7 @@
         {
           "datasource": {
             "type": "fetzerch-sunandmoon-datasource",
-            "uid": "${DS_SUN_AND MOON}"
+            "uid": "${DS_SUN_AND MOON (AUTO PROVISIONED)}"
           },
           "refId": "F",
           "target": [
@@ -839,7 +839,7 @@
           "alias": "Temperature",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -880,7 +880,7 @@
           "alias": "Clouds",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -921,7 +921,7 @@
           "alias": "Feels Like",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -962,7 +962,7 @@
           "alias": "Grid Down",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -1005,7 +1005,7 @@
           "alias": "Reserve",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -1211,7 +1211,7 @@
       },
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
       },
       "description": "",
       "fieldConfig": {
@@ -1401,7 +1401,7 @@
           "alias": "Grid Status",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -1445,7 +1445,7 @@
           "alias": "sync",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "hide": false,
           "query": "SELECT min(\"grid_status\") + 2 FROM \"grid\".\"http\" WHERE grid_status = -1 and $timeFilter GROUP BY time($__interval) fill(null) tz('${tz:text}')",
@@ -1457,7 +1457,7 @@
           "alias": "off_grid",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "hide": false,
           "query": "SELECT min(\"grid_status\") + 1 FROM \"grid\".\"http\" WHERE grid_status = 0 and $timeFilter GROUP BY time($__interval) fill(null) tz('${tz:text}')",
@@ -1486,7 +1486,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1550,7 +1550,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [],
           "measurement": "http",
@@ -1588,7 +1588,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1652,7 +1652,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [],
           "measurement": "http",
@@ -1690,7 +1690,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
       },
       "description": "",
       "fieldConfig": {
@@ -1756,7 +1756,7 @@
           "alias": "SolarPowered",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [],
           "hide": false,
@@ -1797,7 +1797,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1861,7 +1861,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [],
           "measurement": "http",
@@ -1899,7 +1899,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1963,7 +1963,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [],
           "measurement": "http",
@@ -2001,7 +2001,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2065,7 +2065,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [],
           "measurement": "http",
@@ -2103,7 +2103,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2167,7 +2167,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [],
           "measurement": "http",
@@ -2205,7 +2205,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2270,7 +2270,7 @@
           "alias": "",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [],
           "measurement": "http",
@@ -2324,7 +2324,7 @@
       "dashes": false,
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
       },
       "decimals": 2,
       "description": "Estimated Savings (Buy  = $ $avg_buy_per_kwh / Sell  = $ $avg_sell_per_kwh)",
@@ -2380,7 +2380,7 @@
           "alias": "powerwall > home",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "query": "SELECT fp FROM (SELECT sum(\"from_pw\")  * $avg_buy_per_kwh AS fp FROM kwh.http WHERE  $timeFilter )",
           "rawQuery": true,
@@ -2391,7 +2391,7 @@
           "alias": "solar > home",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "hide": false,
           "query": "SELECT s - (tp + tg) FROM (SELECT sum(\"solar\") * $avg_buy_per_kwh AS s,  sum(\"to_pw\")  * $avg_buy_per_kwh AS tp, sum(\"to_grid\") * $avg_buy_per_kwh AS tg FROM kwh.http WHERE  $timeFilter )",
@@ -2403,7 +2403,7 @@
           "alias": "solar > grid",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "hide": false,
           "query": "SELECT tgg FROM (SELECT sum(\"to_grid\") * $avg_sell_per_kwh AS tgg FROM kwh.http WHERE  $timeFilter )\n",
@@ -2415,7 +2415,7 @@
           "alias": "total",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "hide": false,
           "query": "SELECT tgg + (s - tp - tg ) + fp FROM (SELECT sum(\"to_pw\")  * $avg_buy_per_kwh AS tp, sum(\"solar\") * $avg_buy_per_kwh AS s, sum(\"to_grid\") * $avg_buy_per_kwh AS tg, sum(\"from_pw\") * $avg_buy_per_kwh AS fp, sum(\"to_grid\") * $avg_sell_per_kwh AS tgg FROM kwh.http WHERE  $timeFilter )",
@@ -2485,7 +2485,7 @@
       },
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
       },
       "fontSize": "100%",
       "format": "kwatth",
@@ -2517,7 +2517,7 @@
           "alias": "From Solar",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "query": "SELECT  (1+from_solar/abs(from_solar))*from_solar/2  FROM (SELECT integral(solar)/1000/3600 - (integral(to_pw) - integral(grid_to_pw))/1000/3600  - integral(to_grid)/1000/3600  AS from_solar FROM (SELECT from_solar, solar, to_pw, to_grid, ((from_grid - home - solar) + ABS((from_grid - home - solar))) / 2 AS grid_to_pw FROM autogen.http WHERE  $timeFilter ))",
           "rawQuery": true,
@@ -2528,7 +2528,7 @@
           "alias": "From Powerwall",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [],
           "hide": false,
@@ -2566,7 +2566,7 @@
           "alias": "From Grid",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [],
           "hide": false,
@@ -2610,7 +2610,7 @@
       "activePatternIndex": 1,
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
       },
       "defaultPattern": {
         "bgColors": "green|gray|red",
@@ -2791,7 +2791,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "query": "SELECT last(\"load_instant_power\")  / 1000 AS \"Home\", last(\"solar_instant_power\")  / 1000 AS \"Solar\", last(\"battery_instant_power\")  / 1000 AS \"Battery\", last(\"site_instant_power\")  / 1000 AS \"Grid\" FROM \"raw\".\"http\" WHERE time >= now() - 10m",
           "rawQuery": true,
@@ -2819,7 +2819,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2917,7 +2917,7 @@
           "alias": "Home Usage",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -2964,7 +2964,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
       },
       "fieldConfig": {
         "defaults": {
@@ -3062,7 +3062,7 @@
           "alias": "Solar Energy",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -3115,7 +3115,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
       },
       "fieldConfig": {
         "defaults": {
@@ -3213,7 +3213,7 @@
           "alias": "From Powerwall",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -3260,7 +3260,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
       },
       "fieldConfig": {
         "defaults": {
@@ -3373,7 +3373,7 @@
           "alias": "From Grid",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -3415,7 +3415,7 @@
           "alias": "To Grid",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -3469,7 +3469,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
       },
       "description": "",
       "fieldConfig": {
@@ -3640,7 +3640,7 @@
           "alias": "Home Usage",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -3690,7 +3690,7 @@
           "alias": "Solar",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -3740,7 +3740,7 @@
           "alias": "Grid Usage",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "hide": false,
           "query": "SELECT sum(\"from_grid\") - sum(\"to_grid\") as \"grid\" FROM \"kwh\".\"http\" WHERE  $timeFilter GROUP BY time(1d) fill(null) tz('${tz:text}')",
@@ -3770,7 +3770,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
       },
       "fieldConfig": {
         "defaults": {
@@ -3871,7 +3871,7 @@
           "alias": "A",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -3890,7 +3890,9 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "refId": "A",
+          "query": "SELECT mean(\"A_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "A0",
           "resultFormat": "time_series",
           "select": [
             [
@@ -3912,7 +3914,7 @@
           "alias": "B",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -3932,7 +3934,9 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "refId": "B",
+          "query": "SELECT mean(\"B_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "B0",
           "resultFormat": "time_series",
           "select": [
             [
@@ -3954,7 +3958,7 @@
           "alias": "C",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -3974,7 +3978,9 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "refId": "C",
+          "query": "SELECT mean(\"C_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "C0",
           "resultFormat": "time_series",
           "select": [
             [
@@ -3996,7 +4002,7 @@
           "alias": "D",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -4016,7 +4022,9 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "refId": "D",
+          "query": "SELECT mean(\"D_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "D0",
           "resultFormat": "time_series",
           "select": [
             [
@@ -4035,10 +4043,10 @@
           "tags": []
         },
         {
-          "alias": "A1",
+          "alias": "E",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -4058,7 +4066,97 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "refId": "E",
+          "query": "SELECT mean(\"E_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "E0",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "E_Voltage"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "F",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"F_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "F0",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "F_Current"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "A1",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"A1_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "A1",
           "resultFormat": "time_series",
           "select": [
             [
@@ -4080,7 +4178,7 @@
           "alias": "B1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -4100,7 +4198,9 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "refId": "F",
+          "query": "SELECT mean(\"B1_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "B1",
           "resultFormat": "time_series",
           "select": [
             [
@@ -4122,7 +4222,7 @@
           "alias": "C1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -4142,7 +4242,9 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "refId": "G",
+          "query": "SELECT mean(\"C1_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "C1",
           "resultFormat": "time_series",
           "select": [
             [
@@ -4164,7 +4266,7 @@
           "alias": "D1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -4184,7 +4286,9 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "refId": "H",
+          "query": "SELECT mean(\"D1_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "D1",
           "resultFormat": "time_series",
           "select": [
             [
@@ -4203,10 +4307,10 @@
           "tags": []
         },
         {
-          "alias": "A2",
+          "alias": "E1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -4226,7 +4330,97 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "refId": "I",
+          "query": "SELECT mean(\"E1_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "E1",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "E1_Voltage"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "F1",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"F1_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "F1",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "F1_Voltage"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "A2",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"A2_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "A2",
           "resultFormat": "time_series",
           "select": [
             [
@@ -4248,7 +4442,7 @@
           "alias": "B2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -4268,13 +4462,15 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "refId": "J",
+          "query": "SELECT mean(\"A_Volatage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "B2",
           "resultFormat": "time_series",
           "select": [
             [
               {
                 "params": [
-                  "A_Volatage"
+                  "B2_Voltage"
                 ],
                 "type": "field"
               },
@@ -4290,7 +4486,7 @@
           "alias": "C2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -4310,7 +4506,9 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "refId": "K",
+          "query": "SELECT mean(\"C2_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "C2",
           "resultFormat": "time_series",
           "select": [
             [
@@ -4332,7 +4530,7 @@
           "alias": "D2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -4352,7 +4550,9 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "refId": "L",
+          "query": "SELECT mean(\"D2_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "D2",
           "resultFormat": "time_series",
           "select": [
             [
@@ -4371,10 +4571,10 @@
           "tags": []
         },
         {
-          "alias": "A3",
+          "alias": "E2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -4394,7 +4594,97 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "refId": "M",
+          "query": "SELECT mean(\"E2_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "E2",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "E2_Voltage"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "F2",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"F2_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "F2",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "F2_Voltage"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "A3",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"A3_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "A3",
           "resultFormat": "time_series",
           "select": [
             [
@@ -4416,7 +4706,7 @@
           "alias": "B3",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -4436,7 +4726,9 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "refId": "N",
+          "query": "SELECT mean(\"B3_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "B3",
           "resultFormat": "time_series",
           "select": [
             [
@@ -4458,7 +4750,7 @@
           "alias": "C3",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -4478,7 +4770,9 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "refId": "O",
+          "query": "SELECT mean(\"C3_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "C3",
           "resultFormat": "time_series",
           "select": [
             [
@@ -4500,7 +4794,7 @@
           "alias": "D3",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -4520,13 +4814,631 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "refId": "P",
+          "query": "SELECT mean(\"D3_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "D3",
           "resultFormat": "time_series",
           "select": [
             [
               {
                 "params": [
                   "D3_Voltage"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "E3",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"E3_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "E3",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "E3_Voltage"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "F3",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"F3_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "F3",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "F3_Voltage"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "A4",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"A4_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "A4",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "A4_Voltage"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "B4",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"B4_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "B4",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "B4_Voltage"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "C4",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"C4_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "C4",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "C4_Voltage"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "D4",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"D4_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "D4",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "D4_Voltage"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "E4",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"E4_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "E4",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "E4_Voltage"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "F4",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"F4_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "F4",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "F4_Voltage"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "A5",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"A5_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "A5",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "A5_Voltage"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "B5",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"B5_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "B5",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "B5_Voltage"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "C5",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"C5_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "C5",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "C5_Voltage"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "D5",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"D5_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "D5",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "D5_Voltage"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "E5",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"E5_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "E5",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "E5_Voltage"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "F5",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"F5_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "F5",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "F5_Voltage"
                 ],
                 "type": "field"
               },
@@ -4546,7 +5458,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
       },
       "fieldConfig": {
         "defaults": {
@@ -4647,7 +5559,7 @@
           "alias": "A",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -4688,7 +5600,7 @@
           "alias": "B",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -4730,7 +5642,7 @@
           "alias": "C",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -4772,7 +5684,7 @@
           "alias": "D",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -4792,6 +5704,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"D_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "D",
           "resultFormat": "time_series",
           "select": [
@@ -4811,10 +5725,10 @@
           "tags": []
         },
         {
-          "alias": "A1",
+          "alias": "E",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -4834,7 +5748,97 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"E_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "E",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "E_Current"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "F",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"F_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "F",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "F_Current"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "A1",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"A1_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "A1",
           "resultFormat": "time_series",
           "select": [
             [
@@ -4856,7 +5860,7 @@
           "alias": "B1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -4876,7 +5880,9 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "refId": "F",
+          "query": "SELECT mean(\"B1_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "B1",
           "resultFormat": "time_series",
           "select": [
             [
@@ -4898,7 +5904,7 @@
           "alias": "C1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -4918,7 +5924,9 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "refId": "G",
+          "query": "SELECT mean(\"C1_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "C1",
           "resultFormat": "time_series",
           "select": [
             [
@@ -4940,7 +5948,7 @@
           "alias": "D1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -4960,7 +5968,9 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "refId": "H",
+          "query": "SELECT mean(\"D1_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "D1",
           "resultFormat": "time_series",
           "select": [
             [
@@ -4979,10 +5989,10 @@
           "tags": []
         },
         {
-          "alias": "A2",
+          "alias": "E1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -5002,7 +6012,97 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "refId": "I",
+          "query": "SELECT mean(\"E1_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "E1",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "E1_Current"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "F1",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"F1_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "F1",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "F1_Current"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "A2",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"A2_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "A2",
           "resultFormat": "time_series",
           "select": [
             [
@@ -5024,7 +6124,7 @@
           "alias": "B2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -5044,7 +6144,9 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "refId": "J",
+          "query": "SELECT mean(\"B2_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "B2",
           "resultFormat": "time_series",
           "select": [
             [
@@ -5066,7 +6168,7 @@
           "alias": "C2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -5086,7 +6188,9 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "refId": "K",
+          "query": "SELECT mean(\"C2_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "C2",
           "resultFormat": "time_series",
           "select": [
             [
@@ -5108,7 +6212,7 @@
           "alias": "D2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -5128,7 +6232,9 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "refId": "L",
+          "query": "SELECT mean(\"D2_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "D2",
           "resultFormat": "time_series",
           "select": [
             [
@@ -5147,10 +6253,10 @@
           "tags": []
         },
         {
-          "alias": "A3",
+          "alias": "E2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -5170,7 +6276,97 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "refId": "M",
+          "query": "SELECT mean(\"E2_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "E2",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "E2_Current"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "F2",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"F2_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "F2",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "F2_Current"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "A3",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"A3_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "A3",
           "resultFormat": "time_series",
           "select": [
             [
@@ -5192,7 +6388,7 @@
           "alias": "B3",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -5212,7 +6408,9 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "refId": "N",
+          "query": "SELECT mean(\"B3_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "B3",
           "resultFormat": "time_series",
           "select": [
             [
@@ -5234,7 +6432,7 @@
           "alias": "C3",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -5254,7 +6452,9 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "refId": "O",
+          "query": "SELECT mean(\"C3_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "C3",
           "resultFormat": "time_series",
           "select": [
             [
@@ -5276,7 +6476,7 @@
           "alias": "D3",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -5296,13 +6496,631 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "refId": "P",
+          "query": "SELECT mean(\"D3_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "D3",
           "resultFormat": "time_series",
           "select": [
             [
               {
                 "params": [
                   "D3_Current"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "E3",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"E3_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "E3",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "E3_Current"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "F3",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"F3_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "F3",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "F3_Current"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "A4",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"A4_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "A4",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "A4_Current"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "B4",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"B4_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "B4",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "B4_Current"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "C4",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"C4_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "C4",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "C4_Current"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "D4",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"D4_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "D4",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "D4_Current"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "E4",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"E4_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "E4",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "E4_Current"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "F4",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"F4_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "F4",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "F4_Current"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "A5",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"A5_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "A5",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "A5_Current"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "B5",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"B5_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "B5",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "B5_Current"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "C5",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"C5_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "C5",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "C5_Current"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "D5",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"D5_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "D5",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "D5_Current"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "E5",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"E5_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "E5",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "E5_Current"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "F5",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"F5_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "F5",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "F5_Current"
                 ],
                 "type": "field"
               },
@@ -5322,7 +7140,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
       },
       "fieldConfig": {
         "defaults": {
@@ -5423,7 +7241,7 @@
           "alias": "A",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -5464,7 +7282,7 @@
           "alias": "B",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -5506,7 +7324,7 @@
           "alias": "C",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -5548,7 +7366,7 @@
           "alias": "D",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -5587,10 +7405,10 @@
           "tags": []
         },
         {
-          "alias": "A1",
+          "alias": "E",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -5616,7 +7434,7 @@
             [
               {
                 "params": [
-                  "A1_Power"
+                  "E_Power"
                 ],
                 "type": "field"
               },
@@ -5629,10 +7447,10 @@
           "tags": []
         },
         {
-          "alias": "B1",
+          "alias": "F",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -5658,7 +7476,7 @@
             [
               {
                 "params": [
-                  "B1_Power"
+                  "F_Power"
                 ],
                 "type": "field"
               },
@@ -5671,10 +7489,10 @@
           "tags": []
         },
         {
-          "alias": "C1",
+          "alias": "A1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -5694,7 +7512,91 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "refId": "G",
+          "refId": "A1",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "A1_Power"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "B1",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "refId": "B1",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "B1_Power"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "C1",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "refId": "C1",
           "resultFormat": "time_series",
           "select": [
             [
@@ -5716,7 +7618,7 @@
           "alias": "D1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -5736,13 +7638,101 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "refId": "H",
+          "refId": "D1",
           "resultFormat": "time_series",
           "select": [
             [
               {
                 "params": [
-                  "D1_Power"
+                  "C1_Power"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "E1",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"E1_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "E1",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "E1_Power"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "F1",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"F1_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "F1",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "F1_Power"
                 ],
                 "type": "field"
               },
@@ -5758,7 +7748,7 @@
           "alias": "A2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -5778,7 +7768,9 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "refId": "I",
+          "query": "SELECT mean(\"A2_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "A2",
           "resultFormat": "time_series",
           "select": [
             [
@@ -5800,7 +7792,7 @@
           "alias": "B2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -5820,7 +7812,9 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "refId": "J",
+          "query": "SELECT mean(\"B2_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "B2",
           "resultFormat": "time_series",
           "select": [
             [
@@ -5842,7 +7836,7 @@
           "alias": "C2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -5862,7 +7856,9 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "refId": "K",
+          "query": "SELECT mean(\"C2_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "C2",
           "resultFormat": "time_series",
           "select": [
             [
@@ -5884,7 +7880,7 @@
           "alias": "D2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -5904,7 +7900,9 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "refId": "L",
+          "query": "SELECT mean(\"D2_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "D2",
           "resultFormat": "time_series",
           "select": [
             [
@@ -5923,10 +7921,10 @@
           "tags": []
         },
         {
-          "alias": "A3",
+          "alias": "E2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -5946,7 +7944,97 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "refId": "M",
+          "query": "SELECT mean(\"E2_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "E2",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "E2_Power"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "F2",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"F2_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "F2",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "F2_Power"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "A3",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"A3_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "A3",
           "resultFormat": "time_series",
           "select": [
             [
@@ -5968,7 +8056,7 @@
           "alias": "B3",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -5988,7 +8076,9 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "refId": "N",
+          "query": "SELECT mean(\"B3_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "B3",
           "resultFormat": "time_series",
           "select": [
             [
@@ -6010,7 +8100,7 @@
           "alias": "C3",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -6030,7 +8120,9 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "refId": "O",
+          "query": "SELECT mean(\"C3_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "C3",
           "resultFormat": "time_series",
           "select": [
             [
@@ -6052,7 +8144,7 @@
           "alias": "D3",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -6072,13 +8164,587 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "refId": "P",
+          "query": "SELECT mean(\"D3_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "D3",
           "resultFormat": "time_series",
           "select": [
             [
               {
                 "params": [
                   "D3_Power"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "E3",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"E3_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "E3",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "E3_Power"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "F3",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"F3_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "F3",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "F3_Power"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "A4",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"A4_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "A4",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "A4_Power"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "B4",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"B4_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "B4",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "B4_Power"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "C4",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"C4_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "C4",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "C4_Power"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "D4",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"D4_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "D4",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "D4_Power"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "E4",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"E4_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "E4",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "E4_Power"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "A5",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"A5_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "A5",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "A5_Power"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "B5",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"B5_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "B5",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "B5_Power"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "C5",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"C5_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "C5",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "C5_Power"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "D5",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"D5_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "D5",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "D5_Power"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "E5",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"E5_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "E5",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "E5_Power"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "F5",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"F5_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "F5",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "F5_Power"
                 ],
                 "type": "field"
               },
@@ -6098,7 +8764,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
       },
       "fieldConfig": {
         "defaults": {
@@ -6199,7 +8865,7 @@
           "alias": "Inverter1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -6240,7 +8906,7 @@
           "alias": "Inverter2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -6282,7 +8948,7 @@
           "alias": "Inverter3",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -6324,7 +8990,7 @@
           "alias": "Inverter4",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -6361,6 +9027,90 @@
             ]
           ],
           "tags": []
+        },
+        {
+          "alias": "Inverter5",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "refId": "E",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "Inverter5"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "max"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Inverter6",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "refId": "F",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "Inverter6"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "max"
+              }
+            ]
+          ],
+          "tags": []
         }
       ],
       "title": "Inverter Power",
@@ -6383,7 +9133,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
       },
       "description": "",
       "fieldConfig": {
@@ -6585,7 +9335,7 @@
           "alias": "Solar",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -6626,7 +9376,7 @@
           "alias": "Home",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -6668,7 +9418,7 @@
           "alias": "Grid",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -6710,7 +9460,7 @@
           "alias": "Powerwall",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -6756,7 +9506,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
       },
       "description": "",
       "fieldConfig": {
@@ -6957,7 +9707,7 @@
           "alias": "Solar",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -6998,7 +9748,7 @@
           "alias": "Home",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -7040,7 +9790,7 @@
           "alias": "Grid",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -7082,7 +9832,7 @@
           "alias": "Powerwall",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -7128,7 +9878,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
       },
       "description": "",
       "fieldConfig": {
@@ -7339,7 +10089,7 @@
           "alias": "PW1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -7380,7 +10130,7 @@
           "alias": "PW2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -7422,7 +10172,7 @@
           "alias": "PW3",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -7464,7 +10214,7 @@
           "alias": "PW4",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -7506,7 +10256,7 @@
           "alias": "PW5",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -7548,7 +10298,7 @@
           "alias": "PW6",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -7590,7 +10340,7 @@
           "alias": "PW7",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -7634,7 +10384,7 @@
           "alias": "PW8",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -7678,7 +10428,7 @@
           "alias": "PW9",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -7722,7 +10472,7 @@
           "alias": "PW10",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -7766,7 +10516,7 @@
           "alias": "PW11",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -7810,7 +10560,7 @@
           "alias": "PW12",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -7854,7 +10604,7 @@
           "alias": "PW1 Charge",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -7896,7 +10646,7 @@
           "alias": "PW2 Charge",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -7938,7 +10688,7 @@
           "alias": "PW3 Charge",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -7980,7 +10730,7 @@
           "alias": "PW4 Charge",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -8022,7 +10772,7 @@
           "alias": "PW5 Charge",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -8064,7 +10814,7 @@
           "alias": "PW6 Charge",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -8106,7 +10856,7 @@
           "alias": "PW7 Charge",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -8150,7 +10900,7 @@
           "alias": "PW8 Charge",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -8194,7 +10944,7 @@
           "alias": "PW9 Charge",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -8238,7 +10988,7 @@
           "alias": "PW10 Charge",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -8282,7 +11032,7 @@
           "alias": "PW11 Charge",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -8326,7 +11076,7 @@
           "alias": "PW12 Charge",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -8374,7 +11124,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
       },
       "description": "",
       "fieldConfig": {
@@ -8525,7 +11275,7 @@
           "alias": "Home L1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -8566,7 +11316,7 @@
           "alias": "Home L2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -8608,7 +11358,7 @@
           "alias": "Home L3",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -8650,7 +11400,7 @@
           "alias": "Grid L1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -8692,7 +11442,7 @@
           "alias": "Grid L2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -8734,7 +11484,7 @@
           "alias": "Grid L3",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -8776,7 +11526,7 @@
           "alias": "PW1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -8818,7 +11568,7 @@
           "alias": "PW2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -8860,7 +11610,7 @@
           "alias": "PW3",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -8902,7 +11652,7 @@
           "alias": "PW4",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -8944,7 +11694,7 @@
           "alias": "PW5",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -8986,7 +11736,7 @@
           "alias": "PW6",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -9028,7 +11778,7 @@
           "alias": "PW7",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -9070,7 +11820,7 @@
           "alias": "PW8",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -9112,7 +11862,7 @@
           "alias": "PW9",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -9154,7 +11904,7 @@
           "alias": "PW10",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -9196,7 +11946,7 @@
           "alias": "PW11",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -9238,7 +11988,7 @@
           "alias": "PW12",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -9280,7 +12030,7 @@
           "alias": "Off Grid",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -9336,7 +12086,7 @@
           "alias": "Off Grid",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -9394,7 +12144,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
       },
       "description": "",
       "fieldConfig": {
@@ -9550,7 +12300,7 @@
           "alias": "Home L1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -9594,7 +12344,7 @@
           "alias": "Home L2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -9636,7 +12386,7 @@
           "alias": "Home L3",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -9680,7 +12430,7 @@
           "alias": "Grid L1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -9724,7 +12474,7 @@
           "alias": "Grid L2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -9766,7 +12516,7 @@
           "alias": "Grid L3",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -9810,7 +12560,7 @@
           "alias": "PW1 L1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -9854,7 +12604,7 @@
           "alias": "PW1 L2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -9898,7 +12648,7 @@
           "alias": "PW2 L1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -9942,7 +12692,7 @@
           "alias": "PW2 L2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -9986,7 +12736,7 @@
           "alias": "PW3 L1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -10030,7 +12780,7 @@
           "alias": "PW3 L2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -10074,7 +12824,7 @@
           "alias": "PW4 L1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -10118,7 +12868,7 @@
           "alias": "PW4 L2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -10162,7 +12912,7 @@
           "alias": "PW5 L1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -10206,7 +12956,7 @@
           "alias": "PW5 L2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -10250,7 +13000,7 @@
           "alias": "PW6 L1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -10294,7 +13044,7 @@
           "alias": "PW6 L2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -10338,7 +13088,7 @@
           "alias": "PW7 L1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -10382,7 +13132,7 @@
           "alias": "PW7 L2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -10426,7 +13176,7 @@
           "alias": "PW8 L1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -10470,7 +13220,7 @@
           "alias": "PW8 L2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -10514,7 +13264,7 @@
           "alias": "PW9 L1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -10558,7 +13308,7 @@
           "alias": "PW9 L2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -10602,7 +13352,7 @@
           "alias": "PW10 L1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -10646,7 +13396,7 @@
           "alias": "PW10 L2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -10690,7 +13440,7 @@
           "alias": "PW11 L1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -10734,7 +13484,7 @@
           "alias": "PW11 L2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -10778,7 +13528,7 @@
           "alias": "PW12 L1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -10822,7 +13572,7 @@
           "alias": "PW12 L2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -10866,7 +13616,7 @@
           "alias": "PW1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -10910,7 +13660,7 @@
           "alias": "PW2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -10954,7 +13704,7 @@
           "alias": "PW3",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -10998,7 +13748,7 @@
           "alias": "PW4",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -11042,7 +13792,7 @@
           "alias": "PW5",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -11086,7 +13836,7 @@
           "alias": "PW6",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -11130,7 +13880,7 @@
           "alias": "PW7",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -11174,7 +13924,7 @@
           "alias": "PW8",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -11218,7 +13968,7 @@
           "alias": "PW9",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -11262,7 +14012,7 @@
           "alias": "PW10",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -11306,7 +14056,7 @@
           "alias": "PW11",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -11350,7 +14100,7 @@
           "alias": "PW12",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -11394,7 +14144,7 @@
           "alias": "PW1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "hide": false,
           "query": "SELECT mean(\"PW1_v_out\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
@@ -11406,7 +14156,7 @@
           "alias": "PW2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "hide": false,
           "query": "SELECT mean(\"PW2_v_out\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
@@ -11418,7 +14168,7 @@
           "alias": "PW3",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "hide": false,
           "query": "SELECT mean(\"PW3_v_out\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
@@ -11430,7 +14180,7 @@
           "alias": "PW4",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "hide": false,
           "query": "SELECT mean(\"PW4_v_out\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
@@ -11442,7 +14192,7 @@
           "alias": "PW5",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "hide": false,
           "query": "SELECT mean(\"PW5_v_out\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
@@ -11454,7 +14204,7 @@
           "alias": "PW6",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "hide": false,
           "query": "SELECT mean(\"PW6_v_out\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
@@ -11466,7 +14216,7 @@
           "alias": "PW7",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "hide": false,
           "query": "SELECT mean(\"PW7_v_out\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
@@ -11478,7 +14228,7 @@
           "alias": "PW8",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "hide": false,
           "query": "SELECT mean(\"PW8_v_out\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
@@ -11490,7 +14240,7 @@
           "alias": "PW9",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "hide": false,
           "query": "SELECT mean(\"PW9_v_out\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
@@ -11502,7 +14252,7 @@
           "alias": "PW10",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "hide": false,
           "query": "SELECT mean(\"PW10_v_out\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
@@ -11514,7 +14264,7 @@
           "alias": "PW11",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "hide": false,
           "query": "SELECT mean(\"PW11_v_out\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
@@ -11526,7 +14276,7 @@
           "alias": "PW12",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "hide": false,
           "query": "SELECT mean(\"PW12_v_out\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
@@ -11538,7 +14288,7 @@
           "alias": "Grid Status",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -11611,7 +14361,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
       },
       "description": "",
       "fieldConfig": {
@@ -11790,7 +14540,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "hide": false,
           "query": "SELECT *::field from alerts.alerts where $timeFilter",
@@ -11828,7 +14578,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
       },
       "description": "",
       "fieldConfig": {
@@ -12040,7 +14790,7 @@
           "alias": "Temperature",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -12081,7 +14831,7 @@
           "alias": "Humidity (%)",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -12123,7 +14873,7 @@
           "alias": "Clouds (%)",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -12165,7 +14915,7 @@
           "alias": "Feels Like",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -12211,7 +14961,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
       },
       "description": "",
       "fieldConfig": {
@@ -12410,7 +15160,7 @@
           "alias": "Snow",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -12451,7 +15201,7 @@
           "alias": "Pressure",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -12493,7 +15243,7 @@
           "alias": "Rain",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -12535,7 +15285,7 @@
           "alias": "Visibility (K)",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -12583,7 +15333,7 @@
           "alias": "Wind",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "groupBy": [
             {
@@ -12719,6 +15469,6 @@
   "timezone": "${VAR_TZ}",
   "title": "Powerwall - Power Flow",
   "uid": "RSabAvRRzZ",
-  "version": 56,
+  "version": 57,
   "weekStart": ""
 }

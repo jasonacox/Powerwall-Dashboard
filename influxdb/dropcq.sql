@@ -10,7 +10,15 @@ DROP CONTINUOUS QUERY cq_strings ON powerwall
 DROP CONTINUOUS QUERY cq_strings1 ON powerwall
 DROP CONTINUOUS QUERY cq_strings2 ON powerwall
 DROP CONTINUOUS QUERY cq_strings3 ON powerwall
+DROP CONTINUOUS QUERY cq_strings4 ON powerwall
+DROP CONTINUOUS QUERY cq_strings5 ON powerwall
+DROP CONTINUOUS QUERY cq_strings6 ON powerwall
+DROP CONTINUOUS QUERY cq_strings7 ON powerwall
+DROP CONTINUOUS QUERY cq_strings8 ON powerwall
+DROP CONTINUOUS QUERY cq_strings9 ON powerwall
+DROP CONTINUOUS QUERY cq_strings10 ON powerwall
 DROP CONTINUOUS QUERY cq_inverters ON powerwall
+DROP CONTINUOUS QUERY cq_inverters1 ON powerwall
 DROP CONTINUOUS QUERY cq_vitals1 ON powerwall
 DROP CONTINUOUS QUERY cq_vitals2 ON powerwall
 DROP CONTINUOUS QUERY cq_vitals3 ON powerwall
