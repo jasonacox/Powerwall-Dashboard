@@ -2,7 +2,7 @@
 
 ## v4.5.1 - Powerwall 3 Metrics
 
-* Updates pyPowerwall to v0.11.0 to include PW3 Vitals
+* Updates [pyPowerwall to v0.11.0](https://github.com/jasonacox/pypowerwall/pull/110) to include PW3 Vitals: string data, capacity, voltages, frequencies, and alerts.
 * Updates InfluxDB CQs to include Strings E-F and expands support for up to 6 Inverters (sets of Strings)
 
 ## v4.5.0 - Auto Provision Datasources
