@@ -376,15 +376,28 @@ else
 fi
 cat << EOF
 
----------------[ Update Dashboard ]---------------
-Open Grafana at http://localhost:9000/
+UPGRADE COMPLETE
 
-From 'Dashboard\Browse', select 'New/Import', browse to ${PWD}/dashboards
-and upload ${DASHBOARD}.
+The Powerwall-Dashboard has been upgraded to v${VERSION}!
 
-Please note, you may need to select data sources
-for 'InfluxDB' and 'Sun and Moon' via the
-dropdowns and use 'Import (Overwrite)' button.
+---------------[ Optional: Update Dashboard ]---------------
+
+If you wnat to update the Grafana dashboard definition file
+you can do so by importing the latest dashboard from the
+'${PWD}/dashboards' folder or go to 
+http://pypowerwall.com/dashboards and download the file
+${DASHBOARD}, then import it into Grafana.
+
+To Import: 
+ * Open Grafana at http://localhost:9000/
+ * From 'Dashboard\Browse', select 'New/Import' then
+   select the file ${DASHBOARD}.
+ * Select 'InfluxDB' and 'Sun and Moon' as data sources.
+ * Click the "Import (Overwrite)" button.
+
+Please note, Grafana will warn you and suggest that you
+select a new name and UID. You do not need to do this if
+you are replacing the existing dashboard.
 
 EOF
 
