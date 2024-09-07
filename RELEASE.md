@@ -4,6 +4,7 @@
 
 * Updates [pyPowerwall to v0.11.1](https://github.com/jasonacox/pypowerwall/pull/112) to fix a PW3 bug in TEDAPI and a site ID bug in FleetAPI.
 * Fix bug in `verify.sh` reporting TEDAPI vitals capabilities incorrectly as identified by @SCHibbard in https://github.com/jasonacox/Powerwall-Dashboard/issues/515.
+* Update gitattributes to force .env files to have LF line ending by @longzheng in https://github.com/jasonacox/Powerwall-Dashboard/pull/511.
 
 ## v4.5.1 - Powerwall 3 Metrics
 
