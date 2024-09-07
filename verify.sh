@@ -110,7 +110,7 @@ if [ "$RUNNING" = "true" ]; then
         SITENAME=`curl --silent http://localhost:$PORT/stats | sed 's/.*"site_name": "\(.*\)", "cloudmode".*/\1/' 2>/dev/null`
         CLOUDMODE=`curl --silent http://localhost:$PORT/stats | sed 's/.*"cloudmode": \(.*\), "fleetapi".*/\1/' 2>/dev/null`
         SITEID=`curl --silent http://localhost:$PORT/stats | sed 's/.*"siteid": \(.*\), "counter".*/\1/' 2>/dev/null`
-        TEDAPI=`curl --silent http://localhost:$PORT/stats | sed 's/.*"tedapi": \(.*\), "tedapi_mode".*/\1/' 2>/dev/null`
+        TEDAPI=`curl --silent http://localhost:$PORT/stats | sed 's/.*"tedapi": \(.*\), "pw3".*/\1/' 2>/dev/null`
         TEDAPIMODE=`curl --silent http://localhost:$PORT/stats | sed 's/.*"tedapi_mode": "\(.*\)", "siteid".*/\1/' 2>/dev/null`
         # check connection with powerwall
         if running http://localhost:$PORT/version 200 0 2>/dev/null; then
