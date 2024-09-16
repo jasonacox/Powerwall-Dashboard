@@ -1,5 +1,10 @@
 # RELEASE NOTES
 
+## v4.5.3 - TEDAPI Route Tool
+
+* New `add_route.sh` tool to add persistent TEDAPI network routing by @SCHibbard in https://github.com/jasonacox/Powerwall-Dashboard/pull/520 
+* User can run `add_route.sh` to create a persistent route to the Powerwall TEDAPI endpoint. This can be run before `setup.sh` to allow [extended data local mode](https://github.com/jasonacox/Powerwall-Dashboard?tab=readme-ov-file#local-mode) for PW3 and PW2/+ systems. Existing user can also run this to set the route and re-run `setup.sh` to select the extended local mode.
+
 ## v4.5.2 - PW3 and FleetAPI Fixes
 
 * Updates [pyPowerwall to v0.11.1](https://github.com/jasonacox/pypowerwall/pull/112) to fix a PW3 bug in TEDAPI and a site ID bug in FleetAPI.
