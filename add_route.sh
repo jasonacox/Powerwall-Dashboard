@@ -37,6 +37,7 @@ if [[ "${OS}" == "Linux" ]]; then
         echo "To add the route, open an Administrator Shell in Windows and run:"
         echo "   route -p add ${TARGET_IP} mask ${NETMASK} ${PW_IP}"
         echo ""
+        read -p "Press Enter to exit..."
         exit 1
     else
         echo "Native Linux detected"
@@ -108,6 +109,7 @@ elif [[ "${OS}" =~ MINGW* || "${OS}" =~ CYGWIN* ]]; then
         echo "Route added successfully."
     else
         echo "Failed to add the route. Please ensure you are running as Administrator."
+        read -p "Press Enter to exit..."
         exit 1
     fi
     echo ""
