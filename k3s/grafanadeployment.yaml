@@ -26,6 +26,10 @@ spec:
           env:
           - name: GF_INSTALL_PLUGINS
             value: "grafana-piechart-panel,fetzerch-sunandmoon-datasource,vonage-status-panel,yesoreyeram-boomtable-panel,simpod-json-datasource"
+          - name: GF_PANELS_DISABLE_SANITIZE_HTML
+            value: "true"
+          - name: GF_SECURITY_ALLOW_EMBEDDING
+            value: "true"
           ports:
             - containerPort: 3000
               name: http-grafana
