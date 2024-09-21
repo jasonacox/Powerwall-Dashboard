@@ -1,0 +1,67 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: pypowerwall
+  name: pypowerwall
+  namespace: powerwall
+spec:
+  selector:
+    matchLabels:
+      app: pypowerwall
+  template:
+    metadata:
+      labels:
+        app: pypowerwall
+    spec:
+      containers:
+        - image: jasonacox/pypowerwall:0.11.1t64
+          name: pypowerwall
+          imagePullPolicy: Always
+          env:
+          - name: PW_EMAIL
+            valueFrom:
+              configMapKeyRef:
+                name: powerwall-secret
+                key: email
+          - name: PW_PASSWORD
+            valueFrom:
+              configMapKeyRef:
+                name: powerwall-secret
+                key: password
+          - name: PW_HOST
+            valueFrom:
+              configMapKeyRef:
+                name: powerwall-secret
+                key: host
+          - name: PW_TIMEZONE
+            valueFrom:
+              configMapKeyRef:
+                name: powerwall-secret
+                key: pwtz
+          - name: TZ
+            valueFrom:
+              configMapKeyRef:
+                name: powerwall-secret
+                key: timezone
+          - name: PW_DEBUG
+            valueFrom:
+              configMapKeyRef:
+                name: powerwall-secret
+                key: debug
+          - name: PW_STYLE
+            valueFrom:
+              configMapKeyRef:
+                name: powerwall-secret
+                key: style
+          ports:
+            - containerPort: 8675
+              name: pypowerwall
+          volumeMounts:
+            - mountPath: /app/.auth
+              name: pypowerwall
+      volumes:
+        - name: pypowerwall
+          persistentVolumeClaim:
+            claimName: pypowerwall
