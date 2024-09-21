@@ -9,3 +9,5 @@ influxdb-5db4797475-b5z44      1/1     Running   0          3h35m
 kubectl cp influxdb.sql -n powerwall influxdb-5db4797475-b5z44:/influxdb.sql
 kubectl exec --stdin --tty -n powerwall influxdb-5db4797475-b5z44 -- /bin/bash
 root@influxdb-5db4797475-b5z44:/# influx -import -path=influxdb.sql
+
+To get the graphic in the top right to work, you will need to edit it and tell it to use the ip set for pypowerwall instead of auto filling it since the service will be on a different ip.
