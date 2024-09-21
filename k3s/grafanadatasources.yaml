@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-datasources
+  namespace: powerwall
+data:
+  ds.yaml: |-
+    {
+        "apiVersion": 1,
+        "datasources": [
+            {
+                "name": "Sun and Moon (auto provisioned)",
+                "type": "fetzerch-sunandmoon-datasource",
+                "jsonData":{
+                  "latitude": "xx.xxxx",
+                  "longitude":"xx.xxxx"
+                }
+            }
+        ]
+    }
+    {{ end }}
