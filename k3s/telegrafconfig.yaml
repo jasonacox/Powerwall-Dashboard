@@ -1,0 +1,68 @@
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: telegraf
+  namespace: powerwall
+  labels:
+    app: telegraf
+data:
+  telegraf.conf: |+
+    [global_tags]
+    [agent]
+      interval = "5s"
+      round_interval = true
+      metric_batch_size = 360
+      metric_buffer_limit = 10000
+      collection_jitter = "0s"
+      flush_interval = "10s"
+      flush_jitter = "0s"
+      precision = ""
+      hostname = ""
+      omit_hostname = false
+    [[outputs.influxdb]]
+      urls = ["http://influxdb.powerwall:8086"] # required
+      database = "powerwall" # required
+      skip_database_creation = false
+      retention_policy = "raw"
+    [[inputs.http]]
+      urls = [
+        "http://pypowerwall.powerwall:8675/aggregates",
+        "http://pypowerwall.powerwall:8675/soe",
+        "http://pypowerwall.powerwall:8675/strings",
+        "http://pypowerwall.powerwall:8675/temps/pw",
+        "http://pypowerwall.powerwall:8675/freq",
+        "http://pypowerwall.powerwall:8675/pod"
+      ]
+      method = "GET"
+      insecure_skip_verify = true
+      timeout = "4s"
+      data_format = "json"
+    [[processors.date]]
+      tag_key = "month"
+      date_format = "Jan"
+      timezone = "America/Chicago"
+    [[processors.date]]
+      tag_key = "year"
+      date_format = "2006"
+      timezone = "America/Chicago"
+    [[inputs.http]]
+      urls = [
+        "http://pypowerwall.powerwall:8675/alerts/pw"
+      ]
+      name_override = "alerts"
+      method = "GET"
+      insecure_skip_verify = true
+      timeout = "4s"
+      data_format = "json"
+    [[inputs.cpu]]
+    [[inputs.disk]]
+    [[inputs.diskio]]
+    [[inputs.kernel]]
+    [[inputs.mem]]
+    [[inputs.processes]]
+    [[inputs.swap]]
+    [[inputs.system]]
+    [[inputs.kubernetes]]
+    [[inputs.kube_inventory]]
