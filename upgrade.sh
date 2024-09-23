@@ -225,7 +225,7 @@ fi
 # Check for latest Grafana settings (required in 2.6.2)
 if ! grep -q "Updated v4.1.1" "${GF_ENV_FILE}"; then
     echo "Your Grafana environmental settings are outdated."
-    echo "  Updating these are not rquired but could add some enhancements."
+    echo "  Updating these are not required but could add some enhancements."
     echo "  If you upgrade, any custom settings you made will be removed and"
     echo "  current settings will be backed up."
     read -r -p "Upgrade ${GF_ENV_FILE}? [y/N] " response
@@ -382,7 +382,7 @@ The Powerwall-Dashboard has been upgraded to v${VERSION}!
 
 ---------------[ Optional: Update Dashboard ]---------------
 
-If you wnat to update the Grafana dashboard definition file
+If you want to update the Grafana dashboard definition file
 you can do so by importing the latest dashboard from the
 '${PWD}/dashboards' folder or go to 
 http://pypowerwall.com/dashboards and download the file
