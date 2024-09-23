@@ -108,4 +108,4 @@ log in and add the influxdb data source with url of
 http://influxdb.powerwall:8086
 
 then add the dashboard k3sdashboard.json
-the dashboard still needs some work and the solar flow plugin is not very useful intill the latest version gets on github.
+the dashboard still needs some work and the solar flow plugin is not very useful intill the latest version gets on grafanas site from github.
