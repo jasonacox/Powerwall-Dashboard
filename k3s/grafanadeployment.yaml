@@ -21,15 +21,11 @@ spec:
           - 0
       containers:
         - name: grafana
-          image: grafana/grafana:9.1.2-ubuntu
+          image:  grafana/grafana-enterprise
           imagePullPolicy: Always
           env:
           - name: GF_INSTALL_PLUGINS
-            value: "grafana-piechart-panel,fetzerch-sunandmoon-datasource,vonage-status-panel,yesoreyeram-boomtable-panel,simpod-json-datasource"
-          - name: GF_PANELS_DISABLE_SANITIZE_HTML
-            value: "true"
-          - name: GF_SECURITY_ALLOW_EMBEDDING
-            value: "true"
+            value: "grafana-piechart-panel,fetzerch-sunandmoon-datasource,vonage-status-panel,lehmannch-flow-panel,simpod-json-datasource"
           ports:
             - containerPort: 3000
               name: http-grafana
