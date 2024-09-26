@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+    name: influxdb
+    namespace: powerwall
+spec:
+    externalTrafficPolicy: Local
+    ports:
+      - name: influxdb
+        port: 8086
+        targetPort: influxdb
+    selector:
+        app: influxdb
+    type: NodePort

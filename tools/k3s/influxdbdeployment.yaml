@@ -1,0 +1,31 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: influxdb
+  name: influxdb
+  namespace: powerwall
+spec:
+  selector:
+    matchLabels:
+      app: influxdb
+  template:
+    metadata:
+      labels:
+        app: influxdb
+    spec:
+      containers:
+        - image: influxdb:1.8
+          name: influxdb
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8086
+              name: influxdb
+          volumeMounts:
+            - mountPath: /var/lib/influxdb
+              name: influx-data
+      volumes:
+        - name: influx-data
+          persistentVolumeClaim:
+            claimName: influx-data

@@ -1,0 +1,34 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: weather411
+  name: weather411
+  namespace: powerwall
+spec:
+  selector:
+    matchLabels:
+      app: weather411
+  template:
+    metadata:
+      labels:
+        app: weather411
+    spec:
+      containers:
+        - env:
+          - name: "WEATHERCONF"
+            value: "/var/lib/weather/weather411.conf"
+          image: jasonacox/weather411:0.2.3
+          name: weather411
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8676
+              name: weather411
+          volumeMounts:
+            - mountPath: /var/lib/weather/
+              name: config
+      volumes:
+        - name: config
+          configMap:
+            name: weather411config
