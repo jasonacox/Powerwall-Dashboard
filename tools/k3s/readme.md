@@ -1,9 +1,11 @@
 # Powerwall Dashboard on Kubernetes
 
-These config files can be used to get Power-Wall Dashboard runningo n k3s. These files assume you are using metallb for ingress and rook-ceph for storage. You will need to update grafanaservice.yaml if you are using something other than metallb, and the pvc configs if you are using storage other than rook-ceph. Local storage pvc configs are provided for testing but should not be used in deployment.
+These config files can be used to get Powerwall Dashboard running on k3s. These files assume you are using metallb for ingress and rook-ceph for storage. You will need to update grafanaservice.yaml if you are using something other than metallb, and the pvc configs if you are using storage other than rook-ceph. Local storage pvc configs are provided for testing but should not be used in deployment.
 
+Author: @cfoos
 
 ## Configuration
+
 Update the values in the following files
 
 configmap.yaml update the following section with your powerwall details
@@ -35,6 +37,7 @@ grafanaservice.yaml set the ip address you want grafana to have
 ```
 
 ## Deployment
+
 You will first need to setup the namespace
 ```bash
 kubectl apply -f namespace.yaml
