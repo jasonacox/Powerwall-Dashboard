@@ -47,6 +47,12 @@
       "version": ""
     },
     {
+      "type": "panel",
+      "id": "canvas",
+      "name": "Canvas",
+      "version": ""
+    },
+    {
       "type": "datasource",
       "id": "fetzerch-sunandmoon-datasource",
       "name": "Sun and Moon",
@@ -62,12 +68,6 @@
       "type": "datasource",
       "id": "influxdb",
       "name": "InfluxDB",
-      "version": "1.0.0"
-    },
-    {
-      "type": "panel",
-      "id": "lehmannch-flow-panel",
-      "name": "Solar Flow",
       "version": "1.0.0"
     },
     {
@@ -1052,42 +1052,752 @@
         "type": "influxdb",
         "uid": "${DS_INFLUXDB}"
       },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "fieldMinMax": false,
+          "mappings": [
+            {
+              "options": {
+                "o": {
+                  "icon": "img/icons/marker/x-mark.svg",
+                  "index": 2
+                }
+              },
+              "type": "value"
+            },
+            {
+              "options": {
+                "from": 1,
+                "result": {
+                  "icon": "img/icons/unicons/arrow-down.svg",
+                  "index": 0
+                },
+                "to": 10000000
+              },
+              "type": "range"
+            },
+            {
+              "options": {
+                "from": -10000,
+                "result": {
+                  "icon": "img/icons/unicons/arrow-up.svg",
+                  "index": 1
+                },
+                "to": 1
+              },
+              "type": "range"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "#EAB839",
+                "value": 10
+              }
+            ]
+          },
+          "unit": "watt"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "http.Solar"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "light-yellow",
+                  "mode": "shades"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "http.Percent"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "continuous-GrYlRd"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Status"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "0": {
+                        "color": "dark-red",
+                        "icon": "img/icons/marker/x-mark.svg",
+                        "index": 1
+                      },
+                      "1": {
+                        "color": "dark-green",
+                        "index": 0
+                      },
+                      "-1": {
+                        "color": "dark-yellow",
+                        "index": 2
+                      }
+                    },
+                    "type": "value"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
       "gridPos": {
         "h": 10,
         "w": 8,
         "x": 16,
         "y": 1
       },
-      "hideTimeOverride": true,
-      "id": 86,
+      "id": 87,
       "options": {
-        "gridColor": "rgb(232, 41, 26)",
-        "gridQuery": "Grid",
-        "linesColor": "rgb(104, 193, 255)",
-        "loadColor": "rgb(0, 141, 209)",
-        "showLegend": false,
-        "solarColor": "rgb(244, 174, 1)",
-        "solarQuery": "Solar",
-        "xOffset": 83,
-        "yOffset": 113,
-        "zoom": 0.6
+        "infinitePan": false,
+        "inlineEditing": true,
+        "panZoom": false,
+        "root": {
+          "background": {
+            "color": {
+              "fixed": "transparent"
+            },
+            "image": {
+              "field": "",
+              "fixed": "img/bg/p1.png",
+              "mode": "field"
+            },
+            "size": "contain"
+          },
+          "border": {
+            "color": {
+              "fixed": "dark-green"
+            },
+            "width": 0
+          },
+          "constraint": {
+            "horizontal": "left",
+            "vertical": "top"
+          },
+          "elements": [
+            {
+              "background": {
+                "color": {
+                  "fixed": "transparent"
+                }
+              },
+              "border": {
+                "color": {
+                  "fixed": "dark-green"
+                }
+              },
+              "config": {
+                "align": "center",
+                "color": {
+                  "fixed": "text"
+                },
+                "size": 12,
+                "text": {
+                  "field": "http.Solar",
+                  "fixed": "",
+                  "mode": "field"
+                },
+                "valign": "middle"
+              },
+              "connections": [],
+              "constraint": {
+                "horizontal": "scale",
+                "vertical": "scale"
+              },
+              "links": [],
+              "name": "sun#",
+              "oneClickMode": "off",
+              "placement": {
+                "bottom": 89.32926829268293,
+                "left": 39.0728476821192,
+                "right": 39.0728476821192,
+                "rotation": 0,
+                "top": 0
+              },
+              "type": "metric-value"
+            },
+            {
+              "background": {
+                "color": {
+                  "fixed": "transparent"
+                }
+              },
+              "border": {
+                "color": {
+                  "fixed": "dark-green"
+                }
+              },
+              "config": {
+                "align": "center",
+                "color": {
+                  "fixed": "text"
+                },
+                "size": 12,
+                "text": {
+                  "field": "http.Home",
+                  "fixed": "",
+                  "mode": "field"
+                },
+                "valign": "middle"
+              },
+              "connections": [],
+              "constraint": {
+                "horizontal": "scale",
+                "vertical": "scale"
+              },
+              "links": [],
+              "name": "home#",
+              "oneClickMode": "off",
+              "placement": {
+                "bottom": 44.57831325301205,
+                "left": 77.89855072463769,
+                "right": 0,
+                "rotation": 0,
+                "top": 44.87951807228915
+              },
+              "type": "metric-value"
+            },
+            {
+              "background": {
+                "color": {
+                  "fixed": "transparent"
+                }
+              },
+              "border": {
+                "color": {
+                  "fixed": "dark-green"
+                }
+              },
+              "config": {
+                "align": "center",
+                "color": {
+                  "fixed": "text"
+                },
+                "size": 12,
+                "text": {
+                  "field": "http.Battery",
+                  "fixed": "",
+                  "mode": "field"
+                },
+                "valign": "middle"
+              },
+              "connections": [],
+              "constraint": {
+                "horizontal": "scale",
+                "vertical": "scale"
+              },
+              "links": [],
+              "name": "battery#",
+              "oneClickMode": "off",
+              "placement": {
+                "bottom": 0,
+                "left": 39.0728476821192,
+                "right": 38.852097130242825,
+                "rotation": 0,
+                "top": 89.32926829268293
+              },
+              "type": "metric-value"
+            },
+            {
+              "background": {
+                "color": {
+                  "fixed": "transparent"
+                },
+                "image": {
+                  "field": "",
+                  "fixed": "img/bg/p6.png",
+                  "mode": "field"
+                }
+              },
+              "border": {
+                "color": {
+                  "fixed": "dark-green"
+                },
+                "width": 0
+              },
+              "config": {
+                "align": "center",
+                "color": {
+                  "fixed": "text"
+                },
+                "size": 12,
+                "text": {
+                  "field": "http.Grid",
+                  "fixed": "",
+                  "mode": "field"
+                },
+                "valign": "middle"
+              },
+              "connections": [],
+              "constraint": {
+                "horizontal": "scale",
+                "vertical": "scale"
+              },
+              "links": [],
+              "name": "grid#",
+              "oneClickMode": "off",
+              "placement": {
+                "bottom": 45.18072289156627,
+                "left": 0,
+                "right": 77.89855072463769,
+                "rotation": 0,
+                "top": 44.57831325301205
+              },
+              "type": "metric-value"
+            },
+            {
+              "background": {
+                "color": {
+                  "fixed": "transparent"
+                }
+              },
+              "border": {
+                "color": {
+                  "fixed": "dark-green"
+                }
+              },
+              "config": {
+                "fill": {
+                  "field": "http.Solar",
+                  "fixed": "#D9D9D9"
+                },
+                "path": {
+                  "fixed": "img/icons/unicons/sun.svg",
+                  "mode": "fixed"
+                }
+              },
+              "connections": [],
+              "constraint": {
+                "horizontal": "scale",
+                "vertical": "scale"
+              },
+              "links": [],
+              "name": "sun",
+              "oneClickMode": "off",
+              "placement": {
+                "bottom": 78.65853658536585,
+                "left": 46.13686534216336,
+                "right": 46.13686534216336,
+                "rotation": 0,
+                "top": 10.670731707317072
+              },
+              "type": "icon"
+            },
+            {
+              "background": {
+                "color": {
+                  "fixed": "transparent"
+                }
+              },
+              "border": {
+                "color": {
+                  "fixed": "dark-green"
+                }
+              },
+              "config": {
+                "fill": {
+                  "field": "http.Percent",
+                  "fixed": "#D9D9D9"
+                },
+                "path": {
+                  "fixed": "img/icons/unicons/battery-bolt.svg",
+                  "mode": "fixed"
+                }
+              },
+              "connections": [],
+              "constraint": {
+                "horizontal": "scale",
+                "vertical": "scale"
+              },
+              "links": [],
+              "name": "battery",
+              "oneClickMode": "off",
+              "placement": {
+                "bottom": 11.585365853658537,
+                "left": 46.13686534216336,
+                "right": 46.13686534216336,
+                "rotation": 0,
+                "top": 77.7439024390244
+              },
+              "type": "icon"
+            },
+            {
+              "background": {
+                "color": {
+                  "fixed": "transparent"
+                }
+              },
+              "border": {
+                "color": {
+                  "fixed": "dark-green"
+                }
+              },
+              "config": {
+                "align": "center",
+                "color": {
+                  "fixed": "text"
+                },
+                "size": 12,
+                "text": {
+                  "field": "http.Percent",
+                  "fixed": "",
+                  "mode": "field"
+                },
+                "valign": "middle"
+              },
+              "connections": [],
+              "constraint": {
+                "horizontal": "scale",
+                "vertical": "scale"
+              },
+              "links": [],
+              "name": "percentage",
+              "oneClickMode": "off",
+              "placement": {
+                "bottom": 0.9146341463414633,
+                "left": 60.48565121412803,
+                "right": 17.439293598233995,
+                "rotation": 0,
+                "top": 88.41463414634147
+              },
+              "type": "metric-value"
+            },
+            {
+              "background": {
+                "color": {
+                  "fixed": "transparent"
+                }
+              },
+              "border": {
+                "color": {
+                  "fixed": "dark-green"
+                }
+              },
+              "config": {
+                "fill": {
+                  "fixed": "#D9D9D9"
+                },
+                "path": {
+                  "fixed": "img/icons/unicons/house-user.svg",
+                  "mode": "fixed"
+                }
+              },
+              "constraint": {
+                "horizontal": "scale",
+                "vertical": "scale"
+              },
+              "links": [],
+              "name": "home",
+              "oneClickMode": "off",
+              "placement": {
+                "bottom": 44.81707317073171,
+                "left": 70.19867549668875,
+                "right": 22.075055187637968,
+                "rotation": 0,
+                "top": 44.51219512195122
+              },
+              "type": "icon"
+            },
+            {
+              "background": {
+                "color": {
+                  "fixed": "transparent"
+                }
+              },
+              "border": {
+                "color": {
+                  "fixed": "dark-green"
+                }
+              },
+              "config": {
+                "fill": {
+                  "field": "Status",
+                  "fixed": "#D9D9D9"
+                },
+                "path": {
+                  "fixed": "img/icons/unicons/building.svg",
+                  "mode": "fixed"
+                }
+              },
+              "connections": [],
+              "constraint": {
+                "horizontal": "scale",
+                "vertical": "scale"
+              },
+              "links": [],
+              "name": "grid",
+              "oneClickMode": "off",
+              "placement": {
+                "bottom": 44.81707317073171,
+                "left": 22.075055187637968,
+                "right": 70.19867549668875,
+                "rotation": 0,
+                "top": 44.51219512195122
+              },
+              "type": "icon"
+            },
+            {
+              "background": {
+                "color": {
+                  "fixed": "transparent"
+                }
+              },
+              "border": {
+                "color": {
+                  "fixed": "dark-green"
+                }
+              },
+              "config": {
+                "fill": {
+                  "fixed": "#D9D9D9"
+                },
+                "path": {
+                  "fixed": "img/icons/unicons/circle.svg",
+                  "mode": "fixed"
+                }
+              },
+              "connections": [],
+              "constraint": {
+                "horizontal": "scale",
+                "vertical": "scale"
+              },
+              "links": [],
+              "name": "center",
+              "oneClickMode": "off",
+              "placement": {
+                "bottom": 44.81707317073171,
+                "left": 46.13686534216336,
+                "right": 46.13686534216336,
+                "rotation": 0,
+                "top": 44.51219512195122
+              },
+              "type": "icon"
+            },
+            {
+              "background": {
+                "color": {
+                  "fixed": "transparent"
+                }
+              },
+              "border": {
+                "color": {
+                  "fixed": "dark-green"
+                }
+              },
+              "config": {
+                "fill": {
+                  "fixed": "#D9D9D9"
+                },
+                "path": {
+                  "field": "http.Grid",
+                  "fixed": "img/icons/unicons/question-circle.svg",
+                  "mode": "field"
+                }
+              },
+              "constraint": {
+                "horizontal": "scale",
+                "vertical": "scale"
+              },
+              "links": [],
+              "name": "gridflow",
+              "oneClickMode": "off",
+              "placement": {
+                "bottom": 45.426829268292686,
+                "left": 27.593818984547465,
+                "right": 57.395143487858725,
+                "rotation": 270,
+                "top": 45.426829268292686
+              },
+              "type": "icon"
+            },
+            {
+              "background": {
+                "color": {
+                  "fixed": "transparent"
+                }
+              },
+              "border": {
+                "color": {
+                  "fixed": "dark-green"
+                }
+              },
+              "config": {
+                "fill": {
+                  "fixed": "#D9D9D9"
+                },
+                "path": {
+                  "field": "http.Solar",
+                  "fixed": "img/icons/unicons/question-circle.svg",
+                  "mode": "field"
+                }
+              },
+              "constraint": {
+                "horizontal": "scale",
+                "vertical": "scale"
+              },
+              "links": [],
+              "name": "solarflow",
+              "oneClickMode": "off",
+              "placement": {
+                "bottom": 60.36585365853659,
+                "left": 46.799116997792495,
+                "right": 46.799116997792495,
+                "rotation": 0,
+                "top": 24.085365853658537
+              },
+              "type": "icon"
+            },
+            {
+              "background": {
+                "color": {
+                  "fixed": "transparent"
+                }
+              },
+              "border": {
+                "color": {
+                  "fixed": "dark-green"
+                }
+              },
+              "config": {
+                "fill": {
+                  "fixed": "#D9D9D9"
+                },
+                "path": {
+                  "field": "http.Home",
+                  "fixed": "img/icons/unicons/question-circle.svg",
+                  "mode": "field"
+                }
+              },
+              "constraint": {
+                "horizontal": "scale",
+                "vertical": "scale"
+              },
+              "links": [],
+              "name": "homeflow",
+              "oneClickMode": "off",
+              "placement": {
+                "bottom": 46.03658536585366,
+                "left": 56.95364238410596,
+                "right": 32.450331125827816,
+                "rotation": 270,
+                "top": 45.426829268292686
+              },
+              "type": "icon"
+            },
+            {
+              "background": {
+                "color": {
+                  "fixed": "transparent"
+                }
+              },
+              "border": {
+                "color": {
+                  "fixed": "dark-green"
+                }
+              },
+              "config": {
+                "fill": {
+                  "fixed": "#D9D9D9"
+                },
+                "path": {
+                  "field": "http.Battery",
+                  "fixed": "img/icons/unicons/question-circle.svg",
+                  "mode": "field"
+                }
+              },
+              "constraint": {
+                "horizontal": "scale",
+                "vertical": "scale"
+              },
+              "links": [],
+              "name": "batteryflow",
+              "oneClickMode": "off",
+              "placement": {
+                "bottom": 23.170731707317074,
+                "left": 46.57836644591612,
+                "right": 46.35761589403973,
+                "rotation": 180,
+                "top": 57.012195121951216
+              },
+              "type": "icon"
+            }
+          ],
+          "name": "Element 1727359251243",
+          "oneClickMode": "off",
+          "placement": {
+            "height": 100,
+            "left": 0,
+            "rotation": 0,
+            "top": 0,
+            "width": 100
+          },
+          "type": "frame"
+        },
+        "showAdvancedTypes": true
       },
+      "pluginVersion": "11.2.0",
       "targets": [
         {
           "datasource": {
             "type": "influxdb",
             "uid": "${DS_INFLUXDB}"
           },
-          "query": "SELECT last(\"load_instant_power\")  AS \"Home\", last(\"solar_instant_power\") AS \"Solar\", last(\"battery_instant_power\") AS \"Battery\", last(\"site_instant_power\") AS \"Grid\" FROM \"raw\".\"http\" WHERE time >= now() - 10m",
+          "query": "SELECT last(\"load_instant_power\")  AS \"Home\", last(\"solar_instant_power\") AS \"Solar\", last(\"battery_instant_power\") AS \"Battery\", last(\"site_instant_power\") AS \"Grid\", last(\"percentage\") AS \"Percent\" FROM \"raw\".\"http\" WHERE time >= now() - 10m",
           "rawQuery": true,
           "refId": "A",
+          "resultFormat": "time_series"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "hide": false,
+          "query": "SELECT last(\"grid_status\")  AS \"Status\" FROM \"raw\".\"http\" WHERE time >= now() - 10m",
+          "rawQuery": true,
+          "refId": "B",
           "resultFormat": "table"
         }
       ],
-      "timeFrom": "now-5s",
       "title": "Panel Title",
       "transparent": true,
-      "type": "lehmannch-flow-panel"
+      "type": "canvas"
     },
     {
       "alert": {
@@ -10271,6 +10981,6 @@
   "timezone": "America/Chicago",
   "title": "Powerwall - Power Flow - k3s",
   "uid": "RSabAvRRzZ2",
-  "version": 20,
+  "version": 42,
   "weekStart": ""
 }
