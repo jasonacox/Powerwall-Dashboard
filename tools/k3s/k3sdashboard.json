@@ -1186,7 +1186,7 @@
       "id": 87,
       "options": {
         "infinitePan": false,
-        "inlineEditing": true,
+        "inlineEditing": false,
         "panZoom": false,
         "root": {
           "background": {
@@ -3482,7 +3482,7 @@
                   {
                     "options": {
                       "0": {
-                        "color": "transparent",
+                        "color": "super-light-blue",
                         "index": 1,
                         "text": "Idle"
                       }
@@ -3542,7 +3542,7 @@
                     "options": {
                       "from": 0,
                       "result": {
-                        "color": "transparent",
+                        "color": "super-light-blue",
                         "index": 2,
                         "text": "Idle"
                       },
@@ -3566,7 +3566,7 @@
                   {
                     "options": {
                       "0": {
-                        "color": "transparent",
+                        "color": "super-light-blue",
                         "index": 0,
                         "text": "Idle"
                       }
@@ -3614,7 +3614,7 @@
                     "options": {
                       "from": 0,
                       "result": {
-                        "color": "transparent",
+                        "color": "super-light-blue",
                         "index": 0,
                         "text": "Idle"
                       },
@@ -3649,7 +3649,7 @@
       "id": 88,
       "options": {
         "infinitePan": false,
-        "inlineEditing": true,
+        "inlineEditing": false,
         "panZoom": false,
         "root": {
           "background": {
@@ -11542,6 +11542,6 @@
   "timezone": "America/Chicago",
   "title": "Powerwall - Power Flow - k3s",
   "uid": "RSabAvRRzZ2",
-  "version": 57,
+  "version": 60,
   "weekStart": ""
 }
