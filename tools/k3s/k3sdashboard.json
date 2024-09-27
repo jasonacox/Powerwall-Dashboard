@@ -3444,201 +3444,762 @@
       "type": "piechart"
     },
     {
-      "activePatternIndex": 1,
       "datasource": {
         "type": "influxdb",
         "uid": "${DS_INFLUXDB}"
       },
-      "defaultPattern": {
-        "bgColors": "green|gray|red",
-        "bgColors_overrides": "0->green|2->red|1->yellow",
-        "clickable_cells_link": "",
-        "col_name": "Value",
-        "decimals": "2",
-        "defaultBGColor": "#5794F2",
-        "defaultTextColor": "black",
-        "delimiter": ".",
-        "displayTemplate": "_value_",
-        "enable_bgColor": false,
-        "enable_bgColor_overrides": false,
-        "enable_clickable_cells": false,
-        "enable_textColor": false,
-        "enable_textColor_overrides": false,
-        "enable_time_based_thresholds": false,
-        "enable_transform": true,
-        "enable_transform_overrides": false,
-        "filter": {
-          "value_above": "",
-          "value_below": ""
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "watt"
         },
-        "format": "kwatt",
-        "name": "Default Pattern",
-        "null_color": "darkred",
-        "null_textcolor": "black",
-        "null_value": "No data",
-        "pattern": "*",
-        "row_col_wrapper": "_",
-        "row_name": "_1_",
-        "textColors": "red|orange|green",
-        "textColors_overrides": "0->red|2->green|1->yellow",
-        "thresholds": "0",
-        "time_based_thresholds": [],
-        "tooltipTemplate": "Series : _series_ <br/>Row Name : _row_name_ <br/>Col Name : _col_name_ <br/>Value : _value_",
-        "transform_values": "No Usage | Using <div style=\"float: right;\">_value_</div>",
-        "transform_values_overrides": "0->down|1->up",
-        "valueName": "current"
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Home"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "0": {
+                        "color": "transparent",
+                        "index": 1,
+                        "text": "Idle"
+                      }
+                    },
+                    "type": "value"
+                  },
+                  {
+                    "options": {
+                      "from": 1,
+                      "result": {
+                        "color": "blue",
+                        "index": 0,
+                        "text": "Using"
+                      },
+                      "to": 100000
+                    },
+                    "type": "range"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Battery"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "from": -100000,
+                      "result": {
+                        "color": "semi-dark-green",
+                        "index": 0,
+                        "text": "Charging"
+                      },
+                      "to": -1
+                    },
+                    "type": "range"
+                  },
+                  {
+                    "options": {
+                      "from": 1,
+                      "result": {
+                        "color": "semi-dark-red",
+                        "index": 1,
+                        "text": "Discharging"
+                      },
+                      "to": 10000
+                    },
+                    "type": "range"
+                  },
+                  {
+                    "options": {
+                      "from": 0,
+                      "result": {
+                        "color": "transparent",
+                        "index": 2,
+                        "text": "Idle"
+                      },
+                      "to": 0
+                    },
+                    "type": "range"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Grid"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "0": {
+                        "color": "transparent",
+                        "index": 0,
+                        "text": "Idle"
+                      }
+                    },
+                    "type": "value"
+                  },
+                  {
+                    "options": {
+                      "from": -100000,
+                      "result": {
+                        "color": "semi-dark-purple",
+                        "index": 1,
+                        "text": "Exporting"
+                      },
+                      "to": -1
+                    },
+                    "type": "range"
+                  },
+                  {
+                    "options": {
+                      "from": 1,
+                      "result": {
+                        "color": "semi-dark-orange",
+                        "index": 2,
+                        "text": "Importing"
+                      },
+                      "to": 100000
+                    },
+                    "type": "range"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Solar"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "from": 0,
+                      "result": {
+                        "color": "transparent",
+                        "index": 0,
+                        "text": "Idle"
+                      },
+                      "to": 50
+                    },
+                    "type": "range"
+                  },
+                  {
+                    "options": {
+                      "from": 51,
+                      "result": {
+                        "color": "semi-dark-yellow",
+                        "index": 1,
+                        "text": "Generating"
+                      },
+                      "to": 100000
+                    },
+                    "type": "range"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
       },
-      "default_title_for_rows": "Metric",
-      "font_size": ".9rem",
       "gridPos": {
-        "h": 6,
-        "w": 6,
-        "x": 18,
+        "h": 4,
+        "w": 7,
+        "x": 17,
         "y": 17
       },
-      "hide_first_column": false,
-      "hide_headers": true,
-      "id": 80,
-      "interval": "",
-      "patterns": [
-        {
-          "bgColors": "#B877D9 | gray | #F2495C",
-          "bgColors_overrides": "0->green|2->red|1->yellow",
-          "clickable_cells_link": "",
-          "col_name": "Value",
-          "decimals": "2",
-          "defaultBGColor": "",
-          "defaultTextColor": "",
-          "delimiter": ".",
-          "displayTemplate": "_value_",
-          "enable_bgColor": true,
-          "enable_bgColor_overrides": false,
-          "enable_clickable_cells": false,
-          "enable_textColor": true,
-          "enable_textColor_overrides": false,
-          "enable_time_based_thresholds": false,
-          "enable_transform": true,
-          "enable_transform_overrides": false,
-          "filter": {
-            "value_above": "",
-            "value_below": ""
+      "id": 88,
+      "options": {
+        "infinitePan": false,
+        "inlineEditing": true,
+        "panZoom": false,
+        "root": {
+          "background": {
+            "color": {
+              "fixed": "transparent"
+            }
           },
-          "format": "kwatt",
-          "name": "Grid",
-          "null_color": "darkred",
-          "null_textcolor": "black",
-          "null_value": "No data",
-          "pattern": "http.Grid",
-          "row_col_wrapper": "_",
-          "row_name": "_1_",
-          "textColors": "white | white | white",
-          "textColors_overrides": "0->red|2->green|1->yellow",
-          "thresholds": "-0.09,0.09",
-          "time_based_thresholds": [],
-          "tooltipTemplate": "Series : _series_ <br/>Row Name : _row_name_ <br/>Col Name : _col_name_ <br/>Value : _value_",
-          "transform_values": "Exporting <div style=\"float: right;\">_value_</div> | Idle | Importing <div style=\"float: right;\">_value_</div>",
-          "transform_values_overrides": "0->down|1->up",
-          "valueName": "avg"
+          "border": {
+            "color": {
+              "fixed": "dark-green"
+            }
+          },
+          "constraint": {
+            "horizontal": "left",
+            "vertical": "top"
+          },
+          "elements": [
+            {
+              "background": {
+                "color": {
+                  "field": "Battery",
+                  "fixed": "#D9D9D9"
+                },
+                "image": {
+                  "field": "Battery",
+                  "mode": "field"
+                }
+              },
+              "border": {
+                "color": {
+                  "fixed": "dark-green"
+                }
+              },
+              "config": {
+                "align": "right",
+                "color": {
+                  "fixed": "#000000"
+                },
+                "size": 15,
+                "text": {
+                  "field": "http.Battery",
+                  "fixed": "",
+                  "mode": "field"
+                },
+                "valign": "middle"
+              },
+              "constraint": {
+                "horizontal": "scale",
+                "vertical": "scale"
+              },
+              "links": [],
+              "name": "battery usage",
+              "oneClickMode": "off",
+              "placement": {
+                "bottom": 77.67857142857143,
+                "left": 70.2247191011236,
+                "right": 1.6853932584269662,
+                "rotation": 0,
+                "top": 0
+              },
+              "type": "metric-value"
+            },
+            {
+              "background": {
+                "color": {
+                  "fixed": "transparent"
+                }
+              },
+              "border": {
+                "color": {
+                  "fixed": "dark-green"
+                }
+              },
+              "config": {
+                "align": "left",
+                "color": {
+                  "fixed": "rgb(204, 204, 220)"
+                },
+                "size": 15,
+                "text": {
+                  "fixed": "Battery"
+                },
+                "valign": "middle"
+              },
+              "constraint": {
+                "horizontal": "scale",
+                "vertical": "scale"
+              },
+              "links": [],
+              "name": "battery text",
+              "oneClickMode": "off",
+              "placement": {
+                "bottom": 77.67857142857143,
+                "left": 0,
+                "right": 71.91011235955057,
+                "rotation": 0,
+                "top": 0
+              },
+              "type": "text"
+            },
+            {
+              "background": {
+                "color": {
+                  "field": "Battery",
+                  "fixed": "transparent"
+                }
+              },
+              "border": {
+                "color": {
+                  "fixed": "dark-green"
+                }
+              },
+              "config": {
+                "align": "left",
+                "color": {
+                  "fixed": "#000000"
+                },
+                "size": 15,
+                "text": {
+                  "field": "Battery",
+                  "fixed": "",
+                  "mode": "field"
+                },
+                "valign": "middle"
+              },
+              "constraint": {
+                "horizontal": "scale",
+                "vertical": "scale"
+              },
+              "links": [],
+              "name": "battery state",
+              "oneClickMode": "off",
+              "placement": {
+                "bottom": 77.67857142857143,
+                "left": 28.08988764044944,
+                "right": 29.775280898876407,
+                "rotation": 0,
+                "top": 0
+              },
+              "type": "text"
+            },
+            {
+              "background": {
+                "color": {
+                  "field": "Grid",
+                  "fixed": "transparent"
+                }
+              },
+              "border": {
+                "color": {
+                  "fixed": "dark-green"
+                }
+              },
+              "config": {
+                "align": "left",
+                "color": {
+                  "fixed": "#000000"
+                },
+                "size": 15,
+                "text": {
+                  "field": "Grid",
+                  "mode": "field"
+                },
+                "valign": "middle"
+              },
+              "constraint": {
+                "horizontal": "scale",
+                "vertical": "scale"
+              },
+              "links": [],
+              "name": "grid state",
+              "oneClickMode": "off",
+              "placement": {
+                "bottom": 55.35714285714286,
+                "left": 28.08988764044944,
+                "right": 29.775280898876407,
+                "rotation": 0,
+                "top": 22.321428571428573
+              },
+              "type": "text"
+            },
+            {
+              "background": {
+                "color": {
+                  "fixed": "transparent"
+                }
+              },
+              "border": {
+                "color": {
+                  "fixed": "dark-green"
+                }
+              },
+              "config": {
+                "align": "left",
+                "color": {
+                  "fixed": "rgb(204, 204, 220)"
+                },
+                "size": 15,
+                "text": {
+                  "fixed": "Grid"
+                },
+                "valign": "middle"
+              },
+              "constraint": {
+                "horizontal": "scale",
+                "vertical": "scale"
+              },
+              "links": [],
+              "name": "grid text",
+              "oneClickMode": "off",
+              "placement": {
+                "bottom": 55.35714285714286,
+                "left": 0,
+                "right": 71.91011235955057,
+                "rotation": 0,
+                "top": 22.321428571428573
+              },
+              "type": "text"
+            },
+            {
+              "background": {
+                "color": {
+                  "field": "Grid",
+                  "fixed": "#D9D9D9"
+                }
+              },
+              "border": {
+                "color": {
+                  "fixed": "dark-green"
+                }
+              },
+              "config": {
+                "align": "right",
+                "color": {
+                  "fixed": "#000000"
+                },
+                "size": 15,
+                "text": {
+                  "field": "http.Grid",
+                  "fixed": "",
+                  "mode": "field"
+                },
+                "valign": "middle"
+              },
+              "constraint": {
+                "horizontal": "scale",
+                "vertical": "scale"
+              },
+              "links": [],
+              "name": "grid usage",
+              "oneClickMode": "off",
+              "placement": {
+                "bottom": 55.35714285714286,
+                "left": 70.2247191011236,
+                "right": 1.6853932584269662,
+                "rotation": 0,
+                "top": 22.321428571428573
+              },
+              "type": "metric-value"
+            },
+            {
+              "background": {
+                "color": {
+                  "fixed": "transparent"
+                }
+              },
+              "border": {
+                "color": {
+                  "fixed": "dark-green"
+                }
+              },
+              "config": {
+                "align": "left",
+                "color": {
+                  "fixed": "rgb(204, 204, 220)"
+                },
+                "size": 15,
+                "text": {
+                  "fixed": "Home"
+                },
+                "valign": "middle"
+              },
+              "constraint": {
+                "horizontal": "scale",
+                "vertical": "scale"
+              },
+              "links": [],
+              "name": "home text",
+              "oneClickMode": "off",
+              "placement": {
+                "bottom": 33.035714285714285,
+                "left": 0,
+                "right": 71.91011235955057,
+                "rotation": 0,
+                "top": 44.642857142857146
+              },
+              "type": "text"
+            },
+            {
+              "background": {
+                "color": {
+                  "field": "Home",
+                  "fixed": "transparent"
+                },
+                "image": {
+                  "field": "Solar",
+                  "fixed": "img/bg/p6.png",
+                  "mode": "field"
+                },
+                "size": "cover"
+              },
+              "border": {
+                "color": {
+                  "fixed": "dark-green"
+                }
+              },
+              "config": {
+                "align": "left",
+                "color": {
+                  "fixed": "#000000"
+                },
+                "size": 15,
+                "text": {
+                  "field": "Home",
+                  "mode": "field"
+                },
+                "valign": "middle"
+              },
+              "constraint": {
+                "horizontal": "scale",
+                "vertical": "scale"
+              },
+              "links": [],
+              "name": "home state",
+              "oneClickMode": "off",
+              "placement": {
+                "bottom": 33.035714285714285,
+                "left": 28.08988764044944,
+                "right": 29.775280898876407,
+                "rotation": 0,
+                "top": 44.642857142857146
+              },
+              "type": "text"
+            },
+            {
+              "background": {
+                "color": {
+                  "field": "Home",
+                  "fixed": "#D9D9D9"
+                }
+              },
+              "border": {
+                "color": {
+                  "fixed": "dark-green"
+                }
+              },
+              "config": {
+                "align": "right",
+                "color": {
+                  "fixed": "#000000"
+                },
+                "size": 15,
+                "text": {
+                  "field": "http.Home",
+                  "fixed": "",
+                  "mode": "field"
+                },
+                "valign": "middle"
+              },
+              "connections": [],
+              "constraint": {
+                "horizontal": "scale",
+                "vertical": "scale"
+              },
+              "links": [],
+              "name": "home usage",
+              "oneClickMode": "off",
+              "placement": {
+                "bottom": 33.035714285714285,
+                "left": 70.2247191011236,
+                "right": 1.6853932584269662,
+                "rotation": 0,
+                "top": 44.642857142857146
+              },
+              "type": "metric-value"
+            },
+            {
+              "background": {
+                "color": {
+                  "fixed": "transparent"
+                }
+              },
+              "border": {
+                "color": {
+                  "fixed": "dark-green"
+                }
+              },
+              "config": {
+                "align": "left",
+                "color": {
+                  "fixed": "rgb(204, 204, 220)"
+                },
+                "size": 15,
+                "text": {
+                  "fixed": "Solar"
+                },
+                "valign": "middle"
+              },
+              "constraint": {
+                "horizontal": "scale",
+                "vertical": "scale"
+              },
+              "links": [],
+              "name": "solar text",
+              "oneClickMode": "off",
+              "placement": {
+                "bottom": 10.714285714285714,
+                "left": 0,
+                "right": 71.91011235955057,
+                "rotation": 0,
+                "top": 66.96428571428571
+              },
+              "type": "text"
+            },
+            {
+              "background": {
+                "color": {
+                  "field": "Solar",
+                  "fixed": "transparent"
+                }
+              },
+              "border": {
+                "color": {
+                  "fixed": "dark-green"
+                }
+              },
+              "config": {
+                "align": "left",
+                "color": {
+                  "fixed": "#000000"
+                },
+                "size": 15,
+                "text": {
+                  "field": "Solar",
+                  "mode": "field"
+                },
+                "valign": "middle"
+              },
+              "constraint": {
+                "horizontal": "scale",
+                "vertical": "scale"
+              },
+              "links": [],
+              "name": "solar state",
+              "oneClickMode": "off",
+              "placement": {
+                "bottom": 10.714285714285714,
+                "left": 28.08988764044944,
+                "right": 29.775280898876407,
+                "rotation": 0,
+                "top": 66.96428571428571
+              },
+              "type": "text"
+            },
+            {
+              "background": {
+                "color": {
+                  "field": "Solar",
+                  "fixed": "#D9D9D9"
+                },
+                "image": {
+                  "field": "Battery",
+                  "mode": "field"
+                }
+              },
+              "border": {
+                "color": {
+                  "fixed": "dark-green"
+                }
+              },
+              "config": {
+                "align": "right",
+                "color": {
+                  "fixed": "#000000"
+                },
+                "size": 15,
+                "text": {
+                  "field": "http.Solar",
+                  "fixed": "",
+                  "mode": "field"
+                },
+                "valign": "middle"
+              },
+              "constraint": {
+                "horizontal": "scale",
+                "vertical": "scale"
+              },
+              "links": [],
+              "name": "solar usage",
+              "oneClickMode": "off",
+              "placement": {
+                "bottom": 10.714285714285714,
+                "left": 70.2247191011236,
+                "right": 1.6853932584269662,
+                "rotation": 0,
+                "top": 66.96428571428571
+              },
+              "type": "metric-value"
+            }
+          ],
+          "name": "Element 1727455535316",
+          "oneClickMode": "off",
+          "placement": {
+            "height": 100,
+            "left": 0,
+            "rotation": 0,
+            "top": 0,
+            "width": 100
+          },
+          "type": "frame"
         },
-        {
-          "bgColors": "#73BF69 | gray | #F2495C",
-          "bgColors_overrides": "0->green|2->red|1->yellow",
-          "clickable_cells_link": "",
-          "col_name": "Value",
-          "decimals": "2",
-          "defaultBGColor": "",
-          "defaultTextColor": "",
-          "delimiter": ".",
-          "displayTemplate": "_value_",
-          "enable_bgColor": true,
-          "enable_bgColor_overrides": false,
-          "enable_clickable_cells": false,
-          "enable_textColor": true,
-          "enable_textColor_overrides": false,
-          "enable_time_based_thresholds": false,
-          "enable_transform": true,
-          "enable_transform_overrides": false,
-          "filter": {
-            "value_above": "",
-            "value_below": ""
-          },
-          "format": "kwatt",
-          "name": "Battery",
-          "null_color": "darkred",
-          "null_textcolor": "black",
-          "null_value": "No data",
-          "pattern": "http.Battery",
-          "row_col_wrapper": "_",
-          "row_name": "_1_",
-          "textColors": "white | white | white",
-          "textColors_overrides": "0->red|2->green|1->yellow",
-          "thresholds": "-0.1,0.1",
-          "time_based_thresholds": [],
-          "tooltipTemplate": "Series : _series_ <br/>Row Name : _row_name_ <br/>Col Name : _col_name_ <br/>Value : _value_",
-          "transform_values": "Charging <div style=\"float: right;\">_value_</div> | Idle | Discharging <div style=\"float: right;\">_value_</div>",
-          "transform_values_overrides": "0->down|1->up",
-          "valueName": "avg"
-        },
-        {
-          "bgColors": "red|yellow",
-          "bgColors_overrides": "0->green|2->red|1->yellow",
-          "clickable_cells_link": "",
-          "col_name": "Value",
-          "decimals": "2",
-          "defaultBGColor": "#FADE2A",
-          "defaultTextColor": "black",
-          "delimiter": ".",
-          "displayTemplate": "_value_",
-          "enable_bgColor": false,
-          "enable_bgColor_overrides": false,
-          "enable_clickable_cells": false,
-          "enable_textColor": false,
-          "enable_textColor_overrides": false,
-          "enable_time_based_thresholds": false,
-          "enable_transform": true,
-          "enable_transform_overrides": false,
-          "filter": {
-            "value_above": "",
-            "value_below": ""
-          },
-          "format": "kwatt",
-          "name": "Solar",
-          "null_color": "darkred",
-          "null_textcolor": "black",
-          "null_value": "No data",
-          "pattern": "http.Solar",
-          "row_col_wrapper": "_",
-          "row_name": "_1_",
-          "textColors": "white|black",
-          "textColors_overrides": "0->red|2->green|1->yellow",
-          "thresholds": "0.1",
-          "time_based_thresholds": [],
-          "tooltipTemplate": "Series : _series_ <br/>Row Name : _row_name_ <br/>Col Name : _col_name_ <br/>Value : _value_",
-          "transform_values": "No Generation | Generating <div style=\"float: right;\">_value_</div>",
-          "transform_values_overrides": "0->down|1->up",
-          "valueName": "avg"
-        }
-      ],
-      "row_col_wrapper": "_",
-      "sorting_props": {
-        "col_index": -1,
-        "direction": "desc"
+        "showAdvancedTypes": true
       },
+      "pluginVersion": "11.2.0",
       "targets": [
         {
           "datasource": {
             "type": "influxdb",
             "uid": "${DS_INFLUXDB}"
           },
-          "query": "SELECT last(\"load_instant_power\")  / 1000 AS \"Home\", last(\"solar_instant_power\")  / 1000 AS \"Solar\", last(\"battery_instant_power\")  / 1000 AS \"Battery\", last(\"site_instant_power\")  / 1000 AS \"Grid\" FROM \"raw\".\"http\" WHERE time >= now() - 10m",
+          "query": "SELECT last(\"load_instant_power\") AS \"Home\", last(\"solar_instant_power\") AS \"Solar\", last(\"battery_instant_power\") AS \"Battery\", last(\"site_instant_power\") AS \"Grid\" FROM \"raw\".\"http\" WHERE time >= now() - 10m",
           "rawQuery": true,
           "refId": "A",
+          "resultFormat": "table"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "hide": false,
+          "query": "SELECT last(\"load_instant_power\") AS \"Home\", last(\"solar_instant_power\") AS \"Solar\", last(\"battery_instant_power\") AS \"Battery\", last(\"site_instant_power\") AS \"Grid\" FROM \"raw\".\"http\" WHERE time >= now() - 10m",
+          "rawQuery": true,
+          "refId": "B",
           "resultFormat": "time_series"
         }
       ],
       "title": "Current State",
       "transparent": true,
-      "type": "yesoreyeram-boomtable-panel"
+      "type": "canvas"
     },
     {
       "collapsed": false,
@@ -10981,6 +11542,6 @@
   "timezone": "America/Chicago",
   "title": "Powerwall - Power Flow - k3s",
   "uid": "RSabAvRRzZ2",
-  "version": 42,
+  "version": 57,
   "weekStart": ""
 }
