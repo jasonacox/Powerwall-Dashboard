@@ -77,3 +77,10 @@ This tool is a shell script designed to run as a system service to monitor statu
 * Author: [@mcbirse](https://github.com/mcbirse)
 * [Details and Instructions](pwstatus/)
 * Script: [pwstatus.sh](pwstatus/pwstatus.sh)
+
+## Powerwall Dashboard on Kubernetes
+
+Run Powerwall Dashboard on k3s. These config files assume you are using metallb for ingress and rook-ceph for storage. Local storage pvc configs are provided for testing but should not be used in deployment.
+
+* Author: [@cfoos](https://github.com/cfoos)
+* [Details and Instructions](k3s/)
