@@ -1049,8 +1049,9 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "default": false,
+        "type": "datasource",
+        "uid": "-- Mixed --"
       },
       "fieldConfig": {
         "defaults": {
@@ -1061,7 +1062,7 @@
           "mappings": [
             {
               "options": {
-                "o": {
+                "0": {
                   "icon": "img/icons/marker/x-mark.svg",
                   "index": 2
                 }
@@ -1086,7 +1087,7 @@
                   "icon": "img/icons/unicons/arrow-up.svg",
                   "index": 1
                 },
-                "to": 1
+                "to": -1
               },
               "type": "range"
             }
@@ -1095,7 +1096,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "dark-green",
                 "value": null
               },
               {
@@ -1121,7 +1122,23 @@
                 "id": "color",
                 "value": {
                   "fixedColor": "light-yellow",
-                  "mode": "shades"
+                  "mode": "thresholds"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "#494951",
+                      "value": null
+                    },
+                    {
+                      "color": "#EAB839",
+                      "value": 50
+                    }
+                  ]
                 }
               }
             ]
@@ -1139,8 +1156,16 @@
               {
                 "id": "color",
                 "value": {
-                  "mode": "continuous-GrYlRd"
+                  "mode": "continuous-RdYlGr"
                 }
+              },
+              {
+                "id": "min",
+                "value": 0
+              },
+              {
+                "id": "max",
+                "value": 70
               }
             ]
           },
@@ -1186,7 +1211,7 @@
       "id": 87,
       "options": {
         "infinitePan": false,
-        "inlineEditing": false,
+        "inlineEditing": true,
         "panZoom": false,
         "root": {
           "background": {
@@ -1327,8 +1352,8 @@
               "oneClickMode": "off",
               "placement": {
                 "bottom": 0,
-                "left": 39.0728476821192,
-                "right": 38.852097130242825,
+                "left": 38.96396396396396,
+                "right": 38.96396396396396,
                 "rotation": 0,
                 "top": 89.32926829268293
               },
@@ -1471,6 +1496,7 @@
               "config": {
                 "align": "center",
                 "color": {
+                  "field": "http.Percent",
                   "fixed": "text"
                 },
                 "size": 12,
@@ -1490,11 +1516,11 @@
               "name": "percentage",
               "oneClickMode": "off",
               "placement": {
-                "bottom": 0.9146341463414633,
-                "left": 60.48565121412803,
-                "right": 17.439293598233995,
+                "bottom": 0,
+                "left": 57.16162943495401,
+                "right": 28.383705650459923,
                 "rotation": 0,
-                "top": 88.41463414634147
+                "top": 89.32926829268293
               },
               "type": "metric-value"
             },
@@ -3518,7 +3544,7 @@
                     "options": {
                       "from": -100000,
                       "result": {
-                        "color": "semi-dark-green",
+                        "color": "#73bf69",
                         "index": 0,
                         "text": "Charging"
                       },
@@ -3530,7 +3556,7 @@
                     "options": {
                       "from": 1,
                       "result": {
-                        "color": "semi-dark-red",
+                        "color": "#f2495c",
                         "index": 1,
                         "text": "Discharging"
                       },
@@ -3542,7 +3568,7 @@
                     "options": {
                       "from": 0,
                       "result": {
-                        "color": "super-light-blue",
+                        "color": "text",
                         "index": 2,
                         "text": "Idle"
                       },
@@ -3577,7 +3603,7 @@
                     "options": {
                       "from": -100000,
                       "result": {
-                        "color": "semi-dark-purple",
+                        "color": "#f2495c",
                         "index": 1,
                         "text": "Exporting"
                       },
@@ -3589,7 +3615,7 @@
                     "options": {
                       "from": 1,
                       "result": {
-                        "color": "semi-dark-orange",
+                        "color": "#b877d9",
                         "index": 2,
                         "text": "Importing"
                       },
@@ -4264,7 +4290,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -4413,7 +4440,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -4566,7 +4594,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -4713,7 +4742,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -4924,7 +4954,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               }
             ]
           },
@@ -5241,7 +5272,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -5615,7 +5647,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -5992,7 +6025,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -7238,7 +7272,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -8260,7 +8295,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -10457,7 +10493,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "transparent"
+                "color": "transparent",
+                "value": null
               },
               {
                 "color": "blue",
@@ -10480,7 +10517,8 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "dark-green"
+                      "color": "dark-green",
+                      "value": null
                     }
                   ]
                 }
@@ -10499,7 +10537,8 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "purple"
+                      "color": "purple",
+                      "value": null
                     }
                   ]
                 }
@@ -10518,7 +10557,8 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "dark-blue"
+                      "color": "dark-blue",
+                      "value": null
                     }
                   ]
                 }
@@ -10537,7 +10577,8 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "dark-blue"
+                      "color": "dark-blue",
+                      "value": null
                     }
                   ]
                 }
@@ -10556,7 +10597,8 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "dark-purple"
+                      "color": "dark-purple",
+                      "value": null
                     }
                   ]
                 }
@@ -10575,7 +10617,8 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "dark-blue"
+                      "color": "dark-blue",
+                      "value": null
                     }
                   ]
                 }
@@ -10695,7 +10738,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -11081,7 +11125,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -11542,6 +11587,6 @@
   "timezone": "America/Chicago",
   "title": "Powerwall - Power Flow - k3s",
   "uid": "RSabAvRRzZ2",
-  "version": 60,
+  "version": 98,
   "weekStart": ""
 }
