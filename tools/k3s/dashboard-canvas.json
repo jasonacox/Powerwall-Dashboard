@@ -1821,7 +1821,7 @@
           "resultFormat": "table"
         }
       ],
-      "title": "Panel Title",
+      "title": "Power Flow",
       "transparent": true,
       "type": "canvas"
     },
@@ -4290,8 +4290,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -4440,8 +4439,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -4594,8 +4592,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -4742,8 +4739,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -4954,8 +4950,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           },
@@ -5272,8 +5267,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -5647,8 +5641,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -6025,8 +6018,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -7272,8 +7264,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -8295,8 +8286,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -10493,8 +10483,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "transparent",
-                "value": null
+                "color": "transparent"
               },
               {
                 "color": "blue",
@@ -10517,8 +10506,7 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "dark-green",
-                      "value": null
+                      "color": "dark-green"
                     }
                   ]
                 }
@@ -10537,8 +10525,7 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "purple",
-                      "value": null
+                      "color": "purple"
                     }
                   ]
                 }
@@ -10557,8 +10544,7 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "dark-blue",
-                      "value": null
+                      "color": "dark-blue"
                     }
                   ]
                 }
@@ -10577,8 +10563,7 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "dark-blue",
-                      "value": null
+                      "color": "dark-blue"
                     }
                   ]
                 }
@@ -10597,8 +10582,7 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "dark-purple",
-                      "value": null
+                      "color": "dark-purple"
                     }
                   ]
                 }
@@ -10617,8 +10601,7 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "dark-blue",
-                      "value": null
+                      "color": "dark-blue"
                     }
                   ]
                 }
@@ -10738,8 +10721,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -11125,8 +11107,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -11585,8 +11566,8 @@
     ]
   },
   "timezone": "America/Chicago",
-  "title": "Powerwall - Power Flow - k3s",
+  "title": "Powerwall - Power Flow",
   "uid": "RSabAvRRzZ2",
-  "version": 98,
+  "version": 100,
   "weekStart": ""
 }
