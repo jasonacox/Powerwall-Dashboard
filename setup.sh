@@ -447,11 +447,10 @@ if [ -f weather.sh ]; then
     ./weather.sh setup
 fi
 
-# Set up Sun and Moon data provider
 if [ -f grafana/sunandmoon-template.yml ]; then
     cp grafana/sunandmoon-template.yml grafana/provisions/datasources/sunandmoon.yml
-    sed -i "s@zzLAT@${LAT}@g" grafana/provisions/datasources/sunandmoon.yml
-    sed -i "s@zzLONG@${LONG}@g" grafana/provisions/datasources/sunandmoon.yml
+    sed -i '' "s@zzLAT@${LAT}@g" grafana/provisions/datasources/sunandmoon.yml
+    sed -i '' "s@zzLONG@${LONG}@g" grafana/provisions/datasources/sunandmoon.yml
 fi
 
 # Build Docker in current environment
