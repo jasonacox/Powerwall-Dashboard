@@ -4290,7 +4290,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -4439,7 +4440,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -4592,7 +4594,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -4739,7 +4742,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -4950,7 +4954,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               }
             ]
           },
@@ -5267,7 +5272,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -5641,7 +5647,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -5997,6 +6004,9 @@
             },
             "insertNulls": false,
             "lineInterpolation": "linear",
+            "lineStyle": {
+              "fill": "solid"
+            },
             "lineWidth": 1,
             "pointSize": 5,
             "scaleDistribution": {
@@ -6012,13 +6022,15 @@
               "mode": "off"
             }
           },
+          "fieldMinMax": false,
           "links": [],
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -6028,131 +6040,7 @@
           },
           "unit": "watth"
         },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/Charge$/"
-            },
-            "properties": [
-              {
-                "id": "custom.fillOpacity",
-                "value": 10
-              },
-              {
-                "id": "custom.lineStyle",
-                "value": {
-                  "dash": [
-                    10,
-                    10
-                  ],
-                  "fill": "dash"
-                }
-              },
-              {
-                "id": "custom.axisPlacement",
-                "value": "right"
-              },
-              {
-                "id": "custom.stacking",
-                "value": {
-                  "group": "A",
-                  "mode": "normal"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/^PW1/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#37872D",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/^PW2/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#E0B400",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/^PW3/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#C4162A",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/^PW4/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#1F60C4",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/^PW5/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#FF9830",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/^PW6/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#8F3BB8",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "gridPos": {
         "h": 5,
@@ -6160,7 +6048,7 @@
         "x": 0,
         "y": 53
       },
-      "id": 55,
+      "id": 89,
       "options": {
         "legend": {
           "calcs": [
@@ -6179,7 +6067,7 @@
       "pluginVersion": "9.1.2",
       "targets": [
         {
-          "alias": "PW1",
+          "alias": "",
           "datasource": {
             "type": "influxdb",
             "uid": "${DS_INFLUXDB}"
@@ -6201,6 +6089,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pod",
+          "query": "SELECT mean(/^.*POD_nom*/) FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -6218,999 +6108,25 @@
             ]
           ],
           "tags": []
-        },
-        {
-          "alias": "PW2",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "measurement": "http",
-          "orderByTime": "ASC",
-          "policy": "pod",
-          "refId": "B",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "PW2_POD_nom_full_pack_energy"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        },
-        {
-          "alias": "PW3",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "measurement": "http",
-          "orderByTime": "ASC",
-          "policy": "pod",
-          "refId": "C",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "PW3_POD_nom_full_pack_energy"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        },
-        {
-          "alias": "PW4",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "measurement": "http",
-          "orderByTime": "ASC",
-          "policy": "pod",
-          "refId": "D",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "PW4_POD_nom_full_pack_energy"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        },
-        {
-          "alias": "PW5",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "measurement": "http",
-          "orderByTime": "ASC",
-          "policy": "pod",
-          "refId": "E",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "PW5_POD_nom_full_pack_energy"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        },
-        {
-          "alias": "PW6",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "measurement": "http",
-          "orderByTime": "ASC",
-          "policy": "pod",
-          "refId": "F",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "PW6_POD_nom_full_pack_energy"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        },
-        {
-          "alias": "PW7",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "measurement": "http",
-          "orderByTime": "ASC",
-          "policy": "pod",
-          "query": "SELECT mean(\"PW7_POD_nom_full_pack_energy\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
-          "refId": "G",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "PW7_POD_nom_full_pack_energy"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        },
-        {
-          "alias": "PW8",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "measurement": "http",
-          "orderByTime": "ASC",
-          "policy": "pod",
-          "query": "SELECT mean(\"PW8_POD_nom_full_pack_energy\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
-          "refId": "H",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "PW8_POD_nom_full_pack_energy"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        },
-        {
-          "alias": "PW9",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "measurement": "http",
-          "orderByTime": "ASC",
-          "policy": "pod",
-          "query": "SELECT mean(\"PW9_POD_nom_full_pack_energy\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
-          "refId": "I",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "PW9_POD_nom_full_pack_energy"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        },
-        {
-          "alias": "PW10",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "measurement": "http",
-          "orderByTime": "ASC",
-          "policy": "pod",
-          "query": "SELECT mean(\"PW10_POD_nom_full_pack_energy\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
-          "refId": "J",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "PW10_POD_nom_full_pack_energy"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        },
-        {
-          "alias": "PW11",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "measurement": "http",
-          "orderByTime": "ASC",
-          "policy": "pod",
-          "query": "SELECT mean(\"PW11_POD_nom_full_pack_energy\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
-          "refId": "K",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "PW11_POD_nom_full_pack_energy"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        },
-        {
-          "alias": "PW12",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "measurement": "http",
-          "orderByTime": "ASC",
-          "policy": "pod",
-          "query": "SELECT mean(\"PW12_POD_nom_full_pack_energy\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
-          "refId": "L",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "PW12_POD_nom_full_pack_energy"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        },
-        {
-          "alias": "PW1 Charge",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "measurement": "http",
-          "orderByTime": "ASC",
-          "policy": "pod",
-          "refId": "M",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "PW1_POD_nom_energy_remaining"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        },
-        {
-          "alias": "PW2 Charge",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "measurement": "http",
-          "orderByTime": "ASC",
-          "policy": "pod",
-          "refId": "N",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "PW2_POD_nom_energy_remaining"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        },
-        {
-          "alias": "PW3 Charge",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "measurement": "http",
-          "orderByTime": "ASC",
-          "policy": "pod",
-          "refId": "O",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "PW3_POD_nom_energy_remaining"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        },
-        {
-          "alias": "PW4 Charge",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "measurement": "http",
-          "orderByTime": "ASC",
-          "policy": "pod",
-          "refId": "P",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "PW4_POD_nom_energy_remaining"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        },
-        {
-          "alias": "PW5 Charge",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "measurement": "http",
-          "orderByTime": "ASC",
-          "policy": "pod",
-          "refId": "Q",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "PW5_POD_nom_energy_remaining"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        },
-        {
-          "alias": "PW6 Charge",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "measurement": "http",
-          "orderByTime": "ASC",
-          "policy": "pod",
-          "refId": "R",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "PW6_POD_nom_energy_remaining"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        },
-        {
-          "alias": "PW7 Charge",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "measurement": "http",
-          "orderByTime": "ASC",
-          "policy": "pod",
-          "query": "SELECT mean(\"PW7_POD_nom_energy_remaining\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
-          "refId": "S",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "PW7_POD_nom_energy_remaining"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        },
-        {
-          "alias": "PW8 Charge",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "measurement": "http",
-          "orderByTime": "ASC",
-          "policy": "pod",
-          "query": "SELECT mean(\"PW8_POD_nom_energy_remaining\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
-          "refId": "T",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "PW8_POD_nom_energy_remaining"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        },
-        {
-          "alias": "PW9 Charge",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "measurement": "http",
-          "orderByTime": "ASC",
-          "policy": "pod",
-          "query": "SELECT mean(\"PW9_POD_nom_energy_remaining\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
-          "refId": "U",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "PW9_POD_nom_energy_remaining"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        },
-        {
-          "alias": "PW10 Charge",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "measurement": "http",
-          "orderByTime": "ASC",
-          "policy": "pod",
-          "query": "SELECT mean(\"PW10_POD_nom_energy_remaining\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
-          "refId": "V",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "PW10_POD_nom_energy_remaining"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        },
-        {
-          "alias": "PW11 Charge",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "measurement": "http",
-          "orderByTime": "ASC",
-          "policy": "pod",
-          "query": "SELECT mean(\"PW11_POD_nom_energy_remaining\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
-          "refId": "W",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "PW11_POD_nom_energy_remaining"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        },
-        {
-          "alias": "PW12 Charge",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "measurement": "http",
-          "orderByTime": "ASC",
-          "policy": "pod",
-          "query": "SELECT mean(\"PW12_POD_nom_energy_remaining\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
-          "refId": "X",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "PW12_POD_nom_energy_remaining"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
         }
       ],
       "title": "Powerwall Capacity",
+      "transformations": [
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "http\\.mean\\_(PW\\d+).*ing",
+            "renamePattern": "$1 Charge"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "http\\.mean\\_(PW\\d+).*rgy",
+            "renamePattern": "$1 Capacity"
+          }
+        }
+      ],
       "transparent": true,
       "type": "timeseries"
     },
@@ -7264,7 +6180,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -8286,7 +7203,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -10483,7 +9401,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "transparent"
+                "color": "transparent",
+                "value": null
               },
               {
                 "color": "blue",
@@ -10506,7 +9425,8 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "dark-green"
+                      "color": "dark-green",
+                      "value": null
                     }
                   ]
                 }
@@ -10525,7 +9445,8 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "purple"
+                      "color": "purple",
+                      "value": null
                     }
                   ]
                 }
@@ -10544,7 +9465,8 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "dark-blue"
+                      "color": "dark-blue",
+                      "value": null
                     }
                   ]
                 }
@@ -10563,7 +9485,8 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "dark-blue"
+                      "color": "dark-blue",
+                      "value": null
                     }
                   ]
                 }
@@ -10582,7 +9505,8 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "dark-purple"
+                      "color": "dark-purple",
+                      "value": null
                     }
                   ]
                 }
@@ -10601,7 +9525,8 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "dark-blue"
+                      "color": "dark-blue",
+                      "value": null
                     }
                   ]
                 }
@@ -11568,6 +10493,6 @@
   "timezone": "America/Chicago",
   "title": "Powerwall - Power Flow",
   "uid": "RSabAvRRzZ2",
-  "version": 100,
+  "version": 109,
   "weekStart": ""
 }
