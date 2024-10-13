@@ -1,5 +1,9 @@
 # RELEASE NOTES
 
+## v4.5.4 - MacOS Fix
+
+* Fix bug in `setup.sh` that will error during Grafana "Sun and Moon" provider provisioning, as reported by @jdjammer in https://github.com/jasonacox/Powerwall-Dashboard/issues/534
+
 ## v4.5.3 - TEDAPI Route Tool
 
 * New `add_route.sh` tool to add persistent TEDAPI network routing by @SCHibbard in https://github.com/jasonacox/Powerwall-Dashboard/pull/520 
