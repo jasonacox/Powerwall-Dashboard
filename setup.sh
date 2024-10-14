@@ -449,8 +449,10 @@ fi
 
 if [ -f grafana/sunandmoon-template.yml ]; then
     cp grafana/sunandmoon-template.yml grafana/provisions/datasources/sunandmoon.yml
-    sed -i '' "s@zzLAT@${LAT}@g" grafana/provisions/datasources/sunandmoon.yml
-    sed -i '' "s@zzLONG@${LONG}@g" grafana/provisions/datasources/sunandmoon.yml
+    sed -i.bak "s@zzLAT@${LAT}@g" grafana/provisions/datasources/sunandmoon.yml
+    sed -i.bak "s@zzLONG@${LONG}@g" grafana/provisions/datasources/sunandmoon.yml
+    # Remove backup file
+    rm grafana/provisions/datasources/sunandmoon.yml.bak
 fi
 
 # Build Docker in current environment
