@@ -1,5 +1,16 @@
 # RELEASE NOTES
 
+## v4.5.5 - Hotfix
+
+* Fix bug introduced in jasonacox/Powerwall-Dashboard/issues/535 as reported in https://github.com/jasonacox/Powerwall-Dashboard/issues/537 by @wagisdev
+
+## v4.5.4 - Misc Bug Fixes
+
+* Fix two spelling mistakes in upgrade script by @wreiske in https://github.com/jasonacox/Powerwall-Dashboard/pull/521
+* Fix PW3 Strings E+F metrics by @jplewis2 in https://github.com/jasonacox/Powerwall-Dashboard/pull/528
+* k3s/kubernettes install by @cfoos in https://github.com/jasonacox/Powerwall-Dashboard/pull/525
+* Fix bug in setup.sh for MacOS hosts #534 by @jasonacox in https://github.com/jasonacox/Powerwall-Dashboard/pull/535
+
 ## v4.5.3 - TEDAPI Route Tool
 
 * New `add_route.sh` tool to add persistent TEDAPI network routing by @SCHibbard in https://github.com/jasonacox/Powerwall-Dashboard/pull/520 
