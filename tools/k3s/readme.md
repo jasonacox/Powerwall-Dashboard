@@ -4,6 +4,8 @@ These config files can be used to get Powerwall Dashboard running on k3s. These 
 
 Author: @cfoos
 
+<img width="1012" alt="Screenshot 2024-09-27 130807" src="https://github.com/user-attachments/assets/386f6990-ef56-4148-b4cf-4a1a84e2db47">
+
 ## Configuration
 
 Update the values in the following files
