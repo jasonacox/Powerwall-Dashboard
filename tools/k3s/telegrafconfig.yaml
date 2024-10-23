@@ -56,13 +56,3 @@ data:
       insecure_skip_verify = true
       timeout = "4s"
       data_format = "json"
-    [[inputs.cpu]]
-    [[inputs.disk]]
-    [[inputs.diskio]]
-    [[inputs.kernel]]
-    [[inputs.mem]]
-    [[inputs.processes]]
-    [[inputs.swap]]
-    [[inputs.system]]
-    [[inputs.kubernetes]]
-    [[inputs.kube_inventory]]
