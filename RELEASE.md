@@ -1,5 +1,14 @@
 # RELEASE NOTES
 
+## v4.6.0 - Powerwall Temps
+
+* Updates to pypowerwall proxy v0.12.0 t66 (https://github.com/jasonacox/pypowerwall/pull/114) which supports a new TEDAPI call to gather vitals that includes Powerwall Temps.
+* Updates `telegraf.conf` to read Dashboard VERSION using `ver.sh`.
+* Updates `dashboard.json` to include Powerwall Temps and current Dashboard Version.
+* Add support for pypowerwall environmental variable `PW_NEG_SOLAR` to allow users to zero out negative values (see `pypowerwall.env.xample`)
+
+<img width="1137" alt="image" src="https://github.com/user-attachments/assets/70f2e40a-ca63-413e-9889-b048a98fab6e">
+
 ## v4.5.5 - Hotfix
 
 * Fix bug introduced in jasonacox/Powerwall-Dashboard/issues/535 as reported in https://github.com/jasonacox/Powerwall-Dashboard/issues/537 by @wagisdev
