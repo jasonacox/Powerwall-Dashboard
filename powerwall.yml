@@ -18,7 +18,7 @@ services:
             - influxdb.env
 
     pypowerwall:
-        image: jasonacox/pypowerwall:0.11.1t64
+        image: jasonacox/pypowerwall:0.12.0t66
         container_name: pypowerwall
         hostname: pypowerwall
         restart: unless-stopped
@@ -55,6 +55,14 @@ services:
             - type: bind
               source: ./telegraf.local
               target: /etc/telegraf/telegraf.d/local.conf
+              read_only: true
+            - type: bind
+              source: ./VERSION
+              target: /etc/telegraf/VERSION
+              read_only: true
+            - type: bind
+              source: ./ver.sh
+              target: /etc/telegraf/ver.sh
               read_only: true
         depends_on:
             - influxdb
