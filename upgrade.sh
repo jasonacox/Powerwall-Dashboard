@@ -86,7 +86,7 @@ fi
 echo "Checking Docker Compose..."
 if docker compose version > /dev/null 2>&1; then
     # Build Docker (v2)
-    echo "INFO: Docker Compose V2 Found: OK to Continue"
+    echo "Using Docker Compose V2, proceeding..."
     echo ""
 else
     if docker-compose version > /dev/null 2>&1; then
@@ -94,7 +94,7 @@ else
         COMPOSE_VERSION=`docker-compose version --short`
         if [[ "${COMPOSE_VERSION}" == "2"* ]]; then
             # Build Docker (v2)
-            echo "INFO: Docker Compose V2 Found: OK to Continue"
+            echo "Using Docker Compose V2, proceeding..."
         else
             # Build Docker (v1)
             echo "ERROR: Docker Compose V1 Found: Upgrade Required"
