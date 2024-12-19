@@ -337,7 +337,7 @@ Since [weather411](https://hub.docker.com/r/jasonacox/weather411) is part of thi
 * Current conditions in JSON: http://localhost:8676/json
 
 **Data Retention and Backups**
-InfluxDB is configured to use an infinite retention policy (see [influxdb.sql](../influxdb/influxdb.sql)).  It uses continuous queries to downsample Powerwall data and preserve disk space.  However, this does not safeguard the data from accidental deletion or corruption.  It is recommend that you set up a backup plan to snapshot the data for disaster recovery. See [backups](backups/) for some suggestions.
+InfluxDB is configured to use an infinite retention policy (see [influxdb.sql](../influxdb/influxdb.sql)).  It uses continuous queries to downsample Powerwall data and preserve disk space.  However, this does not safeguard the data from accidental deletion or corruption.  It is recommended that you set up a backup plan to snapshot the data for disaster recovery. See [backups](backups/) for some suggestions.
 
 ### Other Tools and Related Projects
 
