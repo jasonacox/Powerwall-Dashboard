@@ -61,7 +61,7 @@ The dashboard can be installed in four different configurations.
 
 For Powerwall 1, 2 or + owners with a Tesla Energy Gateway accessible on their LAN, select `option 1` (Local Access).
 
-#### Extended Device Vitals Metrics (beta)
+#### Extended Device Vitals Metrics
 
 With version v4.4.0+, pypowerwall can be set to access the TEDAPI API on the Gateway to pull additional metrics. However, it requires the Gateway Password (often found on the QR sticker on the Powerwall Gateway) and your computer will need network access to the Gateway IP (192.168.91.1). You can have your computer join the Gateway's local WiFi or you can add a network route (examples below). This should be set up before running `setup.sh` if you want this feature.
 
@@ -82,9 +82,11 @@ networksetup -setadditionalroutes Wi-Fi 192.168.91.1 255.255.255.255 192.168.0.1
 route -p add 192.168.91.1 mask 255.255.255.255 192.168.0.100
 ```
 
-#### Powerwall 3 Mode (beta)
+#### Powerwall 3 Mode (Full TEDAPI Mode)
 
-If you have access to the Powerwall Gateway (see local mode Extended Device Vitals Metrics note above), you can select option 4 to activate Powerwall 3 mode. All data will be pulled from the local Gateway TEDAPI endpoint. If you have problems with your setup for the Powerwall 3, see troubleshooting section below.
+If you have access to the Powerwall 192.168.91.1 endpoint (see local mode Extended Device Vitals Metrics note above), you can select option 4 to activate Powerwall 3 mode. All data will be pulled from the local Gateway TEDAPI endpoint. The password will be located on the QR sticker on the Powerwall 3 itself. If you have problems with your setup for the Powerwall 3, see troubleshooting section below.
+
+Note: This mode also works for Powerwall 2/+ systems. Unlike TEDAPI hybrid mode which uses some existing local APIs, this full mode provides calculated values for extended metrics missing in the TEDAPI payload.
 
 
 ### Cloud and FleetAPI Mode
@@ -317,6 +319,8 @@ PW_DEBUG=no
 PW_STYLE=grafana-dark
 PW_GW_PWD=<YOUR_PW3_PASSWORD> 
 ```
+
+Note, for Powerwall 3 systems, the PW_GW_PWD will be the password you find on the Powerwall 3 itself, not the gateway password. This password is printed on the label under the Powerwall 3 glass cover, visible during installation. If you have multiple Powerwalls, use the one from the primary Powerwall 3.
 
 #### Tips and Tricks
 
