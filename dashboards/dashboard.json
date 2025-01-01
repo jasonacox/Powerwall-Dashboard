@@ -7644,7 +7644,7 @@
             [
               {
                 "params": [
-                  "C1_Power"
+                  "D1_Power"
                 ],
                 "type": "field"
               },
@@ -8481,6 +8481,50 @@
               {
                 "params": [
                   "E4_Power"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "F4",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "strings",
+          "query": "SELECT mean(\"F4_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "F4",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "F4_Power"
                 ],
                 "type": "field"
               },
