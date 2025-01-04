@@ -347,9 +347,19 @@ InfluxDB is configured to use an infinite retention policy (see [influxdb.sql](.
 
 * NetZero app - iOS and Android App for monitoring your System - https://www.netzeroapp.io/
 
-### Credits
+### Support
 
-* This project is based on the great work by mihailescu2m at [https://github.com/mihailescu2m/powerwall_monitor](https://github.com/mihailescu2m/powerwall_monitor) and has been modified to use pypowerwall as a proxy to the Powerwall and includes solar String, Inverter and Powerwall Temperature graphs for Powerwall+ systems.
+There are several ways you can support this project.
+
+* Submit ideas, issues, discussions and code! Thanks to our active community, the project continues to grow and improve. Your engagement and help is needed and appreciated.
+* Tell others. If you find this useful, please share with others to help build our community.
+* Help test the installation and upgrades. We need help testing the project on different platforms and versions of Powerwalls. Report your finding and any suggestions to make it easier to setup and use.
+* Some of you have asked how you can contribute to help fund the project. This is work of love and a hobby. I'm not looking for financial help. However, if you are considering purchasing a Tesla Solar and/or Powerwall system, please take advantage of this code for a discount and I'll get a referral credit as well: https://www.tesla.com/referral/jason50054
+
+### Acknowledgements 
+
+* [Tesla Energy](https://www.tesla.com/energy/design?referral=jason50054&redirect=no) - Tesla is not affiliated with this project but we thanks to the brilliant minds at Tesla for creating such a great system for solar home energy generation. Tesla and Powerwall are trademarks of Tesla, Inc.
+* This project was based on the great work by mihailescu2m at [https://github.com/mihailescu2m/powerwall_monitor](https://github.com/mihailescu2m/powerwall_monitor) and has been modified to use pypowerwall as a proxy to the Powerwall and includes solar String, Inverter and Powerwall Temperature graphs for Powerwall+ and Powerwall 3 systems.
 * Grafana at https://github.com/grafana/grafana
 * Telegraf at https://github.com/influxdata/telegraf
 * InfluxDB at https://github.com/influxdata/influxdb
