@@ -350,7 +350,7 @@ if [ ! -f ${PW_ENV_FILE} ]; then
                 echo "Congratulations!"
                 echo "Extended Device Metrics (vitals) are available on this endpoint via TEDAPI."
                 echo "However, you will need the Gateway password to access them."
-                echo "This password is often on the QR code on the Powerwall Gateway unit."
+                echo "This password is often found on a QR code on the Powerwall."
                 echo ""
                 read -p 'Enter Gateway Password or leave blank to disable: ' PW
                 if [ -z "${PW}" ]; then

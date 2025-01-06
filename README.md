@@ -86,7 +86,7 @@ route -p add 192.168.91.1 mask 255.255.255.255 192.168.0.100
 
 If you have access to the Powerwall 192.168.91.1 endpoint (see local mode Extended Device Vitals Metrics note above), you can select option 4 to activate Powerwall 3 mode. All data will be pulled from the local Gateway TEDAPI endpoint. The password will be located on the QR sticker on the Powerwall 3 itself. If you have problems with your setup for the Powerwall 3, see troubleshooting section below.
 
-Note: This mode also works for Powerwall 2/+ systems. Unlike TEDAPI hybrid mode which uses some existing local APIs, this full mode provides calculated values for extended metrics missing in the TEDAPI payload.
+_Note: This mode also works for Powerwall 2/+ systems. Unlike TEDAPI hybrid mode which uses some existing local APIs, this full mode provides calculated values for extended metrics missing in the TEDAPI payload._
 
 
 ### Cloud and FleetAPI Mode
@@ -102,6 +102,7 @@ Next, you will then be asked for your Local *timezone*, and your Powerwall detai
   * _If you experience issues with your Powerwall or Tesla Cloud login details, re-run `setup.sh` to try again._
   * _If you get docker errors during the setup, see the [Docker Errors](#docker-errors) section below._
   * _For Windows 11 users, see the [Windows 11 Instructions](#windows-11-instructions) below._
+  * _Powerwall 3 Owners - The password you will use for local TEDAPI setup is the one on the sticker on the PW3 itself, not the one on the Gateway._
 
 ### Grafana Setup
 
