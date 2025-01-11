@@ -63,7 +63,7 @@ For Powerwall 1, 2 or + owners with a Tesla Energy Gateway accessible on their L
 
 #### Extended Device Vitals Metrics
 
-With version v4.4.0+, pypowerwall can be set to access the TEDAPI API on the Gateway to pull additional metrics. However, it requires the Gateway Password (often found on the QR sticker on the Powerwall Gateway) and your computer will need network access to the Gateway IP (192.168.91.1). You can have your computer join the Gateway's local WiFi or you can add a network route (examples below). This should be set up before running `setup.sh` if you want this feature.
+With version v4.4.0+, pypowerwall can be set to access the TEDAPI API on the Gateway to pull additional metrics. However, it requires the Gateway Password (often found on the QR sticker on the Powerwall Gateway) and your computer will need network access to the Gateway IP (192.168.91.1). You can have your computer join the Gateway's local WiFi or you can add a network route (examples below). This should be set up before running `setup.sh` if you want this feature. Note: Gateway 1 systems will not work with this method as they require a power toggle for access (see [Issue #536](https://github.com/jasonacox/Powerwall-Dashboard/issues/536)).
 
 ```bash
 # Example - Change 192.168.0.100 to the IP address of Powerwall Gateway on your LAN
@@ -222,6 +222,7 @@ Check the logs of the services using:
 * Grafana Error: Invalid interval string, expecting a number followed by one of "Mwdhmsy" - This indicates that the Grafana setup for InfluxDB is missing the time unit, "s", in the "Min time interval" field:
   - Min time interval: `5s`
 * PyPowerwall Error: If you are getting `LoginError: Invalid Powerwall Login` errors but have double checked your password and are sure it is correct, try using the last 5 characters of the password written on the Powerwall Gateway.
+* Gateway 1 systems will not work with the local TEDAPI method as they require a power toggle for access (see [Issue #536](https://github.com/jasonacox/Powerwall-Dashboard/issues/536)).
 
 #### Missing Powerwalls or String data?
 
