@@ -224,6 +224,7 @@ Check the logs of the services using:
 * PyPowerwall Error: If you are getting `LoginError: Invalid Powerwall Login` errors but have double checked your password and are sure it is correct, try using the last 5 characters of the password written on the Powerwall Gateway.
 * Gateway 1 systems will not work with the local TEDAPI method as they require a power toggle for access (see [Issue #536](https://github.com/jasonacox/Powerwall-Dashboard/issues/536)).
 * Powerwall 3 system owners: For systems with a PW3 and GW2 wanting to use an ethernet cable rather than WiFi to collect data, be sure to run the cable to the PW3 and not the GW2.
+* Synology upgrade failure: Your system may have two git versions installed: /usr/bin/git and /opt/bin/git. Update PATH to use /usr/bin/git first, and then run upgrade script ([discussion](https://github.com/jasonacox/Powerwall-Dashboard/discussions/385#discussioncomment-11923607))
 
 #### Missing Powerwalls or String data?
 
