@@ -34,7 +34,7 @@
       "name": "VAR_TZ",
       "type": "constant",
       "label": "Timezone",
-      "value": "America/Los_Angeles",
+      "value": "America/New_York",
       "description": ""
     }
   ],
@@ -1388,7 +1388,7 @@
             ]
           ],
           "tags": [],
-          "tz": "America/Los_Angeles"
+          "tz": "America/New_York"
         },
         {
           "alias": "off_grid",
