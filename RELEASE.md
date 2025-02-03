@@ -1,5 +1,13 @@
 # RELEASE NOTES
 
+## v4.6.1 - pyPowerwall Updates
+
+Updates to using pypowerwall v0.12.4 t68 which includes:
+* v0.12.4: Address bug iin TEDAPI logic on some systems where Neurio CTS data was not getting processed. Discovery by @anderep in https://github.com/jasonacox/Powerwall-Dashboard/discussions/578#discussioncomment-12033087 - Issue https://github.com/jasonacox/pypowerwall/issues/136 and PR https://github.com/jasonacox/pypowerwall/pull/137. Also adds /csv/v2 API support by @jasonacox in https://github.com/jasonacox/pypowerwall/pull/134
+* v0.12.3: Proxy vFix TEDAPI URL from constant GW_IP to constructor selectable host gw_ip by @Nexarian in https://github.com/jasonacox/pypowerwall/pull/129 - The hard-coded 192.168.91.1 for the TEDAPI internal endpoint doesn't work if you're using NAT. This change enables support for this use-case. See https://gist.github.com/jasonacox/91479957d0605248d7eadb919585616c?permalink_comment_id=5373785#gistcomment-5373785 for NAP implementation example.
+* v0.12.2: Fix bug in cache expiration timeout code that was not honoring pwcacheexpire setting. Raised by @erikgieseler in https://github.com/jasonacox/pypowerwall/issues/122 - PW_CACHE_EXPIRE=0 not possible? (Proxy) - Fix by @jasonacox in https://github.com/jasonacox/pypowerwall/pull/123. Adds WARNING log in proxy for settings below 5s. Changes TEDAPI config default timeout from 300s to 5s and links to pwcacheexpire setting.
+* v0.12.1: Large-scale refactor of Powerwall scan function by @Nexarian in https://github.com/jasonacox/pypowerwall/pull/117
+
 ## v4.6.0 - Powerwall Temps
 
 * Updates to pypowerwall proxy v0.12.0 t66 (https://github.com/jasonacox/pypowerwall/pull/114) which supports a new TEDAPI call to gather vitals that includes Powerwall Temps.
