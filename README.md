@@ -369,3 +369,9 @@ There are several ways you can support this project.
 * InfluxDB at https://github.com/influxdata/influxdb
 * pyPowerwall at https://github.com/jasonacox/pypowerwall
 * Special thanks to the entire Powerwall-Dashboard community for the great engagement, contributions and encouragement! See [RELEASE notes](RELEASE.md#release-notes) for the ever growing list of improvements, tools and cast members making this project possible.
+
+## Contributors
+
+<a href="https://github.com/jasonacox/Powerwall-Dashboard/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=jasonacox/Powerwall-Dashboard" />
+</a>
