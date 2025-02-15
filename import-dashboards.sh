@@ -62,6 +62,7 @@ else
     import_dashboards
 fi
 
+echo "You can have a default dashboard that will be displayed when you log in."
 read -r -p "Would you like to configure a default dashboard? [Y/n] " response
 if [[ "$response" =~ ^([nN][oO]|[nN])$ ]]; then
     echo "No default dashboard will be set."
