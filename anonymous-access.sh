@@ -29,6 +29,8 @@ case $access_choice in
         echo "GF_AUTH_ANONYMOUS_ENABLED=true" >> "${GF_ENV_FILE}"
         echo "GF_AUTH_ANONYMOUS_ORG_NAME=Main Org." >> "${GF_ENV_FILE}"
         echo "GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer" >> "${GF_ENV_FILE}"
+        echo ""
+        echo "Anonymous access has been enabled."
         ;;
     2)
         echo "" >> "${GF_ENV_FILE}"
@@ -38,6 +40,8 @@ case $access_choice in
         echo "GF_AUTH_ANONYMOUS_ORG_NAME=Main Org." >> "${GF_ENV_FILE}"
         echo "GF_AUTH_ANONYMOUS_ORG_ROLE=Admin" >> "${GF_ENV_FILE}"
         echo "GF_USERS_ALLOW_SIGN_UP=false" >> "${GF_ENV_FILE}"
+        echo ""
+        echo "Anonymous access has been enabled."
         ;;
     3)
         echo "No anonymous access will be enabled."
@@ -50,5 +54,7 @@ case $access_choice in
         echo "GF_AUTH_ANONYMOUS_ENABLED=true" >> "${GF_ENV_FILE}"
         echo "GF_AUTH_ANONYMOUS_ORG_NAME=Main Org." >> "${GF_ENV_FILE}"
         echo "GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer" >> "${GF_ENV_FILE}"
+        echo ""
+        echo "Anonymous access has been enabled."
         ;;
 esac
