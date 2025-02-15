@@ -36,6 +36,7 @@ grafana/alerting/
 grafana/csv/
 grafana/grafana.db
 grafana/plugins/
+grafana/dashboards/*.json
 
 influxdb/meta/
 influxdb/wal/

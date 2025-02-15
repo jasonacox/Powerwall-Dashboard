@@ -115,7 +115,7 @@
       "collapsed": false,
       "datasource": {
         "type": "influxdb",
-        "uid": "wzyByQkRz"
+        "uid": "${DS_INFLUXDB}"
       },
       "gridPos": {
         "h": 1,
@@ -129,7 +129,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "wzyByQkRz"
+            "uid": "${DS_INFLUXDB}"
           },
           "refId": "A"
         }
@@ -1801,7 +1801,7 @@
       "collapsed": false,
       "datasource": {
         "type": "influxdb",
-        "uid": "wzyByQkRz"
+        "uid": "${DS_INFLUXDB}"
       },
       "gridPos": {
         "h": 1,
@@ -1815,7 +1815,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "wzyByQkRz"
+            "uid": "${DS_INFLUXDB}"
           },
           "refId": "A"
         }

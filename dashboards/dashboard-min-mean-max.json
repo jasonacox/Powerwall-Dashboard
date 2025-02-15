@@ -10123,7 +10123,7 @@
     ]
   },
   "timezone": "browser",
-  "title": "Powerwall Power Flow",
+  "title": "Powerwall Min/Mean/Max",
   "uid": "RSabAvRRzU",
   "version": 33,
   "weekStart": ""
