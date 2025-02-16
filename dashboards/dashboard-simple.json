@@ -1,22 +1,6 @@
 {
   "__inputs": [
     {
-      "name": "DS_INFLUXDB",
-      "label": "InfluxDB",
-      "description": "",
-      "type": "datasource",
-      "pluginId": "influxdb",
-      "pluginName": "InfluxDB"
-    },
-    {
-      "name": "DS_SUN_AND MOON",
-      "label": "Sun and Moon",
-      "description": "",
-      "type": "datasource",
-      "pluginId": "fetzerch-sunandmoon-datasource",
-      "pluginName": "Sun and Moon"
-    },
-    {
       "name": "VAR_AVG_PER_KWH",
       "type": "constant",
       "label": "kWh cost",
@@ -113,10 +97,7 @@
   "panels": [
     {
       "collapsed": false,
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
+      "datasource": "InfluxDB (auto provisioned)",
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -127,10 +108,7 @@
       "panels": [],
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "refId": "A"
         }
       ],
@@ -218,10 +196,7 @@
       "targets": [
         {
           "alias": "Home Usage",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -256,10 +231,7 @@
         },
         {
           "alias": "Solar Energy",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -293,10 +265,7 @@
         },
         {
           "alias": "Powerwall",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -332,10 +301,7 @@
         },
         {
           "alias": "Grid Usage",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -377,10 +343,7 @@
         },
         {
           "alias": "Charge",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -427,10 +390,7 @@
           "tz": "${tz:text}"
         },
         {
-          "datasource": {
-            "type": "fetzerch-sunandmoon-datasource",
-            "uid": "${DS_SUN_AND MOON}"
-          },
+          "datasource": "Sun and Moon (auto provisioned)",
           "refId": "F",
           "target": "sun_altitude"
         }
@@ -470,10 +430,7 @@
       }
     },
     {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
+      "datasource": "InfluxDB (auto provisioned)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -534,10 +491,7 @@
       "pluginVersion": "9.1.2",
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [],
           "measurement": "http",
           "orderByTime": "ASC",
@@ -589,10 +543,7 @@
         "label": "Others",
         "threshold": 0
       },
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
+      "datasource": "InfluxDB (auto provisioned)",
       "fontSize": "100%",
       "format": "kwatth",
       "gridPos": {
@@ -620,10 +571,7 @@
       "targets": [
         {
           "alias": "From Solar",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -662,10 +610,7 @@
         },
         {
           "alias": "From Powerwall",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [],
           "hide": false,
           "measurement": "http",
@@ -698,10 +643,7 @@
         },
         {
           "alias": "From Grid",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [],
           "hide": false,
           "measurement": "http",
@@ -753,10 +695,7 @@
       "bars": true,
       "dashLength": 10,
       "dashes": false,
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
+      "datasource": "InfluxDB (auto provisioned)",
       "decimals": 2,
       "fieldConfig": {
         "defaults": {
@@ -808,10 +747,7 @@
       "targets": [
         {
           "alias": "powerwall > home",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -850,10 +786,7 @@
         },
         {
           "alias": "solar > home",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -893,10 +826,7 @@
         },
         {
           "alias": "solar > grid",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -936,10 +866,7 @@
         },
         {
           "alias": "total",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "hide": false,
           "query": "SELECT tg + (s - tp - tg ) + fp FROM (SELECT sum(\"to_pw\")  * $avg_per_kwh AS tp, sum(\"solar\") * $avg_per_kwh AS s, sum(\"to_grid\") * $avg_per_kwh AS tg, sum(\"from_pw\") * $avg_per_kwh AS fp FROM kwh.http WHERE  $timeFilter )\n",
           "rawQuery": true,
@@ -985,10 +912,7 @@
     },
     {
       "activePatternIndex": 3,
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
+      "datasource": "InfluxDB (auto provisioned)",
       "defaultPattern": {
         "bgColors": "green|gray|red",
         "bgColors_overrides": "0->green|2->red|1->yellow",
@@ -1165,10 +1089,7 @@
       },
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "query": "SELECT last(\"battery_instant_power\")  / 1000 AS \"Powerwall\", last(\"solar_instant_power\")  / 1000 AS \"Solar\", last(\"load_instant_power\")  / 1000 AS \"Home\", last(\"site_instant_power\")  / 1000 AS \"Grid\" FROM \"raw\".\"http\" WHERE time >= now() - 1m",
           "rawQuery": true,
           "refId": "A",
@@ -1180,10 +1101,7 @@
       "type": "yesoreyeram-boomtable-panel"
     },
     {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
+      "datasource": "InfluxDB (auto provisioned)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1244,10 +1162,7 @@
       "pluginVersion": "9.1.2",
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [],
           "measurement": "http",
           "orderByTime": "ASC",
@@ -1283,10 +1198,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
+      "datasource": "InfluxDB (auto provisioned)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1347,10 +1259,7 @@
       "pluginVersion": "9.1.2",
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [],
           "measurement": "http",
           "orderByTime": "ASC",
@@ -1386,10 +1295,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
+      "datasource": "InfluxDB (auto provisioned)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1450,10 +1356,7 @@
       "pluginVersion": "9.1.2",
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [],
           "measurement": "http",
           "orderByTime": "ASC",
@@ -1489,10 +1392,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
+      "datasource": "InfluxDB (auto provisioned)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1553,10 +1453,7 @@
       "pluginVersion": "9.1.2",
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [],
           "measurement": "http",
           "orderByTime": "ASC",
@@ -1592,10 +1489,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
+      "datasource": "InfluxDB (auto provisioned)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1656,10 +1550,7 @@
       "pluginVersion": "9.1.2",
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [],
           "measurement": "http",
           "orderByTime": "ASC",
@@ -1695,10 +1586,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
+      "datasource": "InfluxDB (auto provisioned)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1759,10 +1647,7 @@
       "pluginVersion": "9.1.2",
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [],
           "measurement": "http",
           "orderByTime": "ASC",
@@ -1799,10 +1684,7 @@
     },
     {
       "collapsed": false,
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
+      "datasource": "InfluxDB (auto provisioned)",
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -1813,10 +1695,7 @@
       "panels": [],
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "refId": "A"
         }
       ],
@@ -1830,10 +1709,7 @@
       "bars": true,
       "dashLength": 10,
       "dashes": false,
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
+      "datasource": "InfluxDB (auto provisioned)",
       "fieldConfig": {
         "defaults": {
           "links": []
@@ -1877,10 +1753,7 @@
       "targets": [
         {
           "alias": "Home Usage",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -1957,10 +1830,7 @@
       "bars": true,
       "dashLength": 10,
       "dashes": false,
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
+      "datasource": "InfluxDB (auto provisioned)",
       "fieldConfig": {
         "defaults": {
           "links": []
@@ -2004,10 +1874,7 @@
       "targets": [
         {
           "alias": "Solar Energy",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -2090,10 +1957,7 @@
       "bars": true,
       "dashLength": 10,
       "dashes": false,
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
+      "datasource": "InfluxDB (auto provisioned)",
       "fieldConfig": {
         "defaults": {
           "links": []
@@ -2137,10 +2001,7 @@
       "targets": [
         {
           "alias": "From Powerwall",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -2220,10 +2081,7 @@
       "bars": true,
       "dashLength": 10,
       "dashes": false,
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
+      "datasource": "InfluxDB (auto provisioned)",
       "fieldConfig": {
         "defaults": {
           "links": []
@@ -2271,10 +2129,7 @@
       "targets": [
         {
           "alias": "From Grid",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -2313,10 +2168,7 @@
         },
         {
           "alias": "To Grid",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -2400,10 +2252,7 @@
       "bars": true,
       "dashLength": 10,
       "dashes": false,
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
+      "datasource": "InfluxDB (auto provisioned)",
       "fieldConfig": {
         "defaults": {
           "links": []
@@ -2454,10 +2303,7 @@
       "targets": [
         {
           "alias": "Solar Energy Year",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [

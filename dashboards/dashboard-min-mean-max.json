@@ -1,22 +1,6 @@
 {
   "__inputs": [
     {
-      "name": "DS_INFLUXDB",
-      "label": "InfluxDB",
-      "description": "",
-      "type": "datasource",
-      "pluginId": "influxdb",
-      "pluginName": "InfluxDB"
-    },
-    {
-      "name": "DS_SUN_AND MOON",
-      "label": "Sun and Moon",
-      "description": "",
-      "type": "datasource",
-      "pluginId": "fetzerch-sunandmoon-datasource",
-      "pluginName": "Sun and Moon"
-    },
-    {
       "name": "VAR_AVG_PER_KWH",
       "type": "constant",
       "label": "kWh cost",
@@ -719,10 +703,7 @@
       "targets": [
         {
           "alias": "Charge",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -768,10 +749,7 @@
           "tags": []
         },
         {
-          "datasource": {
-            "type": "fetzerch-sunandmoon-datasource",
-            "uid": "${DS_SUN_AND MOON}"
-          },
+          "datasource": "Sun and Moon (auto provisioned)",
           "refId": "F",
           "target": [
             "sun_altitude"
@@ -779,10 +757,7 @@
         },
         {
           "alias": "Temperature",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -820,10 +795,7 @@
         },
         {
           "alias": "Clouds",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -861,10 +833,7 @@
         },
         {
           "alias": "Feels Like",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -902,10 +871,7 @@
         },
         {
           "alias": "Grid Down",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -945,10 +911,7 @@
         },
         {
           "alias": "Reserve",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -989,10 +952,7 @@
         },
         {
           "alias": "Solar Energy Max",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -1027,10 +987,7 @@
         },
         {
           "alias": "Solar Energy Min",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -1065,10 +1022,7 @@
         },
         {
           "alias": "Home Usage Max",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -1103,10 +1057,7 @@
         },
         {
           "alias": "Home Usage Min",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -1141,10 +1092,7 @@
         },
         {
           "alias": "Powerwall Max",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -1180,10 +1128,7 @@
         },
         {
           "alias": "Powerwall Min",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -1219,10 +1164,7 @@
         },
         {
           "alias": "Grid Usage Min",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -1264,10 +1206,7 @@
         },
         {
           "alias": "Grid Usage Max",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -1309,10 +1248,7 @@
         },
         {
           "alias": "Home Usage",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -1347,10 +1283,7 @@
         },
         {
           "alias": "Solar Energy",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -1383,10 +1316,7 @@
         },
         {
           "alias": "Powerwall",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -1422,10 +1352,7 @@
         },
         {
           "alias": "Grid Usage",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -1635,10 +1562,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
+      "datasource": "InfluxDB (auto provisioned)",
       "decimals": 0,
       "description": "",
       "fieldConfig": {
@@ -1697,10 +1621,7 @@
       "targets": [
         {
           "alias": "Grid Status",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "query": "SELECT min(\"grid_status\") FROM \"grid\".\"http\" WHERE $timeFilter GROUP BY time($__interval) tz('${tz:text}')",
           "rawQuery": true,
           "refId": "A",
@@ -1764,10 +1685,7 @@
       "type": "row"
     },
     {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
+      "datasource": "InfluxDB (auto provisioned)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1828,10 +1746,7 @@
       "pluginVersion": "9.1.2",
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [],
           "measurement": "http",
           "orderByTime": "ASC",
@@ -1866,10 +1781,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
+      "datasource": "InfluxDB (auto provisioned)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1930,10 +1842,7 @@
       "pluginVersion": "9.1.2",
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [],
           "measurement": "http",
           "orderByTime": "ASC",
@@ -1968,10 +1877,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
+      "datasource": "InfluxDB (auto provisioned)",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -2034,10 +1940,7 @@
       "targets": [
         {
           "alias": "SolarPowered",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [],
           "hide": false,
           "measurement": "http",
@@ -2075,10 +1978,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
+      "datasource": "InfluxDB (auto provisioned)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2139,10 +2039,7 @@
       "pluginVersion": "9.1.2",
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [],
           "measurement": "http",
           "orderByTime": "ASC",
@@ -2177,10 +2074,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
+      "datasource": "InfluxDB (auto provisioned)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2241,10 +2135,7 @@
       "pluginVersion": "9.1.2",
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [],
           "measurement": "http",
           "orderByTime": "ASC",
@@ -2279,10 +2170,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
+      "datasource": "InfluxDB (auto provisioned)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2343,10 +2231,7 @@
       "pluginVersion": "9.1.2",
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [],
           "measurement": "http",
           "orderByTime": "ASC",
@@ -2381,10 +2266,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
+      "datasource": "InfluxDB (auto provisioned)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2445,10 +2327,7 @@
       "pluginVersion": "9.1.2",
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [],
           "measurement": "http",
           "orderByTime": "ASC",
@@ -2483,10 +2362,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
+      "datasource": "InfluxDB (auto provisioned)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2548,10 +2424,7 @@
       "targets": [
         {
           "alias": "",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [],
           "measurement": "http",
           "orderByTime": "ASC",
@@ -2602,10 +2475,7 @@
       "bars": true,
       "dashLength": 10,
       "dashes": false,
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
+      "datasource": "InfluxDB (auto provisioned)",
       "decimals": 2,
       "description": "Estimated Savings",
       "fieldConfig": {
@@ -2658,10 +2528,7 @@
       "targets": [
         {
           "alias": "powerwall > home",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "query": "SELECT fp FROM (SELECT sum(\"from_pw\")  * $avg_per_kwh AS fp FROM kwh.http WHERE  $timeFilter )",
           "rawQuery": true,
           "refId": "A",
@@ -2669,10 +2536,7 @@
         },
         {
           "alias": "solar > home",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "hide": false,
           "query": "SELECT s - (tp + tg) FROM (SELECT sum(\"solar\") * $avg_per_kwh AS s,  sum(\"to_pw\")  * $avg_per_kwh AS tp, sum(\"to_grid\") * $avg_per_kwh AS tg FROM kwh.http WHERE  $timeFilter )\n",
           "rawQuery": true,
@@ -2681,10 +2545,7 @@
         },
         {
           "alias": "solar > grid",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "hide": false,
           "query": "SELECT tg FROM (SELECT sum(\"to_pw\")  * $avg_per_kwh AS tp, sum(\"solar\") * $avg_per_kwh AS s, sum(\"to_grid\") * $avg_per_kwh AS tg FROM kwh.http WHERE  $timeFilter )\n",
           "rawQuery": true,
@@ -2693,10 +2554,7 @@
         },
         {
           "alias": "total",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "hide": false,
           "query": "SELECT tg + (s - tp - tg ) + fp FROM (SELECT sum(\"to_pw\")  * $avg_per_kwh AS tp, sum(\"solar\") * $avg_per_kwh AS s, sum(\"to_grid\") * $avg_per_kwh AS tg, sum(\"from_pw\") * $avg_per_kwh AS fp FROM kwh.http WHERE  $timeFilter )\n",
           "rawQuery": true,
@@ -2763,10 +2621,7 @@
         "label": "Others",
         "threshold": 0
       },
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
+      "datasource": "InfluxDB (auto provisioned)",
       "fontSize": "100%",
       "format": "kwatth",
       "gridPos": {
@@ -2795,10 +2650,7 @@
       "targets": [
         {
           "alias": "From Solar",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "query": "SELECT  (1+from_solar/abs(from_solar))*from_solar/2  FROM (SELECT integral(solar)/1000/3600 - (integral(to_pw) - integral(grid_to_pw))/1000/3600  - integral(to_grid)/1000/3600  AS from_solar FROM (SELECT from_solar, solar, to_pw, to_grid, ((from_grid - home - solar) + ABS((from_grid - home - solar))) / 2 AS grid_to_pw FROM autogen.http WHERE  $timeFilter ))",
           "rawQuery": true,
           "refId": "A",
@@ -2806,10 +2658,7 @@
         },
         {
           "alias": "From Powerwall",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [],
           "hide": false,
           "measurement": "http",
@@ -2844,10 +2693,7 @@
         },
         {
           "alias": "From Grid",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [],
           "hide": false,
           "measurement": "http",
@@ -2888,10 +2734,7 @@
     },
     {
       "activePatternIndex": 1,
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
+      "datasource": "InfluxDB (auto provisioned)",
       "defaultPattern": {
         "bgColors": "green|gray|red",
         "bgColors_overrides": "0->green|2->red|1->yellow",
@@ -3069,10 +2912,7 @@
       },
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "query": "SELECT last(\"load_instant_power\")  / 1000 AS \"Home\", last(\"solar_instant_power\")  / 1000 AS \"Solar\", last(\"battery_instant_power\")  / 1000 AS \"Battery\", last(\"site_instant_power\")  / 1000 AS \"Grid\" FROM \"raw\".\"http\" WHERE time >= now() - 10m",
           "rawQuery": true,
           "refId": "A",
@@ -3103,10 +2943,7 @@
       "bars": true,
       "dashLength": 10,
       "dashes": false,
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
+      "datasource": "InfluxDB (auto provisioned)",
       "fieldConfig": {
         "defaults": {
           "links": []
@@ -3150,10 +2987,7 @@
       "targets": [
         {
           "alias": "Home Usage",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -3232,10 +3066,7 @@
       "bars": true,
       "dashLength": 10,
       "dashes": false,
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
+      "datasource": "InfluxDB (auto provisioned)",
       "fieldConfig": {
         "defaults": {
           "links": []
@@ -3279,10 +3110,7 @@
       "targets": [
         {
           "alias": "Solar Energy",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -3367,10 +3195,7 @@
       "bars": true,
       "dashLength": 10,
       "dashes": false,
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
+      "datasource": "InfluxDB (auto provisioned)",
       "fieldConfig": {
         "defaults": {
           "links": []
@@ -3414,10 +3239,7 @@
       "targets": [
         {
           "alias": "From Powerwall",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -3499,10 +3321,7 @@
       "bars": true,
       "dashLength": 10,
       "dashes": false,
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
+      "datasource": "InfluxDB (auto provisioned)",
       "fieldConfig": {
         "defaults": {
           "links": []
@@ -3551,10 +3370,7 @@
       "targets": [
         {
           "alias": "From Grid",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -3593,10 +3409,7 @@
         },
         {
           "alias": "To Grid",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -3682,10 +3495,7 @@
       "bars": true,
       "dashLength": 10,
       "dashes": false,
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
+      "datasource": "InfluxDB (auto provisioned)",
       "fieldConfig": {
         "defaults": {
           "links": []
@@ -3756,10 +3566,7 @@
       "targets": [
         {
           "alias": "Solar",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -3804,10 +3611,7 @@
         },
         {
           "alias": "Home",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -3853,10 +3657,7 @@
         },
         {
           "alias": "Grid",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -3957,10 +3758,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
+      "datasource": "InfluxDB (auto provisioned)",
       "fieldConfig": {
         "defaults": {
           "links": []
@@ -4007,10 +3805,7 @@
       "targets": [
         {
           "alias": "A",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -4048,10 +3843,7 @@
         },
         {
           "alias": "B",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -4090,10 +3882,7 @@
         },
         {
           "alias": "C",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -4132,10 +3921,7 @@
         },
         {
           "alias": "D",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -4174,10 +3960,7 @@
         },
         {
           "alias": "A1",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -4216,10 +3999,7 @@
         },
         {
           "alias": "B1",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -4258,10 +4038,7 @@
         },
         {
           "alias": "C1",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -4300,10 +4077,7 @@
         },
         {
           "alias": "D1",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -4342,10 +4116,7 @@
         },
         {
           "alias": "A2",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -4384,10 +4155,7 @@
         },
         {
           "alias": "B2",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -4426,10 +4194,7 @@
         },
         {
           "alias": "C2",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -4468,10 +4233,7 @@
         },
         {
           "alias": "D2",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -4510,10 +4272,7 @@
         },
         {
           "alias": "A3",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -4552,10 +4311,7 @@
         },
         {
           "alias": "B3",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -4594,10 +4350,7 @@
         },
         {
           "alias": "C3",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -4636,10 +4389,7 @@
         },
         {
           "alias": "D3",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -4718,10 +4468,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
+      "datasource": "InfluxDB (auto provisioned)",
       "fieldConfig": {
         "defaults": {
           "links": [],
@@ -4769,10 +4516,7 @@
       "targets": [
         {
           "alias": "A",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -4810,10 +4554,7 @@
         },
         {
           "alias": "B",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -4852,10 +4593,7 @@
         },
         {
           "alias": "C",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -4894,10 +4632,7 @@
         },
         {
           "alias": "D",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -4936,10 +4671,7 @@
         },
         {
           "alias": "A1",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -4978,10 +4710,7 @@
         },
         {
           "alias": "B1",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -5020,10 +4749,7 @@
         },
         {
           "alias": "C1",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -5062,10 +4788,7 @@
         },
         {
           "alias": "D1",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -5104,10 +4827,7 @@
         },
         {
           "alias": "A2",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -5146,10 +4866,7 @@
         },
         {
           "alias": "B2",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -5188,10 +4905,7 @@
         },
         {
           "alias": "C2",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -5230,10 +4944,7 @@
         },
         {
           "alias": "D2",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -5272,10 +4983,7 @@
         },
         {
           "alias": "A3",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -5314,10 +5022,7 @@
         },
         {
           "alias": "B3",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -5356,10 +5061,7 @@
         },
         {
           "alias": "C3",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -5398,10 +5100,7 @@
         },
         {
           "alias": "D3",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -5480,10 +5179,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
+      "datasource": "InfluxDB (auto provisioned)",
       "fieldConfig": {
         "defaults": {
           "links": [],
@@ -5531,10 +5227,7 @@
       "targets": [
         {
           "alias": "A",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -5572,10 +5265,7 @@
         },
         {
           "alias": "B",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -5614,10 +5304,7 @@
         },
         {
           "alias": "C",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -5656,10 +5343,7 @@
         },
         {
           "alias": "D",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -5698,10 +5382,7 @@
         },
         {
           "alias": "A1",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -5740,10 +5421,7 @@
         },
         {
           "alias": "B1",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -5782,10 +5460,7 @@
         },
         {
           "alias": "C1",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -5824,10 +5499,7 @@
         },
         {
           "alias": "D1",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -5866,10 +5538,7 @@
         },
         {
           "alias": "A2",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -5908,10 +5577,7 @@
         },
         {
           "alias": "B2",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -5950,10 +5616,7 @@
         },
         {
           "alias": "C2",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -5992,10 +5655,7 @@
         },
         {
           "alias": "D2",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -6034,10 +5694,7 @@
         },
         {
           "alias": "A3",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -6076,10 +5733,7 @@
         },
         {
           "alias": "B3",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -6118,10 +5772,7 @@
         },
         {
           "alias": "C3",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -6160,10 +5811,7 @@
         },
         {
           "alias": "D3",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -6242,10 +5890,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
+      "datasource": "InfluxDB (auto provisioned)",
       "fieldConfig": {
         "defaults": {
           "links": []
@@ -6290,10 +5935,7 @@
       "targets": [
         {
           "alias": "Inverter1",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -6331,10 +5973,7 @@
         },
         {
           "alias": "Inverter2",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -6373,10 +6012,7 @@
         },
         {
           "alias": "Inverter3",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -6415,10 +6051,7 @@
         },
         {
           "alias": "Inverter4",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -6497,10 +6130,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
+      "datasource": "InfluxDB (auto provisioned)",
       "decimals": 1,
       "fieldConfig": {
         "defaults": {
@@ -6546,10 +6176,7 @@
       "targets": [
         {
           "alias": "Powerwall1",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -6587,10 +6214,7 @@
         },
         {
           "alias": "Powerwall2",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -6629,10 +6253,7 @@
         },
         {
           "alias": "Powerwall3",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -6671,10 +6292,7 @@
         },
         {
           "alias": "Powerwall4",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -6713,10 +6331,7 @@
         },
         {
           "alias": "Powerwall5",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -6755,10 +6370,7 @@
         },
         {
           "alias": "Powerwall6",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -6836,10 +6448,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
+      "datasource": "InfluxDB (auto provisioned)",
       "decimals": 3,
       "description": "",
       "fieldConfig": {
@@ -6889,10 +6498,7 @@
       "targets": [
         {
           "alias": "Home L1",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -6930,10 +6536,7 @@
         },
         {
           "alias": "Home L2",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -6972,10 +6575,7 @@
         },
         {
           "alias": "Home L3",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -7014,10 +6614,7 @@
         },
         {
           "alias": "Grid L1",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -7056,10 +6653,7 @@
         },
         {
           "alias": "Grid L2",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -7098,10 +6692,7 @@
         },
         {
           "alias": "Grid L3",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -7140,10 +6731,7 @@
         },
         {
           "alias": "PW1",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -7182,10 +6770,7 @@
         },
         {
           "alias": "PW2",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -7224,10 +6809,7 @@
         },
         {
           "alias": "PW3",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -7266,10 +6848,7 @@
         },
         {
           "alias": "PW4",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -7308,10 +6887,7 @@
         },
         {
           "alias": "PW5",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -7350,10 +6926,7 @@
         },
         {
           "alias": "PW6",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -7431,10 +7004,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
+      "datasource": "InfluxDB (auto provisioned)",
       "decimals": 1,
       "description": "",
       "fieldConfig": {
@@ -7485,10 +7055,7 @@
       "targets": [
         {
           "alias": "Home L1",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -7529,10 +7096,7 @@
         },
         {
           "alias": "Home L2",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -7571,10 +7135,7 @@
         },
         {
           "alias": "Home L3",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -7615,10 +7176,7 @@
         },
         {
           "alias": "Grid L1",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -7659,10 +7217,7 @@
         },
         {
           "alias": "Grid L2",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -7701,10 +7256,7 @@
         },
         {
           "alias": "Grid L3",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -7745,10 +7297,7 @@
         },
         {
           "alias": "PW1 L1",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -7789,10 +7338,7 @@
         },
         {
           "alias": "PW1 L2",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -7833,10 +7379,7 @@
         },
         {
           "alias": "PW2 L1",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -7877,10 +7420,7 @@
         },
         {
           "alias": "PW2 L2",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -7921,10 +7461,7 @@
         },
         {
           "alias": "PW3 L1",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -7965,10 +7502,7 @@
         },
         {
           "alias": "PW3 L2",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -8009,10 +7543,7 @@
         },
         {
           "alias": "PW4 L1",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -8053,10 +7584,7 @@
         },
         {
           "alias": "PW4 L2",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -8097,10 +7625,7 @@
         },
         {
           "alias": "PW5 L1",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -8141,10 +7666,7 @@
         },
         {
           "alias": "PW5 L2",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -8185,10 +7707,7 @@
         },
         {
           "alias": "PW6 L1",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -8229,10 +7748,7 @@
         },
         {
           "alias": "PW6 L2",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -8273,10 +7789,7 @@
         },
         {
           "alias": "PW1",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -8317,10 +7830,7 @@
         },
         {
           "alias": "PW2",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -8361,10 +7871,7 @@
         },
         {
           "alias": "PW3",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -8405,10 +7912,7 @@
         },
         {
           "alias": "PW4",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -8449,10 +7953,7 @@
         },
         {
           "alias": "PW5",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -8493,10 +7994,7 @@
         },
         {
           "alias": "PW6",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -8574,10 +8072,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
+      "datasource": "InfluxDB (auto provisioned)",
       "decimals": 2,
       "description": "",
       "fieldConfig": {
@@ -8662,10 +8157,7 @@
       "targets": [
         {
           "alias": "PW1",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -8703,10 +8195,7 @@
         },
         {
           "alias": "PW2",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -8745,10 +8234,7 @@
         },
         {
           "alias": "PW3",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -8787,10 +8273,7 @@
         },
         {
           "alias": "PW4",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -8829,10 +8312,7 @@
         },
         {
           "alias": "PW5",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -8871,10 +8351,7 @@
         },
         {
           "alias": "PW6",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -8913,10 +8390,7 @@
         },
         {
           "alias": "PW1 Charge",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -8955,10 +8429,7 @@
         },
         {
           "alias": "PW2 Charge",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -8997,10 +8468,7 @@
         },
         {
           "alias": "PW3 Charge",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -9039,10 +8507,7 @@
         },
         {
           "alias": "PW4 Charge",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -9081,10 +8546,7 @@
         },
         {
           "alias": "PW5 Charge",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -9123,10 +8585,7 @@
         },
         {
           "alias": "PW6 Charge",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -9211,10 +8670,7 @@
       "type": "row"
     },
     {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
+      "datasource": "InfluxDB (auto provisioned)",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -9383,10 +8839,7 @@
       },
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "hide": false,
           "query": "SELECT *::field from alerts.alerts where $timeFilter",
           "rawQuery": true,
@@ -9428,10 +8881,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
+      "datasource": "InfluxDB (auto provisioned)",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -9510,10 +8960,7 @@
       "targets": [
         {
           "alias": "Temperature",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -9551,10 +8998,7 @@
         },
         {
           "alias": "Humidity (%)",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -9593,10 +9037,7 @@
         },
         {
           "alias": "Clouds (%)",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -9635,10 +9076,7 @@
         },
         {
           "alias": "Feels Like",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -9714,10 +9152,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
+      "datasource": "InfluxDB (auto provisioned)",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -9803,10 +9238,7 @@
       "targets": [
         {
           "alias": "Snow",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -9844,10 +9276,7 @@
         },
         {
           "alias": "Pressure",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -9886,10 +9315,7 @@
         },
         {
           "alias": "Rain",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -9928,10 +9354,7 @@
         },
         {
           "alias": "Visibility (K)",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
@@ -9976,10 +9399,7 @@
         },
         {
           "alias": "Wind",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
+          "datasource": "InfluxDB (auto provisioned)",
           "groupBy": [
             {
               "params": [
