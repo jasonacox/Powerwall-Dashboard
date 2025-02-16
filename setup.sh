@@ -440,10 +440,12 @@ echo ""
 # Create Grafana Settings if missing (required in 2.4.0)
 if [ ! -f ${GF_ENV_FILE} ]; then
     cp "${GF_ENV_FILE}.sample" "${GF_ENV_FILE}"
-
-    echo ""
-    ./grafana/import-dashboards.sh
 fi
+
+echo ""
+./grafana/import-dashboards.sh
+echo "-----------------------------------------"
+echo ""
 
 # Optional - Setup Weather Data
 if [ -f weather.sh ]; then

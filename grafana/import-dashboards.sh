@@ -58,6 +58,15 @@ if [[ "$response" =~ ^([nN][oO]|[nN])$ ]]; then
     echo "No dashboards will be imported."
     exit 0
 else
+    # Check to see whether they already have dashboards loaded in the provision folder
+    if ls ./grafana/dashboards/*.json 1> /dev/null 2>&1; then
+        read -r -p "Dashboards already exist. Do you want to overwrite them? [y/N] " overwrite_response
+        if [[ ! "$overwrite_response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+            echo "Dashboards will not be overwritten."
+            exit 0
+        fi
+    fi
+
     import_dashboards
 fi
 
