@@ -442,6 +442,7 @@ if [ ! -f ${GF_ENV_FILE} ]; then
     cp "${GF_ENV_FILE}.sample" "${GF_ENV_FILE}"
 fi
 
+# Check if the user wants to import the default dashboards
 echo ""
 ./grafana/import-dashboards.sh
 echo "-----------------------------------------"
