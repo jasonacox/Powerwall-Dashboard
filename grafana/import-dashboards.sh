@@ -22,29 +22,28 @@ import_dashboards() {
 
     # Replace variables in dashboards
     for file in ./grafana/dashboards/*.json; do
-        # Replace data source objects with just the name of the source
-        perl -0777 -pi -e 's|"datasource":\s*\{[^}]*DS_INFLUXDB[^\n]*\s+\}|"datasource": "InfluxDB (auto provisioned)"|gs' "$file"
-        perl -0777 -pi -e 's|"datasource":\s*\{[^}]*DS_SUN_AND[^\n]*\s+\}|"datasource": "DS_SUN_AND MOON"|gs' "$file"
-
-        # Disable the built-in annotation, see https://github.com/grafana/grafana/issues/54574#issuecomment-1431696899
-        sed -i '' "s|\"enable\": true|\"enable\": false|g" "$file"
+        # Disable the built-in annotation
+        sed -i.bak "s|\"enable\": true|\"enable\": false|g" "$file"
 
         # Timezone variable
-        sed -i '' "s|\${VAR_TZ}|\${tz}|g" "$file"
-        CURRENT=`cat tz`
-        perl -0777 -pi -e "s|\"query\": \"\\\${tz}\"|\"query\": \"$CURRENT\"|gs" "$file"
+        sed -i.bak "s|\${VAR_TZ}|\${tz}|g" "$file"
+        CURRENT=$(cat tz)
+        sed -i.bak "s|\"query\": \"\${tz}\"|\"query\": \"$CURRENT\"|g" "$file"
 
         # Cost variables
-        sed -i '' "s|\${VAR_AVG_BUY_PER_KWH}|\${avg_buy_per_kwh}|g" "$file"
-        perl -0777 -pi -e 's|"query": "\$\{avg_buy_per_kwh\}"|"query": "0.19"|gs' "$file"
+        sed -i.bak "s|\${VAR_AVG_BUY_PER_KWH}|\${avg_buy_per_kwh}|g" "$file"
+        sed -i.bak "s|\"query\": \"\${avg_buy_per_kwh}\"|\"query\": \"0.19\"|g" "$file"
 
-        sed -i '' "s|\${VAR_AVG_SELL_PER_KWH}|\${avg_sell_per_kwh}|g" "$file"
-        perl -0777 -pi -e 's|"query": "\$\{avg_sell_per_kwh\}"|"query": "0.19"|gs' "$file"
+        sed -i.bak "s|\${VAR_AVG_SELL_PER_KWH}|\${avg_sell_per_kwh}|g" "$file"
+        sed -i.bak "s|\"query\": \"\${avg_sell_per_kwh}\"|\"query\": \"0.19\"|g" "$file"
 
-        sed -i '' "s|\${VAR_AVG_PER_KWH}|\${avg_per_kwh}|g" "$file"
-        perl -0777 -pi -e 's|"query": "\$\{avg_per_kwh\}"|"query": "0.19"|gs' "$file"
+        sed -i.bak "s|\${VAR_AVG_PER_KWH}|\${avg_per_kwh}|g" "$file"
+        sed -i.bak "s|\"query\": \"\${avg_per_kwh}\"|\"query\": \"0.19\"|g" "$file"
 
-        sed -i '' "s|0.19|${avg_price_per_kwh}|g" "$file"
+        sed -i.bak "s|0.19|${avg_price_per_kwh}|g" "$file"
+
+        # Remove backup files
+        rm -f "$file.bak"
     done
 
     echo "Import completed."

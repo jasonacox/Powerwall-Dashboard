@@ -442,7 +442,7 @@ if [ ! -f ${GF_ENV_FILE} ]; then
     cp "${GF_ENV_FILE}.sample" "${GF_ENV_FILE}"
 
     echo ""
-    ./import-dashboards.sh
+    ./grafana/import-dashboards.sh
 fi
 
 # Optional - Setup Weather Data
