@@ -44,6 +44,9 @@ function remove_existing_settings() {
         sed -i.bak '/^GF_USERS_ALLOW_SIGN_UP/d' "${GF_ENV_FILE}"
         rm -f "${GF_ENV_FILE}.bak"
     fi
+
+    sed -i.bak 's/^GF_AUTH_ANONYMOUS/#GF_AUTH_ANONYMOUS/' "${GF_ENV_FILE}"
+    rm -f "${GF_ENV_FILE}.bak"
 }
 
 
@@ -80,6 +83,7 @@ case $access_choice in
         echo "Anonymous read-write access has been enabled."
         ;;
     3)
+        remove_existing_settings
         echo "No anonymous access will be enabled."
         exit 0
         ;;
