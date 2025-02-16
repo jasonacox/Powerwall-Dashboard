@@ -52,6 +52,7 @@ if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
     echo "What type of access do you want to allow?"
     echo ""
 else
+    remove_existing_settings
     echo ""
     exit 0
 fi
