@@ -429,10 +429,13 @@ fi
 # Create Grafana Settings if missing (required in 2.4.0)
 if [ ! -f ${GF_ENV_FILE} ]; then
     cp "${GF_ENV_FILE}.sample" "${GF_ENV_FILE}"
-
-    # Ask about anonymous access
-    ./anonymous-access.sh
 fi
+
+# Ask about anonymous access
+echo ""
+./anonymous-access.sh
+echo "-----------------------------------------"
+echo ""
 
 echo ""
 if [ -z "${TZ}" ]; then
