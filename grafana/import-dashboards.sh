@@ -110,6 +110,13 @@ else
     esac
 
     if [ -n "$DASHBOARD_PATH" ]; then
+        if grep -q "^GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH" "${GF_ENV_FILE}"; then
+            sed -i.bak '/^# Set a default dashboard to show when you log in/d' "${GF_ENV_FILE}"
+            sed -i.bak '/^GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH/d' "${GF_ENV_FILE}"
+            rm -f "${GF_ENV_FILE}.bak"
+        fi
+        echo "" >> "${GF_ENV_FILE}"
+        echo "# Set a default dashboard to show when you log in" >> "${GF_ENV_FILE}"
         echo "GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/var/lib/grafana/dashboards/${DASHBOARD_PATH}" >> "${GF_ENV_FILE}"
         echo ""
     fi
