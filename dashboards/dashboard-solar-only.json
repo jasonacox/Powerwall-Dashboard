@@ -694,7 +694,7 @@
           "tz": "${tz:text}"
         },
         {
-          "datasource": "Sun and Moon (auto provisioned)",
+          "datasource": { "uid": "sunandmoon" },
           "refId": "F",
           "target": [
             "sun_altitude"
