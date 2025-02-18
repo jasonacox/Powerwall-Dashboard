@@ -1,5 +1,15 @@
 # RELEASE NOTES
 
+## v4.6.2 - Normalize Alerts
+
+Updates to pyPowerwall v0.12.7 which includes:
+* Improvements to grid status connected by @Nexarian in https://github.com/jasonacox/pypowerwall/pull/139
+* Fix an issue in TEDAPI where the grid status is not accurately reported in certain edge cases. Now, only the "SystemConnectedToGrid" alert will appear if it is present in alerts API. This update also eliminates the risk of duplicate and redundant (e.g. "SystemGridConnected") alerts.
+* Updated aggregates call to include site current (METER_X) and external PV inverter data in solar (METER_Y) by @jasonacox in https://github.com/jasonacox/pypowerwall/pull/142. Reported in Issue #140 by @felberch.
+* Alerts in extract_grid_status can be None. This fix addresses this edge case. Fix by @Nexarian in https://github.com/jasonacox/pypowerwall/pull/145
+Dashboard updates:
+* 580 Use F_Voltage field for string voltage by @davemckelvie in https://github.com/jasonacox/Powerwall-Dashboard/pull/581
+
 ## v4.6.1 - pyPowerwall Updates
 
 Updates to using pypowerwall v0.12.4 t68 which includes:
