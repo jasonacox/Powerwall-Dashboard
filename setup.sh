@@ -80,7 +80,7 @@ running() {
     [[ $status == ${code} ]]
 }
 
-# Get latitude and longitude 
+# Get latitude and longitude
 LAT="0.0"
 LONG="0.0"
 PYTHON=$(command -v python3 || command -v python)
@@ -426,11 +426,6 @@ if [ ! -f ${INFLUXDB_ENV_FILE} ]; then
     cp "${INFLUXDB_ENV_FILE}.sample" "${INFLUXDB_ENV_FILE}"
 fi
 
-# Create Grafana Settings if missing (required in 2.4.0)
-if [ ! -f ${GF_ENV_FILE} ]; then
-    cp "${GF_ENV_FILE}.sample" "${GF_ENV_FILE}"
-fi
-
 echo ""
 if [ -z "${TZ}" ]; then
     echo "Using ${CURRENT} timezone..."
@@ -439,6 +434,17 @@ else
     echo "Setting ${TZ} timezone..."
     ./tz.sh "${TZ}"
 fi
+echo "-----------------------------------------"
+echo ""
+
+# Create Grafana Settings if missing (required in 2.4.0)
+if [ ! -f ${GF_ENV_FILE} ]; then
+    cp "${GF_ENV_FILE}.sample" "${GF_ENV_FILE}"
+fi
+
+# Check if the user wants to import the default dashboards
+echo ""
+./grafana/import-dashboards.sh
 echo "-----------------------------------------"
 echo ""
 
