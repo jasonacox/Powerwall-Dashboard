@@ -319,7 +319,7 @@ echo " up!"
 sleep 2
 echo ""
 echo "Add downsample continuous queries to InfluxDB..."
-docker exec --tty influxdb sh -c "influx -import -path=/var/lib/influxdb/influxdb.sql"
+docker exec --tty influxdb sh -c "influx -import -path=/var/lib/influxdb/influxdb.sql" &> /dev/null
 cd influxdb
 for f in run-once*.sql; do
     if [ ! -f "${f}.done" ]; then
