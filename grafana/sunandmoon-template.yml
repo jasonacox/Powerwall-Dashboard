@@ -6,3 +6,4 @@ datasources:
     jsonData: 
       latitude: zzLAT 
       longitude: zzLONG
+    editable: true

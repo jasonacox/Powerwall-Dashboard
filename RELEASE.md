@@ -1,5 +1,10 @@
 # RELEASE NOTES
 
+## v4.6.3 - SunAndMoon Edit
+
+* Update SunAndMoon datasource auto-provisioning to allow user to edit location.
+* Add location LAT and LONG confirmation as part of setup.sh script.
+
 ## v4.6.2 - Normalize Alerts
 
 Updates to pyPowerwall v0.12.7 which includes:
