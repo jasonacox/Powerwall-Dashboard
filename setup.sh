@@ -80,16 +80,6 @@ running() {
     [[ $status == ${code} ]]
 }
 
-# Get latitude and longitude 
-LAT="0.0"
-LONG="0.0"
-PYTHON=$(command -v python3 || command -v python)
-if [ -n "${PYTHON}" ]; then
-    IP_RESPONSE=$(curl -s https://freeipapi.com/api/json)
-    LAT=$(echo "$IP_RESPONSE" | "${PYTHON}" -c "import sys, json; print(json.load(sys.stdin)['latitude'])")
-    LONG=$(echo "$IP_RESPONSE" | "${PYTHON}" -c "import sys, json; print(json.load(sys.stdin)['longitude'])")
-fi
-
 # Docker Dependency Check
 if ! docker info > /dev/null 2>&1; then
     echo "ERROR: docker is not available or not running."
@@ -442,9 +432,37 @@ fi
 echo "-----------------------------------------"
 echo ""
 
+# Get latitude and longitude 
+LAT="0.0"
+LONG="0.0"
+PYTHON=$(command -v python3 || command -v python)
+if [ -n "${PYTHON}" ]; then
+    IP_RESPONSE=$(curl -s https://freeipapi.com/api/json)
+    LAT=$(echo "$IP_RESPONSE" | "${PYTHON}" -c "import sys, json; print(json.load(sys.stdin)['latitude'])")
+    LONG=$(echo "$IP_RESPONSE" | "${PYTHON}" -c "import sys, json; print(json.load(sys.stdin)['longitude'])")
+fi
+# check to see if LAT and LONG are not 0.0
+echo "Using your location coordinates to determine sun cycle."
+if [ "${LAT}" == "0.0" ] || [ "${LONG}" == "0.0" ]; then
+    echo "   Your current location could not be automatically determined."
+    echo "   For help go to https://jasonacox.github.io/Powerwall-Dashboard/location.html"
+else
+    echo "   Your current location appears to be Latitude: ${LAT}, Longitude: ${LONG}"
+fi
+echo ""
+read -p 'Enter Latitude (default: '${LAT}'): ' USER_LAT
+if [ -n "${USER_LAT}" ]; then
+    LAT="${USER_LAT}"
+fi
+read -p 'Enter Longitude (default '${LONG}'): ' USER_LONG
+if [ -n "${USER_LONG}" ]; then
+    LONG="${USER_LONG}"
+fi
+echo ""
+
 # Optional - Setup Weather Data
 if [ -f weather.sh ]; then
-    ./weather.sh setup
+    ./weather.sh setup "${LAT}" "${LONG}"
 fi
 
 if [ -f grafana/sunandmoon-template.yml ]; then

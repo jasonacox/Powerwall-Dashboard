@@ -21,14 +21,21 @@ fi
 
 # Docker Dependency Check - moved to compose-dash.sh, 14/10/22
 
-# Get latitude and longitude 
+# Set latitude and longitude
 LAT="0.0"
 LONG="0.0"
-PYTHON=$(command -v python3 || command -v python)
-if [ -n "${PYTHON}" ]; then
-    IP_RESPONSE=$(curl -s https://freeipapi.com/api/json)
-    LAT=$(echo "$IP_RESPONSE" | "${PYTHON}" -c "import sys, json; print(json.load(sys.stdin)['latitude'])")
-    LONG=$(echo "$IP_RESPONSE" | "${PYTHON}" -c "import sys, json; print(json.load(sys.stdin)['longitude'])")
+# Check for LAT and LONG on command line
+if [ "${1}" == "setup" ] && [ -n "${2}" ] && [ -n "${3}" ]; then
+    LAT="${2}"
+    LONG="${3}"
+else
+    # Try to detect location
+    PYTHON=$(command -v python3 || command -v python)
+    if [ -n "${PYTHON}" ]; then
+        IP_RESPONSE=$(curl -s https://freeipapi.com/api/json)
+        LAT=$(echo "$IP_RESPONSE" | "${PYTHON}" -c "import sys, json; print(json.load(sys.stdin)['latitude'])")
+        LONG=$(echo "$IP_RESPONSE" | "${PYTHON}" -c "import sys, json; print(json.load(sys.stdin)['longitude'])")
+    fi
 fi
 
 # Setup Weather?
