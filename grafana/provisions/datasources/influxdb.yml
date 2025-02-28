@@ -9,3 +9,5 @@ datasources:
     jsonData:
       dbName: powerwall
       timeInterval: 5s
+      httpMode: POST
+    editable: true
