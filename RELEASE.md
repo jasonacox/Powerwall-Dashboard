@@ -1,5 +1,10 @@
 # RELEASE NOTES
 
+## v4.6.4 - InfluxDB Auto
+
+* Fix URI too long issue by adding `POST` method for InfluxDB Auto-provision datasource in Grafana reported in https://github.com/jasonacox/Powerwall-Dashboard/issues/591 by @devachnid.
+* Update InfluxDB auto-provisioning to allow user editing.
+
 ## v4.6.3 - SunAndMoon Edit
 
 * Update SunAndMoon datasource auto-provisioning to allow user to edit location.
