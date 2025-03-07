@@ -1,5 +1,10 @@
 # RELEASE NOTES
 
+## v4.6.5 - Coordinates
+
+* Update `setup.sh` to check for existing LAT and LONG coordinate setting in SunAndMoon auto-provision datasource as reported in https://github.com/jasonacox/Powerwall-Dashboard/issues/589#issuecomment-2704639794.
+* Provide disclaimer that 'already exist' errors are harmless as reported in https://github.com/jasonacox/Powerwall-Dashboard/issues/597
+
 ## v4.6.4 - InfluxDB Auto
 
 * Fix URI too long issue by adding `POST` method for InfluxDB Auto-provision datasource in Grafana reported in https://github.com/jasonacox/Powerwall-Dashboard/issues/591 by @devachnid.

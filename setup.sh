@@ -435,14 +435,27 @@ echo ""
 # Get latitude and longitude 
 LAT="0.0"
 LONG="0.0"
-PYTHON=$(command -v python3 || command -v python)
-if [ -n "${PYTHON}" ]; then
-    IP_RESPONSE=$(curl -s https://freeipapi.com/api/json)
-    LAT=$(echo "$IP_RESPONSE" | "${PYTHON}" -c "import sys, json; print(json.load(sys.stdin)['latitude'])")
-    LONG=$(echo "$IP_RESPONSE" | "${PYTHON}" -c "import sys, json; print(json.load(sys.stdin)['longitude'])")
+# Check for existing LAT and LONG in grafana/provisions/datasources/sunandmoon.yml
+if [ -f grafana/provisions/datasources/sunandmoon.yml ]; then
+    LAT=$(grep latitude grafana/provisions/datasources/sunandmoon.yml | cut -d: -f2 | tr -d '[:space:]')
+    LONG=$(grep longitude grafana/provisions/datasources/sunandmoon.yml | cut -d: -f2 | tr -d '[:space:]')
+fi
+# If LAT and LONG are zzLAT and zzLONG, then use the IP address to determine location
+if [ "${LAT}" == "zzLAT" ] || [ "${LONG}" == "zzLONG" ] || [ "${LAT}" == "0.0" ] || [ "${LONG}" == "0.0" ]; then
+    echo "Attempting to determine your location..."
+    LAT="0.0"
+    LONG="0.0"
+    # Use IP address to determine location
+    PYTHON=$(command -v python3 || command -v python)
+    if [ -n "${PYTHON}" ]; then
+        IP_RESPONSE=$(curl -s https://freeipapi.com/api/json)
+        LAT=$(echo "$IP_RESPONSE" | "${PYTHON}" -c "import sys, json; print(json.load(sys.stdin)['latitude'])")
+        LONG=$(echo "$IP_RESPONSE" | "${PYTHON}" -c "import sys, json; print(json.load(sys.stdin)['longitude'])")
+    fi
+else
+    echo "Found existing location coordinates for sun cycle."
 fi
 # check to see if LAT and LONG are not 0.0
-echo "Using your location coordinates to determine sun cycle."
 if [ "${LAT}" == "0.0" ] || [ "${LONG}" == "0.0" ]; then
     echo "   Your current location could not be automatically determined."
     echo "   For help go to https://jasonacox.github.io/Powerwall-Dashboard/location.html"
@@ -525,7 +538,7 @@ until running http://localhost:8086/ping 204 2>/dev/null; do
 done
 echo " up!"
 sleep 2
-echo "Setup InfluxDB Data..."
+echo "Setup InfluxDB Data... ('already exist' errors harmless)"
 docker exec --tty influxdb sh -c "influx -import -path=/var/lib/influxdb/influxdb.sql"
 sleep 2
 # Execute Run-Once queries for initial setup.
