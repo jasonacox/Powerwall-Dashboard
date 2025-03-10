@@ -106,7 +106,7 @@ Next, you will then be asked for your Local *timezone*, and your Powerwall detai
 
 ### Grafana Setup
 
-Follow the **[Grafana Setup](#grafana-setup)** instructions (see below) to complete the setup.
+Follow the **[Grafana Setup](#grafana-setup-1)** instructions (see below) to complete the setup.
 
 ## Option 2 - Manual Install
 
