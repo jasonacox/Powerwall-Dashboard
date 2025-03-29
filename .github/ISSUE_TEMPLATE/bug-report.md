@@ -20,10 +20,12 @@ Please paste a screenshot or steps to reproduce the behavior:
 **Screenshots**
 If applicable, add screenshots to help explain your problem.
 
-**Host System**
- - Hardware
- - OS
+**System Details**
+ - Powerwall Installation: Solar-Only, PW, PW+, PW2, PW3
+ - Powerwall Firmware Version
+ - Host System Hardware and OS
  - Other Specifics
 
 **Additional context**
+Powerwall Dashboard Installation: Cloud, Local, TEDAPI
 Add any other context about the problem here.
