@@ -21,7 +21,7 @@ git clone https://github.com/jasonacox/Powerwall-Dashboard.git
 cd Powerwall-Dashboard
 
 # Step 5 - Restore backup
-sudo tar -xvf ../Powerwall-Dashboard.tgz
+sudo tar --no-same-owner -zxvf ../Powerwall-Dashboard.tgz
 
 # Step 6 - Setup
 ./setup.sh
@@ -99,7 +99,7 @@ Naturally, whatever backup plan you decide to do, make sure you test it. Copy th
 3. Restore backup files
     ```bash
     # Inside the Powerwall-Dashboard folder, extract the backup archive
-    sudo tar -Jxvf /backups/Powerwall-Dashboard.xyz.tar.xz
+    sudo tar --no-same-owner -Jxvf /backups/Powerwall-Dashboard.xyz.tar.xz
     ```
 4. Start containers
     ```bash
