@@ -1,5 +1,12 @@
 # RELEASE NOTES
 
+## v4.6.6 - Fan Speeds
+
+* Update pypowerwall to v0.12.9, adds vitals metrics for fan speed, fixes bug with FullPackEnergy calcs, improve thread locking for TEDAPI and adds CSV headers. See release notes: https://github.com/jasonacox/pypowerwall/releases
+* Update dashboard to show fan speeds on temperature graph.
+
+<img width="888" alt="image" src="https://github.com/user-attachments/assets/3eb14b9e-fd6a-422b-880d-02545d5e4b05" />
+
 ## v4.6.5 - Coordinates
 
 * Update `setup.sh` to check for existing LAT and LONG coordinate setting in SunAndMoon auto-provision datasource as reported in https://github.com/jasonacox/Powerwall-Dashboard/issues/589#issuecomment-2704639794.
