@@ -99,7 +99,7 @@ Naturally, whatever backup plan you decide to do, make sure you test it. Copy th
 3. Restore backup files
     ```bash
     # Inside the Powerwall-Dashboard folder, extract the backup archive
-    sudo tar --no-same-owner -Jxvf /backups/Powerwall-Dashboard.xyz.tar.xz
+    sudo tar --no-same-owner -Jxvf ./backups/Powerwall-Dashboard.xyz.tar.xz
     ```
 4. Start containers
     ```bash
