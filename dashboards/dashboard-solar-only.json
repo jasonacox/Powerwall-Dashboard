@@ -617,8 +617,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "autogen",
-          "query": "SELECT \"mean_load_instant_power\" FROM \"http\" WHERE $timeFilter ",
-          "rawQuery": false,
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -3910,6 +3908,6 @@
   "timezone": "browser",
   "title": "Solar Only",
   "uid": "RSabAvRRzW",
-  "version": 6,
+  "version": 7,
   "weekStart": ""
 }
