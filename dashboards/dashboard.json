@@ -16583,6 +16583,8 @@
           "measurement": "powerwall_dashboard",
           "orderByTime": "ASC",
           "policy": "raw",
+          "query": "SELECT last(\"version\") FROM \"raw\".\"powerwall_dashboard\"",
+          "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
