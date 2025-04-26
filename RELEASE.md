@@ -6,6 +6,7 @@
 * Fixed issue where Powerwall Dashboard version shows "No data" if time filter set to >3d ago by @mcbirse in https://github.com/jasonacox/Powerwall-Dashboard/pull/618
 * Revised dashboard JSON definitions to remove irrelevant queries when rawQuery is false by @mcbirse in https://github.com/jasonacox/Powerwall-Dashboard/pull/618
 * README: Fix path for restore tar by @jasonacox in https://github.com/jasonacox/Powerwall-Dashboard/commit/3c55ed5834ee4302752b0f50a1542e1644027557
+* Update pypowerwall to v0.12.11 - See updates: https://github.com/jasonacox/pypowerwall/releases/tag/v0.12.11
 
 ## v4.6.6 - Fan Speeds
 
