@@ -635,8 +635,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "autogen",
-          "query": "SELECT \"mean_load_instant_power\" FROM \"http\" WHERE $timeFilter ",
-          "rawQuery": false,
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -799,8 +797,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "autogen",
-          "query": "SELECT \"mean_percentage\" FROM \"http\" WHERE $timeFilter",
-          "rawQuery": false,
           "refId": "E",
           "resultFormat": "time_series",
           "select": [
@@ -1025,8 +1021,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pod",
-          "query": "SELECT \"mean_percentage\" FROM \"http\" WHERE $timeFilter",
-          "rawQuery": false,
           "refId": "K",
           "resultFormat": "time_series",
           "select": [
@@ -3159,8 +3153,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -3304,8 +3297,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -3513,8 +3505,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           },
@@ -3814,8 +3805,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -3890,8 +3880,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"A_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "A0",
           "resultFormat": "time_series",
           "select": [
@@ -3934,8 +3922,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"B_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "B0",
           "resultFormat": "time_series",
           "select": [
@@ -3978,8 +3964,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"C_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "C0",
           "resultFormat": "time_series",
           "select": [
@@ -4022,8 +4006,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"D_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "D0",
           "resultFormat": "time_series",
           "select": [
@@ -4066,8 +4048,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"E_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "E0",
           "resultFormat": "time_series",
           "select": [
@@ -4110,8 +4090,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"F_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "F0",
           "resultFormat": "time_series",
           "select": [
@@ -4154,8 +4132,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"A1_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "A1",
           "resultFormat": "time_series",
           "select": [
@@ -4198,8 +4174,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"B1_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "B1",
           "resultFormat": "time_series",
           "select": [
@@ -4242,8 +4216,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"C1_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "C1",
           "resultFormat": "time_series",
           "select": [
@@ -4286,8 +4258,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"D1_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "D1",
           "resultFormat": "time_series",
           "select": [
@@ -4330,8 +4300,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"E1_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "E1",
           "resultFormat": "time_series",
           "select": [
@@ -4374,8 +4342,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"F1_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "F1",
           "resultFormat": "time_series",
           "select": [
@@ -4418,8 +4384,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"A2_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "A2",
           "resultFormat": "time_series",
           "select": [
@@ -4462,8 +4426,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"A_Volatage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "B2",
           "resultFormat": "time_series",
           "select": [
@@ -4506,8 +4468,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"C2_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "C2",
           "resultFormat": "time_series",
           "select": [
@@ -4550,8 +4510,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"D2_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "D2",
           "resultFormat": "time_series",
           "select": [
@@ -4594,8 +4552,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"E2_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "E2",
           "resultFormat": "time_series",
           "select": [
@@ -4638,8 +4594,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"F2_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "F2",
           "resultFormat": "time_series",
           "select": [
@@ -4682,8 +4636,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"A3_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "A3",
           "resultFormat": "time_series",
           "select": [
@@ -4726,8 +4678,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"B3_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "B3",
           "resultFormat": "time_series",
           "select": [
@@ -4770,8 +4720,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"C3_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "C3",
           "resultFormat": "time_series",
           "select": [
@@ -4814,8 +4762,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"D3_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "D3",
           "resultFormat": "time_series",
           "select": [
@@ -4858,8 +4804,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"E3_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "E3",
           "resultFormat": "time_series",
           "select": [
@@ -4902,8 +4846,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"F3_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "F3",
           "resultFormat": "time_series",
           "select": [
@@ -4946,8 +4888,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"A4_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "A4",
           "resultFormat": "time_series",
           "select": [
@@ -4990,8 +4930,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"B4_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "B4",
           "resultFormat": "time_series",
           "select": [
@@ -5034,8 +4972,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"C4_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "C4",
           "resultFormat": "time_series",
           "select": [
@@ -5078,8 +5014,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"D4_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "D4",
           "resultFormat": "time_series",
           "select": [
@@ -5122,8 +5056,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"E4_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "E4",
           "resultFormat": "time_series",
           "select": [
@@ -5166,8 +5098,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"F4_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "F4",
           "resultFormat": "time_series",
           "select": [
@@ -5210,8 +5140,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"A5_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "A5",
           "resultFormat": "time_series",
           "select": [
@@ -5254,8 +5182,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"B5_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "B5",
           "resultFormat": "time_series",
           "select": [
@@ -5298,8 +5224,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"C5_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "C5",
           "resultFormat": "time_series",
           "select": [
@@ -5342,8 +5266,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"D5_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "D5",
           "resultFormat": "time_series",
           "select": [
@@ -5386,8 +5308,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"E5_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "E5",
           "resultFormat": "time_series",
           "select": [
@@ -5430,8 +5350,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"F5_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "F5",
           "resultFormat": "time_series",
           "select": [
@@ -5502,8 +5420,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -5704,8 +5621,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"D_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "D",
           "resultFormat": "time_series",
           "select": [
@@ -5748,8 +5663,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"E_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "E",
           "resultFormat": "time_series",
           "select": [
@@ -5792,8 +5705,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"F_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "F",
           "resultFormat": "time_series",
           "select": [
@@ -5836,8 +5747,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"A1_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "A1",
           "resultFormat": "time_series",
           "select": [
@@ -5880,8 +5789,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"B1_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "B1",
           "resultFormat": "time_series",
           "select": [
@@ -5924,8 +5831,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"C1_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "C1",
           "resultFormat": "time_series",
           "select": [
@@ -5968,8 +5873,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"D1_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "D1",
           "resultFormat": "time_series",
           "select": [
@@ -6012,8 +5915,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"E1_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "E1",
           "resultFormat": "time_series",
           "select": [
@@ -6056,8 +5957,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"F1_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "F1",
           "resultFormat": "time_series",
           "select": [
@@ -6100,8 +5999,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"A2_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "A2",
           "resultFormat": "time_series",
           "select": [
@@ -6144,8 +6041,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"B2_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "B2",
           "resultFormat": "time_series",
           "select": [
@@ -6188,8 +6083,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"C2_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "C2",
           "resultFormat": "time_series",
           "select": [
@@ -6232,8 +6125,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"D2_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "D2",
           "resultFormat": "time_series",
           "select": [
@@ -6276,8 +6167,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"E2_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "E2",
           "resultFormat": "time_series",
           "select": [
@@ -6320,8 +6209,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"F2_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "F2",
           "resultFormat": "time_series",
           "select": [
@@ -6364,8 +6251,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"A3_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "A3",
           "resultFormat": "time_series",
           "select": [
@@ -6408,8 +6293,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"B3_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "B3",
           "resultFormat": "time_series",
           "select": [
@@ -6452,8 +6335,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"C3_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "C3",
           "resultFormat": "time_series",
           "select": [
@@ -6496,8 +6377,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"D3_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "D3",
           "resultFormat": "time_series",
           "select": [
@@ -6540,8 +6419,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"E3_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "E3",
           "resultFormat": "time_series",
           "select": [
@@ -6584,8 +6461,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"F3_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "F3",
           "resultFormat": "time_series",
           "select": [
@@ -6628,8 +6503,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"A4_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "A4",
           "resultFormat": "time_series",
           "select": [
@@ -6672,8 +6545,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"B4_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "B4",
           "resultFormat": "time_series",
           "select": [
@@ -6716,8 +6587,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"C4_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "C4",
           "resultFormat": "time_series",
           "select": [
@@ -6760,8 +6629,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"D4_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "D4",
           "resultFormat": "time_series",
           "select": [
@@ -6804,8 +6671,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"E4_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "E4",
           "resultFormat": "time_series",
           "select": [
@@ -6848,8 +6713,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"F4_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "F4",
           "resultFormat": "time_series",
           "select": [
@@ -6892,8 +6755,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"A5_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "A5",
           "resultFormat": "time_series",
           "select": [
@@ -6936,8 +6797,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"B5_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "B5",
           "resultFormat": "time_series",
           "select": [
@@ -6980,8 +6839,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"C5_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "C5",
           "resultFormat": "time_series",
           "select": [
@@ -7024,8 +6881,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"D5_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "D5",
           "resultFormat": "time_series",
           "select": [
@@ -7068,8 +6923,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"E5_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "E5",
           "resultFormat": "time_series",
           "select": [
@@ -7112,8 +6965,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"F5_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "F5",
           "resultFormat": "time_series",
           "select": [
@@ -7184,8 +7035,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -7680,8 +7530,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"E1_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "E1",
           "resultFormat": "time_series",
           "select": [
@@ -7724,8 +7572,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"F1_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "F1",
           "resultFormat": "time_series",
           "select": [
@@ -7768,8 +7614,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"A2_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "A2",
           "resultFormat": "time_series",
           "select": [
@@ -7812,8 +7656,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"B2_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "B2",
           "resultFormat": "time_series",
           "select": [
@@ -7856,8 +7698,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"C2_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "C2",
           "resultFormat": "time_series",
           "select": [
@@ -7900,8 +7740,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"D2_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "D2",
           "resultFormat": "time_series",
           "select": [
@@ -7944,8 +7782,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"E2_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "E2",
           "resultFormat": "time_series",
           "select": [
@@ -7988,8 +7824,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"F2_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "F2",
           "resultFormat": "time_series",
           "select": [
@@ -8032,8 +7866,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"A3_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "A3",
           "resultFormat": "time_series",
           "select": [
@@ -8076,8 +7908,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"B3_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "B3",
           "resultFormat": "time_series",
           "select": [
@@ -8120,8 +7950,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"C3_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "C3",
           "resultFormat": "time_series",
           "select": [
@@ -8164,8 +7992,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"D3_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "D3",
           "resultFormat": "time_series",
           "select": [
@@ -8208,8 +8034,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"E3_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "E3",
           "resultFormat": "time_series",
           "select": [
@@ -8252,8 +8076,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"F3_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "F3",
           "resultFormat": "time_series",
           "select": [
@@ -8296,8 +8118,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"A4_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "A4",
           "resultFormat": "time_series",
           "select": [
@@ -8340,8 +8160,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"B4_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "B4",
           "resultFormat": "time_series",
           "select": [
@@ -8384,8 +8202,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"C4_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "C4",
           "resultFormat": "time_series",
           "select": [
@@ -8428,8 +8244,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"D4_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "D4",
           "resultFormat": "time_series",
           "select": [
@@ -8472,8 +8286,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"E4_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "E4",
           "resultFormat": "time_series",
           "select": [
@@ -8516,8 +8328,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"F4_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "F4",
           "resultFormat": "time_series",
           "select": [
@@ -8560,8 +8370,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"A5_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "A5",
           "resultFormat": "time_series",
           "select": [
@@ -8604,8 +8412,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"B5_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "B5",
           "resultFormat": "time_series",
           "select": [
@@ -8648,8 +8454,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"C5_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "C5",
           "resultFormat": "time_series",
           "select": [
@@ -8692,8 +8496,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"D5_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "D5",
           "resultFormat": "time_series",
           "select": [
@@ -8736,8 +8538,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"E5_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "E5",
           "resultFormat": "time_series",
           "select": [
@@ -8780,8 +8580,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
-          "query": "SELECT mean(\"F5_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "F5",
           "resultFormat": "time_series",
           "select": [
@@ -8852,8 +8650,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -9233,8 +9030,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -9605,8 +9401,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -9980,8 +9775,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -10416,8 +10210,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pod",
-          "query": "SELECT mean(\"PW7_POD_nom_full_pack_energy\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "G",
           "resultFormat": "time_series",
           "select": [
@@ -10460,8 +10252,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pod",
-          "query": "SELECT mean(\"PW8_POD_nom_full_pack_energy\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "H",
           "resultFormat": "time_series",
           "select": [
@@ -10504,8 +10294,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pod",
-          "query": "SELECT mean(\"PW9_POD_nom_full_pack_energy\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "I",
           "resultFormat": "time_series",
           "select": [
@@ -10548,8 +10336,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pod",
-          "query": "SELECT mean(\"PW10_POD_nom_full_pack_energy\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "J",
           "resultFormat": "time_series",
           "select": [
@@ -10592,8 +10378,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pod",
-          "query": "SELECT mean(\"PW11_POD_nom_full_pack_energy\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "K",
           "resultFormat": "time_series",
           "select": [
@@ -10636,8 +10420,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pod",
-          "query": "SELECT mean(\"PW12_POD_nom_full_pack_energy\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "L",
           "resultFormat": "time_series",
           "select": [
@@ -10932,8 +10714,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pod",
-          "query": "SELECT mean(\"PW7_POD_nom_energy_remaining\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "S",
           "resultFormat": "time_series",
           "select": [
@@ -10976,8 +10756,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pod",
-          "query": "SELECT mean(\"PW8_POD_nom_energy_remaining\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "T",
           "resultFormat": "time_series",
           "select": [
@@ -11020,8 +10798,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pod",
-          "query": "SELECT mean(\"PW9_POD_nom_energy_remaining\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "U",
           "resultFormat": "time_series",
           "select": [
@@ -11064,8 +10840,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pod",
-          "query": "SELECT mean(\"PW10_POD_nom_energy_remaining\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "V",
           "resultFormat": "time_series",
           "select": [
@@ -11108,8 +10882,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pod",
-          "query": "SELECT mean(\"PW11_POD_nom_energy_remaining\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "W",
           "resultFormat": "time_series",
           "select": [
@@ -11152,8 +10924,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pod",
-          "query": "SELECT mean(\"PW12_POD_nom_energy_remaining\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "X",
           "resultFormat": "time_series",
           "select": [
@@ -11224,8 +10994,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -11751,15 +11520,13 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pwtemps",
-          "query": "SELECT mean(\"PW7_POD_nom_full_pack_energy\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "G",
           "resultFormat": "time_series",
           "select": [
             [
               {
                 "params": [
-                  "PW6_temp"
+                  "PW7_temp"
                 ],
                 "type": "field"
               },
@@ -11795,15 +11562,13 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pwtemps",
-          "query": "SELECT mean(\"PW8_POD_nom_full_pack_energy\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "H",
           "resultFormat": "time_series",
           "select": [
             [
               {
                 "params": [
-                  "PW7_temp"
+                  "PW8_temp"
                 ],
                 "type": "field"
               },
@@ -11839,15 +11604,13 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pwtemps",
-          "query": "SELECT mean(\"PW9_POD_nom_full_pack_energy\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "I",
           "resultFormat": "time_series",
           "select": [
             [
               {
                 "params": [
-                  "PW8_temp"
+                  "PW9_temp"
                 ],
                 "type": "field"
               },
@@ -11883,15 +11646,13 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pwtemps",
-          "query": "SELECT mean(\"PW10_POD_nom_full_pack_energy\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "J",
           "resultFormat": "time_series",
           "select": [
             [
               {
                 "params": [
-                  "PW9_temp"
+                  "PW10_temp"
                 ],
                 "type": "field"
               },
@@ -11927,53 +11688,7 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pwtemps",
-          "query": "SELECT mean(\"PW11_POD_nom_full_pack_energy\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "K",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "PW10_temp"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        },
-        {
-          "alias": "PW12",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "measurement": "http",
-          "orderByTime": "ASC",
-          "policy": "pwtemps",
-          "query": "SELECT mean(\"PW12_POD_nom_full_pack_energy\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
-          "refId": "L",
           "resultFormat": "time_series",
           "select": [
             [
@@ -12015,9 +11730,7 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pwtemps",
-          "query": "SELECT mean(\"PW12_POD_nom_full_pack_energy\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
-          "refId": "M",
+          "refId": "L",
           "resultFormat": "time_series",
           "select": [
             [
@@ -12059,7 +11772,7 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "fans",
-          "refId": "N",
+          "refId": "M",
           "resultFormat": "time_series",
           "select": [
             [
@@ -12101,7 +11814,7 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "fans",
-          "refId": "O",
+          "refId": "N",
           "resultFormat": "time_series",
           "select": [
             [
@@ -12143,7 +11856,7 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "fans",
-          "refId": "P",
+          "refId": "O",
           "resultFormat": "time_series",
           "select": [
             [
@@ -12185,7 +11898,7 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "fans",
-          "refId": "Q",
+          "refId": "P",
           "resultFormat": "time_series",
           "select": [
             [
@@ -12227,7 +11940,7 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "fans",
-          "refId": "R",
+          "refId": "Q",
           "resultFormat": "time_series",
           "select": [
             [
@@ -12269,7 +11982,7 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "fans",
-          "refId": "S",
+          "refId": "R",
           "resultFormat": "time_series",
           "select": [
             [
@@ -12311,7 +12024,7 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "fans",
-          "refId": "T",
+          "refId": "S",
           "resultFormat": "time_series",
           "select": [
             [
@@ -12353,7 +12066,7 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "fans",
-          "refId": "U",
+          "refId": "T",
           "resultFormat": "time_series",
           "select": [
             [
@@ -12395,7 +12108,7 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "fans",
-          "refId": "V",
+          "refId": "U",
           "resultFormat": "time_series",
           "select": [
             [
@@ -12437,7 +12150,7 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "fans",
-          "refId": "W",
+          "refId": "V",
           "resultFormat": "time_series",
           "select": [
             [
@@ -12479,7 +12192,7 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "fans",
-          "refId": "X",
+          "refId": "W",
           "resultFormat": "time_series",
           "select": [
             [
@@ -12521,7 +12234,7 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "fans",
-          "refId": "Y",
+          "refId": "X",
           "resultFormat": "time_series",
           "select": [
             [
@@ -12591,8 +12304,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -13611,8 +13323,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -13743,8 +13454,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "query": "SELECT mean(\"ISLAND_VL1N_Load\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -13829,8 +13538,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "query": "SELECT mean(\"ISLAND_VL3N_Load\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "C",
           "resultFormat": "time_series",
           "select": [
@@ -13873,8 +13580,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "query": "SELECT mean(\"METER_X_VL1N\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "D",
           "resultFormat": "time_series",
           "select": [
@@ -13959,8 +13664,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "query": "SELECT mean(\"METER_X_VL3N\") FROM \"vitals\".\"http\" WHERE \"METER_X_VL3N\" > 0 AND $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "F",
           "resultFormat": "time_series",
           "select": [
@@ -15803,8 +15506,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "transparent",
-                "value": null
+                "color": "transparent"
               },
               {
                 "color": "blue",
@@ -15827,8 +15529,7 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "dark-green",
-                      "value": null
+                      "color": "dark-green"
                     }
                   ]
                 }
@@ -15847,8 +15548,7 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "purple",
-                      "value": null
+                      "color": "purple"
                     }
                   ]
                 }
@@ -15867,8 +15567,7 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "dark-blue",
-                      "value": null
+                      "color": "dark-blue"
                     }
                   ]
                 }
@@ -15887,8 +15586,7 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "dark-blue",
-                      "value": null
+                      "color": "dark-blue"
                     }
                   ]
                 }
@@ -15907,8 +15605,7 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "dark-purple",
-                      "value": null
+                      "color": "dark-purple"
                     }
                   ]
                 }
@@ -15927,8 +15624,7 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "dark-blue",
-                      "value": null
+                      "color": "dark-blue"
                     }
                   ]
                 }
@@ -16045,8 +15741,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -16429,8 +16124,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -16828,8 +16522,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -16890,6 +16583,8 @@
           "measurement": "powerwall_dashboard",
           "orderByTime": "ASC",
           "policy": "raw",
+          "query": "SELECT last(\"version\") FROM \"raw\".\"powerwall_dashboard\"",
+          "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -17006,6 +16701,6 @@
   "timezone": "${VAR_TZ}",
   "title": "Powerwall - Power Flow",
   "uid": "RSabAvRRzZ",
-  "version": 59,
+  "version": 60,
   "weekStart": ""
 }

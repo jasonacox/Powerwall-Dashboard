@@ -37,7 +37,7 @@
       "type": "datasource",
       "id": "fetzerch-sunandmoon-datasource",
       "name": "Sun and Moon",
-      "version": "0.3.0"
+      "version": "0.3.3"
     },
     {
       "type": "grafana",
@@ -741,8 +741,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "autogen",
-          "query": "SELECT \"mean_percentage\" FROM \"http\" WHERE $timeFilter",
-          "rawQuery": false,
           "refId": "E",
           "resultFormat": "time_series",
           "select": [
@@ -967,8 +965,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pod",
-          "query": "SELECT \"mean_percentage\" FROM \"http\" WHERE $timeFilter",
-          "rawQuery": false,
           "refId": "K",
           "resultFormat": "time_series",
           "select": [
@@ -1005,8 +1001,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "autogen",
-          "query": "SELECT \"mean_load_instant_power\" FROM \"http\" WHERE $timeFilter ",
-          "rawQuery": false,
           "refId": "L",
           "resultFormat": "time_series",
           "select": [
@@ -1043,8 +1037,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "autogen",
-          "query": "SELECT \"mean_load_instant_power\" FROM \"http\" WHERE $timeFilter ",
-          "rawQuery": false,
           "refId": "M",
           "resultFormat": "time_series",
           "select": [
@@ -1081,8 +1073,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "autogen",
-          "query": "SELECT \"mean_load_instant_power\" FROM \"http\" WHERE $timeFilter ",
-          "rawQuery": false,
           "refId": "N",
           "resultFormat": "time_series",
           "select": [
@@ -1119,8 +1109,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "autogen",
-          "query": "SELECT \"mean_load_instant_power\" FROM \"http\" WHERE $timeFilter ",
-          "rawQuery": false,
           "refId": "O",
           "resultFormat": "time_series",
           "select": [
@@ -1325,8 +1313,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "autogen",
-          "query": "SELECT \"mean_load_instant_power\" FROM \"http\" WHERE $timeFilter ",
-          "rawQuery": false,
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -2815,8 +2801,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "autogen",
-          "query": "SELECT mean(\"value\") FROM \"measurement\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "B",
           "resultFormat": "time_series",
           "select": [
@@ -7507,8 +7491,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "query": "SELECT mean(\"ISLAND_VL1N_Load\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -7593,8 +7575,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "query": "SELECT mean(\"ISLAND_VL3N_Load\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "C",
           "resultFormat": "time_series",
           "select": [
@@ -7637,8 +7617,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "query": "SELECT mean(\"METER_X_VL1N\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "D",
           "resultFormat": "time_series",
           "select": [
@@ -7723,8 +7701,6 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
-          "query": "SELECT mean(\"METER_X_VL3N\") FROM \"vitals\".\"http\" WHERE \"METER_X_VL3N\" > 0 AND $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "F",
           "resultFormat": "time_series",
           "select": [
@@ -10125,6 +10101,6 @@
   "timezone": "browser",
   "title": "Powerwall Power Flow",
   "uid": "RSabAvRRzU",
-  "version": 33,
+  "version": 34,
   "weekStart": ""
 }
