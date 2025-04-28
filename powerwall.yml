@@ -102,3 +102,19 @@ services:
             - WEATHERCONF=/var/lib/weather/weather411.conf
         depends_on:
             - influxdb
+
+    nginx:
+        image: nginx:latest
+        container_name: nginx
+        hostname: nginx
+        restart: always
+        volumes:
+            - type: bind
+              source: ./nginx-host.conf
+              target: /etc/nginx/conf.d/default.conf
+              read_only: true
+        ports:
+            - target: 80
+              published: 8080
+              mode: host
+
