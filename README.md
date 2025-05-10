@@ -51,47 +51,61 @@ The dashboard can be installed in four different configurations.
     -----------------------------------------
     Select configuration mode:
 
-    1 - Local Access   (Powerwall 1, 2, or + using the Tesla Gateway on LAN) - Default
-    2 - Tesla Cloud    (Solar-only systems or Powerwalls without LAN access)
-    3 - FleetAPI Cloud (Powerwall systems using Official Telsa API)
-    4 - Powerwall 3    (Powerwall 3 using the local Tesla Gateway)
+    1 - Local Access     (Powerwall 1, 2, or + using the Tesla Gateway on LAN) - Default
+    2 - Tesla Cloud      (Solar-only systems or Powerwalls without LAN access)
+    3 - FleetAPI Cloud   (Powerwall systems using Official Telsa API)
+    4 - Extended Metrics (Powerwall 2, +, or 3 using TEDAPI and local WiFi access)
   ```
 
 ### Local Mode
 
-For Powerwall 1, 2 or + owners with a Tesla Energy Gateway accessible on their LAN, select `option 1` (Local Access).
+For Powerwall 1, 2 or + owners with a Tesla Energy Gateway accessible on their LAN, select `option 1` (Local Access). Powerwall 3 owners will need to select one of the cloud options or `option 4`.
 
-#### Extended Device Vitals Metrics
+#### Extended Metrics Mode
 
-With version v4.4.0+, pypowerwall can be set to access the TEDAPI API on the Gateway to pull additional metrics. However, it requires the Gateway Password (often found on the QR sticker on the Powerwall Gateway) and your computer will need network access to the Gateway IP (192.168.91.1). You can have your computer join the Gateway's local WiFi or you can add a network route (examples below). This should be set up before running `setup.sh` if you want this feature. Note: Gateway 1 systems will not work with this method as they require a power toggle for access (see [Issue #536](https://github.com/jasonacox/Powerwall-Dashboard/issues/536)).
+The Powerwall Dashboard can access additional metrics through the TEDAPI interface on the Powerwall/Gateway. To use this feature:
+
+* You need the Powerwall/Gateway Password (typically found on the QR sticker)
+* Your computer must have access to IP address 192.168.91.1
+* Starting with Powerwall firmware 25.10.1+, your computer must connect directly to the Powerwall's WiFi access point. Important: Set up WiFi connectivity before running `setup.sh` if you want to use TEDAPI mode.
+
+For instructions on setting up a Raspberry Pi with Powerwall WiFi, see: https://github.com/jasonacox/Powerwall-Dashboard/discussions/607. Also, unfortunately, Gateway 1 systems will not work with this method as they require a power toggle for access (see [Issue #536](https://github.com/jasonacox/Powerwall-Dashboard/issues/536)).
+
+Using the pypowerwall python library you can test to see if you have access to TEDAPI:
 
 ```bash
-# Example - Change 192.168.0.100 to the IP address of Powerwall Gateway on your LAN
+# Test access to TEDAPI:
 
-# Automatic - Route Script - Detect OS and setup persistent route.
-./add_route.sh
+  curl -k --head https://192.168.91
 
-# Linux / RPi - Add to netplan, /etc/rc.local or /etc/network/if-up.d/static-route for persistence 
-sudo ip route add 192.168.91.1 via 192.168.0.100
+# Test your password to TEDAPI:
 
-# MacOS 
-sudo route add -host 192.168.91.1 192.168.0.100 # Temporary 
-networksetup -setadditionalroutes Wi-Fi 192.168.91.1 255.255.255.255 192.168.0.100 # Persistent
+  # Create a virtual python env
+  python -m venv venv
+  source venv/bin/activate
 
-# Windows - Using persistence flag - Administrator Shell
-route -p add 192.168.91.1 mask 255.255.255.255 192.168.0.100
+  # Install package
+  pip install pypowerwall
+
+  # Scan for Powerwall
+  python -m pypowerwall scan
+
+  # Connect to TEDAPI - You will be prompted for password
+  python -m pypowerwall.tedapi
 ```
 
-#### Powerwall 3 Mode (Full TEDAPI Mode)
+If you get a positive result, you can proceed with setup (`./setup.sh`) and selection option 1 or 4.
 
-If you have access to the Powerwall 192.168.91.1 endpoint (see local mode Extended Device Vitals Metrics note above), you can select option 4 to activate Powerwall 3 mode. All data will be pulled from the local Gateway TEDAPI endpoint. The password will be located on the QR sticker on the Powerwall 3 itself. If you have problems with your setup for the Powerwall 3, see troubleshooting section below.
+#### Powerwall 3 Owners (Requires TEDAPI)
+
+If you have access to the Powerwall 192.168.91.1 endpoint (see local mode Extended Device Vitals Metrics note above), you can select option 4 to activate Extended Metrics mode. All data will be pulled from the local Gateway TEDAPI endpoint (requires connecting to Powerwall's WiFi access point). The password will be located on the QR sticker on the Powerwall 3 itself. If you have problems with your setup for the Powerwall 3, see troubleshooting section below.
 
 _Note: This mode also works for Powerwall 2/+ systems. Unlike TEDAPI hybrid mode which uses some existing local APIs, this full mode provides calculated values for extended metrics missing in the TEDAPI payload._
 
 
 ### Cloud and FleetAPI Mode
 
-For Tesla Solar or Powerwall 3 owners without LAN access, select `option 2` (Tesla Owners unofficial Cloud API) or `option 3` (Tesla official FleetAPI) and the dashboard will be installed to pull data from the Tesla Cloud API. This mode should work for all systems but will have slightly less details and fidelity than the "Local Access" mode.
+For Tesla Solar or Powerwall 3 owners without TEDAPI access, select `option 2` (Tesla Owners unofficial Cloud API) or `option 3` (Tesla official FleetAPI) and the dashboard will be installed to pull data from the Tesla Cloud API. This mode should work for ALL systems but will have slightly less details and fidelity than the "Local Access" mode.
 
 ### Timezone
 

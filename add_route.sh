@@ -15,6 +15,10 @@ TARGET_IP="192.168.91.1"
 NETMASK="255.255.255.255"
 OS=$(uname -s)
 
+echo "WARNING: With Powerwall Firmware 24.10.0 and later, Powerwalls no longer allow routed"
+echo "access to the TEDAPI interface. This script is only for use with earlier firmware."
+echo
+echo "-------------------------------------------------------------------------------"
 echo "Setup script for persistant Powerall Dashboard TEDAPI Interface network routing"
 echo "-------------------------------------------------------------------------------"
 echo
