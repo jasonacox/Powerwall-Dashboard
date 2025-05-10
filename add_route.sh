@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # add_route.sh
-# Script to setup persistant TEDAPI Routing for Powerwall Dashboard
+# Script to setup persistent TEDAPI Routing for Powerwall Dashboard
 # Version: 1.0.1
 # By Scott Hibbard  - 2024-09-15
 #
@@ -18,9 +18,9 @@ OS=$(uname -s)
 echo "WARNING: With Powerwall Firmware 24.10.0 and later, Powerwalls no longer allow routed"
 echo "access to the TEDAPI interface. This script is only for use with earlier firmware."
 echo
-echo "-------------------------------------------------------------------------------"
-echo "Setup script for persistant Powerall Dashboard TEDAPI Interface network routing"
-echo "-------------------------------------------------------------------------------"
+echo "--------------------------------------------------------------------------------"
+echo "Setup script for persistent Powerwall Dashboard TEDAPI Interface network routing"
+echo "--------------------------------------------------------------------------------"
 echo
 echo "This script will require root privileges to read & set a startup cron task."
 read -r -p "Do you want to run this script? [Y/n] " response
