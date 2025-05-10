@@ -61,7 +61,7 @@ The dashboard can be installed in four different configurations.
 
 For Powerwall 1, 2 or + owners with a Tesla Energy Gateway accessible on their LAN, select `option 1` (Local Access). Powerwall 3 owners will need to select one of the cloud options or `option 4`.
 
-#### Extended Metrics Mode
+### Extended Metrics Mode
 
 The Powerwall Dashboard can access additional metrics through the TEDAPI interface on the Powerwall/Gateway. To use this feature:
 
@@ -76,7 +76,7 @@ Using the pypowerwall python library you can test to see if you have access to T
 ```bash
 # Test access to TEDAPI:
 
-  curl -k --head https://192.168.91
+  curl -k --head https://192.168.91.1
 
 # Test your password to TEDAPI:
 
