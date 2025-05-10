@@ -3,7 +3,7 @@
 ## v4.7.0 - Firmware 25.10.x
 
 * Starting with Powerwall Firmware 24.10.0 and later, Powerwalls no longer allows routed access to the TEDAPI interface (needed for Powerwall 3 and extended metrics data)
-* Updated documentation and setup script to instruct users that direct WiFi access is required for TEDADP access.
+* Updated documentation and setup script to instruct users that direct WiFi access is required for TEDAPI access.
 
 ## v4.6.7 - Dashboard Fixes
 
