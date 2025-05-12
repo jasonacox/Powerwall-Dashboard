@@ -1,5 +1,24 @@
 # RELEASE NOTES
 
+## v4.7.1 - Multiple PW3 Strings
+
+* Update pypowerwall to v0.12.12 - See updates: https://github.com/jasonacox/pypowerwall/releases/tag/v0.12.12
+    * Bug Fix - Logic added in https://github.com/jasonacox/pypowerwall/pull/169 does not iterate through all PW3 strings. This adds logic to handle multiple PW3 string sets. Reported in https://github.com/jasonacox/pypowerwall/issues/172 by @heynorm
+    * Proxy t73 (10 May 2025) - Add `/json` route to return basic metrics:
+
+```json
+{
+  "grid": -3,
+  "home": 917.5,
+  "solar": 5930,
+  "battery": -5030,
+  "soe": 61.391932759907306,
+  "grid_status": 1,
+  "reserve": 20,
+  "time_remaining_hours": 17.03651226158038
+}
+```
+
 ## v4.7.0 - Firmware 25.10.x
 
 * Starting with Powerwall Firmware 24.10.0 and later, Powerwalls no longer allows routed access to the TEDAPI interface (needed for Powerwall 3 and extended metrics data)
