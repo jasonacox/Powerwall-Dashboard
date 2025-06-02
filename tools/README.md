@@ -84,3 +84,11 @@ Run Powerwall Dashboard on k3s. These config files assume you are using metallb 
 
 * Author: [@cfoos](https://github.com/cfoos)
 * [Details and Instructions](k3s/)
+
+## InfluxDB Viewer Tool
+
+A command-line and interactive shell tool for exploring and querying InfluxDB databases. This tool allows you to browse retention policies, measurements, and fields, and to query the last hour of data for any field in your InfluxDB instance. It is ideal for quick data inspection, troubleshooting, and learning the structure of your InfluxDB data.
+
+* Author: [@jasonacox](https://github.com/jasonacox)
+* [Details and Instructions](influxdb-viewer/README.md)
+* Script: [viewer.py](influxdb-viewer/viewer.py)
