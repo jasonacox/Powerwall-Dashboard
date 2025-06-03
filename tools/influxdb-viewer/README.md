@@ -6,8 +6,11 @@ A command-line and interactive shell tool for exploring and querying InfluxDB da
 - List retention policies, measurements, and fields in an InfluxDB database
 - Query the last hour of data for a specific field in a measurement
 - Interactive shell mode for navigating retention policies and measurements like directories and files. Navigate with familiar shell commands "ls", "cd" and "cat <measurement>" to view last hour of data.
-- Allows specifying the InfluxDB host and database via command-line switches
+- Allows specifying the InfluxDB host, database, username, and password via command-line switches
+- Tab completion for commands, retention policies, measurements, and fields in shell mode
+- Optionally specify the number of data points to show with 'tail' (default 10)
 - If no arguments are provided, launches the interactive shell by default
+- No authentication is used by default, but you can provide --user and --password if needed
 
 ## Requirements
 - Python 3.7+
@@ -24,6 +27,8 @@ Run the script from the command line. If you run it with no arguments, it will l
 ### Command-Line Options
 - `--host HOST` : InfluxDB host (default: `localhost`)
 - `--db DB` : InfluxDB database name (default: `powerwall`)
+- `--user USER` : InfluxDB username (optional)
+- `--password PASSWORD` : InfluxDB password (optional)
 
 ### Main Commands
 - `shell` : Launch interactive shell mode
@@ -34,10 +39,14 @@ Run the script from the command line. If you run it with no arguments, it will l
 
 ### Interactive Shell Commands
 - `ls` : List retention policies, measurements, or fields (depending on your location in the tree)
+- `ls -l` : Long listing. For measurements, shows measurement names and field counts. For fields, shows field name, type, and entry count.
 - `cd [name]` : Enter a retention policy or measurement (or `..` to go up, `/` to go to root, or `retention.measurement` to jump directly)
-- `cat [field]` or `tail [field]` : Show the last hour of data for a field (must be inside a measurement)
+- `cat [field]` : Show the last hour of data for a field (must be inside a measurement)
+- `tail [field] [n]` : Show the last n data points for a field (default n=10)
 - `exit` or `quit` : Exit shell mode
-- `help` : Show help message
+- `help` or `?` : Show help message
+
+Tab completion is available for commands, retention policies, measurements, and fields in shell mode.
 
 ## Examples
 
@@ -66,19 +75,21 @@ python viewer.py list http
 python viewer.py solar_instant_average_voltage raw.http
 ```
 
-### Use a different host and database
+### Use a different host, database, and authentication
 ```sh
-python viewer.py --host influxdb.local --db mydb shell
+python viewer.py --host influxdb.local --db mydb --user myuser --password mypass shell
 ```
 
 ### In Shell Mode
 ```
 ls
+ls -l
 cd raw
 ls
 cd http
-ls
+ls -l
 cat solar_instant_average_voltage
+tail solar_instant_average_voltage 20
 ```
 
 ## Author
