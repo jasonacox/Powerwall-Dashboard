@@ -108,7 +108,7 @@ tail solar_instant_average_voltage 20
 
 ### Example Output
 
-![alt text](image.png)
+![image](https://github.com/user-attachments/assets/368e9d56-1f3f-406e-ae8b-7b65efa7a887)
 
 ## Author
 Jason Cox - [github.com/jasonacox/Powerwall-Dashboard](https://github.com/jasonacox/Powerwall-Dashboard)
