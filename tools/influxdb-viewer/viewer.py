@@ -5,36 +5,39 @@ InfluxDB Viewer Tool
 This script provides a command-line and interactive shell interface for exploring and querying an InfluxDB database.
 
 Features:
-- List retention policies, measurements, and fields in an InfluxDB database.
-- Query the last hour of data for a specific field in a measurement.
-- Interactive shell mode for navigating retention policies and measurements like directories and files.
-- Supports 'cat' and 'tail' commands to display recent data.
-- Allows specifying the InfluxDB host, database, username, and password via command-line switches.
-- If no arguments are provided, launches the interactive shell by default.
-- Tab completion for commands, retention policies, measurements, and fields in shell mode.
-- Optionally specify the number of data points to show with 'tail' (default 10).
-- No authentication is used by default, but you can provide --user and --password if needed.
+  - List retention policies, measurements, and fields in an InfluxDB database with clear, colorized, and tabular output.
+  - Query the last N minutes of data for a specific field in a measurement (default 60, configurable in shell mode).
+  - Interactive shell mode for navigating retention policies and measurements like directories and files, with a shell-like prompt.
+  - Supports 'cat' and 'tail' commands to display recent data, with time window and count options.
+  - Allows specifying the InfluxDB host, database, username, and password via command-line switches.
+  - Tab completion for commands, retention policies, measurements, and fields in shell mode.
+  - Optionally specify the number of data points to show with 'tail' (default 10).
+  - Option to disable colored output with --nocolor.
+  - Robust error handling and user guidance for incomplete or incorrect commands.
+  - If no arguments are provided, launches the interactive shell by default.
+  - Comprehensive help and documentation in both CLI and shell mode.
 
 Requirements:
-- pip install requests
+  - pip install requests colorama
 
 Usage examples:
-python viewer.py
-python viewer.py --host myhost --db mydb shell
-python viewer.py --user myuser --password mypass shell
-python viewer.py list [measurement]
-python viewer.py measurements
-python viewer.py retention
-python viewer.py <field> <measurement>
+  python viewer.py
+  python viewer.py --host myhost --db mydb shell
+  python viewer.py --user myuser --password mypass shell
+  python viewer.py --nocolor shell
+  python viewer.py list [measurement]
+  python viewer.py measurements
+  python viewer.py retention
+  python viewer.py <field> <measurement>
 
 Shell mode commands:
-  ls                List retention policies, measurements, or fields
-  ls -l             List with details: measurements show field count, fields show entry count
-  cd [name]         Enter a retention policy or measurement (or '..' to go up)
-  cat [field]       Show last hour of data for a field (must be inside a measurement)
-  tail [field] [n]  Show last n data points for a field (default n=10)
-  exit, quit        Exit shell mode
-  help, ?           Show this help message
+  ls                     List retention policies, measurements, or fields (tabular, colorized)
+  ls -l                  Long listing: measurements show field count; fields show entry count
+  cd [name]              Enter a retention policy or measurement (or '..' to go up)
+  cat [field] [minutes]  Show last N minutes of data for a field (default 60, must be inside a measurement)
+  tail [field] [n]       Show last n data points for a field (default n=10)
+  exit, quit             Exit shell mode
+  help, ?                Show this help message
 
 Tab completion is available for commands, retention policies, measurements, and fields.
 
@@ -43,26 +46,32 @@ Date: June 2025
 """
 
 import sys
-import requests
 import datetime
 import argparse
 import readline
+import requests
+from colorama import init, Fore, Style
+
+init(autoreset=True)
+
+# Color control globals
+USE_COLOR = True
 
 INFLUXDB_URL = "http://localhost:8086/query"
 DATABASE = "powerwall"
 
 
-def get_last_hour_data(field, measurement):
+def get_last_hour_data(field, measurement, minutes=60):
     """
-    Query and print the last hour of data for a specific field in a measurement.
-    If no data is found, prompt the user to fetch the last 10 data points instead.
+    Query and print the last N minutes of data for a specific field in a measurement.
     Args:
         field (str): The field to query.
         measurement (str): The measurement (table) to query from.
+        minutes (int): Number of minutes to look back (default 60).
     """
     now = datetime.datetime.utcnow()
-    one_hour_ago = now - datetime.timedelta(hours=1)
-    query = f"SELECT {field} FROM {measurement} WHERE time > '{one_hour_ago.isoformat()}Z'"
+    start_time = now - datetime.timedelta(minutes=minutes)
+    query = f"SELECT {field} FROM {measurement} WHERE time > '{start_time.isoformat()}Z'"
     params = {
         'db': DATABASE,
         'q': query,
@@ -82,26 +91,53 @@ def get_last_hour_data(field, measurement):
     if 'results' in data and data['results'] and 'series' in data['results'][0]:
         points = data['results'][0]['series'][0]['values']
         columns = data['results'][0]['series'][0]['columns']
-        print(f"Last hour of data for field '{field}' from measurement '{measurement}':")
-        print(columns)
+        print()
+        print(Fore.CYAN + f"Last {minutes} minutes of data for field '{field}' from measurement '{measurement}':" + Style.RESET_ALL)
+        # Table header
+        col_widths = [max(len(str(col)), 19 if i == 0 else len(str(col))) for i, col in enumerate(columns)]
+        for row in points:
+            for i, val in enumerate(row):
+                if i == 0:
+                    # time column
+                    ts = val
+                    if isinstance(ts, int) or (isinstance(ts, float) and ts == int(ts)):
+                        try:
+                            dt_local = datetime.datetime.fromtimestamp(ts)
+                            ts_str = dt_local.strftime('%Y-%m-%d %H:%M:%S %Z')
+                        except Exception:
+                            ts_str = str(ts)
+                    else:
+                        ts_str = str(ts)
+                    col_widths[0] = max(col_widths[0], len(ts_str))
+                else:
+                    col_widths[i] = max(col_widths[i], len(str(val)))
+        # Print header
+        header = " ".join(Fore.YELLOW + str(col).ljust(col_widths[i]) + Style.RESET_ALL for i, col in enumerate(columns))
+        print(header)
+        print(Fore.YELLOW + "-" * (sum(col_widths) + len(col_widths) - 1) + Style.RESET_ALL)
+        # Print rows
         for point in points:
-            # Convert first column (timestamp) to readable local date/time if it's an integer
-            ts = point[0]
-            if isinstance(ts, int) or (isinstance(ts, float) and ts == int(ts)):
-                try:
-                    # Use local timezone conversion
-                    dt_local = datetime.datetime.fromtimestamp(ts)
-                    ts_str = dt_local.strftime('%Y-%m-%d %H:%M:%S %Z')
-                except Exception:
-                    ts_str = str(ts)
-            else:
-                ts_str = str(ts)
-            print([ts_str] + point[1:])
+            row = []
+            for i, val in enumerate(point):
+                if i == 0:
+                    ts = val
+                    if isinstance(ts, int) or (isinstance(ts, float) and ts == int(ts)):
+                        try:
+                            dt_local = datetime.datetime.fromtimestamp(ts)
+                            ts_str = dt_local.strftime('%Y-%m-%d %H:%M:%S %Z')
+                        except Exception:
+                            ts_str = str(ts)
+                    else:
+                        ts_str = str(ts)
+                    row.append(ts_str.ljust(col_widths[0]))
+                else:
+                    row.append(str(val).ljust(col_widths[i]))
+            print(Fore.WHITE + " ".join(row) + Style.RESET_ALL)
     else:
-        print(f"No data found for field '{field}' in measurement '{measurement}' in the last hour.")
+        print(Fore.RED + f"No data found for field '{field}' in measurement '{measurement}' in the last {minutes} minutes." + Style.RESET_ALL)
         # Prompt user to fetch last 10 data points
         try:
-            answer = input("Would you like to fetch the last 10 data points instead? [y/N]: ").strip().lower()
+            answer = input(Fore.YELLOW + "Would you like to fetch the last 10 data points instead? [y/N]: " + Style.RESET_ALL).strip().lower()
         except (EOFError, KeyboardInterrupt):
             answer = ''
         if answer == 'y' or answer == 'yes':
@@ -135,21 +171,49 @@ def get_last_n_data(field, measurement, n=10):
     if 'results' in data and data['results'] and 'series' in data['results'][0]:
         points = data['results'][0]['series'][0]['values']
         columns = data['results'][0]['series'][0]['columns']
-        print(f"Last {n} data points for field '{field}' from measurement '{measurement}':")
-        print(columns)
+        print()
+        print(Fore.CYAN + f"Last {n} data points for field '{field}' from measurement '{measurement}':" + Style.RESET_ALL)
+        # Table header
+        col_widths = [max(len(str(col)), 19 if i == 0 else len(str(col))) for i, col in enumerate(columns)]
+        for row in points:
+            for i, val in enumerate(row):
+                if i == 0:
+                    ts = val
+                    if isinstance(ts, int) or (isinstance(ts, float) and ts == int(ts)):
+                        try:
+                            dt_local = datetime.datetime.fromtimestamp(ts)
+                            ts_str = dt_local.strftime('%Y-%m-%d %H:%M:%S %Z')
+                        except Exception:
+                            ts_str = str(ts)
+                    else:
+                        ts_str = str(ts)
+                    col_widths[0] = max(col_widths[0], len(ts_str))
+                else:
+                    col_widths[i] = max(col_widths[i], len(str(val)))
+        # Print header
+        header = " ".join(Fore.YELLOW + str(col).ljust(col_widths[i]) + Style.RESET_ALL for i, col in enumerate(columns))
+        print(header)
+        print(Fore.YELLOW + "-" * (sum(col_widths) + len(col_widths) - 1) + Style.RESET_ALL)
+        # Print rows
         for point in points:
-            ts = point[0]
-            if isinstance(ts, int) or (isinstance(ts, float) and ts == int(ts)):
-                try:
-                    dt_local = datetime.datetime.fromtimestamp(ts)
-                    ts_str = dt_local.strftime('%Y-%m-%d %H:%M:%S %Z')
-                except Exception:
-                    ts_str = str(ts)
-            else:
-                ts_str = str(ts)
-            print([ts_str] + point[1:])
+            row = []
+            for i, val in enumerate(point):
+                if i == 0:
+                    ts = val
+                    if isinstance(ts, int) or (isinstance(ts, float) and ts == int(ts)):
+                        try:
+                            dt_local = datetime.datetime.fromtimestamp(ts)
+                            ts_str = dt_local.strftime('%Y-%m-%d %H:%M:%S %Z')
+                        except Exception:
+                            ts_str = str(ts)
+                    else:
+                        ts_str = str(ts)
+                    row.append(ts_str.ljust(col_widths[0]))
+                else:
+                    row.append(str(val).ljust(col_widths[i]))
+            print(Fore.WHITE + " ".join(row) + Style.RESET_ALL)
     else:
-        print(f"No data found for field '{field}' in measurement '{measurement}'.")
+        print(Fore.RED + f"No data found for field '{field}' in measurement '{measurement}'." + Style.RESET_ALL)
 
 def get_number(field, measurement):
     """
@@ -253,17 +317,18 @@ def list_fields(measurement):
     if 'results' in data and data['results'] and 'series' in data['results'][0]:
         fields = data['results'][0]['series'][0]['values']
         columns = data['results'][0]['series'][0]['columns']
-        print(f"Available fields in measurement '{measurement}':")
-        print(f"{'Field':<32} {'Type':<12} {'Description':<20}")
-        print("-"*64)
+        print()
+        print(Fore.LIGHTBLACK_EX + f"Available fields in measurement '{measurement}':" + Style.RESET_ALL)
+        print(Fore.YELLOW + f"{'Field':<32} {'Type':<12} {'Description':<20}" + Style.RESET_ALL)
+        print(Fore.YELLOW + "-"*64 + Style.RESET_ALL)
         for field in fields:
             # field[0] = field name, field[1] = type, field[2] = description (if present)
             name = field[0]
             ftype = field[1] if len(field) > 1 else ''
             desc = field[2] if len(field) > 2 else ''
-            print(f"{name:<32} {ftype:<12} {desc:<20}")
+            print(Fore.WHITE + f"{name:<32} {ftype:<12} {desc:<20}" + Style.RESET_ALL)
     else:
-        print(f"No fields found for measurement '{measurement}'.")
+        print(Fore.RED + f"No fields found for measurement '{measurement}'." + Style.RESET_ALL)
 
 
 def list_measurements():
@@ -288,8 +353,8 @@ def list_measurements():
     data = response.json()
     if 'results' in data and data['results'] and 'series' in data['results'][0]:
         measurements = data['results'][0]['series'][0]['values']
-        print(f"{'Measurement':<32} {'Entries':>10}")
-        print("-"*44)
+        print(Fore.CYAN + f"{'Measurement':<32} {'Entries':>10}" + Style.RESET_ALL)
+        print(Fore.YELLOW + "-"*44 + Style.RESET_ALL)
         for m in measurements:
             name = m[0]
             # Query count for each measurement (may be slow for many measurements)
@@ -309,10 +374,9 @@ def list_measurements():
                     total = 0
             except Exception:
                 total = '?'
-            print(f"{name:<32} {total:>10}")
+            print(Fore.WHITE + f"{name:<32} {total:>10}" + Style.RESET_ALL)
     else:
-        print("No measurements found in the database.")
-
+        print(Fore.RED + "No measurements found in the database." + Style.RESET_ALL)
 
 def list_retention_policies():
     """
@@ -333,10 +397,10 @@ def list_retention_policies():
     data = response.json()
     if 'results' in data and data['results'] and 'series' in data['results'][0]:
         policies = data['results'][0]['series'][0]['values']
-        columns = data['results'][0]['series'][0]['columns']
-        print("Available retention policies:")
-        print(f"{'Name':<20} {'Duration':<12} {'ShardGroup':<12} {'ReplicaN':<8} {'Default':<8}")
-        print("-"*64)
+        print()
+        print(Fore.LIGHTBLACK_EX + "Available retention policies:" + Style.RESET_ALL)
+        print(Fore.YELLOW + f"{'Name':<20} {'Duration':<12} {'ShardGroup':<12} {'ReplicaN':<8} {'Default':<8}" + Style.RESET_ALL)
+        print(Fore.YELLOW + "-"*64 + Style.RESET_ALL)
         for policy in policies:
             # columns: name, duration, shardGroupDuration, replicaN, default
             name = policy[0]
@@ -344,9 +408,9 @@ def list_retention_policies():
             shard = policy[2]
             replica = policy[3]
             default = str(policy[4])
-            print(f"{name:<20} {duration:<12} {shard:<12} {replica:<8} {default:<8}")
+            print(Fore.WHITE + f"{name:<20} {duration:<12} {shard:<12} {replica:<8} {default:<8}" + Style.RESET_ALL)
     else:
-        print("No retention policies found in the database.")
+        print(Fore.RED + "No retention policies found in the database." + Style.RESET_ALL)
 
 
 def shell_mode():
@@ -354,7 +418,7 @@ def shell_mode():
     Launch the interactive shell mode for browsing and querying InfluxDB.
     Provides navigation and data inspection commands with tab completion.
     """
-    print("Welcome to InfluxDB Shell Mode! Type 'help' for commands.\n")
+    print(Fore.CYAN + Style.BRIGHT + "Welcome to InfluxDB Shell Mode! Type 'help' for commands.\n" + Style.RESET_ALL)
     current_retention = None
     current_measurement = None
     # Setup tab completion for shell mode
@@ -448,40 +512,43 @@ def shell_mode():
 
     while True:
         if current_retention and not current_measurement:
-            prompt = f"influxdb:{current_retention}$ "
+            prompt = Fore.GREEN + "influxdb:" + Fore.YELLOW + f"{current_retention}$ " + Style.RESET_ALL
         elif current_retention and current_measurement:
-            prompt = f"influxdb:{current_retention}.{current_measurement}$ "
+            prompt = Fore.GREEN + "influxdb:" + Fore.YELLOW + f"{current_retention}.{current_measurement}$ " + Style.RESET_ALL
         else:
-            prompt = "influxdb$ "
+            prompt = Fore.GREEN + "influxdb" + Fore.YELLOW + "$ " + Style.RESET_ALL
         try:
             cmd = input(prompt).strip()
         except (EOFError, KeyboardInterrupt):
-            print("\nExiting shell mode.")
+            print(Fore.YELLOW + "\nExiting shell mode." + Style.RESET_ALL)
             break
         if cmd in ("exit", "quit"):
-            print("Exiting shell mode.")
+            print(Fore.YELLOW + "Exiting shell mode." + Style.RESET_ALL)
             break
         elif cmd == "help" or cmd == "?":
-            print("Commands:")
-            print("  ls                List retention policies, measurements, or fields")
-            print("  ls -l             Long listing: measurements show field count; fields show entry count")
-            print("  cd [name]         Enter a retention policy or measurement (or '..' to go up)")
-            print("  cat [field]       Show last hour of data for a field (must be inside a measurement)")
-            print("  tail [field] [n]  Show last n data points for a field (default n=10)")
-            print("  exit, quit        Exit shell mode")
-            print("  help, ?           Show this help message\n")
+            print(Fore.CYAN + "Commands:" + Style.RESET_ALL)
+            print(Fore.CYAN + "  ls                     List retention policies, measurements, or fields" + Style.RESET_ALL)
+            print(Fore.CYAN + "  ls -l                  Long listing: measurements show field count; fields show entry count" + Style.RESET_ALL)
+            print(Fore.CYAN + "  cd [name]              Enter a retention policy or measurement (or '..' to go up)" + Style.RESET_ALL)
+            print(Fore.CYAN + "  cat [field] [minutes]  Show last N minutes of data for a field (default 60, must be inside a measurement)" + Style.RESET_ALL)
+            print(Fore.CYAN + "  tail [field] [n]       Show last n data points for a field (default n=10)" + Style.RESET_ALL)
+            print(Fore.CYAN + "  exit, quit             Exit shell mode" + Style.RESET_ALL)
+            print(Fore.CYAN + "  help, ?                Show this help message\n" + Style.RESET_ALL)
         elif cmd.startswith("ls"):
             long_listing = cmd.strip() == "ls -l"
             if not current_retention:
                 # List retention policies
+                print(Fore.MAGENTA, end='')
                 list_retention_policies()
+                print(Style.RESET_ALL, end='')
             elif current_retention and not current_measurement:
                 # List all measurements (no filtering by retention policy)
                 measurements = get_measurement_names()
                 if measurements:
+                    print()
                     if long_listing:
-                        print(f"{'Measurement':<32} {'Fields':>8}")
-                        print("-"*41)
+                        print(Fore.YELLOW + f"{'Measurement':<32} {'Fields':>8}" + Style.RESET_ALL)
+                        print(Fore.YELLOW + "-"*41 + Style.RESET_ALL)
                         for name in sorted(measurements):
                             # Query number of fields for each measurement
                             field_query = f"SHOW FIELD KEYS FROM {current_retention}.{name}"
@@ -498,15 +565,15 @@ def shell_mode():
                                     nfields = 0
                             except Exception:
                                 nfields = '?'
-                            print(f"{name:<32} {nfields:>8}")
+                            print(Fore.WHITE + f"{name:<32} {nfields:>8}" + Style.RESET_ALL)
                     else:
                         # Print as a single column table
-                        print(f"{'Measurement':<32}")
-                        print("-"*32)
+                        print(Fore.YELLOW + f"{'Measurement':<32}" + Style.RESET_ALL)
+                        print(Fore.YELLOW + "-"*32 + Style.RESET_ALL)
                         for name in sorted(measurements):
-                            print(f"{name:<32}")
+                            print(Fore.WHITE + f"{name:<32}" + Style.RESET_ALL)
                 else:
-                    print("No measurements found in the database.")
+                    print(Fore.RED + "No measurements found in the database." + Style.RESET_ALL)
             elif current_retention and current_measurement:
                 # List fields in this measurement
                 if long_listing:
@@ -521,19 +588,21 @@ def shell_mode():
                         data = response.json()
                         if 'results' in data and data['results'] and 'series' in data['results'][0]:
                             fields = data['results'][0]['series'][0]['values']
-                            print(f"{'Field':<32} {'Type':<12} {'Count':>10}")
-                            print("-"*56)
+                            print(Fore.YELLOW + f"{'Field':<32} {'Type':<12} {'Count':>10}" + Style.RESET_ALL)
+                            print(Fore.YELLOW + "-"*56 + Style.RESET_ALL)
                             for field in fields:
                                 name = field[0]
                                 ftype = field[1] if len(field) > 1 else ''
                                 count_val = get_number(name, measurement)
-                                print(f"{name:<32} {ftype:<12} {count_val:>10}")
+                                print(Fore.WHITE + f"{name:<32} {ftype:<12} {count_val:>10}" + Style.RESET_ALL)
                         else:
-                            print(f"No fields found for measurement '{measurement}'.")
+                            print(Fore.RED + f"No fields found for measurement '{measurement}'." + Style.RESET_ALL)
                     except Exception:
-                        print(f"Error retrieving fields for measurement '{measurement}'.")
+                        print(Fore.RED + f"Error retrieving fields for measurement '{measurement}'." + Style.RESET_ALL)
                 else:
+                    print(Fore.MAGENTA, end='')
                     list_fields(f"{current_retention}.{current_measurement}")
+                    print(Style.RESET_ALL, end='')
             print()
         elif cmd.startswith("cd"):
             arg = cmd[2:].strip()
@@ -555,42 +624,49 @@ def shell_mode():
                     current_measurement = meas
                 else:
                     if rp not in retention_policies:
-                        print(f"Retention policy '{rp}' not found.")
+                        print(Fore.RED + f"Retention policy '{rp}' not found." + Style.RESET_ALL)
                     elif meas not in measurements:
-                        print(f"Measurement '{meas}' not found.")
+                        print(Fore.RED + f"Measurement '{meas}' not found." + Style.RESET_ALL)
             elif not current_retention:
                 # Enter retention policy (use actual retention policy list)
                 retention_policies = get_retention_policy_names()
                 if arg in retention_policies:
                     current_retention = arg
                 else:
-                    print(f"Retention policy '{arg}' not found.")
+                    print(Fore.RED + f"Retention policy '{arg}' not found." + Style.RESET_ALL)
             elif current_retention and not current_measurement:
                 # Enter measurement (from all measurements)
                 measurements = get_measurement_names()
                 if arg in measurements:
                     current_measurement = arg
                 else:
-                    print(f"Measurement '{arg}' not found.")
+                    print(Fore.RED + f"Measurement '{arg}' not found." + Style.RESET_ALL)
             else:
-                print("Usage: cd [name]")
-        elif cmd.startswith("cat ") or cmd.startswith("more "):
+                print(Fore.YELLOW + "Usage: cd [name]" + Style.RESET_ALL)
+        elif cmd.startswith("cat") or cmd.startswith("more"):
+            parts = cmd.split()
+            if len(parts) < 2:
+                print(Fore.YELLOW + "Usage: cat [field] [minutes]" + Style.RESET_ALL)
+                continue
             if not (current_retention and current_measurement):
-                print("You must 'cd' into a retention policy and measurement first.")
+                print(Fore.YELLOW + "You must 'cd' into a retention policy and measurement first." + Style.RESET_ALL)
                 continue
-            field = cmd.split(" ", 1)[1].strip() if " " in cmd else ""
-            if not field:
-                print("Usage: cat [field]")
-                continue
-            get_last_hour_data(field, f"{current_retention}.{current_measurement}")
+            field = parts[1]
+            minutes = 60
+            if len(parts) > 2:
+                try:
+                    minutes = int(parts[2])
+                except ValueError:
+                    print(Fore.YELLOW + "Minutes must be an integer. Using default of 60." + Style.RESET_ALL)
+            get_last_hour_data(field, f"{current_retention}.{current_measurement}", minutes)
             print()
         elif cmd.startswith("tail "):
             if not (current_retention and current_measurement):
-                print("You must 'cd' into a retention policy and measurement first.")
+                print(Fore.YELLOW + "You must 'cd' into a retention policy and measurement first." + Style.RESET_ALL)
                 continue
             parts = cmd.split()
             if len(parts) < 2:
-                print("Usage: tail [field] [count]")
+                print(Fore.YELLOW + "Usage: tail [field] [count]" + Style.RESET_ALL)
                 continue
             field = parts[1]
             n = 10
@@ -598,13 +674,13 @@ def shell_mode():
                 try:
                     n = int(parts[2])
                 except ValueError:
-                    print("Count must be an integer. Using default of 10.")
+                    print(Fore.YELLOW + "Count must be an integer. Using default of 10." + Style.RESET_ALL)
             get_last_n_data(field, f"{current_retention}.{current_measurement}", n)
             print()
         elif cmd == "":
             continue
         else:
-            print(f"Unknown command: {cmd}. Type 'help' for a list of commands.")
+            print(Fore.RED + f"Unknown command: {cmd}. Type 'help' for a list of commands." + Style.RESET_ALL)
 
 
 def main():
@@ -616,13 +692,24 @@ def main():
     parser.add_argument('--db', default='powerwall', help="InfluxDB database name (default: powerwall)")
     parser.add_argument('--user', default=None, help="InfluxDB username (optional)")
     parser.add_argument('--password', default=None, help="InfluxDB password (optional)")
+    parser.add_argument('--nocolor', action='store_true', help="Disable colored output")
     parser.add_argument('field', nargs='?', help="Field to query, or 'list' to list fields, or 'measurements' to list measurements, or 'shell' for interactive mode.")
     parser.add_argument('measurement', nargs='?', default='raw.http', help="Measurement (table) name. Defaults to 'raw.http'.")
     args = parser.parse_args()
 
-    global INFLUXDB_URL, DATABASE
+    global INFLUXDB_URL, DATABASE, USE_COLOR
     INFLUXDB_URL = f"http://{args.host}:8086/query"
     DATABASE = args.db
+    USE_COLOR = not args.nocolor
+
+    # Patch colorama Fore/Style if nocolor
+    if not USE_COLOR:
+        for name in dir(Fore):
+            if not name.startswith("_"):
+                setattr(Fore, name, "")
+        for name in dir(Style):
+            if not name.startswith("_"):
+                setattr(Style, name, "")
 
     # Prepare auth params if user and password are provided
     global INFLUXDB_AUTH
