@@ -1,5 +1,14 @@
 # RELEASE NOTES
 
+## v4.7.2 - TEDAPI Updates
+
+* Added InfluxDB interactive tool for troubleshooting - https://github.com/jasonacox/Powerwall-Dashboard/tree/main/tools/influxdb-viewer
+* Update pypowerwall to v0.13.0 - See updates: https://github.com/jasonacox/pypowerwall/releases/tag/v0.13.0
+    * Use Neurio for TEDAPI data when Tesla Remote Meter is not present by @Nexarian 
+    * Add connection pool to TEDAPI by @Nexarian
+    * Add METER_Z (Backup Switch) data to vitals and aggregates data 
+    * Fix logic for aggregates API for consolidated voltage and current data by @jasonacox
+
 ## v4.7.1 - Multiple PW3 Strings
 
 * Update pypowerwall to v0.12.12 - See updates: https://github.com/jasonacox/pypowerwall/releases/tag/v0.12.12
