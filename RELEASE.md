@@ -1,5 +1,20 @@
 # RELEASE NOTES
 
+## v4.7.2 - TEDAPI Updates
+
+* Added InfluxDB interactive tool for troubleshooting - https://github.com/jasonacox/Powerwall-Dashboard/tree/main/tools/influxdb-viewer
+* Updated dashboard.json to add total Powerwall capacity graph in addition to separate PW stats. This is helpful for systems with PW3 + DC Expansion packs. See https://github.com/jasonacox/Powerwall-Dashboard/issues/632
+* Update pypowerwall to v0.13.1 
+* See updates: https://github.com/jasonacox/pypowerwall/releases/tag/v0.13.0
+    * Use Neurio for TEDAPI data when Tesla Remote Meter is not present by @Nexarian 
+    * Add connection pool to TEDAPI by @Nexarian
+    * Add METER_Z (Backup Switch) data to vitals and aggregates data 
+    * Fix logic for aggregates API for consolidated voltage and current data by @jasonacox
+* See updates: https://github.com/jasonacox/pypowerwall/releases/tag/v0.13.1
+    * Fix missing battery_blocks data on PW3 with Multiple Powerwalls in Local Mode in [#131](https://github.com/jasonacox/pypowerwall/issues/131)
+    * Fix errant API base URL check. by @Nexarian in [#185](https://github.com/jasonacox/pypowerwall/pull/185)
+    * Update TEDAPI to pull battery blocks from vitals for PW3 Systems by @jasonacox in [#184](https://github.com/jasonacox/pypowerwall/pull/184)
+
 ## v4.7.1 - Multiple PW3 Strings
 
 * Update pypowerwall to v0.12.12 - See updates: https://github.com/jasonacox/pypowerwall/releases/tag/v0.12.12

@@ -3153,7 +3153,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -3297,7 +3298,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -3505,7 +3507,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               }
             ]
           },
@@ -3805,7 +3808,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -5420,7 +5424,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -7035,7 +7040,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -8650,7 +8656,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -9030,7 +9037,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -9164,7 +9172,7 @@
         ]
       },
       "gridPos": {
-        "h": 5,
+        "h": 6,
         "w": 12,
         "x": 0,
         "y": 58
@@ -9401,7 +9409,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -9535,7 +9544,7 @@
         ]
       },
       "gridPos": {
-        "h": 5,
+        "h": 6,
         "w": 12,
         "x": 12,
         "y": 58
@@ -9775,7 +9784,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -9808,13 +9818,13 @@
               },
               {
                 "id": "custom.axisPlacement",
-                "value": "right"
+                "value": "auto"
               },
               {
                 "id": "custom.stacking",
                 "value": {
                   "group": "A",
-                  "mode": "normal"
+                  "mode": "none"
                 }
               }
             ]
@@ -9828,7 +9838,7 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "#37872D",
+                  "fixedColor": "dark-green",
                   "mode": "fixed"
                 }
               }
@@ -9908,14 +9918,29 @@
                 }
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/^Total/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
           }
         ]
       },
       "gridPos": {
-        "h": 5,
+        "h": 6,
         "w": 24,
         "x": 0,
-        "y": 63
+        "y": 64
       },
       "id": 55,
       "options": {
@@ -10941,6 +10966,90 @@
             ]
           ],
           "tags": []
+        },
+        {
+          "alias": "Total",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "pod",
+          "refId": "Y",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "nominal_full_pack_energy"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Total Charge",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "pod",
+          "refId": "Z",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "nominal_energy_remaining"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
         }
       ],
       "title": "Powerwall Capacity",
@@ -10994,7 +11103,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -11225,7 +11335,7 @@
         "h": 5,
         "w": 24,
         "x": 0,
-        "y": 68
+        "y": 70
       },
       "id": 86,
       "options": {
@@ -12304,7 +12414,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -12385,7 +12496,7 @@
         "h": 5,
         "w": 24,
         "x": 0,
-        "y": 73
+        "y": 75
       },
       "id": 38,
       "interval": "",
@@ -13323,7 +13434,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -13409,7 +13521,7 @@
         "h": 5,
         "w": 24,
         "x": 0,
-        "y": 78
+        "y": 80
       },
       "id": 61,
       "interval": "",
@@ -15477,7 +15589,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 83
+        "y": 85
       },
       "id": 65,
       "panels": [],
@@ -15506,7 +15618,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "transparent"
+                "color": "transparent",
+                "value": null
               },
               {
                 "color": "blue",
@@ -15529,7 +15642,8 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "dark-green"
+                      "color": "dark-green",
+                      "value": null
                     }
                   ]
                 }
@@ -15548,7 +15662,8 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "purple"
+                      "color": "purple",
+                      "value": null
                     }
                   ]
                 }
@@ -15567,7 +15682,8 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "dark-blue"
+                      "color": "dark-blue",
+                      "value": null
                     }
                   ]
                 }
@@ -15586,7 +15702,8 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "dark-blue"
+                      "color": "dark-blue",
+                      "value": null
                     }
                   ]
                 }
@@ -15605,7 +15722,8 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "dark-purple"
+                      "color": "dark-purple",
+                      "value": null
                     }
                   ]
                 }
@@ -15624,7 +15742,8 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "dark-blue"
+                      "color": "dark-blue",
+                      "value": null
                     }
                   ]
                 }
@@ -15637,7 +15756,7 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 84
+        "y": 86
       },
       "id": 68,
       "options": {
@@ -15687,7 +15806,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 94
+        "y": 96
       },
       "id": 57,
       "panels": [],
@@ -15741,7 +15860,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -15883,7 +16003,7 @@
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 95
+        "y": 97
       },
       "hideTimeOverride": false,
       "id": 59,
@@ -16124,7 +16244,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -16252,7 +16373,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 101
+        "y": 103
       },
       "hideTimeOverride": false,
       "id": 60,
@@ -16499,7 +16620,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 108
+        "y": 110
       },
       "id": 90,
       "panels": [],
@@ -16522,7 +16643,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -16537,7 +16659,7 @@
         "h": 2,
         "w": 24,
         "x": 0,
-        "y": 109
+        "y": 111
       },
       "id": 88,
       "links": [],
@@ -16701,6 +16823,6 @@
   "timezone": "${VAR_TZ}",
   "title": "Powerwall - Power Flow",
   "uid": "RSabAvRRzZ",
-  "version": 60,
+  "version": 61,
   "weekStart": ""
 }
