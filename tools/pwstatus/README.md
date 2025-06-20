@@ -211,7 +211,7 @@ Add this text and save:
 /var/log/pwstatus.log
 {
 	rotate 7
-	weekly
+	daily
 	missingok
 	notifempty
 	compress
