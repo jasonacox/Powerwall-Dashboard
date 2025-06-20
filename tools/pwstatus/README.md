@@ -223,9 +223,9 @@ With the system config files in place, the script can be enabled as a service so
 
 ```sh
 # Enable pwstatus as a system service and start the service
+sudo systemctl daemon-reload
 sudo systemctl enable pwstatus.service
 sudo systemctl start pwstatus.service
-sudo systemctl daemon-reload
 ```
 
 </details>
