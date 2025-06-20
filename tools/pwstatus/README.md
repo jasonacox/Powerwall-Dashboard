@@ -58,7 +58,7 @@ The script can be installed as a system service, so it will run permanently in t
 
 You can skip this step if not required or if you wish to test the script beforehand.
 
-<details><summary>Example system service installation (click to expand)</summary>
+<details><summary>Example system service installation for Alpine Linux (click to expand)</summary>
 
 <p>
 
@@ -146,6 +146,88 @@ rc-service pwstatus start
 ```
 
 </p>
+</details>
+
+<details><summary>Example system service installation on Debian Bookworm (click to expand)</summary>
+<br>
+
+Below is an example of how to install the script as a system service based on requirements for Debian Bookworm.  Debian Bookworm uses the `systemd` init system and system manager.
+
+Copy the script to an appropriate location for your system (e.g. `/usr/local/bin`) and ensure it is executable.
+
+```sh
+# Copy script to location in path
+cp pwstatus.sh /usr/local/bin/pwstatus.sh 
+chmod 755 /usr/local/bin/pwstatus.sh
+```
+
+#### Create service
+Create an systemd service (e.g., `/etc/systemd/system/pwstatus.service`) and edit this file:
+``` 
+sudo nano /etc/systemd/system/pwstatus.service 
+```
+
+Add this text and save:
+
+```
+[Unit]
+Description=custom service for Powerwall status monitor (pwstatus)
+After=multi-user.target
+Requires=network.target
+Requires=network-online.target
+
+[Service]
+Type=idle
+
+User=root
+ExecStart=/usr/bin/bash /usr/local/bin/pwstatus.sh --config /etc/pwstatus.conf --background
+
+Restart=always
+RestartSec=60
+
+[Install]
+WantedBy=multi-user.target
+```
+
+After saving change the file permissions:
+```
+sudo chmod 644 /etc/systemd/system/pwstatus.service 
+```
+
+
+#### Log rotate
+You may wish to consider using logrotate to rotate and archive the log file so it doesn't grow forever and consume all disk space. Below is an example logrotate config for the script's log file.
+
+Create a logrotate config file, for example `/etc/logrotate.d/pwstatus` and edit the file:
+
+
+``` 
+sudo nano /etc/logrotate.d/pwstatus 
+```
+
+Add this text and save:
+
+```sh
+/var/log/pwstatus.log
+{
+	rotate 7
+	weekly
+	missingok
+	notifempty
+	compress
+	delaycompress
+}
+```
+
+With the system config files in place, the script can be enabled as a service so it will run automatically on system boot. On Debian Bookworm, this can be done as below:
+
+```sh
+# Enable pwstatus as a system service and start the service
+sudo systemctl enable pwstatus.service
+sudo systemctl start pwstatus.service
+sudo systemctl daemon-reload
+```
+
 </details>
 
 ## Usage
