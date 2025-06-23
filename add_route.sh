@@ -33,7 +33,7 @@ if [[ "$1" == "-disable" ]]; then
             exit 1
         else
             echo "Native Linux detected"
-            sudo ip route del ${LINUX_IP} via ${PW_IP}
+            sudo ip route del ${LINUX_IP}
             if [ -f ${DIR}/${SCRIPT_NAME}.sh ]; then
                 sudo rm -f ${DIR}/${SCRIPT_NAME}.sh
                 echo "Removed boot script: ${DIR}/${SCRIPT_NAME}.sh"
