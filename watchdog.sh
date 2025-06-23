@@ -4,6 +4,8 @@
 #
 # This script checks the health status of the 'pypowerwall' container every 5 minutes.
 # If the container is unhealthy, it will be restarted.
+#
+# Powerwall DashboardJ: https://github.com/jasonacox/Powerwall-Dashboard
 
 CONTAINER="pypowerwall"
 DEBUG=0
