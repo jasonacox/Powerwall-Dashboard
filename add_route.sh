@@ -15,6 +15,52 @@ TARGET_IP="192.168.91.1"
 NETMASK="255.255.255.255"
 OS=$(uname -s)
 
+# Check for -disable option
+if [[ "$1" == "-disable" ]]; then
+    echo "You have requested to remove the TEDAPI route from your system."
+    read -r -p "Are you sure you want to proceed? [y/N] " response
+    if [[ ! "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+        echo "Cancel"
+        exit 1
+    fi
+    if [[ "${OS}" == "Linux" ]]; then
+        if grep -qi "microsoft" /proc/version; then
+            echo "WSL detected - unable to remove route automatically."
+            echo "To remove the route, open an Administrator Shell in Windows and run:"
+            echo "   route -p delete ${TARGET_IP}"
+            echo ""
+            read -p "Press Enter to exit..."
+            exit 1
+        else
+            echo "Native Linux detected"
+            sudo ip route del ${LINUX_IP} via ${PW_IP}
+            if [ -f ${DIR}/${SCRIPT_NAME}.sh ]; then
+                sudo rm -f ${DIR}/${SCRIPT_NAME}.sh
+                echo "Removed boot script: ${DIR}/${SCRIPT_NAME}.sh"
+            fi
+            if (sudo test -f ${CRONTAB}) && (sudo grep -qw "${DIR}/${SCRIPT_NAME}.sh" ${CRONTAB}); then
+                sudo crontab -u root -l | grep -v "${DIR}/${SCRIPT_NAME}.sh" | sudo crontab -u root -
+                echo "Removed cron entry."
+            fi
+            echo "Route removal complete."
+            exit 0
+        fi
+    elif [[ "${OS}" == "Darwin" ]]; then
+        echo "macOS detected - removing route for Wi-Fi"
+        sudo networksetup -setadditionalroutes Wi-Fi "" "" ""
+        echo "Route removed."
+        exit 0
+    elif [[ "${OS}" =~ MINGW* || "${OS}" =~ CYGWIN* ]]; then
+        echo "Windows shell detected - attempting to remove route automatically."
+        route -p delete "${TARGET_IP}"
+        echo "Route removed."
+        exit 0
+    else
+        echo "You are running '$OS', which is not supported in this script."
+        exit 1
+    fi
+fi
+
 echo "WARNING: With Powerwall Firmware 24.10.0 and later, Powerwalls no longer allow routed"
 echo "access to the TEDAPI interface. This script is only for use with earlier firmware."
 echo
