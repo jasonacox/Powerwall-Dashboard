@@ -6,7 +6,6 @@
 # If the container is unhealthy, it will be restarted.
 
 CONTAINER="pypowerwall"
-INTERVAL=60
 DEBUG=0
 
 if [ "$1" = "-debug" ]; then
