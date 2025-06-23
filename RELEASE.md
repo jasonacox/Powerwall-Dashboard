@@ -398,7 +398,7 @@ curl http://localhost:8675/control/reserve
 
 * Create "dashboard-new" using new Grafana time series type panels by @s-crypt in https://github.com/jasonacox/Powerwall-Dashboard/pull/295 and https://github.com/jasonacox/Powerwall-Dashboard/pull/297 see https://github.com/jasonacox/Powerwall-Dashboard/issues/290
 
-## v2.9.8 - Tool Updates and Bug Fixs
+## v2.9.8 - Tool Updates and Bug Fixes
 
 * Update to Powerwall Status Monitor tool to prevent false grid status alerts during Powerwall firmware updates by @mcbirse as raised in https://github.com/jasonacox/Powerwall-Dashboard/discussions/109#discussioncomment-5801031
 * Bug fix to Weather History Tool to resolve crash during setup process when weather411.conf is not found by @mcbirse
