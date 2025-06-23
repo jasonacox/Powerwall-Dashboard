@@ -1,10 +1,23 @@
 # RELEASE NOTES
 
+## v4.8.0 - Healthchecks & Watchdog
+
+* Enhanced Docker Compose healthchecks for all services (`influxdb`, `pypowerwall`, `telegraf`, `grafana`, `weather411`), addresses https://github.com/jasonacox/Powerwall-Dashboard/issues/642
+* Added optional `watchdog.sh` script to monitor `pypowerwall` container and restarts if unhealthy.
+    * `-enable` option adds watchdog to crontab (every 5 min)
+    * `-disable` option removes watchdog from crontab
+    * `-debug` for verbose output; `-h/--help` for usage.
+* Refactor and feature additions to InfluxDB Viewer (`viewer.py`):
+    * Interactive shell-like interface with colorized and tabular output.
+    * Tab completion for commands and queries.
+    * `--nocolor` option for plain output.
+    * Added help and error handling.
+
 ## v4.7.2 - TEDAPI Updates
 
 * Added InfluxDB interactive tool for troubleshooting - https://github.com/jasonacox/Powerwall-Dashboard/tree/main/tools/influxdb-viewer
 * Updated dashboard.json to add total Powerwall capacity graph in addition to separate PW stats. This is helpful for systems with PW3 + DC Expansion packs. See https://github.com/jasonacox/Powerwall-Dashboard/issues/632
-* Update pypowerwall to v0.13.1 
+* Update pypowerwall to v0.13.1 (t75)
 * See updates: https://github.com/jasonacox/pypowerwall/releases/tag/v0.13.0
     * Use Neurio for TEDAPI data when Tesla Remote Meter is not present by @Nexarian 
     * Add connection pool to TEDAPI by @Nexarian

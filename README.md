@@ -122,6 +122,15 @@ Next, you will then be asked for your Local *timezone*, and your Powerwall detai
 
 Follow the **[Grafana Setup](#grafana-setup)** instructions (see below) to complete the setup.
 
+### Enable Watchdog (Optional)
+
+You can use the watchdog.sh script to monitor the health of the pypowerwall container and restart it if it becomes unhealthy. Running the command below will install it in your crontab to run every 5 minutes.
+
+```bash
+# Setup watchdog
+./watchdog.sh -enable
+```
+
 ## Option 2 - Manual Install
 
 If you prefer, you can perform the same steps that `setup.sh` performs.

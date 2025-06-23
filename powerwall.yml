@@ -16,6 +16,12 @@ services:
             - "${INFLUXDB_PORTS:-8086:8086}"
         env_file:
             - influxdb.env
+        healthcheck:
+            test: curl -f http://influxdb:8086/health || exit 1
+            interval: 30s
+            timeout: 10s
+            retries: 3
+            start_period: 60s
 
     pypowerwall:
         image: jasonacox/pypowerwall:0.13.1t75
@@ -33,6 +39,12 @@ services:
             - PW_AUTH_PATH=.auth
         env_file:
             - pypowerwall.env
+        healthcheck:
+            test: wget --spider -q http://pypowerwall:8675/api/site_info || exit 1
+            interval: 30s
+            timeout: 10s
+            retries: 3
+            start_period: 60s
 
     telegraf:
         image: telegraf:1.28.2
@@ -67,6 +79,12 @@ services:
         depends_on:
             - influxdb
             - pypowerwall
+        healthcheck:
+            test: pgrep telegraf || exit 1
+            interval: 30s
+            timeout: 10s
+            retries: 3
+            start_period: 30s
 
     grafana:
         image: grafana/grafana:9.1.2-ubuntu
@@ -84,6 +102,12 @@ services:
             - grafana.env
         depends_on:
             - influxdb
+        healthcheck:
+            test: curl -f http://grafana:9000/api/health || exit 1
+            interval: 30s
+            timeout: 10s
+            retries: 3
+            start_period: 60s
 
     weather411:
         image: jasonacox/weather411:0.2.3
@@ -102,3 +126,9 @@ services:
             - WEATHERCONF=/var/lib/weather/weather411.conf
         depends_on:
             - influxdb
+        healthcheck:
+            test: wget --spider -q http://weather411:8676/stats || exit 1
+            interval: 30s
+            timeout: 10s
+            retries: 3
+            start_period: 60s
