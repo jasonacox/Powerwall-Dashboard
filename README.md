@@ -2,6 +2,8 @@
 
 Monitoring Dashboard for Tesla Solar and Powerwall systems using Grafana, InfluxDB, Telegraf and pyPowerwall.
 
+> ⚠️ **NOTICE:** As of Powerwall Firmware version 25.10.0, network routing to the TEDAPI endpoint (`192.168.91.1`) is no longer supported by Tesla. You must connect directly to the Powerwall's WiFi access point to use TEDAPI features. If you previously set up a static route for TEDAPI, you can remove it using `./add_route.sh -disable`.
+
 ![Animation](https://user-images.githubusercontent.com/13752647/198901193-6f5d3f34-3ef6-4d6d-95ff-892a3763541b.png)
 ![Monthly](https://user-images.githubusercontent.com/836718/214475577-2a633228-4db0-41b8-8738-51642222f462.png)
 ![Yearly](https://user-images.githubusercontent.com/836718/214475014-4ba090dd-bca8-475f-bbdc-6d80ad5afbb0.png)
