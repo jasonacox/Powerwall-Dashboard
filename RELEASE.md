@@ -1,5 +1,14 @@
 # RELEASE NOTES
 
+## v4.8.1 - Hotfix for Setup
+
+* Fix breaking error with `setup.sh` script that caused it to fail during geo-location lookup. Improve location parsing to handle JSON errors gracefully.
+* Added a prominent notice to the top of the README warning users that, as of Powerwall Firmware 25.10.0+, network routing to the TEDAPI endpoint (192.168.91.1) is no longer supported. Users are instructed to connect directly to the Powerwall's WiFi and can remove old routes using `./add_route.sh -disable`.
+* Improved `add_route.sh`:
+    * The `-disable` option now reliably removes the static route on Linux systems, even if the Powerwall IP is not set, preventing command errors.
+    * The script checks for `-disable` before any prompts or warnings, for a smoother user experience.
+    * Documentation and user prompts updated for clarity.
+
 ## v4.8.0 - Healthchecks & Watchdog
 
 * Enhanced Docker Compose healthchecks for all services (`influxdb`, `pypowerwall`, `telegraf`, `grafana`, `weather411`), addresses https://github.com/jasonacox/Powerwall-Dashboard/issues/642
