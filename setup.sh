@@ -449,9 +449,25 @@ if [ "${LAT}" == "zzLAT" ] || [ "${LONG}" == "zzLONG" ] || [ "${LAT}" == "0.0" ]
     # Use IP address to determine location
     PYTHON=$(command -v python3 || command -v python)
     if [ -n "${PYTHON}" ]; then
-        IP_RESPONSE=$(curl -s https://freeipapi.com/api/json)
-        LAT=$(echo "$IP_RESPONSE" | "${PYTHON}" -c "import sys, json; print(json.load(sys.stdin)['latitude'])")
-        LONG=$(echo "$IP_RESPONSE" | "${PYTHON}" -c "import sys, json; print(json.load(sys.stdin)['longitude'])")
+        IP_RESPONSE=$(curl -s -L https://freeipapi.com/api/json)
+        # Try to parse JSON but catch any errors
+        LAT=$(echo "$IP_RESPONSE" | "${PYTHON}" -c "
+import sys, json
+try:
+    data = json.load(sys.stdin)
+    print(data.get('latitude', '0.0'))
+except Exception:
+    print('0.0')
+" 2>/dev/null) || LAT="0.0"
+        
+        LONG=$(echo "$IP_RESPONSE" | "${PYTHON}" -c "
+import sys, json
+try:
+    data = json.load(sys.stdin)
+    print(data.get('longitude', '0.0'))
+except Exception:
+    print('0.0')
+" 2>/dev/null) || LONG="0.0"
     fi
 else
     echo "Found existing location coordinates for sun cycle."
