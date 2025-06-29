@@ -82,9 +82,6 @@ newgrp docker
 # Set docker to start on boot
 sudo systemctl enable docker.service
 sudo systemctl enable containerd.service
-
-# install docker-compose
-sudo pip3 install docker-compose
 ```
 
 ## Synology NAS and Rootless Docker
