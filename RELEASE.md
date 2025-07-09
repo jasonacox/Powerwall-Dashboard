@@ -1,5 +1,11 @@
 # RELEASE NOTES
 
+## v4.8.2 - pypowerwall Updates
+
+* Update pypowerwall version for connection health monitoring and graceful degradation.
+* Minor improvements to Docker Compose healthcheck configurations.
+* Documentation updates for route management and TEDAPI access changes.
+
 ## v4.8.1 - Hotfix for Setup
 
 * Fix breaking error with `setup.sh` script that caused it to fail during geo-location lookup. Improve location parsing to handle JSON errors gracefully.

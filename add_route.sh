@@ -61,8 +61,14 @@ if [[ "$1" == "-disable" ]]; then
     fi
 fi
 
+echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+echo "!!!!                             WARNING                                   !!!!"
+echo "!!!!  THIS SCRIPT WILL NOT WORK WITH POWERWALL FIRMWARE 24.10.0 OR LATER   !!!!"
+echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+echo
 echo "WARNING: With Powerwall Firmware 24.10.0 and later, Powerwalls no longer allow routed"
 echo "access to the TEDAPI interface. This script is only for use with earlier firmware."
+echo "You can remove the route using the -disable option."
 echo
 echo "--------------------------------------------------------------------------------"
 echo "Setup script for persistent Powerwall Dashboard TEDAPI Interface network routing"
