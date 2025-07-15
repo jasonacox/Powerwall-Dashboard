@@ -1,5 +1,44 @@
 # RELEASE NOTES
 
+## v4.8.3 - Docker Compose Updates
+
+* Update pypowerwall to v0.13.2 - See updates: https://github.com/jasonacox/pypowerwall/releases/tag/v0.13.2 with improved connection health monitoring and graceful degradation. Including:
+
+### v0.13.2 - TEDAPI Lock Optimization
+
+* Fix TEDAPI lock contention issues causing "Timeout for locked object" errors under concurrent load by optimizing cache-before-lock pattern in core functions
+* Optimize `get_config()`, `get_status()`, `get_device_controller()`, `get_firmware_version()`, `get_components()`, and `get_battery_block()` to check cache before acquiring expensive locks
+* Remove redundant API call in `pypowerwall_tedapi.py` `get_api_system_status()` method
+* Fix proxy server KeyError when status response missing version or git_hash keys by using defensive key access
+* Fix proxy server KeyError when auth dictionary missing AuthCookie or UserRecord keys in cookie mode
+* Improve performance and reduce lock timeout errors in multi-threaded environments like the pypowerwall proxy server
+* Enhance `compute_LL_voltage()` function with voltage threshold detection (100V) to better handle single-phase systems with residual voltages on inactive legs, as well as split- and three-phase systems.
+* These optimizations benefit all methods that depend on the core TEDAPI functions, including `vitals()`, `get_blocks()`, and `get_battery_blocks()`
+
+### Proxy t77 (11 Jul 2025)
+
+* **TEDAPI Lock Optimization and Error Handling**: Enhanced proxy stability and performance with comprehensive fixes for TEDAPI-related issues.
+  - **Fixed KeyError exceptions** in proxy server when status response missing `version` or `git_hash` keys by implementing defensive key access with `.get()` method
+  - **Fixed KeyError exceptions** when auth dictionary missing `AuthCookie` or `UserRecord` keys in cookie mode, now uses safe fallbacks
+  - **TEDAPI Performance Improvements**: Optimized core TEDAPI functions (`get_config`, `get_status`, `get_device_controller`, `get_firmware_version`, `get_components`, `get_battery_block`) with cache-before-lock pattern to reduce lock contention
+  - **Removed redundant API calls** in TEDAPI wrapper functions to improve response times
+  - **Enhanced multi-threading support** for concurrent proxy requests with reduced lock timeout errors
+  - **Improved error resilience** for different connection modes (local vs TEDAPI) that return varying data structures
+
+* **Enhanced Health Monitoring**: Added comprehensive endpoint statistics tracking for better observability and debugging.
+  - **Endpoint Call Statistics**: Added tracking of successful and failed API calls per endpoint with success rate calculations
+  - **Enhanced `/health` endpoint**: Now includes detailed statistics showing:
+    - Total calls, successful calls, and failed calls per endpoint
+    - Success rate percentage for each endpoint
+    - Time since last success and last failure for each endpoint
+    - Overall proxy response counters (total_gets, total_posts, total_errors, total_timeouts)
+  - **Improved `/health/reset` endpoint**: Now also clears endpoint statistics along with health counters and cache
+  - **Automatic tracking**: All endpoints using `safe_endpoint_call()` automatically tracked (includes `/aggregates`, `/soe`, `/vitals`, `/strings`, etc.)
+
+### Proxy t78 (14 Jul 2025)
+
+* Power flow animation update: Show an image of a Powerwall 3 instead of a Powerwall 2 if it is a PW3 by @JEMcats in https://github.com/jasonacox/pypowerwall/pull/193
+
 ## v4.8.2 - pypowerwall Updates
 
 * Update pypowerwall version for connection health monitoring and graceful degradation.
