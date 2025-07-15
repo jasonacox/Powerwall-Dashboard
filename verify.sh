@@ -7,42 +7,60 @@ set -e
 
 # Function to detect if terminal has light background
 detect_light_background() {
-    # Method 1: Try to query terminal background color
-    if [[ -t 1 ]]; then
-        # Save current terminal settings
-        local oldstty=$(stty -g 2>/dev/null)
-        
-        # Query background color (OSC 11)
-        printf '\033]11;?\033\\'
-        
-        # Set terminal to raw mode to read response
-        stty raw -echo min 0 time 1 2>/dev/null || return 1
-        
-        # Read response (timeout after 0.1 seconds)
-        local response=""
-        local char
-        while IFS= read -r -n1 char 2>/dev/null; do
-            response+="$char"
-            # Break on bell character or after reasonable length
-            [[ "$char" == $'\007' ]] && break
-            [[ ${#response} -gt 50 ]] && break
-        done
-        
-        # Restore terminal settings
-        stty "$oldstty" 2>/dev/null
-        
-        # Parse RGB values from response (format: rgb:RRRR/GGGG/BBBB)
-        if [[ "$response" =~ rgb:([0-9a-fA-F]+)/([0-9a-fA-F]+)/([0-9a-fA-F]+) ]]; then
-            local r=$((0x${BASH_REMATCH[1]:0:2}))
-            local g=$((0x${BASH_REMATCH[2]:0:2}))
-            local b=$((0x${BASH_REMATCH[3]:0:2}))
+    # Skip OSC 11 query on macOS as it can cause input buffer issues
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        # Skip Method 1 on macOS and go straight to fallback methods
+        :
+    else
+        # Method 1: Try to query terminal background color (non-macOS only)
+        if [[ -t 1 ]]; then
+            # Save current terminal settings
+            local oldstty=$(stty -g 2>/dev/null) || return 1
             
-            # Calculate perceived brightness (ITU-R BT.709)
-            local brightness=$((r * 299 + g * 587 + b * 114))
+            # Set up a trap to ensure terminal settings are restored
+            trap 'stty "$oldstty" 2>/dev/null' RETURN
             
-            # If brightness > 127500 (roughly 50% of max 255000), consider it light
-            [[ $brightness -gt 127500 ]]
-            return $?
+            # Query background color (OSC 11) with timeout
+            printf '\033]11;?\033\\' 2>/dev/null || return 1
+            
+            # Set terminal to raw mode to read response
+            if ! stty raw -echo min 0 time 2 2>/dev/null; then
+                return 1
+            fi
+            
+            # Read response with timeout (0.2 seconds)
+            local response=""
+            local char
+            local count=0
+            while IFS= read -r -n1 -t 0.2 char 2>/dev/null; do
+                response+="$char"
+                # Break on bell character or ESC sequence end
+                [[ "$char" == $'\007' ]] && break
+                [[ "$char" == $'\033' && ${#response} -gt 1 ]] && break
+                # Safety limit to prevent hanging
+                ((count++))
+                [[ $count -gt 100 ]] && break
+            done
+            
+            # Restore terminal settings
+            stty "$oldstty" 2>/dev/null
+            
+            # Flush any remaining input to prevent artifacts in command line
+            read -t 0.1 -n 1000 2>/dev/null || true
+            
+            # Parse RGB values from response (format: rgb:RRRR/GGGG/BBBB)
+            if [[ "$response" =~ rgb:([0-9a-fA-F]+)/([0-9a-fA-F]+)/([0-9a-fA-F]+) ]]; then
+                local r=$((0x${BASH_REMATCH[1]:0:2}))
+                local g=$((0x${BASH_REMATCH[2]:0:2}))
+                local b=$((0x${BASH_REMATCH[3]:0:2}))
+                
+                # Calculate perceived brightness (ITU-R BT.709)
+                local brightness=$((r * 299 + g * 587 + b * 114))
+                
+                # If brightness > 127500 (roughly 50% of max 255000), consider it light
+                [[ $brightness -gt 127500 ]]
+                return $?
+            fi
         fi
     fi
     
@@ -57,11 +75,15 @@ detect_light_background() {
         *dark*|*Dark*|*DARK*) return 1 ;;
     esac
     
-    # Method 4: Check some common terminal apps
+    # Method 4: Check some common terminal apps and their defaults
     case "${TERM_PROGRAM:-}" in
         "Apple_Terminal")
-            # macOS Terminal.app defaults vary, but we can't detect easily
-            return 1  # Assume dark as default
+            # Check if Terminal.app is using a light theme
+            # This is a heuristic based on common settings
+            if [[ "${TERM:-}" =~ xterm.*256color ]]; then
+                return 1  # Assume dark for xterm-256color
+            fi
+            return 1  # Default to dark for Terminal.app
             ;;
         "iTerm.app")
             return 1  # iTerm2 typically defaults to dark
@@ -75,10 +97,46 @@ detect_light_background() {
     return 1  # Default to dark background assumption
 }
 
+# Check for command line options first
+DEBUG_COLORS=false
+FORCE_BACKGROUND=""
+NO_COLOR=false
+
+if [ $# -ne 0 ]; then
+    if [[ "$1" == "-no-color" || "$1" == "--no-color" ]]; then
+        NO_COLOR=true
+    elif [[ "$1" == "-debug-colors" || "$1" == "--debug-colors" ]]; then
+        DEBUG_COLORS=true
+    elif [[ "$1" == "--light" ]]; then
+        FORCE_BACKGROUND="light"
+    elif [[ "$1" == "--dark" ]]; then
+        FORCE_BACKGROUND="dark"
+    elif [[ "$1" == "-h" || "$1" == "--help" ]]; then
+        echo "Usage: $0 [OPTIONS]"
+        echo ""
+        echo "Options:"
+        echo "  --no-color        Disable colored output"
+        echo "  --debug-colors    Show color detection info"
+        echo "  --light           Force light background colors"
+        echo "  --dark            Force dark background colors"
+        echo "  -h, --help        Show this help message"
+        echo ""
+        echo "This script verifies the Powerwall Dashboard installation and services."
+        exit 0
+    fi
+fi
+
 # Detect background and set appropriate colors
 LIGHT_BG=false
-if detect_light_background 2>/dev/null; then
+if [[ "$FORCE_BACKGROUND" == "light" ]]; then
     LIGHT_BG=true
+elif [[ "$FORCE_BACKGROUND" == "dark" ]]; then
+    LIGHT_BG=false
+elif [[ "$NO_COLOR" == "false" ]]; then
+    # Only run detection if not forced and colors are enabled
+    if detect_light_background 2>/dev/null; then
+        LIGHT_BG=true
+    fi
 fi
 
 # Formatting - Colors adapted for background
@@ -97,39 +155,24 @@ else
     highlight="\033[96m"    # bright cyan
 fi
 
-red="\033[91m"
-yellow="\033[33m"
-bold="\033[0m${primary}\033[1m"
-subbold="\033[0m${accent}\033[1m"
-normal="\033[0m${primary}"
-dim="\033[0m${secondary}\033[2m"
-alert="\033[0m${red}\033[1m"
-alertdim="\033[0m${red}\033[2m"
-
-# Check for no-color mode or help
-DEBUG_COLORS=false
-if [ $# -ne 0 ]; then
-    if [[ "$1" == "-no-color" || "$1" == "--no-color" ]]; then
-        # no color mode
-        bold=""
-        subbold=""
-        normal=""
-        dim=""
-        alert=""
-        alertdim=""
-    elif [[ "$1" == "-debug-colors" || "$1" == "--debug-colors" ]]; then
-        DEBUG_COLORS=true
-    elif [[ "$1" == "-h" || "$1" == "--help" ]]; then
-        echo "Usage: $0 [OPTIONS]"
-        echo ""
-        echo "Options:"
-        echo "  -no-color, --no-color      Disable colored output"
-        echo "  -debug-colors, --debug-colors  Show color detection info"
-        echo "  -h, --help                Show this help message"
-        echo ""
-        echo "This script verifies the Powerwall Dashboard installation and services."
-        exit 0
-    fi
+# Apply color settings based on background and options
+if [[ "$NO_COLOR" == "true" ]]; then
+    # no color mode
+    bold=""
+    subbold=""
+    normal=""
+    dim=""
+    alert=""
+    alertdim=""
+else
+    red="\033[91m"
+    yellow="\033[33m"
+    bold="\033[0m${primary}\033[1m"
+    subbold="\033[0m${accent}\033[1m"
+    normal="\033[0m${primary}"
+    dim="\033[0m${secondary}\033[2m"
+    alert="\033[0m${red}\033[1m"
+    alertdim="\033[0m${red}\033[2m"
 fi
 
 # Set Globals
@@ -170,6 +213,9 @@ case "$OSTYPE" in
     *)          OS="$OSTYPE" ;;
 esac
 
+# Clear any terminal artifacts from background detection
+printf '\033[2K\r' 2>/dev/null
+
 echo -e "${bold}Verify Powerwall-Dashboard ${subbold}${CURRENT}${normal} on ${OS} - Timezone: ${subbold}${TZ}${dim}"
 echo -e "----------------------------------------------------------------------------"
 echo -e "This script will attempt to verify all the services needed to run"
@@ -178,14 +224,18 @@ echo -e "https://github.com/jasonacox/Powerwall-Dashboard/issues/new"
 echo -e ""
 if [[ "$DEBUG_COLORS" == "true" ]]; then
     echo -e "${dim}Color Detection Debug Info:"
-    echo -e "  Background detected as: ${subbold}$(if [[ "$LIGHT_BG" == "true" ]]; then echo "LIGHT"; else echo "DARK"; fi)${dim}"
+    if [[ -n "$FORCE_BACKGROUND" ]]; then
+        echo -e "  Background forced to: ${subbold}${FORCE_BACKGROUND^^}${dim}"
+    else
+        echo -e "  Background detected as: ${subbold}$(if [[ "$LIGHT_BG" == "true" ]]; then echo "LIGHT"; else echo "DARK"; fi)${dim}"
+    fi
     echo -e "  TERM: ${subbold}${TERM:-unset}${dim}"
     echo -e "  TERM_PROGRAM: ${subbold}${TERM_PROGRAM:-unset}${dim}"
     echo -e "  COLORFGBG: ${subbold}${COLORFGBG:-unset}${dim}"
     echo -e "  TERM_THEME: ${subbold}${TERM_THEME:-unset}${dim}"
     echo -e ""
 fi
-echo -e "${dim}Tip: If colors are hard to read, try: ./verify.sh --no-color${normal}"
+echo -e "${dim}Tip: If colors are hard to read, try: ./verify.sh --no-color, --light, or --dark${normal}"
 echo -e ""
 
 # Check compose env file
@@ -551,8 +601,12 @@ fi
 
 if [ $ALLGOOD -ne 1 ]; then
     echo -e "${alert}One or more tests failed.${normal}"
+    # Final cleanup of any remaining terminal input
+    read -t 0.1 -n 1000 2>/dev/null || true
     exit 1
 else
     echo -e "${subbold}All tests succeeded.${normal}"
+    # Final cleanup of any remaining terminal input
+    read -t 0.1 -n 1000 2>/dev/null || true
     exit 0
 fi
