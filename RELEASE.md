@@ -35,6 +35,10 @@
   - **Improved `/health/reset` endpoint**: Now also clears endpoint statistics along with health counters and cache
   - **Automatic tracking**: All endpoints using `safe_endpoint_call()` automatically tracked (includes `/aggregates`, `/soe`, `/vitals`, `/strings`, etc.)
 
+### Proxy t78 (14 Jul 2025)
+
+* Power flow animation update: Show an image of a Powerwall 3 instead of a Powerwall 2 if it is a PW3 by @JEMcats in https://github.com/jasonacox/pypowerwall/pull/193
+
 ## v4.8.2 - pypowerwall Updates
 
 * Update pypowerwall version for connection health monitoring and graceful degradation.
