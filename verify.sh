@@ -5,28 +5,131 @@
 # Stop on Errors
 set -e
 
-# Formatting
+# Function to detect if terminal has light background
+detect_light_background() {
+    # Method 1: Try to query terminal background color
+    if [[ -t 1 ]]; then
+        # Save current terminal settings
+        local oldstty=$(stty -g 2>/dev/null)
+        
+        # Query background color (OSC 11)
+        printf '\033]11;?\033\\'
+        
+        # Set terminal to raw mode to read response
+        stty raw -echo min 0 time 1 2>/dev/null || return 1
+        
+        # Read response (timeout after 0.1 seconds)
+        local response=""
+        local char
+        while IFS= read -r -n1 char 2>/dev/null; do
+            response+="$char"
+            # Break on bell character or after reasonable length
+            [[ "$char" == $'\007' ]] && break
+            [[ ${#response} -gt 50 ]] && break
+        done
+        
+        # Restore terminal settings
+        stty "$oldstty" 2>/dev/null
+        
+        # Parse RGB values from response (format: rgb:RRRR/GGGG/BBBB)
+        if [[ "$response" =~ rgb:([0-9a-fA-F]+)/([0-9a-fA-F]+)/([0-9a-fA-F]+) ]]; then
+            local r=$((0x${BASH_REMATCH[1]:0:2}))
+            local g=$((0x${BASH_REMATCH[2]:0:2}))
+            local b=$((0x${BASH_REMATCH[3]:0:2}))
+            
+            # Calculate perceived brightness (ITU-R BT.709)
+            local brightness=$((r * 299 + g * 587 + b * 114))
+            
+            # If brightness > 127500 (roughly 50% of max 255000), consider it light
+            [[ $brightness -gt 127500 ]]
+            return $?
+        fi
+    fi
+    
+    # Method 2: Check environment variables for light themes
+    if [[ "$COLORFGBG" =~ \;15$ ]] || [[ "$COLORFGBG" =~ \;7$ ]]; then
+        return 0  # Light background
+    fi
+    
+    # Method 3: Check terminal theme environment variables
+    case "${TERM_THEME:-}" in
+        *light*|*Light*|*LIGHT*) return 0 ;;
+        *dark*|*Dark*|*DARK*) return 1 ;;
+    esac
+    
+    # Method 4: Check some common terminal apps
+    case "${TERM_PROGRAM:-}" in
+        "Apple_Terminal")
+            # macOS Terminal.app defaults vary, but we can't detect easily
+            return 1  # Assume dark as default
+            ;;
+        "iTerm.app")
+            return 1  # iTerm2 typically defaults to dark
+            ;;
+        "vscode")
+            # VS Code integrated terminal usually follows editor theme
+            return 1  # Most developers use dark themes
+            ;;
+    esac
+    
+    return 1  # Default to dark background assumption
+}
+
+# Detect background and set appropriate colors
+LIGHT_BG=false
+if detect_light_background 2>/dev/null; then
+    LIGHT_BG=true
+fi
+
+# Formatting - Colors adapted for background
 default="\033[39m"
-white="\033[97m"
-green="\033[32m"
+if [[ "$LIGHT_BG" == "true" ]]; then
+    # Light background colors
+    primary="\033[30m"      # black
+    secondary="\033[90m"    # dark gray
+    accent="\033[32m"       # green
+    highlight="\033[34m"    # blue
+else
+    # Dark background colors
+    primary="\033[97m"      # bright white
+    secondary="\033[37m"    # white
+    accent="\033[92m"       # bright green
+    highlight="\033[96m"    # bright cyan
+fi
+
 red="\033[91m"
 yellow="\033[33m"
-bold="\033[0m${white}\033[1m"
-subbold="\033[0m${green}"
-normal="${white}\033[0m"
-dim="\033[0m${white}\033[2m"
+bold="\033[0m${primary}\033[1m"
+subbold="\033[0m${accent}\033[1m"
+normal="\033[0m${primary}"
+dim="\033[0m${secondary}\033[2m"
 alert="\033[0m${red}\033[1m"
 alertdim="\033[0m${red}\033[2m"
 
-# Check for no-color mode
+# Check for no-color mode or help
+DEBUG_COLORS=false
 if [ $# -ne 0 ]; then
-    # no color
-    bold=""
-    subbold=""
-    normal=""
-    dim=""
-    alert=""
-    alertdim=""
+    if [[ "$1" == "-no-color" || "$1" == "--no-color" ]]; then
+        # no color mode
+        bold=""
+        subbold=""
+        normal=""
+        dim=""
+        alert=""
+        alertdim=""
+    elif [[ "$1" == "-debug-colors" || "$1" == "--debug-colors" ]]; then
+        DEBUG_COLORS=true
+    elif [[ "$1" == "-h" || "$1" == "--help" ]]; then
+        echo "Usage: $0 [OPTIONS]"
+        echo ""
+        echo "Options:"
+        echo "  -no-color, --no-color      Disable colored output"
+        echo "  -debug-colors, --debug-colors  Show color detection info"
+        echo "  -h, --help                Show this help message"
+        echo ""
+        echo "This script verifies the Powerwall Dashboard installation and services."
+        exit 0
+    fi
 fi
 
 # Set Globals
@@ -72,6 +175,17 @@ echo -e "-----------------------------------------------------------------------
 echo -e "This script will attempt to verify all the services needed to run"
 echo -e "Powerwall-Dashboard. Use this output when you open an issue for help:"
 echo -e "https://github.com/jasonacox/Powerwall-Dashboard/issues/new"
+echo -e ""
+if [[ "$DEBUG_COLORS" == "true" ]]; then
+    echo -e "${dim}Color Detection Debug Info:"
+    echo -e "  Background detected as: ${subbold}$(if [[ "$LIGHT_BG" == "true" ]]; then echo "LIGHT"; else echo "DARK"; fi)${dim}"
+    echo -e "  TERM: ${subbold}${TERM:-unset}${dim}"
+    echo -e "  TERM_PROGRAM: ${subbold}${TERM_PROGRAM:-unset}${dim}"
+    echo -e "  COLORFGBG: ${subbold}${COLORFGBG:-unset}${dim}"
+    echo -e "  TERM_THEME: ${subbold}${TERM_THEME:-unset}${dim}"
+    echo -e ""
+fi
+echo -e "${dim}Tip: If colors are hard to read, try: ./verify.sh --no-color${normal}"
 echo -e ""
 
 # Check compose env file
