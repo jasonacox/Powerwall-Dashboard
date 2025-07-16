@@ -107,9 +107,9 @@ if [ $# -ne 0 ]; then
         NO_COLOR=true
     elif [[ "$1" == "-debug-colors" || "$1" == "--debug-colors" ]]; then
         DEBUG_COLORS=true
-    elif [[ "$1" == "--light" ]]; then
+    elif [[ "$1" == "--light" || "$1" == "--lightbg" ]]; then
         FORCE_BACKGROUND="light"
-    elif [[ "$1" == "--dark" ]]; then
+    elif [[ "$1" == "--dark" || "$1" == "--darkbg" ]]; then
         FORCE_BACKGROUND="dark"
     elif [[ "$1" == "-h" || "$1" == "--help" ]]; then
         echo "Usage: $0 [OPTIONS]"
@@ -117,8 +117,8 @@ if [ $# -ne 0 ]; then
         echo "Options:"
         echo "  --no-color        Disable colored output"
         echo "  --debug-colors    Show color detection info"
-        echo "  --light           Force light background colors"
-        echo "  --dark            Force dark background colors"
+        echo "  --lightbg         Force light background colors"
+        echo "  --darkbg          Force dark background colors"
         echo "  -h, --help        Show this help message"
         echo ""
         echo "This script verifies the Powerwall Dashboard installation and services."
@@ -144,7 +144,7 @@ default="\033[39m"
 if [[ "$LIGHT_BG" == "true" ]]; then
     # Light background colors
     primary="\033[30m"      # black
-    secondary="\033[90m"    # dark gray
+    secondary="\033[30m"    # dark gray
     accent="\033[32m"       # green
     highlight="\033[34m"    # blue
 else
