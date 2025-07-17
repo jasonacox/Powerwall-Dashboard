@@ -235,7 +235,7 @@ if [[ "$DEBUG_COLORS" == "true" ]]; then
     echo -e "  TERM_THEME: ${subbold}${TERM_THEME:-unset}${dim}"
     echo -e ""
 fi
-echo -e "${dim}Tip: If colors are hard to read, try: ./verify.sh --no-color, --light, or --dark${normal}"
+echo -e "${dim}Tip: If colors are hard to read, try: ./verify.sh --no-color, --lightbg, or --darkbg${normal}"
 echo -e ""
 
 # Check compose env file
