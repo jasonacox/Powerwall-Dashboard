@@ -1,5 +1,9 @@
 # RELEASE NOTES
 
+## v4.8.4 - pyPowerwall update
+
+* Update pypowerwall to v0.14.0 - See updates: https://github.com/jasonacox/pypowerwall/releases/tag/v0.14.0 with Cloud updates to accommodate Tesla API changes (embedded TeslaPy patch) and fix a bug in FleetAPI for multi-site installations.
+
 ## v4.8.3 - Docker Compose Updates
 
 * Update pypowerwall to v0.13.2 - See updates: https://github.com/jasonacox/pypowerwall/releases/tag/v0.13.2 with improved connection health monitoring and graceful degradation. Including:
