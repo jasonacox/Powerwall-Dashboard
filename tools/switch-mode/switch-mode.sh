@@ -74,12 +74,28 @@ set_powerwall_value() {
 set_mode() {
   local mode="$1"
   set_powerwall_value "mode" "$mode" "Battery at $APP_BATTERY_LEVEL%. Set mode from $CURRENT_MODE to $mode"
+
+  # This is necessary as the CURRENT_MODE variable is used later in the script to check if the mode has changed, 
+  # and we want to avoid resetting it if the set_mode function is called multiple times in a row without changing the 
+  # mode value. This way, we ensure that the CURRENT_MODE variable always reflects the latest mode value set by 
+  # the set_mode function. 
+  if [[ $? -eq 0 ]]; then
+    CURRENT_MODE=$mode
+  fi
 }
 
 # Function to set battery reserve
 set_reserve() {
   local reserve="$1"
   set_powerwall_value "reserve" "$reserve" "Battery at $APP_BATTERY_LEVEL%. Set reserve from $CURRENT_RESERVE to $reserve"
+
+  # This is necessary as the CURRENT_RESERVE variable is used later in the script to check if the reserve has changed, 
+  # and we want to avoid resetting it if the set_reserve function is called multiple times in a row without changing the 
+  # reserve value. This way, we ensure that the CURRENT_RESERVE variable always reflects the latest reserve value set by 
+  # the set_reserve function. 
+  if [[ $? -eq 0 ]]; then
+    CURRENT_RESERVE=$reserve
+  fi
 }
 
 readonly BATTERY_LEVEL=$(get_powerwall_value "$PYPOWERWALL/json" ".soe" "battery level" | xargs printf "%.*f\n" $p)
