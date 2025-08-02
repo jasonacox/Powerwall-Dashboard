@@ -92,3 +92,10 @@ A command-line and interactive shell tool for exploring and querying InfluxDB da
 * Author: [@jasonacox](https://github.com/jasonacox)
 * [Details and Instructions](influxdb-viewer/README.md)
 * Script: [viewer.py](influxdb-viewer/viewer.py)
+
+
+This tool automates both the Powerwall's operating mode (self-consumption/time-based control) and reserve settings based on battery level, time, and user-defined thresholds.
+
+* Author: [@goodoldme](https://github.com/goodoldme)
+* [Details and Instructions](switch-mode/)
+* Scripts: [switch-mode.zsh](switch-mode/switch-mode.zsh), [switch-mode.sh](switch-mode/switch-mode.sh)
