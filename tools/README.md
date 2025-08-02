@@ -95,7 +95,7 @@ A command-line and interactive shell tool for exploring and querying InfluxDB da
 
 ## Powerwall Mode & Reserve Automation Tool
 
-This tool automates both the Powerwall's operating mode (self-consumption/time-based control) and reserve settings based on battery level, time, and user-defined thresholds.
+This tool automates both the Powerwall's operating mode (self-powered/time-based control) and reserve settings based on battery level, time, and user-defined thresholds.
 
 * Author: [@goodoldme](https://github.com/goodoldme)
 * [Details and Instructions](switch-mode/)
