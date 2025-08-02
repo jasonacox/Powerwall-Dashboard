@@ -30,7 +30,7 @@ get_powerwall_value() {
   local description="$3"
   local result
 
-  result=$(curl -s "$endpoint" | jq -r $jq_filter)
+  result=$(curl -s "$endpoint" | jq -r "$jq_filter")
 
   if [[ $result == "null" || -z "$result" || "$result" == "0" ]]; then
     error_message="Failed to get $description from Powerwall"
@@ -98,9 +98,9 @@ set_reserve() {
   fi
 }
 
-readonly BATTERY_LEVEL=$(get_powerwall_value "$PYPOWERWALL/json" ".soe" "battery level" | xargs printf "%.*f\n" $p)
+readonly BATTERY_LEVEL=$(get_powerwall_value "$PYPOWERWALL/json" ".soe" "battery level" | xargs printf "%.0f\n")
 readonly APP_BATTERY_LEVEL=$(echo "($BATTERY_LEVEL/0.95)-(5/0.95)" | bc)
-readonly CURRENT_RESERVE=$(get_powerwall_value "$PYPOWERWALL/control/reserve" ".reserve" "current reserve" | xargs printf "%.*f\n" $p)
+readonly CURRENT_RESERVE=$(get_powerwall_value "$PYPOWERWALL/control/reserve" ".reserve" "current reserve" | xargs printf "%.0f\n")
 readonly CURRENT_MODE=$(get_powerwall_value "$PYPOWERWALL/control/mode" ".mode" "current mode")
 
 if [[ "${DEBUG:-false}" = 'true' ]]; then

@@ -30,7 +30,7 @@ function get_powerwall_value() {
   local description=$3
   local result
 
-  result=$(curl -s $endpoint | jq -r $jq_filter)
+  result=$(curl -s "${endpoint}" | jq -r "${jq_filter}")
   if [[ $result == "null" || -z "${result}" || "${result}" == "0" ]]; then
     error_message="Failed to get $description from Powerwall"
     log "$error_message"
@@ -97,9 +97,9 @@ set_reserve() {
   fi
 }
 
-readonly BATTERY_LEVEL=$(get_powerwall_value "${PYPOWERWALL}/json" ".soe" "battery level" | xargs printf "%.*f\n" $p)
+readonly BATTERY_LEVEL=$(get_powerwall_value "${PYPOWERWALL}/json" ".soe" "battery level" | xargs printf "%.0f\n")
 readonly APP_BATTERY_LEVEL=$(echo "($BATTERY_LEVEL/0.95)-(5/0.95)" | bc)
-CURRENT_RESERVE=$(get_powerwall_value "${PYPOWERWALL}/control/reserve" ".reserve" "current reserve" | xargs printf "%.*f\n" $p)
+CURRENT_RESERVE=$(get_powerwall_value "${PYPOWERWALL}/control/reserve" ".reserve" "current reserve" | xargs printf "%.0f\n")
 CURRENT_MODE=$(get_powerwall_value "${PYPOWERWALL}/control/mode" ".mode" "current mode")
 
 if [[ "${DEBUG:-false}" = 'true' ]]; then
@@ -129,7 +129,7 @@ if [[ $CURRENT_MODE == $AUTONOMOUS && $APP_BATTERY_LEVEL -le $EXPORT_RESERVE ]] 
   fi
 fi
 
-# Update reserve was modified between runs
+# Update reserve if it was modified between runs
 if [[ $CURRENT_MODE == $AUTONOMOUS && $CURRENT_RESERVE != $EXPORT_RESERVE ]]; then
   set_reserve $EXPORT_RESERVE
 fi
