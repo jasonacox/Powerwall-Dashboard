@@ -1,6 +1,12 @@
 # Switch Mode Tool
 
-This script automates switching the operating mode and reserve settings of your Powerwall system based on battery level, time, and configuration thresholds. It uses the pyPowerwall API and sends notifications via ntfy.sh.
+This script automates the management of both the Powerwall’s operating mode and reserve settings to optimize energy usage and grid export. It is designed for scenarios where you want to:
+
+- **Automatically switch from self-consumption (Self-Powered) to autonomous (Time-Based Control) mode** when the battery is sufficiently charged (above `TRIGGER_RESERVE`). This enables exporting excess energy to the grid during peak times.
+- **Set the reserve level to `EXPORT_RESERVE`** before switching to export mode, ensuring enough battery is available for export.
+- **Return to self-consumption mode** when the battery drops below `EXPORT_RESERVE` or when peak export time ends (as defined by `OFF_PEAK_CUTOFF`).
+- **Set the reserve level to `BACKUP_RESERVE`** when returning to self-consumption, preserving battery for backup use.
+- **Continuously monitor and correct the reserve setting** if it is changed externally or between script runs, ensuring the reserve matches the intended mode.
 
 ## Setup
 
@@ -79,6 +85,3 @@ Setting mode to: autonomous
 ## Error Handling
 - Exits if required configuration is missing or Powerwall is unreachable
 - Logs failures and sends SOS notifications if battery level cannot be read
-
----
-*Update this README as you add features or change configuration options.*
