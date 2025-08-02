@@ -93,6 +93,7 @@ A command-line and interactive shell tool for exploring and querying InfluxDB da
 * [Details and Instructions](influxdb-viewer/README.md)
 * Script: [viewer.py](influxdb-viewer/viewer.py)
 
+## Powerwall Mode & Reserve Automation Tool
 
 This tool automates both the Powerwall's operating mode (self-consumption/time-based control) and reserve settings based on battery level, time, and user-defined thresholds.
 
