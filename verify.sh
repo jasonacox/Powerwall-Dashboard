@@ -101,30 +101,54 @@ detect_light_background() {
 DEBUG_COLORS=false
 FORCE_BACKGROUND=""
 NO_COLOR=false
+SHOW_LOGS_OPTION="ask"
 
-if [ $# -ne 0 ]; then
-    if [[ "$1" == "-no-color" || "$1" == "--no-color" ]]; then
-        NO_COLOR=true
-    elif [[ "$1" == "-debug-colors" || "$1" == "--debug-colors" ]]; then
-        DEBUG_COLORS=true
-    elif [[ "$1" == "--light" || "$1" == "--lightbg" ]]; then
-        FORCE_BACKGROUND="light"
-    elif [[ "$1" == "--dark" || "$1" == "--darkbg" ]]; then
-        FORCE_BACKGROUND="dark"
-    elif [[ "$1" == "-h" || "$1" == "--help" ]]; then
-        echo "Usage: $0 [OPTIONS]"
-        echo ""
-        echo "Options:"
-        echo "  --no-color        Disable colored output"
-        echo "  --debug-colors    Show color detection info"
-        echo "  --lightbg         Force light background colors"
-        echo "  --darkbg          Force dark background colors"
-        echo "  -h, --help        Show this help message"
-        echo ""
-        echo "This script verifies the Powerwall Dashboard installation and services."
-        exit 0
-    fi
-fi
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -no-color|--no-color)
+            NO_COLOR=true
+            shift
+            ;;
+        -debug-colors|--debug-colors)
+            DEBUG_COLORS=true
+            shift
+            ;;
+        --light|--lightbg)
+            FORCE_BACKGROUND="light"
+            shift
+            ;;
+        --dark|--darkbg)
+            FORCE_BACKGROUND="dark"
+            shift
+            ;;
+        --logs)
+            SHOW_LOGS_OPTION="yes"
+            shift
+            ;;
+        --no-logs)
+            SHOW_LOGS_OPTION="no"
+            shift
+            ;;
+        -h|--help)
+            echo "Usage: $0 [OPTIONS]"
+            echo ""
+            echo "Options:"
+            echo "  --no-color        Disable colored output"
+            echo "  --debug-colors    Show color detection info"
+            echo "  --lightbg         Force light background colors"
+            echo "  --darkbg          Force dark background colors"
+            echo "  --logs            Show logs automatically at end"
+            echo "  --no-logs         Do not show logs automatically at end"
+            echo "  -h, --help        Show this help message"
+            echo ""
+            echo "This script verifies the Powerwall Dashboard installation and services."
+            exit 0
+            ;;
+        *)
+            shift
+            ;;
+    esac
+done
 
 # Detect background and set appropriate colors
 LIGHT_BG=false
@@ -246,7 +270,7 @@ if [ ! -f ${COMPOSE_ENV_FILE} ]; then
 fi
 echo -e ""
 
-# pypowerwall
+# TEST: pypowerwall
 echo -e "${bold}Checking pypowerwall${dim}"
 echo -e "----------------------------------------------------------------------------"
 CONTAINER="pypowerwall"
@@ -267,6 +291,8 @@ echo -e -n "${dim} - Container ($CONTAINER): "
 RUNNING=$(docker inspect --format="{{.State.Running}}" $CONTAINER 2>/dev/null) || true
 if [ "$RUNNING" = "true" ]; then
     echo -e $GOOD
+    # Capture last 10 lines of logs for later display
+    PYPOWERWALL_LOG=$(docker logs $CONTAINER 2>&1 | tail -10)
     echo -e -n "${dim} - Service (port $PORT): "
     if running http://localhost:$PORT/stats 200 0 2>/dev/null; then
         echo -e $GOOD
@@ -329,7 +355,7 @@ if [ -f ${ENV_FILE} ] && ! grep -q "TZ=" ${ENV_FILE}; then
 fi
 echo -e ""
 
-# telegraf
+# TEST: telegraf
 echo -e "${bold}Checking telegraf${dim}"
 echo -e "----------------------------------------------------------------------------"
 CONTAINER="telegraf"
@@ -355,6 +381,8 @@ echo -e -n "${dim} - Container ($CONTAINER): "
 RUNNING=$(docker inspect --format="{{.State.Running}}" $CONTAINER 2>/dev/null) || true
 if [ "$RUNNING" = "true" ]; then
     echo -e $GOOD
+    # Capture last 10 lines of logs for later display
+    TELEGRAF_LOG=$(docker logs $CONTAINER 2>&1 | tail -10)
     VER=`v=$(docker exec --tty $CONTAINER sh -c "telegraf --version") && echo "$v" || echo "$UKN"`
 elif [ "$RUNNING" = "false" ]; then
     echo -e "${alert}ERROR: Stopped${normal}"
@@ -366,7 +394,7 @@ fi
 echo -e "${dim} - Version: ${subbold}$VER"
 echo -e ""
 
-# influxdb
+# TEST: influxdb
 echo -e "${bold}Checking influxdb${dim}"
 echo -e "----------------------------------------------------------------------------"
 CONTAINER="influxdb"
@@ -392,6 +420,8 @@ echo -e -n "${dim} - Container ($CONTAINER): "
 RUNNING=$(docker inspect --format="{{.State.Running}}" $CONTAINER 2>/dev/null) || true
 if [ "$RUNNING" = "true" ]; then
     echo -e $GOOD
+    # Capture last 10 lines of logs for later display
+    INFLUXDB_LOG=$(docker logs $CONTAINER 2>&1 | tail -10)
     echo -e -n "${dim} - Service (port $PORT): "
     if running http://localhost:$PORT/ping 204 1 2>/dev/null; then
         echo -e $GOOD
@@ -420,7 +450,7 @@ fi
 echo -e "${dim} - Version: ${subbold}$VER"
 echo -e ""
 
-# grafana
+# TEST: grafana
 echo -e "${bold}Checking grafana${dim}"
 echo -e "----------------------------------------------------------------------------"
 CONTAINER="grafana"
@@ -441,6 +471,8 @@ echo -e -n "${dim} - Container ($CONTAINER): "
 RUNNING=$(docker inspect --format="{{.State.Running}}" $CONTAINER 2>/dev/null) || true
 if [ "$RUNNING" = "true" ]; then
     echo -e $GOOD
+    # Capture last 10 lines of logs for later display
+    GRAFANA_LOG=$(docker logs $CONTAINER 2>&1 | tail -10)
     VER=`v=$(docker exec --tty $CONTAINER sh -c "grafana-cli --version") && echo "$v" || echo "$UKN"`
     echo -e -n "${dim} - Service (port $PORT): "
     if running http://localhost:$PORT/login 200 1 2>/dev/null; then
@@ -498,6 +530,8 @@ if grep -q "tesla-history" powerwall.extend.yml 2>/dev/null; then
     RUNNING=$(docker inspect --format="{{.State.Running}}" $CONTAINER 2>/dev/null) || true
     if [ "$RUNNING" = "true" ]; then
         echo -e $GOOD
+        # Capture last 10 lines of logs for later display
+        TESLA_HISTORY_LOG=$(docker logs $CONTAINER 2>&1 | tail -10)
         VER=`v=$(docker exec -it $CONTAINER sh -c "python3 tesla-history.py --version") && echo "$v" || echo "$UKN"`
     elif [ "$RUNNING" = "false" ]; then
         echo -e "${alert}ERROR: Stopped${normal}"
@@ -510,7 +544,7 @@ if grep -q "tesla-history" powerwall.extend.yml 2>/dev/null; then
     echo -e ""
 fi
 
-# weather411
+# TEST: weather411
 echo -e "${bold}Checking weather411${dim}"
 echo -e "----------------------------------------------------------------------------"
 CONTAINER="weather411"
@@ -525,6 +559,8 @@ else
     RUNNING=$(docker inspect --format="{{.State.Running}}" $CONTAINER 2>/dev/null) || true
     if [ "$RUNNING" = "true" ]; then
         echo -e $GOOD
+        # Capture last 10 lines of logs for later display
+        WEATHER411_LOG=$(docker logs $CONTAINER 2>&1 | tail -10)
         echo -e -n "${dim} - Service (port $PORT): "
         if running http://localhost:$PORT/stats 200 0 2>/dev/null; then
             echo -e $GOOD
@@ -572,6 +608,8 @@ if grep -q "ecowitt" powerwall.extend.yml 2>/dev/null; then
     RUNNING=$(docker inspect --format="{{.State.Running}}" $CONTAINER 2>/dev/null) || true
     if [ "$RUNNING" = "true" ]; then
         echo -e $GOOD
+        # Capture last 10 lines of logs for later display
+        ECOWITT_LOG=$(docker logs $CONTAINER 2>&1 | tail -10)
         echo -e -n "${dim} - Service (port $PORT): "
         if running http://localhost:$PORT/stats 200 0 2>/dev/null; then
             echo -e $GOOD
@@ -601,12 +639,56 @@ fi
 
 if [ $ALLGOOD -ne 1 ]; then
     echo -e "${alert}One or more tests failed.${normal}"
-    # Final cleanup of any remaining terminal input
-    read -t 0.1 -n 1000 2>/dev/null || true
-    exit 1
 else
     echo -e "${subbold}All tests succeeded.${normal}"
-    # Final cleanup of any remaining terminal input
-    read -t 0.1 -n 1000 2>/dev/null || true
+fi
+
+# Final cleanup of any remaining terminal input
+read -t 0.1 -n 1000 2>/dev/null || true
+SHOW_LOGS=""
+
+# Log display logic: use SHOW_LOGS_OPTION to override prompt
+if [[ "$SHOW_LOGS_OPTION" == "yes" ]]; then
+    SHOW_LOGS="y"
+elif [[ "$SHOW_LOGS_OPTION" == "no" ]]; then
+    SHOW_LOGS="n"
+else
+    echo -en "\n${bold}Would you like to display the last 10 log lines for each running container? (y/N)${normal} "
+    read -r SHOW_LOGS
+fi
+if [[ "$SHOW_LOGS" =~ ^[Yy]$ ]]; then
+    if [ -n "$PYPOWERWALL_LOG" ]; then
+        echo -e "\n${highlight}==== pypowerwall logs ====${normal}"
+        echo "$PYPOWERWALL_LOG"
+    fi
+    if [ -n "$TELEGRAF_LOG" ]; then
+        echo -e "\n${highlight}==== telegraf logs ====${normal}"
+        echo "$TELEGRAF_LOG"
+    fi
+    if [ -n "$INFLUXDB_LOG" ]; then
+        echo -e "\n${highlight}==== influxdb logs ====${normal}"
+        echo "$INFLUXDB_LOG"
+    fi
+    if [ -n "$GRAFANA_LOG" ]; then
+        echo -e "\n${highlight}==== grafana logs ====${normal}"
+        echo "$GRAFANA_LOG"
+    fi
+    if [ -n "$TESLA_HISTORY_LOG" ]; then
+        echo -e "\n${highlight}==== tesla-history logs ====${normal}"
+        echo "$TESLA_HISTORY_LOG"
+    fi
+    if [ -n "$WEATHER411_LOG" ]; then
+        echo -e "\n${highlight}==== weather411 logs ====${normal}"
+        echo "$WEATHER411_LOG"
+    fi
+    if [ -n "$ECOWITT_LOG" ]; then
+        echo -e "\n${highlight}==== ecowitt logs ====${normal}"
+        echo "$ECOWITT_LOG"
+    fi
+fi
+
+if [ $ALLGOOD -ne 1 ]; then
+    exit 1
+else
     exit 0
 fi

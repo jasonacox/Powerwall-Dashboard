@@ -1,5 +1,10 @@
 # RELEASE NOTES
 
+## v4.x.x - Unreleased
+
+* Add enhanced log display options to `verify.sh`: supports `--logs` and `--no-logs` flags to control log output, and interactive prompt for log viewing. Log output is now cleaner and only shown when requested.
+*  
+
 ## v4.8.4 - pyPowerwall update
 
 * Update pypowerwall to v0.14.0 - See updates: https://github.com/jasonacox/pypowerwall/releases/tag/v0.14.0 with Cloud updates to accommodate Tesla API changes (embedded TeslaPy patch) and fix a bug in FleetAPI for multi-site installations.
@@ -300,7 +305,7 @@ curl http://localhost:8675/control/reserve
 
 ## v4.1.2 - Cache 404 Responses
 
-* Updated pyPowerwall to v0.7.11 to add cache and extended TTL for 404 responses from Powerwall as identified in issue jasonacox/Powerwall-Dashboard#449 by @jgleigh. This will help reduce load on Powerwall gateway that may be causing rate limiting for some users (Firmware 23.44.0+).
+* Updated pyPowerWall to v0.7.11 to add cache and extended TTL for 404 responses from Powerwall as identified in issue jasonacox/Powerwall-Dashboard#449 by @jgleigh. This will help reduce load on Powerwall gateway that may be causing rate limiting for some users (Firmware 23.44.0+).
 * Updated logic to disable vitals API calls for Firmware 23.44.0+
 * Added rate limit detection (429) and cooldown mode to allow Powerwall gateway time to recover.
 
@@ -468,7 +473,7 @@ curl http://localhost:8675/control/reserve
 ## v2.9.6 - Add Git Attributes
 
 * Add `.gitattributes` file to help prevent issues such as .sh files being borked on Windows OS (ref #155) by @YesThatAllen in https://github.com/jasonacox/Powerwall-Dashboard/pull/270
-* Fix `verify.sh` to run on Windows OS in https://github.com/jasonacox/Powerwall-Dashboard/commit/25b77e53310d1668b2b3868e59fac55b82286f4f
+* Fix `verify.sh` to run on Windows OS in https://github.com/jasonacox/Powerwall-Dashboard/commit/25b77e53310d1668b2b3868e59fac55b82286f
 
 ## v2.9.5 - Repo Cleanup
 
