@@ -279,8 +279,31 @@ fi
 
 CURRENT=`cat tz`
 
+
+# Timezone input validation
 echo "Timezone (leave blank for ${CURRENT})"
-read -p 'Enter Timezone: ' TZ
+while true; do
+    read -p 'Enter Timezone: ' TZ
+    if [ -z "$TZ" ]; then
+        TZ="$CURRENT"
+        break
+    fi
+    # Validate against known timezones
+    if [ -f /usr/share/zoneinfo/zone.tab ]; then
+        if awk '{print $3}' /usr/share/zoneinfo/zone.tab | grep -x "$TZ" >/dev/null || [ -f "/usr/share/zoneinfo/$TZ" ]; then
+            break
+        else
+            echo "ERROR: '$TZ' is not a valid timezone. Please enter a valid timezone (e.g., America/Los_Angeles, Europe/London)."
+        fi
+    else
+        # Fallback: basic format check
+        if [[ "$TZ" =~ ^[A-Za-z]+/[A-Za-z_]+$ ]]; then
+            break
+        else
+            echo "ERROR: '$TZ' is not a valid timezone format. Please enter in Region/City format (e.g., America/Los_Angeles)."
+        fi
+    fi
+done
 echo ""
 
 # Powerwall Credentials
