@@ -368,7 +368,7 @@ while true; do
 
     echo ""
     echo "WARNING: '$TZ' is not a recognized timezone."
-    echo "Do you wish to use this timezone anyway? [y/N]"
+    echo -n "Do you wish to use this timezone anyway? [y/N] "
     read -r response
     if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
         break

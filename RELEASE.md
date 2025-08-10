@@ -4,6 +4,7 @@
 
 * Add enhanced log display options to `verify.sh`: supports `--logs` and `--no-logs` flags to control log output, and interactive prompt for log viewing. Log output is now cleaner and only shown when requested.
 * Add input validation for timezone entry in `setup.sh` to prevent invalid/corrupt values in configuration files. Timezone is now checked against system zoneinfo and format before acceptance. 
+* Update pypowerwall to v0.14.1 - See updates: https://github.com/jasonacox/pypowerwall/releases/tag/v0.14.1 for error handling updates.
 
 ## v4.8.4 - pyPowerwall update
 
