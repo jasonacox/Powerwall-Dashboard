@@ -1,9 +1,10 @@
 # RELEASE NOTES
 
-## v4.x.x - Unreleased
+## v4.8.5 - Setup and Verify
 
 * Add enhanced log display options to `verify.sh`: supports `--logs` and `--no-logs` flags to control log output, and interactive prompt for log viewing. Log output is now cleaner and only shown when requested.
-*  
+* Add input validation for timezone entry in `setup.sh` to prevent invalid/corrupt values in configuration files. Timezone is now checked against system zoneinfo and format before acceptance. 
+* Update pypowerwall to v0.14.1 - See updates: https://github.com/jasonacox/pypowerwall/releases/tag/v0.14.1 for error handling updates.
 
 ## v4.8.4 - pyPowerwall update
 
@@ -321,11 +322,11 @@ curl http://localhost:8675/control/reserve
 
 * Updated timezone variable in `dashboard.json` to tz:text to ensure the Time Zone string is output as-is. This will make upgrading Grafana easier later on and future-proof the variables by @s-crypt in #439.
 * Removed $tz from any queries that do not have a GROUP BY statement by @s-crypt in #439.
-* Updated pyPowerwall Proxy t42 - Adds Power Flow Animation style (set PW_STYLE="solar") for Solar-Only display. Removes the Powerwall image and related text to display a Grid + Solar + Home power flow animation.
+* Updated pyPowerWall Proxy t42 - Adds Power Flow Animation style (set PW_STYLE="solar") for Solar-Only display. Removes the Powerwall image and related text to display a Grid + Solar + Home power flow animation.
 
 ## v4.0.4 - Cloud Grid Status
 
-* Update to pyPowerwall v0.7.9 - Bug fix to render correct grid status for Solar-Only systems on cloud mode (see #437)
+* Update to pyPowerWall v0.7.9 - Bug fix to render correct grid status for Solar-Only systems on cloud mode (see #437)
 
 ## v4.0.3 - Cloud Mode Fixes
 

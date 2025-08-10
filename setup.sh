@@ -279,8 +279,102 @@ fi
 
 CURRENT=`cat tz`
 
-echo "Timezone (leave blank for ${CURRENT})"
-read -p 'Enter Timezone: ' TZ
+# Function to display a (filtered) paginated list of timezones
+show_timezones() {
+    local FILTER="$1"
+    local LIST_CMD=""
+    if command -v timedatectl >/dev/null 2>&1; then
+        LIST_CMD="timedatectl list-timezones"
+    elif [ -f /usr/share/zoneinfo/zone.tab ]; then
+        # Escape $3 so shell doesn't expand it before awk runs
+        LIST_CMD="awk '!/^#/ {print \\$3}' /usr/share/zoneinfo/zone.tab"
+    else
+        LIST_CMD="find /usr/share/zoneinfo -type f -maxdepth 4 2>/dev/null | sed 's#^/usr/share/zoneinfo/##'"
+    fi
+
+    # Build list (apply optional filter) - allow zero matches without aborting
+    if [ -n "$FILTER" ]; then
+        TZ_LIST=$( { eval "$LIST_CMD" | grep -F "$FILTER" || true; } | sort )
+    else
+        TZ_LIST=$(eval "$LIST_CMD" | sort)
+    fi
+
+    if [ -z "$TZ_LIST" ]; then
+        echo "No timezones match filter '$FILTER'."
+        return 0
+    fi
+
+    # If less is available and stdout is a TTY, use it for paging
+    if command -v less >/dev/null 2>&1 && [ -t 1 ]; then
+        echo "$TZ_LIST" | less
+        return 0
+    fi
+
+    # Manual pagination fallback
+    local PAGE_SIZE=30
+    local count=0
+    while IFS= read -r line; do
+        printf '%s\n' "$line"
+        count=$((count+1))
+        if (( count % PAGE_SIZE == 0 )); then
+            read -p "--More-- (Enter=continue, q=quit) " ans
+            [[ "$ans" == "q" || "$ans" == "Q" ]] && break
+        fi
+    done <<< "$TZ_LIST"
+}
+
+
+# Timezone input validation
+echo "Timezone (leave blank for ${CURRENT} or ? to browse)"
+while true; do
+    read -p 'Enter Timezone: ' TZ
+    if [ "$TZ" = "?" ]; then
+        read -p 'Optional filter (e.g., America/ or Europe/Paris): ' TZFILT
+        show_timezones "$TZFILT"
+        continue
+    fi
+    if [ -z "$TZ" ]; then
+        TZ="$CURRENT"
+        break
+    fi
+
+    # 1) timedatectl (most accurate, includes multi-level names)
+    if command -v timedatectl >/dev/null 2>&1; then
+        if timedatectl list-timezones 2>/dev/null | grep -Fx "$TZ" >/dev/null; then
+            break
+        fi
+    fi
+
+    # 2) Direct zoneinfo file path (supports multi-level e.g. America/Argentina/Buenos_Aires)
+    if [ -f "/usr/share/zoneinfo/$TZ" ]; then
+        break
+    fi
+
+    # 3) Check zone.tab third column (if present) – some systems lack timedatectl
+    if [ -f /usr/share/zoneinfo/zone.tab ]; then
+        if awk '{print $3}' /usr/share/zoneinfo/zone.tab | grep -Fx "$TZ" >/dev/null; then
+            break
+        fi
+    fi
+
+    # 4) POSIX / RFC style TZ strings (e.g. GMT, UTC, GMT+5, EST5EDT, etc.)
+    # Only accept if it contains at least one alphabetic character to avoid numeric garbage like '1'.
+    if [[ "$TZ" =~ [A-Za-z] ]]; then
+        if TZ="$TZ" date +%Z >/dev/null 2>&1; then
+            echo "Note: '$TZ' accepted as POSIX TZ string (not an Olson zone identifier)."
+            break
+        fi
+    fi
+
+    echo ""
+    echo "WARNING: '$TZ' is not a recognized timezone."
+    echo -n "Do you wish to use this timezone anyway? [y/N] "
+    read -r response
+    if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+        break
+    fi
+    echo ""
+done
 echo ""
 
 # Powerwall Credentials
