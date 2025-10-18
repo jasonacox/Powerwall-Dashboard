@@ -335,7 +335,7 @@ The new Powerwall 3 does not have the local APIs that were found on the Powerwal
 
 Some have reported issues setting up their Powerwall 3 and the local 192.168.91.1 access point. Make sure that this IP address is reachable from the host running the Dashboard (e.g. `ping` or `curl` commands).
 
-Since the Powerwall 3 does not have previous generation APIs, you will need to use the `full` TEDAPI mode. This requires that the PW_EMAIL and PW_PASSWORD environmental variables are empty and that PW_GW_PWD is set to the Powerwall 3 Gateway WiFi password (usually found on the QR code on the Gateway itself).
+Since the Powerwall 3 does not have previous generation APIs, you will need to use the `full` TEDAPI mode. This requires that the PW_EMAIL and PW_PASSWORD environmental variables are empty and that PW_GW_PWD is set to the Powerwall 3 Gateway WiFi password (usually found on the QR code either located [inside the glass cover](https://github.com/jasonacox/Powerwall-Dashboard/discussions/694#discussioncomment-14589042) or on the outside of the unit, left side).
 
 Example of a working `pypowerwall.env` file for Powerwall 3:
 
