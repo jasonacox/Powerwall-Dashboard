@@ -516,6 +516,12 @@ if [ ! -f ${GF_ENV_FILE} ]; then
     cp "${GF_ENV_FILE}.sample" "${GF_ENV_FILE}"
 fi
 
+# Ask about anonymous access
+echo ""
+./anonymous-access.sh
+echo "-----------------------------------------"
+echo ""
+
 echo ""
 if [ -z "${TZ}" ]; then
     echo "Using ${CURRENT} timezone..."
