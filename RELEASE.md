@@ -1,5 +1,13 @@
 # RELEASE NOTES
 
+## v4.8.6 - InfluxDB File Limits and Configuration Updates
+
+* Add ulimits configuration to InfluxDB service to resolve "too many open files" errors by setting soft and hard limits to 65536 by @cwagz in https://github.com/jasonacox/Powerwall-Dashboard/issues/705
+* Add enhanced timezone validation with interactive browse feature (`?` at prompt) supporting filters and multi-level IANA zones (e.g., `America/Argentina/Buenos_Aires`) and POSIX TZ strings (e.g., `GMT+5`).
+* Add `timezone-test.sh` standalone test script for timezone validation with interactive and non-interactive modes.
+* Minor configuration file changes by @BuongiornoTexas in https://github.com/jasonacox/Powerwall-Dashboard/pull/706
+* Quote GF_INSTALL_PLUGINS value in grafana.env.sample by @rlerdorf in https://github.com/jasonacox/Powerwall-Dashboard/pull/703
+
 ## v4.8.5 - Setup and Verify
 
 * Add enhanced log display options to `verify.sh`: supports `--logs` and `--no-logs` flags to control log output, and interactive prompt for log viewing. Log output is now cleaner and only shown when requested.
