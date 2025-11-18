@@ -1,6 +1,6 @@
 {
     "settings": {
-        "influx_url": "http://localhost:8086",
+        "influx_url": "http://influxdb:8086",
         "bucket": "powerwall/kwh",
         "timezone": "Australia/Hobart",
         "supply_priority": [
