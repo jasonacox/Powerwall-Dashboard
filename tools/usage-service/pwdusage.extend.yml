@@ -6,7 +6,7 @@ services:
         container_name: pwdusage
         hostname: pwdusage
         restart: always
-        user: "1000:1000"
+        user: "${PWD_USER:-1000:1000}"
         volumes:
             - type: bind
               source: ./tools/usage-service
@@ -15,7 +15,6 @@ services:
         ports:
             - target: 9050
               published: 9050
-              mode: host
         environment:
             - USAGE_JSON=/var/lib/pwdusage/usage.json
         depends_on:
