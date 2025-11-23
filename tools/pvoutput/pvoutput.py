@@ -149,9 +149,9 @@ def get_influx(start=None, end=None):
     # Convert to Metric
     if (WEATHER_UNITS == "imperial"):
         if tm is not None:
-            tm = (5.0/9.0)*(tm-32.0) 
+            tm = (5.0/9.0)*(tm-32.0)
         if tx is not None:
-            tx = (5.0/9.0)*(tx-32.0) 
+            tx = (5.0/9.0)*(tx-32.0)
     if (WEATHER_UNITS == "standard"):
         if tm is not None:
             tm = tm - 273.15
