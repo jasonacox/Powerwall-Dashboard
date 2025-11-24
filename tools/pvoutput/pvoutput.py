@@ -148,11 +148,15 @@ def get_influx(start=None, end=None):
         tx = float(point['tx'])
     # Convert to Metric
     if (WEATHER_UNITS == "imperial"):
-        tm = (5.0/9.0)*(tm-32.0) 
-        tx = (5.0/9.0)*(tx-32.0) 
+        if tm is not None:
+            tm = (5.0/9.0)*(tm-32.0)
+        if tx is not None:
+            tx = (5.0/9.0)*(tx-32.0)
     if (WEATHER_UNITS == "standard"):
-        tm = tm - 273.15
-        tx = tx - 273.15
+        if tm is not None:
+            tm = tm - 273.15
+        if tx is not None:
+            tx = tx - 273.15
 
     # Return Data
     return([g,e,c,i,tm,tx])
