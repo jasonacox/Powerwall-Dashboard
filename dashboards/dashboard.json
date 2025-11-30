@@ -11072,6 +11072,1250 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 32,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": 3600000,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/Charge$/"
+            },
+            "properties": [
+              {
+                "id": "custom.fillOpacity",
+                "value": 10
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    10,
+                    10
+                  ],
+                  "fill": "dash"
+                }
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "auto"
+              },
+              {
+                "id": "custom.stacking",
+                "value": {
+                  "group": "A",
+                  "mode": "none"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/^PW1/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/^PW2/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#E0B400",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/^PW3/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#C4162A",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/^PW4/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#1F60C4",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/^PW5/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#FF9830",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/^PW6/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#8F3BB8",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/^Total/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 70
+      },
+      "id": 92,
+      "options": {
+        "legend": {
+          "calcs": [
+            "max",
+            "min"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "9.1.2",
+      "targets": [
+        {
+          "alias": "PW1",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "pod",
+          "query": "SELECT (-(13500 - last(\"PW1_POD_nom_full_pack_energy\")) / 13500) * 100 FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "PW1_POD_nom_full_pack_energy"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [
+                  " / 13500"
+                ],
+                "type": "math"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "PW2",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "pod",
+          "query": "SELECT (-(13500 - last(\"PW2_POD_nom_full_pack_energy\")) / 13500) * 100 FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": true,
+          "refId": "B",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "PW2_POD_nom_full_pack_energy"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "PW3",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "pod",
+          "query": "SELECT (-(13500 - last(\"PW3_POD_nom_full_pack_energy\")) / 13500) * 100 FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": true,
+          "refId": "C",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "PW3_POD_nom_full_pack_energy"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "PW4",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "pod",
+          "query": "SELECT (-(13500 - last(\"PW4_POD_nom_full_pack_energy\")) / 13500) * 100 FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": true,
+          "refId": "D",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "PW4_POD_nom_full_pack_energy"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "PW5",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "pod",
+          "query": "SELECT (-(13500 - last(\"PW5_POD_nom_full_pack_energy\")) / 13500) * 100 FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": true,
+          "refId": "E",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "PW5_POD_nom_full_pack_energy"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "PW6",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "pod",
+          "query": "SELECT (-(13500 - last(\"PW6_POD_nom_full_pack_energy\")) / 13500) * 100 FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": true,
+          "refId": "F",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "PW6_POD_nom_full_pack_energy"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "PW7",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "pod",
+          "query": "SELECT (-(13500 - last(\"PW7_POD_nom_full_pack_energy\")) / 13500) * 100 FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": true,
+          "refId": "G",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "PW7_POD_nom_full_pack_energy"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "PW8",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "pod",
+          "query": "SELECT (-(13500 - last(\"PW8_POD_nom_full_pack_energy\")) / 13500) * 100 FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": true,
+          "refId": "H",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "PW8_POD_nom_full_pack_energy"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "PW9",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "pod",
+          "query": "SELECT (-(13500 - last(\"PW9_POD_nom_full_pack_energy\")) / 13500) * 100 FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": true,
+          "refId": "I",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "PW9_POD_nom_full_pack_energy"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "PW10",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "pod",
+          "query": "SELECT (-(13500 - last(\"PW10_POD_nom_full_pack_energy\")) / 13500) * 100 FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": true,
+          "refId": "J",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "PW10_POD_nom_full_pack_energy"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "PW11",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "pod",
+          "query": "SELECT (-(13500 - last(\"PW11_POD_nom_full_pack_energy\")) / 13500) * 100 FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": true,
+          "refId": "K",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "PW11_POD_nom_full_pack_energy"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "PW12",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "pod",
+          "query": "SELECT (-(13500 - last(\"PW12_POD_nom_full_pack_energy\")) / 13500) * 100 FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": true,
+          "refId": "L",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "PW12_POD_nom_full_pack_energy"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Total",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "pod",
+          "query": "SELECT (-(13500 - last(\"nominal_full_pack_energy\")) / 13500) * 100 FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": true,
+          "refId": "Y",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "nominal_full_pack_energy"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "title": "Powerwall Capacity Trend - Deviation from Spec",
+      "transparent": true,
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "orange",
+            "mode": "fixed"
+          },
+          "decimals": 1,
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "orange",
+                "value": null
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 2,
+        "w": 24,
+        "x": 0,
+        "y": 76
+      },
+      "id": 91,
+      "interval": "",
+      "links": [],
+      "maxDataPoints": 10,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "vertical",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {
+          "valueSize": 27
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.1.2",
+      "targets": [
+        {
+          "alias": "PW1",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [],
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "raw",
+          "query": "SELECT (-(13500 - last(\"PW1_POD_nom_full_pack_energy\")) / 13500) * 100 FROM \"pod\".\"http\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "nominal_full_pack_energy"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "last"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "PW2",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "raw",
+          "query": "SELECT (-(13500 - last(\"PW2_POD_nom_full_pack_energy\")) / 13500) * 100 FROM \"pod\".\"http\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "B",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "nominal_full_pack_energy"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "last"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "PW3",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "raw",
+          "query": "SELECT (-(13500 - last(\"PW3_POD_nom_full_pack_energy\")) / 13500) * 100 FROM \"pod\".\"http\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "C",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "nominal_full_pack_energy"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "last"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "PW4",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "raw",
+          "query": "SELECT (-(13500 - last(\"PW4_POD_nom_full_pack_energy\")) / 13500) * 100 FROM \"pod\".\"http\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "D",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "nominal_full_pack_energy"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "last"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "PW5",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "raw",
+          "query": "SELECT (-(13500 - last(\"PW5_POD_nom_full_pack_energy\")) / 13500) * 100 FROM \"pod\".\"http\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "E",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "nominal_full_pack_energy"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "last"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "PW6",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "raw",
+          "query": "SELECT (-(13500 - last(\"PW6_POD_nom_full_pack_energy\")) / 13500) * 100 FROM \"pod\".\"http\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "F",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "nominal_full_pack_energy"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "last"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "PW7",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "raw",
+          "query": "SELECT (-(13500 - last(\"PW7_POD_nom_full_pack_energy\")) / 13500) * 100 FROM \"pod\".\"http\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "G",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "nominal_full_pack_energy"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "last"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "PW8",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "raw",
+          "query": "SELECT (-(13500 - last(\"PW8_POD_nom_full_pack_energy\")) / 13500) * 100 FROM \"pod\".\"http\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "H",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "nominal_full_pack_energy"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "last"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "PW9",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "raw",
+          "query": "SELECT (-(13500 - last(\"PW9_POD_nom_full_pack_energy\")) / 13500) * 100 FROM \"pod\".\"http\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "I",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "nominal_full_pack_energy"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "last"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "PW10",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "raw",
+          "query": "SELECT (-(13500 - last(\"PW10_POD_nom_full_pack_energy\")) / 13500) * 100 FROM \"pod\".\"http\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "J",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "nominal_full_pack_energy"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "last"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "PW11",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "raw",
+          "query": "SELECT (-(13500 - last(\"PW11_POD_nom_full_pack_energy\")) / 13500) * 100 FROM \"pod\".\"http\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "K",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "nominal_full_pack_energy"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "last"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "PW12",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "raw",
+          "query": "SELECT (-(13500 - last(\"PW12_POD_nom_full_pack_energy\")) / 13500) * 100 FROM \"pod\".\"http\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "L",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "nominal_full_pack_energy"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "last"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "title": "Powerwall Capacity - Deviation from Spec",
+      "transparent": true,
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 0,
@@ -11335,7 +12579,7 @@
         "h": 5,
         "w": 24,
         "x": 0,
-        "y": 70
+        "y": 78
       },
       "id": 86,
       "options": {
@@ -12496,7 +13740,7 @@
         "h": 5,
         "w": 24,
         "x": 0,
-        "y": 75
+        "y": 83
       },
       "id": 38,
       "interval": "",
@@ -13521,7 +14765,7 @@
         "h": 5,
         "w": 24,
         "x": 0,
-        "y": 80
+        "y": 88
       },
       "id": 61,
       "interval": "",
@@ -15589,7 +16833,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 85
+        "y": 93
       },
       "id": 65,
       "panels": [],
@@ -15756,7 +17000,7 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 86
+        "y": 94
       },
       "id": 68,
       "options": {
@@ -15806,7 +17050,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 96
+        "y": 104
       },
       "id": 57,
       "panels": [],
@@ -16003,7 +17247,7 @@
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 97
+        "y": 105
       },
       "hideTimeOverride": false,
       "id": 59,
@@ -16373,7 +17617,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 103
+        "y": 111
       },
       "hideTimeOverride": false,
       "id": 60,
@@ -16620,7 +17864,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 110
+        "y": 118
       },
       "id": 90,
       "panels": [],
@@ -16659,7 +17903,7 @@
         "h": 2,
         "w": 24,
         "x": 0,
-        "y": 111
+        "y": 119
       },
       "id": 88,
       "links": [],
@@ -16823,6 +18067,6 @@
   "timezone": "${VAR_TZ}",
   "title": "Powerwall - Power Flow",
   "uid": "RSabAvRRzZ",
-  "version": 61,
+  "version": 62,
   "weekStart": ""
 }
