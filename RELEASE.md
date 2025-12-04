@@ -1,5 +1,13 @@
 # RELEASE NOTES
 
+## v4.8.7 - PW3 Expansion Pack Fix
+
+* Update pypowerwall to v0.14.4 - See updates: https://github.com/jasonacox/pypowerwall/releases/tag/v0.14.4 with Powerwall 3 expansion pack energy data fixes and battery degradation metrics.
+* Fix expansion pack energy data by processing all BMS components in TEDAPI responses - improves data accuracy for systems with PW3 expansion packs by @rlerdorf in https://github.com/jasonacox/pypowerwall/pull/239
+* Add Powerwall battery degradation (capacity loss) tracking and visualization to dashboard.
+* Enhanced timezone validation in `setup.sh` with improved POSIX TZ string detection to reject invalid inputs like single digits.
+* Add timezone browsing feature with filtering support for easier timezone selection during setup.
+
 ## v4.8.6 - InfluxDB File Limits and Configuration Updates
 
 * Add ulimits configuration to InfluxDB service to resolve "too many open files" errors by setting soft and hard limits to 65536 by @cwagz in https://github.com/jasonacox/Powerwall-Dashboard/issues/705
