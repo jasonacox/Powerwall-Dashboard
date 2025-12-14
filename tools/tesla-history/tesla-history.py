@@ -857,12 +857,13 @@ def get_backup_history(start, end):
                 sys.stderr.write(" + Retrieve history data succeeded\n")
                 sys.stderr.flush()
         except Exception as err:
-            sys_exit(f"ERROR: Failed to retrieve history data - {repr(err)}", halt=False)
-            if args.daemon:
-                fetcherr = True
-                sys.stderr.write(f" ! Retrieve history data failed, retrying in {RETRY} seconds\n")
-                sys.stderr.flush()
-            return
+            print(f"WARNING: Failed to retrieve backup event history - {repr(err)}")
+            # sys_exit(f"ERROR: Failed to retrieve history data - {repr(err)}", halt=False)
+            # if args.daemon:
+            #     fetcherr = True
+            #     sys.stderr.write(f" ! Retrieve history data failed, retrying in {RETRY} seconds\n")
+            #     sys.stderr.flush()
+            # return
 
         eventsloaded = True
 
