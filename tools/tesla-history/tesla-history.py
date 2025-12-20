@@ -9,7 +9,7 @@
 
  Usage:
     * Install the required python modules (not required if run from docker):
-        pip install python-dateutil teslapy influxdb
+        pip install python-dateutil pypowerwall influxdb
 
     * Or, if running as a docker container, replace below examples with:
         docker exec -it tesla-history python3 tesla-history.py [arguments]
@@ -60,15 +60,15 @@ try:
 except:
     sys.exit("ERROR: Missing python dateutil module. Run 'pip install python-dateutil'.")
 try:
-    from teslapy import Tesla, Retry, JsonDict, Battery, SolarPanel
+    from pypowerwall.cloud.teslapy import Tesla, Retry, JsonDict, Battery, SolarPanel
 except:
-    sys.exit("ERROR: Missing python teslapy module. Run 'pip install teslapy'.")
+    sys.exit("ERROR: Missing python pypowerwall module. Run 'pip install pypowerwall'.")
 try:
     from influxdb import InfluxDBClient
 except:
     sys.exit("ERROR: Missing python influxdb module. Run 'pip install influxdb'.")
 
-BUILD = "0.1.4"
+BUILD = "0.1.5"
 VERBOSE = True
 SCRIPTPATH = os.path.dirname(os.path.realpath(sys.argv[0]))
 SCRIPTNAME = os.path.basename(sys.argv[0]).split('.')[0]

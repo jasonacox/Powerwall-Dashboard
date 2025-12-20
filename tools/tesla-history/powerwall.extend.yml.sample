@@ -2,7 +2,7 @@ version: "3.5"
 
 services:
     tesla-history:
-        image: jasonacox/tesla-history:0.1.4
+        image: jasonacox/tesla-history:0.1.5
         container_name: tesla-history
         hostname: tesla-history
         restart: unless-stopped
