@@ -30,11 +30,18 @@ if [ "${1}" == "setup" ] && [ -n "${2}" ] && [ -n "${3}" ]; then
     LONG="${3}"
 else
     # Try to detect location
-    PYTHON=$(command -v python3 || command -v python)
-    if [ -n "${PYTHON}" ]; then
-        IP_RESPONSE=$(curl -s https://freeipapi.com/api/json)
-        LAT=$(echo "$IP_RESPONSE" | "${PYTHON}" -c "import sys, json; print(json.load(sys.stdin)['latitude'])")
-        LONG=$(echo "$IP_RESPONSE" | "${PYTHON}" -c "import sys, json; print(json.load(sys.stdin)['longitude'])")
+    if PYTHON=$(command -v python3 || command -v python); then
+        if IP_RESPONSE=$(curl -s -L --fail https://freeipapi.com/api/json); then
+            # Try to parse JSON but catch any errors
+            read LAT LONG <<< $(printf '%s' "$IP_RESPONSE" | "${PYTHON}" -c '
+import sys, json
+try:
+    data = json.load(sys.stdin)
+    print(data["latitude"], data["longitude"])
+except Exception:
+    print("0.0", "0.0")
+')
+        fi
     fi
 fi
 

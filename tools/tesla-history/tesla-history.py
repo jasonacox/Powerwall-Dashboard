@@ -9,7 +9,7 @@
 
  Usage:
     * Install the required python modules (not required if run from docker):
-        pip install python-dateutil teslapy influxdb
+        pip install python-dateutil pypowerwall influxdb
 
     * Or, if running as a docker container, replace below examples with:
         docker exec -it tesla-history python3 tesla-history.py [arguments]
@@ -60,15 +60,15 @@ try:
 except:
     sys.exit("ERROR: Missing python dateutil module. Run 'pip install python-dateutil'.")
 try:
-    from teslapy import Tesla, Retry, JsonDict, Battery, SolarPanel
+    from pypowerwall.cloud.teslapy import Tesla, Retry, JsonDict, Battery, SolarPanel
 except:
-    sys.exit("ERROR: Missing python teslapy module. Run 'pip install teslapy'.")
+    sys.exit("ERROR: Missing python pypowerwall module. Run 'pip install pypowerwall'.")
 try:
     from influxdb import InfluxDBClient
 except:
     sys.exit("ERROR: Missing python influxdb module. Run 'pip install influxdb'.")
 
-BUILD = "0.1.4"
+BUILD = "0.1.5"
 VERBOSE = True
 SCRIPTPATH = os.path.dirname(os.path.realpath(sys.argv[0]))
 SCRIPTNAME = os.path.basename(sys.argv[0]).split('.')[0]
@@ -395,6 +395,7 @@ else:
 
 # Global Variables
 powerdata = []
+backupdata = []
 eventdata = []
 reservedata = []
 powergaps = None
@@ -405,7 +406,6 @@ tzname = None
 tzoffset = False
 power = None
 soe = None
-backup = None
 dayloaded = None
 eventsloaded = False
 reserveloaded = False
@@ -834,36 +834,48 @@ def get_backup_history(start, end):
 
     Adds data points to 'eventdata' in InfluxDB Line Protocol format with tag source='cloud'
     """
-    global fetcherr, eventsloaded, backup
+    global fetcherr, eventsloaded
 
     if not eventsloaded:
-        if VERBOSE:
-            print("Retrieving backup event history")
-        time.sleep(TDELAY)
-        try:
-            # Retrieve full backup event history
-            backup = site.get_history_data(kind='backup')
-            if args.debug:
-                print(backup)
-            """ Example 'events' response (event duration in ms):
-            {
-                "timestamp": "2022-04-19T20:55:53+10:00",
-                "duration": 3862580
-            }
-            """
-            if args.daemon and fetcherr:
-                fetcherr = False
-                sys.stdout.flush()
-                sys.stderr.write(" + Retrieve history data succeeded\n")
-                sys.stderr.flush()
-        except Exception as err:
-            print(f"WARNING: Failed to retrieve backup event history - {repr(err)}")
-            # sys_exit(f"ERROR: Failed to retrieve history data - {repr(err)}", halt=False)
-            # if args.daemon:
-            #     fetcherr = True
-            #     sys.stderr.write(f" ! Retrieve history data failed, retrying in {RETRY} seconds\n")
-            #     sys.stderr.flush()
-            # return
+        startdate = start
+        enddate = datetime.now(tz=influxtz).replace(hour=23, minute=59, second=59, microsecond=0)
+        printed = False
+
+        while enddate > startdate:
+            if VERBOSE and not printed:
+                print("Retrieving backup event history")
+                printed = True
+
+            time.sleep(TDELAY)
+            try:
+                # Retrieve full backup event history
+                backup = site.get_calendar_history_data(kind='backup', period='lifetime', end_date=enddate.isoformat())
+                if args.debug:
+                    print(backup)
+                """ Example 'events' response (event duration in ms):
+                {
+                    "timestamp": "2022-04-19T20:55:53+10:00",
+                    "duration": 3862580
+                }
+                """
+                if args.daemon and fetcherr:
+                    fetcherr = False
+                    sys.stdout.flush()
+                    sys.stderr.write(" + Retrieve history data succeeded\n")
+                    sys.stderr.flush()
+            except Exception as err:
+                sys_exit(f"ERROR: Failed to retrieve history data - {repr(err)}", halt=False)
+                if args.daemon:
+                    fetcherr = True
+                    sys.stderr.write(f" ! Retrieve history data failed, retrying in {RETRY} seconds\n")
+                    sys.stderr.flush()
+                return
+
+            if backup:
+                backupdata.append(backup)
+                enddate = isoparse(backup['next_end_date']) if 'next_end_date' in backup else startdate
+            else:
+                break
 
         eventsloaded = True
 
@@ -880,7 +892,7 @@ def get_backup_history(start, end):
         gridstatus.append(gridpoint)
         timestamp += timedelta(minutes=1)
 
-    if backup:
+    for backup in backupdata:
         for d in backup['events']:
             # Determine backup event start/end time
             eventstart = isoparse(d['timestamp']).astimezone(utctz)
@@ -1479,6 +1491,7 @@ elif args.daemon:
 
             # Re-initialise globals
             powerdata.clear()
+            backupdata.clear()
             eventdata.clear()
             reservedata.clear()
             dayloaded = None
