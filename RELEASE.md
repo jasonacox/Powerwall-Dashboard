@@ -1,5 +1,11 @@
 # RELEASE NOTES
 
+## v4.8.8 - Tesla-History Fix
+
+* Revise tesla-history script backup event history retrieval due to Tesla API changes by @mcbirse in https://github.com/jasonacox/Powerwall-Dashboard/pull/717 - addresses https://github.com/jasonacox/Powerwall-Dashboard/issues/714
+* Update tesla-history to use embedded TeslaPy component of pypowerwall (now required) - install by running `pip install pypowerwall`
+* Revise location detection in setup and weather script for improved error handling
+
 ## v4.8.7 - PW3 Expansion Pack Fix
 
 * Update pypowerwall to v0.14.4 - See updates: https://github.com/jasonacox/pypowerwall/releases/tag/v0.14.4 with Powerwall 3 expansion pack energy data fixes and battery degradation metrics.
