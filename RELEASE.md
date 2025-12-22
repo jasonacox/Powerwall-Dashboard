@@ -4,7 +4,7 @@
 
 ### Proxy t86 (20 Dec 2025)
 
-This version introduces the pypowerwall proxy t86 based on pypowerwall v0.14.5. Optimization are added for TEDAPI and should help with stability and performance for Powerwall 3 owners.
+This version introduces the pypowerwall proxy t86 based on pypowerwall v0.14.5. Optimizations are added for TEDAPI and should help with stability and performance for Powerwall 3 owners.
 
 * **Performance Caching System**:
   - Added comprehensive performance caching layer for high-impact API routes
