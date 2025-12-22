@@ -95,6 +95,10 @@ services:
         container_name: grafana
         hostname: grafana
         restart: unless-stopped
+        ulimits:
+            nofile:
+                soft: 65536
+                hard: 65536
         user: "${PWD_USER:-1000:1000}"
         volumes:
             - type: bind
