@@ -1,5 +1,21 @@
 # RELEASE NOTES
 
+## v5.0.0 - Grafana Upgrade
+
+### Major Updates
+
+* **Grafana Upgrade to v12.3**: Major version upgrade from Grafana 9.1.2 to 12.3-ubuntu, bringing significant improvements in performance, security, and features.
+  - Enhanced data source proxy with improved connection handling
+  - Better query performance and visualization capabilities
+  - Updated dashboard compatibility and new visualization options
+  - Improved security with latest upstream patches
+
+### Breaking Changes
+
+* **Dashboards**: Some older dashboard panels may need updates for compatibility with Grafana 12. A new dashboard.json has been added that updates panels: Savings, Self-Powered, and Current State.
+
+**Note**: This is a major version upgrade.
+
 ## v4.9.0 - Performance Improvements
 
 ### Proxy t86 (20 Dec 2025)
