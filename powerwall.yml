@@ -28,7 +28,7 @@ services:
             start_period: 60s
 
     pypowerwall:
-        image: jasonacox/pypowerwall:0.14.4t85
+        image: jasonacox/pypowerwall:0.14.5t86
         container_name: pypowerwall
         hostname: pypowerwall
         restart: unless-stopped
@@ -95,6 +95,10 @@ services:
         container_name: grafana
         hostname: grafana
         restart: unless-stopped
+        ulimits:
+            nofile:
+                soft: 65536
+                hard: 65536
         user: "${PWD_USER:-1000:1000}"
         volumes:
             - type: bind

@@ -1,5 +1,53 @@
 # RELEASE NOTES
 
+## v4.9.0 - Performance Improvements
+
+### Proxy t86 (20 Dec 2025)
+
+This version introduces the pypowerwall proxy t86 based on pypowerwall v0.14.5. Optimizations are added for TEDAPI and should help with stability and performance for Powerwall 3 owners.
+
+* **Performance Caching System**:
+  - Added comprehensive performance caching layer for high-impact API routes
+  - Implemented `cached_route_handler()` pattern for consistent cache management across endpoints
+  - Added performance caching to: `/aggregates`, `/api/meters/aggregates`, `/vitals`, `/strings`, `/temps/pw`, `/alerts/pw`, `/freq`, `/pod`, `/json`, `/csv`, `/csv/v2` endpoints
+  - Shared cache optimization: `/aggregates` and `/api/meters/aggregates` use same cache key for identical payloads
+  - Optimized `/csv` and `/json` endpoints from 9 API calls to 6 calls (33% reduction) using aggregates consolidation
+  - Eliminated 400-600ms overhead from redundant `get_components()` fallback calls
+  - Typical performance improvements: 99.6% faster cached responses (764ms → 2.9ms for `/aggregates`)
+  - Cache memory monitoring added to `/stats` endpoint with detailed memory usage breakdown
+  - Average overall response time improvement: 58% reduction (165.7ms → 70.2ms)
+
+**Performance Metrics Comparison:**
+
+| API Route | Before (ms) | After (ms) | Improvement | Usage Count | Impact Reduction |
+|-----------|-------------|------------|-------------|-------------|------------------|
+| `/api/meters/aggregates` | 821.5 | 151.3 | **81.6%** ⚡ | 7,992 | 5,355 seconds saved |
+| `/aggregates` | 764.8 | 150.7 | **80.3%** ⚡ | 3,880 | 2,383 seconds saved |
+| `/strings` | 545.7 | 37.3 | **93.2%** ⚡ | 3,945 | 2,006 seconds saved |
+| `/vitals` | 339.3 | 33.9 | **90.0%** ⚡ | 3,946 | 1,205 seconds saved |
+| `/alerts/pw` | 382.9 | 87.8 | **77.1%** 🚀 | 3,881 | 1,145 seconds saved |
+| `/temps/pw` | 266.0 | 253.6 | **4.7%** ✅ | 3,880 | 48 seconds saved |
+
+*Total Impact Reduction: ~12,142 seconds (3.4 hours) of response time saved per 8-hour period*
+
+* **Performance Testing Tool**:
+  - Added [perf_test.py](https://github.com/jasonacox/pypowerwall/blob/main/proxy/perf_test.py) script for comprehensive API performance testing and analysis
+  - Tests 27 production API routes with impact scoring (response_time × usage_frequency)
+  - Provides min/max/average response times with color-coded performance indicators
+
+* **Bug Fixes**:
+  - Fixed undefined variable `cache_ttl_seconds` error in graceful degradation system
+  - Fixed TypeError in `/csv/v2` endpoint: removed invalid `force=False` parameter from `level()`, `grid_status()`, and `get_reserve()` calls
+  - Fixed variable shadowing bug in `grid_status()` method where `type` parameter shadowed Python's built-in `type()` function
+  - Renamed `type` parameter to `output_type` throughout codebase for consistency and correctness
+
+* **Code Quality & Maintainability**:
+  - Centralized cache logic in reusable helper functions for improved consistency
+  - Improved error handling and logging in `safe_pw_call()` wrapper
+  - Added unit tests for CSV endpoints (`TestCSVEndpoints` class with 7 test cases)
+  - Enhanced error tracking with network error summaries and endpoint statistics
+  - Enhanced documentation with comprehensive performance testing guide
+
 ## v4.8.8 - Tesla-History Fix
 
 * Revise tesla-history script backup event history retrieval due to Tesla API changes by @mcbirse in https://github.com/jasonacox/Powerwall-Dashboard/pull/717 - addresses https://github.com/jasonacox/Powerwall-Dashboard/issues/714
