@@ -91,7 +91,7 @@ services:
             start_period: 30s
 
     grafana:
-        image: grafana/grafana:12.3-ubuntu
+        image: grafana/grafana:12.3.1-ubuntu
         container_name: grafana
         hostname: grafana
         restart: unless-stopped
