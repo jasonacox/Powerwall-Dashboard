@@ -6,7 +6,7 @@
 set -e
 
 # Set Globals
-VERSION="4.9.0"
+VERSION="5.0.0"
 CURRENT="Unknown"
 COMPOSE_ENV_FILE="compose.env"
 INFLUXDB_ENV_FILE="influxdb.env"
@@ -42,6 +42,24 @@ running() {
     [[ $status == ${code} ]]
 }
 
+# Compare semantic versions: returns 0 if $1 < $2
+version_lt() {
+    local IFS=.
+    local i
+    local ver1=($1)
+    local ver2=($2)
+    for ((i=0;i<3;i++)); do
+        local a=${ver1[i]:-0}
+        local b=${ver2[i]:-0}
+        if ((10#$a < 10#$b)); then
+            return 0
+        elif ((10#$a > 10#$b)); then
+            return 1
+        fi
+    done
+    return 1
+}
+
 # Because this file can be upgraded, don't use it to run the upgrade
 if [ "$0" != "tmp.sh" ]; then
     # Grab latest upgrade script from GitHub and run it
@@ -60,6 +78,18 @@ echo "---------------------------------------------------------------------"
 echo "This script will attempt to upgrade you to the latest version without"
 echo "removing existing data. A backup is still recommended."
 echo ""
+
+# If upgrading from a release older than 5.0.0, warn about Grafana v12/dashboard import
+if [[ "${CURRENT}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] && version_lt "${CURRENT}" "5.0.0"; then
+    cat <<EOF
+
+WARNING: You are upgrading from v${CURRENT} to v${VERSION} — this is a MAJOR upgrade.
+Grafana will be upgraded from v9 to v12 and will require importing the new dashboard.
+Please backup your Grafana dashboards and import 'dashboards/dashboard.json'
+after the upgrade.
+
+EOF
+fi
 
 # Check for existing beta solar-only installation or solar-only profile
 if [ -f tools/solar-only/compose.env ] && [ ! -f ${COMPOSE_ENV_FILE} ]; then

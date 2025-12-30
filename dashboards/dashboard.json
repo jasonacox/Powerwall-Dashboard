@@ -41,6 +41,12 @@
   "__elements": {},
   "__requires": [
     {
+      "type": "panel",
+      "id": "barchart",
+      "name": "Bar chart",
+      "version": ""
+    },
+    {
       "type": "datasource",
       "id": "fetzerch-sunandmoon-datasource",
       "name": "Sun and Moon",
@@ -50,25 +56,19 @@
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "9.1.2"
-    },
-    {
-      "type": "panel",
-      "id": "grafana-piechart-panel",
-      "name": "Pie Chart (old)",
-      "version": "1.6.4"
-    },
-    {
-      "type": "panel",
-      "id": "graph",
-      "name": "Graph (old)",
-      "version": ""
+      "version": "12.3.1"
     },
     {
       "type": "datasource",
       "id": "influxdb",
       "name": "InfluxDB",
       "version": "1.0.0"
+    },
+    {
+      "type": "panel",
+      "id": "piechart",
+      "name": "Pie chart",
+      "version": ""
     },
     {
       "type": "panel",
@@ -93,12 +93,6 @@
       "id": "timeseries",
       "name": "Time series",
       "version": ""
-    },
-    {
-      "type": "panel",
-      "id": "yesoreyeram-boomtable-panel",
-      "name": "Boom Table",
-      "version": "1.5.0-alpha.3"
     }
   ],
   "annotations": {
@@ -126,9 +120,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
-  "id": null,
   "links": [],
-  "liveNow": false,
   "panels": [
     {
       "collapsed": false,
@@ -154,11 +146,13 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": true,
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 30,
             "gradientMode": "none",
@@ -167,6 +161,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -174,6 +169,7 @@
               "type": "linear"
             },
             "showPoints": "never",
+            "showValues": false,
             "spanNulls": 3600000,
             "stacking": {
               "group": "A",
@@ -190,7 +186,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -601,7 +597,6 @@
         "y": 1
       },
       "id": 2,
-      "interval": "",
       "options": {
         "legend": {
           "calcs": [
@@ -612,11 +607,12 @@
           "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "multi",
           "sort": "none"
         }
       },
-      "pluginVersion": "9.1.2",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "alias": "Home Usage",
@@ -635,6 +631,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "autogen",
+          "query": "SELECT \"mean_load_instant_power\" FROM \"http\" WHERE $timeFilter ",
+          "rawQuery": false,
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -797,6 +795,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "autogen",
+          "query": "SELECT \"mean_percentage\" FROM \"http\" WHERE $timeFilter",
+          "rawQuery": false,
           "refId": "E",
           "resultFormat": "time_series",
           "select": [
@@ -1021,6 +1021,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pod",
+          "query": "SELECT \"mean_percentage\" FROM \"http\" WHERE $timeFilter",
+          "rawQuery": false,
           "refId": "K",
           "resultFormat": "time_series",
           "select": [
@@ -1052,157 +1054,21 @@
         "y": 1
       },
       "id": 13,
-      "links": [],
       "options": {
-        "content": "<style>\ndiv.powerDiv {\n      width: 100%;\n      height: 100%;\n      overflow: hidden;\n      background: url(public/img/load_big.gif) center center no-repeat;\n    }\ndiv.firmwareDiv {\n      width: 100%;\n      position: absolute;\n      text-align: center;\n      left: 0;\n      bottom: 0;\n      overflow: hidden;\n    }\niframe.powerFrame {\n      width: 400px;\n      height: 300px;\n      transform: scale(0);\n      transform-origin: center;\n      position: absolute;\n      left: 50%;\n      top: 50%;\n      border-style: none;\n    }\n</style>\n<div class=\"powerDiv\">\n    <iframe id=\"frame8675\" class=\"powerFrame\" src=\"/public/img/grafana_icon.svg\">IFRAME not supported by browser.</iframe>\n</div>\n<div class=\"firmwareDiv\">\n  <p class=\"version\" style=\"color:gray; text-align: center;\">Firmware</p>\n</div>\n<script>\n// Scale Animation when Window is Resized\nfunction scale() {\n  document.querySelectorAll('.powerFrame').forEach(scaled => {\n    parent = scaled.parentNode;\n    ratio = Math.min(1,parent.offsetWidth / scaled.offsetWidth, parent.offsetHeight / scaled.offsetHeight);\n    scaled.style.transform = 'translate(-50%, -50%) scale(' + ratio + ')';\n  })\n}\nwindow.addEventListener('resize', function(e){ scale(); }, false);\n\n// Display Firmware Version\nfunction showversion() {\n    var pwver = window.location.protocol + \"//\" + window.location.hostname + \":8675/version\";\n    $.getJSON(pwver, function(data) {\n        var text = `Firmware: ${data.version.split(\" \")[0]}`;\n        $(\".version\").html(text);\n    });\n    setTimeout(showversion, 60000);\n}\nshowversion();\n\n// Load Animation from pyPowerwall\nvar powerFrame = document.getElementById('frame8675');\npowerFrame.onload = function() {\n  // remove animated gif from background now that frame downloaded...\n  this.parentNode.setAttribute('style','background: none');\n  // and scale the frame to fit...\n  scale();\n}\npowerFrame.src = window.location.protocol + \"//\" + window.location.hostname + \":8675/\";\n</script>",
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "<!-- Center Title Style Override for Powerwall Dashboard -->\n<style>\n/* Make the panel header container use relative positioning */\ndiv[class*=\"-headerContainer\"] {\n  position: relative;\n}\n\n/* Absolutely center the panel title */\ndiv[class*=\"-title\"] {\n  position: absolute;\n  left: 50%;\n  transform: translateX(-50%);\n  z-index: 1;\n  pointer-events: none;\n}\n\n/* Allow interactions with the title text itself */\ndiv[class*=\"-title\"] * {\n  pointer-events: auto;\n}\n\n/* Push menu button to the right using margin-left: auto */\ndiv[class*=\"-menuItem\"] {\n  margin-left: auto !important;\n}\n\n/* Ensure actions stay on the left side */\ndiv[class*=\"-flexGrow\"] {\n  display: none;\n}\n\n</style>\n<!-- End of Style Override -->\n<!-- pyPowerwall Power Flow Animation -->\n<style>\ndiv.powerDiv {\n      width: 100%;\n      height: 100%;\n      overflow: hidden;\n      background: url(public/img/load_big.gif) center center no-repeat;\n    }\ndiv.firmwareDiv {\n      width: 100%;\n      position: absolute;\n      text-align: center;\n      left: 0;\n      bottom: 0;\n      overflow: hidden;\n    }\niframe.powerFrame {\n      width: 450px;\n      height: 350px;\n      transform: scale(0);\n      transform-origin: center;\n      position: absolute;\n      left: 50%;\n      top: 50%;\n      background-color: #111217 !important;\n      border: none !important;\n      outline: none !important;\n      will-change: transform;\n      backface-visibility: hidden;\n      -webkit-backface-visibility: hidden;\n      -webkit-font-smoothing: antialiased;\n    }\n</style>\n<div class=\"powerDiv\">\n    <iframe id=\"frame8675\" class=\"powerFrame\" src=\"/public/img/grafana_icon.svg\">IFRAME not supported by browser.</iframe>\n</div>\n<div class=\"firmwareDiv\">\n  <p class=\"version\" style=\"color:gray; text-align: center;\">Firmware</p>\n</div>\n<script>\n// Scale Animation when Window is Resized\nfunction scale() {\n  document.querySelectorAll('.powerFrame').forEach(scaled => {\n    parent = scaled.parentNode;\n    ratio = Math.min(1,parent.offsetWidth / scaled.offsetWidth, parent.offsetHeight / scaled.offsetHeight);\n    scaled.style.transform = 'translate(-50%, -50%) scale(' + ratio + ')';\n  })\n}\nwindow.addEventListener('resize', function(e){ scale(); }, false);\n\n// Display Firmware Version\nfunction showversion() {\n    var pwver = window.location.protocol + \"//\" + window.location.hostname + \":8675/version\";\n    $.getJSON(pwver, function(data) {\n        var text = `Firmware: ${data.version.split(\" \")[0]}`;\n        $(\".version\").html(text);\n    });\n    setTimeout(showversion, 60000);\n}\nshowversion();\n\n// Load Animation from pyPowerwall\nvar powerFrame = document.getElementById('frame8675');\npowerFrame.onload = function() {\n  // remove animated gif from background now that frame downloaded...\n  this.parentNode.setAttribute('style','background: none');\n  // and scale the frame to fit...\n  scale();\n}\npowerFrame.src = window.location.protocol + \"//\" + window.location.hostname + \":8675/\";\n</script>\n<!-- End of Power Flow Animation -->\n",
         "mode": "html"
       },
-      "pluginVersion": "9.1.2",
-      "targets": [
-        {
-          "alias": "From Solar",
-          "groupBy": [
-            {
-              "params": [
-                "1h"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "none"
-              ],
-              "type": "fill"
-            }
-          ],
-          "measurement": "http",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT  (1+from_solar/abs(from_solar))*from_solar/2  FROM (SELECT integral(solar)/1000/3600 - integral(to_pw)/1000/3600 - integral(to_grid)/1000/3600  AS from_solar FROM autogen.http WHERE  $timeFilter )",
-          "rawQuery": true,
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "solar_5m_power"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "integral"
-              }
-            ]
-          ],
-          "tags": [],
-          "tz": "${tz:text}"
-        },
-        {
-          "alias": "From Powerwall",
-          "groupBy": [],
-          "measurement": "http",
-          "orderByTime": "ASC",
-          "policy": "autogen",
-          "refId": "B",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "from_pw"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "integral"
-              },
-              {
-                "params": [
-                  " / 1000 / 3600"
-                ],
-                "type": "math"
-              }
-            ]
-          ],
-          "tags": [],
-          "tz": "${tz:text}"
-        },
-        {
-          "alias": "From Grid",
-          "groupBy": [],
-          "measurement": "http",
-          "orderByTime": "ASC",
-          "policy": "autogen",
-          "refId": "C",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "from_grid"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "integral"
-              },
-              {
-                "params": [
-                  " / 1000 / 3600"
-                ],
-                "type": "math"
-              }
-            ]
-          ],
-          "tags": [],
-          "tz": "${tz:text}"
-        }
-      ],
+      "pluginVersion": "12.3.1",
       "title": "Power Flow",
       "transparent": true,
       "type": "text"
     },
     {
-      "alert": {
-        "alertRuleTags": {},
-        "conditions": [
-          {
-            "evaluator": {
-              "params": [
-                1
-              ],
-              "type": "lt"
-            },
-            "operator": {
-              "type": "and"
-            },
-            "query": {
-              "params": [
-                "A",
-                "5m",
-                "now"
-              ]
-            },
-            "reducer": {
-              "params": [],
-              "type": "avg"
-            },
-            "type": "query"
-          }
-        ],
-        "executionErrorState": "alerting",
-        "for": "5m",
-        "frequency": "1m",
-        "handler": 1,
-        "message": "Grid Offline",
-        "name": "Grid Status alert",
-        "noDataState": "keep_state",
-        "notifications": []
-      },
       "datasource": {
         "type": "influxdb",
         "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
@@ -1215,11 +1081,13 @@
             "mode": "fixed"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 37,
             "gradientMode": "opacity",
@@ -1228,6 +1096,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 3,
             "pointSize": 5,
@@ -1235,6 +1104,7 @@
               "type": "linear"
             },
             "showPoints": "never",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -1252,7 +1122,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               }
             ]
           },
@@ -1374,9 +1244,7 @@
         "x": 17,
         "y": 11
       },
-      "hideTimeOverride": false,
       "id": 72,
-      "interval": "",
       "options": {
         "legend": {
           "calcs": [],
@@ -1385,11 +1253,12 @@
           "showLegend": false
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "multi",
           "sort": "none"
         }
       },
-      "pluginVersion": "9.1.2",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "alias": "Grid Status",
@@ -1504,7 +1373,7 @@
             "steps": [
               {
                 "color": "blue",
-                "value": null
+                "value": 0
               }
             ]
           },
@@ -1519,14 +1388,13 @@
         "y": 15
       },
       "id": 4,
-      "interval": "",
-      "links": [],
       "maxDataPoints": 100,
       "options": {
         "colorMode": "value",
         "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "horizontal",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "sum"
@@ -1534,12 +1402,14 @@
           "fields": "",
           "values": false
         },
+        "showPercentChange": false,
         "text": {
           "valueSize": 30
         },
-        "textMode": "auto"
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "9.1.2",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "datasource": {
@@ -1606,7 +1476,7 @@
             "steps": [
               {
                 "color": "yellow",
-                "value": null
+                "value": 0
               }
             ]
           },
@@ -1621,14 +1491,13 @@
         "y": 15
       },
       "id": 5,
-      "interval": "",
-      "links": [],
       "maxDataPoints": 100,
       "options": {
         "colorMode": "value",
         "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "horizontal",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "sum"
@@ -1636,12 +1505,14 @@
           "fields": "",
           "values": false
         },
+        "showPercentChange": false,
         "text": {
           "valueSize": 30
         },
-        "textMode": "auto"
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "9.1.2",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "datasource": {
@@ -1709,7 +1580,7 @@
             "steps": [
               {
                 "color": "yellow",
-                "value": null
+                "value": 0
               }
             ]
           },
@@ -1724,14 +1595,13 @@
         "y": 15
       },
       "id": 70,
-      "interval": "",
-      "links": [],
       "maxDataPoints": 100,
       "options": {
         "colorMode": "value",
         "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "horizontal",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "sum"
@@ -1739,12 +1609,14 @@
           "fields": "/^SolarPowered$/",
           "values": false
         },
+        "showPercentChange": false,
         "text": {
           "valueSize": 30
         },
-        "textMode": "auto"
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "9.1.2",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "alias": "SolarPowered",
@@ -1815,7 +1687,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               }
             ]
           },
@@ -1830,14 +1702,13 @@
         "y": 15
       },
       "id": 8,
-      "interval": "",
-      "links": [],
       "maxDataPoints": 100,
       "options": {
         "colorMode": "value",
         "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "horizontal",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "sum"
@@ -1845,12 +1716,14 @@
           "fields": "",
           "values": false
         },
+        "showPercentChange": false,
         "text": {
           "valueSize": 30
         },
-        "textMode": "auto"
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "9.1.2",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "datasource": {
@@ -1917,7 +1790,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               }
             ]
           },
@@ -1932,14 +1805,13 @@
         "y": 15
       },
       "id": 6,
-      "interval": "",
-      "links": [],
       "maxDataPoints": 100,
       "options": {
         "colorMode": "value",
         "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "horizontal",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "sum"
@@ -1947,12 +1819,14 @@
           "fields": "",
           "values": false
         },
+        "showPercentChange": false,
         "text": {
           "valueSize": 30
         },
-        "textMode": "auto"
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "9.1.2",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "datasource": {
@@ -2019,7 +1893,7 @@
             "steps": [
               {
                 "color": "purple",
-                "value": null
+                "value": 0
               }
             ]
           },
@@ -2034,14 +1908,13 @@
         "y": 15
       },
       "id": 7,
-      "interval": "",
-      "links": [],
       "maxDataPoints": 100,
       "options": {
         "colorMode": "value",
         "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "horizontal",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "sum"
@@ -2049,12 +1922,14 @@
           "fields": "",
           "values": false
         },
+        "showPercentChange": false,
         "text": {
           "valueSize": 30
         },
-        "textMode": "auto"
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "9.1.2",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "datasource": {
@@ -2121,7 +1996,7 @@
             "steps": [
               {
                 "color": "purple",
-                "value": null
+                "value": 0
               }
             ]
           },
@@ -2136,14 +2011,13 @@
         "y": 15
       },
       "id": 9,
-      "interval": "",
-      "links": [],
       "maxDataPoints": 100,
       "options": {
         "colorMode": "value",
         "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "horizontal",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "sum"
@@ -2151,12 +2025,14 @@
           "fields": "",
           "values": false
         },
+        "showPercentChange": false,
         "text": {
           "valueSize": 30
         },
-        "textMode": "auto"
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "9.1.2",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "datasource": {
@@ -2223,7 +2099,7 @@
             "steps": [
               {
                 "color": "purple",
-                "value": null
+                "value": 0
               }
             ]
           },
@@ -2238,14 +2114,13 @@
         "y": 15
       },
       "id": 69,
-      "interval": "",
-      "links": [],
       "maxDataPoints": 100,
       "options": {
         "colorMode": "value",
         "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "horizontal",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "sum"
@@ -2253,12 +2128,14 @@
           "fields": "",
           "values": false
         },
+        "showPercentChange": false,
         "text": {
           "valueSize": 30
         },
-        "textMode": "auto"
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "9.1.2",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "alias": "",
@@ -2302,73 +2179,91 @@
       "type": "stat"
     },
     {
-      "aliasColors": {
-        "battery": "green",
-        "battery impact": "green",
-        "combined": "red",
-        "solar": "yellow",
-        "solar + battery": "red",
-        "solar > grid": "purple",
-        "solar > home": "yellow",
-        "solar only": "yellow",
-        "total": "blue"
-      },
-      "bars": true,
-      "dashLength": 10,
-      "dashes": false,
       "datasource": {
         "type": "influxdb",
         "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
       },
-      "decimals": 2,
       "description": "Estimated Savings (Buy  = $ $avg_buy_per_kwh / Sell  = $ $avg_sell_per_kwh)",
       "fieldConfig": {
         "defaults": {
-          "links": []
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisGridShow": true,
+            "axisLabel": "",
+            "axisPlacement": "left",
+            "axisSoftMin": 0,
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 2,
+          "fieldMinMax": false,
+          "links": [],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
         },
         "overrides": []
       },
-      "fill": 1,
-      "fillGradient": 0,
       "gridPos": {
         "h": 5,
         "w": 9,
         "x": 0,
         "y": 17
       },
-      "hiddenSeries": false,
-      "hideTimeOverride": true,
       "id": 78,
-      "interval": "",
-      "legend": {
-        "alignAsTable": true,
-        "avg": false,
-        "current": false,
-        "hideEmpty": false,
-        "hideZero": true,
-        "max": false,
-        "min": false,
-        "rightSide": true,
-        "show": true,
-        "total": true,
-        "values": true
-      },
-      "lines": false,
-      "linewidth": 1,
-      "links": [],
-      "nullPointMode": "null",
       "options": {
-        "alertThreshold": true
+        "barRadius": 0,
+        "barWidth": 0.7,
+        "fullHighlight": false,
+        "groupWidth": 0.9,
+        "legend": {
+          "calcs": [
+            "sum"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "orientation": "vertical",
+        "showValue": "never",
+        "stacking": "none",
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
       },
-      "percentage": false,
-      "pluginVersion": "9.1.2",
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "alias": "powerwall > home",
@@ -2418,94 +2313,264 @@
           "resultFormat": "time_series"
         }
       ],
-      "thresholds": [],
-      "timeRegions": [],
       "title": "Savings",
-      "tooltip": {
-        "shared": false,
-        "sort": 0,
-        "value_type": "individual"
-      },
       "transparent": true,
-      "type": "graph",
-      "xaxis": {
-        "mode": "series",
-        "show": false,
-        "values": [
-          "total"
-        ]
-      },
-      "yaxes": [
-        {
-          "$$hashKey": "object:1096",
-          "decimals": 2,
-          "format": "currencyUSD",
-          "label": "",
-          "logBase": 1,
-          "min": "0",
-          "show": true
-        },
-        {
-          "$$hashKey": "object:1097",
-          "format": "short",
-          "logBase": 1,
-          "show": false
-        }
-      ],
-      "yaxis": {
-        "align": false
-      }
+      "type": "barchart"
     },
     {
-      "aliasColors": {
-        "Battery": "#73BF69",
-        "Battery Usage": "#73BF69",
-        "From Grid": "#B877D9",
-        "From Powerwall": "#73BF69",
-        "From Solar": "#FADE2A",
-        "Grid": "#B877D9",
-        "Grid Usage": "#B877D9",
-        "Powerwall": "#73BF69",
-        "Powerwall Usage": "#73BF69",
-        "Solar": "#FADE2A",
-        "Solar Usage": "#FADE2A",
-        "Total Solar": "#FADE2A",
-        "Total Usage": "#5794F2"
-      },
-      "breakPoint": "50%",
-      "combine": {
-        "label": "Others",
-        "threshold": 0
-      },
       "datasource": {
         "type": "influxdb",
         "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
       },
-      "fontSize": "100%",
-      "format": "kwatth",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "decimals": 0,
+          "mappings": [],
+          "unit": "kwatth"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Battery"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#73BF69",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Battery Usage"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#73BF69",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "From Grid"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#B877D9",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "From Powerwall"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#73BF69",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "From Solar"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#FADE2A",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Grid"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#B877D9",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Grid Usage"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#B877D9",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Powerwall"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#73BF69",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Powerwall Usage"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#73BF69",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Solar"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#FADE2A",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Solar Usage"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#FADE2A",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Total Solar"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#FADE2A",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Total Usage"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#5794F2",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
       "gridPos": {
-        "h": 6,
+        "h": 5,
         "w": 8,
         "x": 9,
         "y": 17
       },
       "id": 43,
-      "interval": "",
-      "legend": {
-        "header": "Power",
-        "percentage": true,
-        "percentageDecimals": 1,
-        "show": true,
-        "sortDesc": true,
-        "values": true
-      },
-      "legendType": "Right side",
-      "links": [],
       "maxDataPoints": 3,
-      "nullPointMode": "connected",
-      "pieType": "donut",
-      "pluginVersion": "6.5.1",
-      "strokeWidth": "1",
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "values": [
+            "value",
+            "percent"
+          ]
+        },
+        "pieType": "donut",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "sort": "desc",
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "alias": "From Solar",
@@ -2597,205 +2662,178 @@
       ],
       "title": "Self-Powered",
       "transparent": true,
-      "type": "grafana-piechart-panel",
-      "valueName": "total"
+      "type": "piechart"
     },
     {
-      "activePatternIndex": 1,
       "datasource": {
         "type": "influxdb",
         "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
       },
-      "defaultPattern": {
-        "bgColors": "green|gray|red",
-        "bgColors_overrides": "0->green|2->red|1->yellow",
-        "clickable_cells_link": "",
-        "col_name": "Value",
-        "decimals": "2",
-        "defaultBGColor": "#5794F2",
-        "defaultTextColor": "black",
-        "delimiter": ".",
-        "displayTemplate": "_value_",
-        "enable_bgColor": false,
-        "enable_bgColor_overrides": false,
-        "enable_clickable_cells": false,
-        "enable_textColor": false,
-        "enable_textColor_overrides": false,
-        "enable_time_based_thresholds": false,
-        "enable_transform": true,
-        "enable_transform_overrides": false,
-        "filter": {
-          "value_above": "",
-          "value_below": ""
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "kwatt"
         },
-        "format": "kwatt",
-        "name": "Default Pattern",
-        "null_color": "darkred",
-        "null_textcolor": "black",
-        "null_value": "No data",
-        "pattern": "*",
-        "row_col_wrapper": "_",
-        "row_name": "_1_",
-        "textColors": "red|orange|green",
-        "textColors_overrides": "0->red|2->green|1->yellow",
-        "thresholds": "0",
-        "time_based_thresholds": [],
-        "tooltipTemplate": "Series : _series_ <br/>Row Name : _row_name_ <br/>Col Name : _col_name_ <br/>Value : _value_",
-        "transform_values": "No Usage | Using <div style=\"float: right;\">_value_</div>",
-        "transform_values_overrides": "0->down|1->up",
-        "valueName": "current"
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Home"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#4d7fc9",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Solar"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Battery"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Grid"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
       },
-      "default_title_for_rows": "Metric",
-      "font_size": ".9rem",
       "gridPos": {
-        "h": 6,
-        "w": 6,
+        "h": 4,
+        "w": 5,
         "x": 18,
         "y": 17
       },
-      "hide_first_column": false,
-      "hide_headers": true,
       "id": 80,
-      "interval": "",
-      "patterns": [
-        {
-          "bgColors": "#B877D9 | gray | #F2495C",
-          "bgColors_overrides": "0->green|2->red|1->yellow",
-          "clickable_cells_link": "",
-          "col_name": "Value",
-          "decimals": "2",
-          "defaultBGColor": "",
-          "defaultTextColor": "",
-          "delimiter": ".",
-          "displayTemplate": "_value_",
-          "enable_bgColor": true,
-          "enable_bgColor_overrides": false,
-          "enable_clickable_cells": false,
-          "enable_textColor": true,
-          "enable_textColor_overrides": false,
-          "enable_time_based_thresholds": false,
-          "enable_transform": true,
-          "enable_transform_overrides": false,
-          "filter": {
-            "value_above": "",
-            "value_below": ""
-          },
-          "format": "kwatt",
-          "name": "Grid",
-          "null_color": "darkred",
-          "null_textcolor": "black",
-          "null_value": "No data",
-          "pattern": "http.Grid",
-          "row_col_wrapper": "_",
-          "row_name": "_1_",
-          "textColors": "white | white | white",
-          "textColors_overrides": "0->red|2->green|1->yellow",
-          "thresholds": "-0.09,0.09",
-          "time_based_thresholds": [],
-          "tooltipTemplate": "Series : _series_ <br/>Row Name : _row_name_ <br/>Col Name : _col_name_ <br/>Value : _value_",
-          "transform_values": "Exporting <div style=\"float: right;\">_value_</div> | Idle | Importing <div style=\"float: right;\">_value_</div>",
-          "transform_values_overrides": "0->down|1->up",
-          "valueName": "avg"
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
         },
-        {
-          "bgColors": "#73BF69 | gray | #F2495C",
-          "bgColors_overrides": "0->green|2->red|1->yellow",
-          "clickable_cells_link": "",
-          "col_name": "Value",
-          "decimals": "2",
-          "defaultBGColor": "",
-          "defaultTextColor": "",
-          "delimiter": ".",
-          "displayTemplate": "_value_",
-          "enable_bgColor": true,
-          "enable_bgColor_overrides": false,
-          "enable_clickable_cells": false,
-          "enable_textColor": true,
-          "enable_textColor_overrides": false,
-          "enable_time_based_thresholds": false,
-          "enable_transform": true,
-          "enable_transform_overrides": false,
-          "filter": {
-            "value_above": "",
-            "value_below": ""
-          },
-          "format": "kwatt",
-          "name": "Battery",
-          "null_color": "darkred",
-          "null_textcolor": "black",
-          "null_value": "No data",
-          "pattern": "http.Battery",
-          "row_col_wrapper": "_",
-          "row_name": "_1_",
-          "textColors": "white | white | white",
-          "textColors_overrides": "0->red|2->green|1->yellow",
-          "thresholds": "-0.1,0.1",
-          "time_based_thresholds": [],
-          "tooltipTemplate": "Series : _series_ <br/>Row Name : _row_name_ <br/>Col Name : _col_name_ <br/>Value : _value_",
-          "transform_values": "Charging <div style=\"float: right;\">_value_</div> | Idle | Discharging <div style=\"float: right;\">_value_</div>",
-          "transform_values_overrides": "0->down|1->up",
-          "valueName": "avg"
+        "showPercentChange": false,
+        "text": {
+          "titleSize": 12,
+          "valueSize": 12
         },
-        {
-          "bgColors": "red|yellow",
-          "bgColors_overrides": "0->green|2->red|1->yellow",
-          "clickable_cells_link": "",
-          "col_name": "Value",
-          "decimals": "2",
-          "defaultBGColor": "#FADE2A",
-          "defaultTextColor": "black",
-          "delimiter": ".",
-          "displayTemplate": "_value_",
-          "enable_bgColor": false,
-          "enable_bgColor_overrides": false,
-          "enable_clickable_cells": false,
-          "enable_textColor": false,
-          "enable_textColor_overrides": false,
-          "enable_time_based_thresholds": false,
-          "enable_transform": true,
-          "enable_transform_overrides": false,
-          "filter": {
-            "value_above": "",
-            "value_below": ""
-          },
-          "format": "kwatt",
-          "name": "Solar",
-          "null_color": "darkred",
-          "null_textcolor": "black",
-          "null_value": "No data",
-          "pattern": "http.Solar",
-          "row_col_wrapper": "_",
-          "row_name": "_1_",
-          "textColors": "white|black",
-          "textColors_overrides": "0->red|2->green|1->yellow",
-          "thresholds": "0.1",
-          "time_based_thresholds": [],
-          "tooltipTemplate": "Series : _series_ <br/>Row Name : _row_name_ <br/>Col Name : _col_name_ <br/>Value : _value_",
-          "transform_values": "No Generation | Generating <div style=\"float: right;\">_value_</div>",
-          "transform_values_overrides": "0->down|1->up",
-          "valueName": "avg"
-        }
-      ],
-      "row_col_wrapper": "_",
-      "sorting_props": {
-        "col_index": -1,
-        "direction": "desc"
+        "textMode": "value_and_name",
+        "wideLayout": true
       },
+      "pluginVersion": "12.3.1",
       "targets": [
         {
+          "alias": "Home",
           "datasource": {
             "type": "influxdb",
             "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
-          "query": "SELECT last(\"load_instant_power\")  / 1000 AS \"Home\", last(\"solar_instant_power\")  / 1000 AS \"Solar\", last(\"battery_instant_power\")  / 1000 AS \"Battery\", last(\"site_instant_power\")  / 1000 AS \"Grid\" FROM \"raw\".\"http\" WHERE time >= now() - 10m",
+          "query": "SELECT last(\"load_instant_power\")  / 1000 AS \"Home\" FROM \"raw\".\"http\" WHERE time >= now() - 10m",
           "rawQuery": true,
           "refId": "A",
+          "resultFormat": "time_series"
+        },
+        {
+          "alias": "Solar",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "hide": false,
+          "query": "SELECT last(\"solar_instant_power\")  / 1000 AS \"Solar\" FROM \"raw\".\"http\" WHERE time >= now() - 10m",
+          "rawQuery": true,
+          "refId": "B",
+          "resultFormat": "time_series"
+        },
+        {
+          "alias": "Battery",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "hide": false,
+          "query": "SELECT last(\"battery_instant_power\")  / 1000 AS \"Battery\" FROM \"raw\".\"http\" WHERE time >= now() - 10m",
+          "rawQuery": true,
+          "refId": "C",
+          "resultFormat": "time_series"
+        },
+        {
+          "alias": "Grid",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "hide": false,
+          "query": "SELECT last(\"site_instant_power\")  / 1000 AS \"Grid\" FROM \"raw\".\"http\" WHERE time >= now() - 10m",
+          "rawQuery": true,
+          "refId": "D",
           "resultFormat": "time_series"
         }
       ],
       "title": "Current State",
       "transparent": true,
-      "type": "yesoreyeram-boomtable-panel"
+      "type": "stat"
     },
     {
       "collapsed": false,
@@ -2803,7 +2841,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 23
+        "y": 22
       },
       "id": 22,
       "panels": [],
@@ -2821,12 +2859,14 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "axisSoftMin": 0,
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "bars",
             "fillOpacity": 100,
             "gradientMode": "none",
@@ -2835,6 +2875,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 0,
             "pointSize": 5,
@@ -2842,6 +2883,7 @@
               "type": "linear"
             },
             "showPoints": "never",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -2858,7 +2900,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -2890,7 +2932,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 24
+        "y": 23
       },
       "id": 24,
       "options": {
@@ -2901,11 +2943,12 @@
           "showLegend": false
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "multi",
           "sort": "none"
         }
       },
-      "pluginVersion": "9.1.2",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "alias": "Home Usage",
@@ -2966,12 +3009,14 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "axisSoftMin": 0,
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "bars",
             "fillOpacity": 100,
             "gradientMode": "none",
@@ -2980,6 +3025,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 0,
             "pointSize": 5,
@@ -2987,6 +3033,7 @@
               "type": "linear"
             },
             "showPoints": "never",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -3003,7 +3050,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -3035,7 +3082,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 24
+        "y": 23
       },
       "id": 25,
       "options": {
@@ -3046,11 +3093,12 @@
           "showLegend": false
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "multi",
           "sort": "none"
         }
       },
-      "pluginVersion": "9.1.2",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "alias": "Solar Energy",
@@ -3117,12 +3165,14 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "axisSoftMin": 0,
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "bars",
             "fillOpacity": 100,
             "gradientMode": "none",
@@ -3131,6 +3181,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 0,
             "pointSize": 5,
@@ -3138,6 +3189,7 @@
               "type": "linear"
             },
             "showPoints": "never",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -3154,7 +3206,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -3186,7 +3238,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 32
+        "y": 31
       },
       "id": 26,
       "options": {
@@ -3197,11 +3249,12 @@
           "showLegend": false
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "multi",
           "sort": "none"
         }
       },
-      "pluginVersion": "9.1.2",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "alias": "From Powerwall",
@@ -3262,12 +3315,14 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": true,
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "axisSoftMin": 0,
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "bars",
             "fillOpacity": 100,
             "gradientMode": "none",
@@ -3276,6 +3331,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 0,
             "pointSize": 5,
@@ -3283,6 +3339,7 @@
               "type": "linear"
             },
             "showPoints": "never",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -3299,7 +3356,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -3346,7 +3403,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 32
+        "y": 31
       },
       "id": 27,
       "options": {
@@ -3357,11 +3414,12 @@
           "showLegend": false
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "multi",
           "sort": "none"
         }
       },
-      "pluginVersion": "9.1.2",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "alias": "From Grid",
@@ -3472,11 +3530,13 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "bars",
             "fillOpacity": 100,
             "gradientMode": "none",
@@ -3485,6 +3545,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -3492,6 +3553,7 @@
               "type": "linear"
             },
             "showPoints": "never",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -3508,7 +3570,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               }
             ]
           },
@@ -3610,7 +3672,7 @@
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 40
+        "y": 39
       },
       "id": 76,
       "options": {
@@ -3624,11 +3686,12 @@
           "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "multi",
           "sort": "none"
         }
       },
-      "pluginVersion": "9.1.2",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "alias": "Home Usage",
@@ -3754,7 +3817,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 46
+        "y": 45
       },
       "id": 37,
       "panels": [],
@@ -3772,11 +3835,13 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -3785,6 +3850,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -3792,6 +3858,7 @@
               "type": "linear"
             },
             "showPoints": "never",
+            "showValues": false,
             "spanNulls": true,
             "stacking": {
               "group": "A",
@@ -3809,7 +3876,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -3841,10 +3908,9 @@
         "h": 5,
         "w": 12,
         "x": 0,
-        "y": 47
+        "y": 46
       },
       "id": 32,
-      "interval": "",
       "options": {
         "legend": {
           "calcs": [
@@ -3855,11 +3921,12 @@
           "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "multi",
           "sort": "none"
         }
       },
-      "pluginVersion": "9.1.2",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "alias": "A",
@@ -3884,6 +3951,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"A_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "A0",
           "resultFormat": "time_series",
           "select": [
@@ -3926,6 +3995,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"B_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "B0",
           "resultFormat": "time_series",
           "select": [
@@ -3968,6 +4039,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"C_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "C0",
           "resultFormat": "time_series",
           "select": [
@@ -4010,6 +4083,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"D_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "D0",
           "resultFormat": "time_series",
           "select": [
@@ -4052,6 +4127,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"E_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "E0",
           "resultFormat": "time_series",
           "select": [
@@ -4094,6 +4171,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"F_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "F0",
           "resultFormat": "time_series",
           "select": [
@@ -4136,6 +4215,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"A1_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "A1",
           "resultFormat": "time_series",
           "select": [
@@ -4178,6 +4259,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"B1_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "B1",
           "resultFormat": "time_series",
           "select": [
@@ -4220,6 +4303,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"C1_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "C1",
           "resultFormat": "time_series",
           "select": [
@@ -4262,6 +4347,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"D1_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "D1",
           "resultFormat": "time_series",
           "select": [
@@ -4304,6 +4391,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"E1_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "E1",
           "resultFormat": "time_series",
           "select": [
@@ -4346,6 +4435,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"F1_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "F1",
           "resultFormat": "time_series",
           "select": [
@@ -4388,6 +4479,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"A2_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "A2",
           "resultFormat": "time_series",
           "select": [
@@ -4430,6 +4523,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"A_Volatage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "B2",
           "resultFormat": "time_series",
           "select": [
@@ -4472,6 +4567,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"C2_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "C2",
           "resultFormat": "time_series",
           "select": [
@@ -4514,6 +4611,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"D2_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "D2",
           "resultFormat": "time_series",
           "select": [
@@ -4556,6 +4655,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"E2_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "E2",
           "resultFormat": "time_series",
           "select": [
@@ -4598,6 +4699,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"F2_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "F2",
           "resultFormat": "time_series",
           "select": [
@@ -4640,6 +4743,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"A3_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "A3",
           "resultFormat": "time_series",
           "select": [
@@ -4682,6 +4787,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"B3_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "B3",
           "resultFormat": "time_series",
           "select": [
@@ -4724,6 +4831,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"C3_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "C3",
           "resultFormat": "time_series",
           "select": [
@@ -4766,6 +4875,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"D3_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "D3",
           "resultFormat": "time_series",
           "select": [
@@ -4808,6 +4919,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"E3_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "E3",
           "resultFormat": "time_series",
           "select": [
@@ -4850,6 +4963,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"F3_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "F3",
           "resultFormat": "time_series",
           "select": [
@@ -4892,6 +5007,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"A4_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "A4",
           "resultFormat": "time_series",
           "select": [
@@ -4934,6 +5051,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"B4_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "B4",
           "resultFormat": "time_series",
           "select": [
@@ -4976,6 +5095,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"C4_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "C4",
           "resultFormat": "time_series",
           "select": [
@@ -5018,6 +5139,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"D4_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "D4",
           "resultFormat": "time_series",
           "select": [
@@ -5060,6 +5183,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"E4_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "E4",
           "resultFormat": "time_series",
           "select": [
@@ -5102,6 +5227,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"F4_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "F4",
           "resultFormat": "time_series",
           "select": [
@@ -5144,6 +5271,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"A5_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "A5",
           "resultFormat": "time_series",
           "select": [
@@ -5186,6 +5315,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"B5_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "B5",
           "resultFormat": "time_series",
           "select": [
@@ -5228,6 +5359,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"C5_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "C5",
           "resultFormat": "time_series",
           "select": [
@@ -5270,6 +5403,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"D5_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "D5",
           "resultFormat": "time_series",
           "select": [
@@ -5312,6 +5447,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"E5_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "E5",
           "resultFormat": "time_series",
           "select": [
@@ -5354,6 +5491,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"F5_Voltage\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "F5",
           "resultFormat": "time_series",
           "select": [
@@ -5388,11 +5527,13 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -5401,6 +5542,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -5408,6 +5550,7 @@
               "type": "linear"
             },
             "showPoints": "never",
+            "showValues": false,
             "spanNulls": true,
             "stacking": {
               "group": "A",
@@ -5425,7 +5568,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -5457,10 +5600,9 @@
         "h": 5,
         "w": 12,
         "x": 12,
-        "y": 47
+        "y": 46
       },
       "id": 62,
-      "interval": "",
       "options": {
         "legend": {
           "calcs": [
@@ -5471,11 +5613,12 @@
           "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "multi",
           "sort": "none"
         }
       },
-      "pluginVersion": "9.1.2",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "alias": "A",
@@ -5626,6 +5769,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"D_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "D",
           "resultFormat": "time_series",
           "select": [
@@ -5668,6 +5813,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"E_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "E",
           "resultFormat": "time_series",
           "select": [
@@ -5710,6 +5857,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"F_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "F",
           "resultFormat": "time_series",
           "select": [
@@ -5752,6 +5901,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"A1_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "A1",
           "resultFormat": "time_series",
           "select": [
@@ -5794,6 +5945,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"B1_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "B1",
           "resultFormat": "time_series",
           "select": [
@@ -5836,6 +5989,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"C1_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "C1",
           "resultFormat": "time_series",
           "select": [
@@ -5878,6 +6033,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"D1_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "D1",
           "resultFormat": "time_series",
           "select": [
@@ -5920,6 +6077,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"E1_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "E1",
           "resultFormat": "time_series",
           "select": [
@@ -5962,6 +6121,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"F1_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "F1",
           "resultFormat": "time_series",
           "select": [
@@ -6004,6 +6165,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"A2_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "A2",
           "resultFormat": "time_series",
           "select": [
@@ -6046,6 +6209,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"B2_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "B2",
           "resultFormat": "time_series",
           "select": [
@@ -6088,6 +6253,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"C2_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "C2",
           "resultFormat": "time_series",
           "select": [
@@ -6130,6 +6297,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"D2_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "D2",
           "resultFormat": "time_series",
           "select": [
@@ -6172,6 +6341,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"E2_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "E2",
           "resultFormat": "time_series",
           "select": [
@@ -6214,6 +6385,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"F2_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "F2",
           "resultFormat": "time_series",
           "select": [
@@ -6256,6 +6429,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"A3_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "A3",
           "resultFormat": "time_series",
           "select": [
@@ -6298,6 +6473,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"B3_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "B3",
           "resultFormat": "time_series",
           "select": [
@@ -6340,6 +6517,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"C3_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "C3",
           "resultFormat": "time_series",
           "select": [
@@ -6382,6 +6561,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"D3_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "D3",
           "resultFormat": "time_series",
           "select": [
@@ -6424,6 +6605,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"E3_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "E3",
           "resultFormat": "time_series",
           "select": [
@@ -6466,6 +6649,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"F3_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "F3",
           "resultFormat": "time_series",
           "select": [
@@ -6508,6 +6693,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"A4_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "A4",
           "resultFormat": "time_series",
           "select": [
@@ -6550,6 +6737,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"B4_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "B4",
           "resultFormat": "time_series",
           "select": [
@@ -6592,6 +6781,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"C4_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "C4",
           "resultFormat": "time_series",
           "select": [
@@ -6634,6 +6825,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"D4_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "D4",
           "resultFormat": "time_series",
           "select": [
@@ -6676,6 +6869,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"E4_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "E4",
           "resultFormat": "time_series",
           "select": [
@@ -6718,6 +6913,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"F4_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "F4",
           "resultFormat": "time_series",
           "select": [
@@ -6760,6 +6957,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"A5_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "A5",
           "resultFormat": "time_series",
           "select": [
@@ -6802,6 +7001,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"B5_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "B5",
           "resultFormat": "time_series",
           "select": [
@@ -6844,6 +7045,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"C5_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "C5",
           "resultFormat": "time_series",
           "select": [
@@ -6886,6 +7089,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"D5_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "D5",
           "resultFormat": "time_series",
           "select": [
@@ -6928,6 +7133,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"E5_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "E5",
           "resultFormat": "time_series",
           "select": [
@@ -6970,6 +7177,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"F5_Current\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "F5",
           "resultFormat": "time_series",
           "select": [
@@ -7004,11 +7213,13 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -7017,6 +7228,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -7024,6 +7236,7 @@
               "type": "linear"
             },
             "showPoints": "never",
+            "showValues": false,
             "spanNulls": true,
             "stacking": {
               "group": "A",
@@ -7041,7 +7254,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -7073,10 +7286,9 @@
         "h": 5,
         "w": 12,
         "x": 0,
-        "y": 52
+        "y": 51
       },
       "id": 63,
-      "interval": "",
       "options": {
         "legend": {
           "calcs": [
@@ -7087,11 +7299,12 @@
           "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "multi",
           "sort": "none"
         }
       },
-      "pluginVersion": "9.1.2",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "alias": "A",
@@ -7536,6 +7749,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"E1_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "E1",
           "resultFormat": "time_series",
           "select": [
@@ -7578,6 +7793,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"F1_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "F1",
           "resultFormat": "time_series",
           "select": [
@@ -7620,6 +7837,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"A2_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "A2",
           "resultFormat": "time_series",
           "select": [
@@ -7662,6 +7881,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"B2_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "B2",
           "resultFormat": "time_series",
           "select": [
@@ -7704,6 +7925,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"C2_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "C2",
           "resultFormat": "time_series",
           "select": [
@@ -7746,6 +7969,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"D2_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "D2",
           "resultFormat": "time_series",
           "select": [
@@ -7788,6 +8013,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"E2_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "E2",
           "resultFormat": "time_series",
           "select": [
@@ -7830,6 +8057,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"F2_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "F2",
           "resultFormat": "time_series",
           "select": [
@@ -7872,6 +8101,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"A3_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "A3",
           "resultFormat": "time_series",
           "select": [
@@ -7914,6 +8145,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"B3_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "B3",
           "resultFormat": "time_series",
           "select": [
@@ -7956,6 +8189,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"C3_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "C3",
           "resultFormat": "time_series",
           "select": [
@@ -7998,6 +8233,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"D3_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "D3",
           "resultFormat": "time_series",
           "select": [
@@ -8040,6 +8277,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"E3_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "E3",
           "resultFormat": "time_series",
           "select": [
@@ -8082,6 +8321,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"F3_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "F3",
           "resultFormat": "time_series",
           "select": [
@@ -8124,6 +8365,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"A4_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "A4",
           "resultFormat": "time_series",
           "select": [
@@ -8166,6 +8409,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"B4_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "B4",
           "resultFormat": "time_series",
           "select": [
@@ -8208,6 +8453,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"C4_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "C4",
           "resultFormat": "time_series",
           "select": [
@@ -8250,6 +8497,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"D4_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "D4",
           "resultFormat": "time_series",
           "select": [
@@ -8292,6 +8541,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"E4_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "E4",
           "resultFormat": "time_series",
           "select": [
@@ -8334,6 +8585,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"F4_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "F4",
           "resultFormat": "time_series",
           "select": [
@@ -8376,6 +8629,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"A5_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "A5",
           "resultFormat": "time_series",
           "select": [
@@ -8418,6 +8673,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"B5_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "B5",
           "resultFormat": "time_series",
           "select": [
@@ -8460,6 +8717,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"C5_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "C5",
           "resultFormat": "time_series",
           "select": [
@@ -8502,6 +8761,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"D5_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "D5",
           "resultFormat": "time_series",
           "select": [
@@ -8544,6 +8805,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"E5_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "E5",
           "resultFormat": "time_series",
           "select": [
@@ -8586,6 +8849,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "strings",
+          "query": "SELECT mean(\"F5_Power\") FROM \"strings\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "F5",
           "resultFormat": "time_series",
           "select": [
@@ -8620,11 +8885,13 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -8633,6 +8900,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -8640,6 +8908,7 @@
               "type": "linear"
             },
             "showPoints": "never",
+            "showValues": false,
             "spanNulls": true,
             "stacking": {
               "group": "A",
@@ -8657,7 +8926,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -8701,10 +8970,9 @@
         "h": 5,
         "w": 12,
         "x": 12,
-        "y": 52
+        "y": 51
       },
       "id": 34,
-      "interval": "",
       "options": {
         "legend": {
           "calcs": [
@@ -8715,11 +8983,12 @@
           "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "multi",
           "sort": "none"
         }
       },
-      "pluginVersion": "9.1.2",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "alias": "Inverter1",
@@ -8983,7 +9252,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 57
+        "y": 56
       },
       "id": 82,
       "panels": [],
@@ -9002,11 +9271,13 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -9015,6 +9286,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -9022,6 +9294,7 @@
               "type": "linear"
             },
             "showPoints": "never",
+            "showValues": false,
             "spanNulls": true,
             "stacking": {
               "group": "A",
@@ -9038,7 +9311,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -9172,10 +9445,10 @@
         ]
       },
       "gridPos": {
-        "h": 6,
+        "h": 5,
         "w": 12,
         "x": 0,
-        "y": 58
+        "y": 57
       },
       "id": 85,
       "options": {
@@ -9186,10 +9459,12 @@
           "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "multi",
           "sort": "none"
         }
       },
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "alias": "Solar",
@@ -9375,11 +9650,13 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -9388,6 +9665,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -9395,6 +9673,7 @@
               "type": "linear"
             },
             "showPoints": "never",
+            "showValues": false,
             "spanNulls": true,
             "stacking": {
               "group": "A",
@@ -9410,7 +9689,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -9544,10 +9823,10 @@
         ]
       },
       "gridPos": {
-        "h": 6,
+        "h": 5,
         "w": 12,
         "x": 12,
-        "y": 58
+        "y": 57
       },
       "id": 84,
       "options": {
@@ -9558,10 +9837,12 @@
           "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "multi",
           "sort": "none"
         }
       },
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "alias": "Solar",
@@ -9747,6 +10028,7 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -9754,6 +10036,7 @@
             "axisSoftMax": 15000,
             "axisSoftMin": 0,
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -9762,6 +10045,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -9769,6 +10053,7 @@
               "type": "linear"
             },
             "showPoints": "never",
+            "showValues": false,
             "spanNulls": 3600000,
             "stacking": {
               "group": "A",
@@ -9785,7 +10070,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -9818,13 +10103,13 @@
               },
               {
                 "id": "custom.axisPlacement",
-                "value": "auto"
+                "value": "right"
               },
               {
                 "id": "custom.stacking",
                 "value": {
                   "group": "A",
-                  "mode": "none"
+                  "mode": "normal"
                 }
               }
             ]
@@ -9838,7 +10123,7 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "dark-green",
+                  "fixedColor": "#37872D",
                   "mode": "fixed"
                 }
               }
@@ -9918,29 +10203,14 @@
                 }
               }
             ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/^Total/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "green",
-                  "mode": "fixed"
-                }
-              }
-            ]
           }
         ]
       },
       "gridPos": {
-        "h": 6,
+        "h": 5,
         "w": 24,
         "x": 0,
-        "y": 64
+        "y": 62
       },
       "id": 55,
       "options": {
@@ -9954,11 +10224,12 @@
           "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "multi",
           "sort": "none"
         }
       },
-      "pluginVersion": "9.1.2",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "alias": "PW1",
@@ -10235,6 +10506,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pod",
+          "query": "SELECT mean(\"PW7_POD_nom_full_pack_energy\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "G",
           "resultFormat": "time_series",
           "select": [
@@ -10277,6 +10550,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pod",
+          "query": "SELECT mean(\"PW8_POD_nom_full_pack_energy\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "H",
           "resultFormat": "time_series",
           "select": [
@@ -10319,6 +10594,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pod",
+          "query": "SELECT mean(\"PW9_POD_nom_full_pack_energy\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "I",
           "resultFormat": "time_series",
           "select": [
@@ -10361,6 +10638,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pod",
+          "query": "SELECT mean(\"PW10_POD_nom_full_pack_energy\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "J",
           "resultFormat": "time_series",
           "select": [
@@ -10403,6 +10682,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pod",
+          "query": "SELECT mean(\"PW11_POD_nom_full_pack_energy\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "K",
           "resultFormat": "time_series",
           "select": [
@@ -10445,6 +10726,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pod",
+          "query": "SELECT mean(\"PW12_POD_nom_full_pack_energy\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "L",
           "resultFormat": "time_series",
           "select": [
@@ -10739,6 +11022,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pod",
+          "query": "SELECT mean(\"PW7_POD_nom_energy_remaining\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "S",
           "resultFormat": "time_series",
           "select": [
@@ -10781,6 +11066,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pod",
+          "query": "SELECT mean(\"PW8_POD_nom_energy_remaining\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "T",
           "resultFormat": "time_series",
           "select": [
@@ -10823,6 +11110,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pod",
+          "query": "SELECT mean(\"PW9_POD_nom_energy_remaining\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "U",
           "resultFormat": "time_series",
           "select": [
@@ -10865,6 +11154,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pod",
+          "query": "SELECT mean(\"PW10_POD_nom_energy_remaining\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "V",
           "resultFormat": "time_series",
           "select": [
@@ -10907,6 +11198,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pod",
+          "query": "SELECT mean(\"PW11_POD_nom_energy_remaining\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "W",
           "resultFormat": "time_series",
           "select": [
@@ -10949,6 +11242,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pod",
+          "query": "SELECT mean(\"PW12_POD_nom_energy_remaining\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "X",
           "resultFormat": "time_series",
           "select": [
@@ -10956,90 +11251,6 @@
               {
                 "params": [
                   "PW12_POD_nom_energy_remaining"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        },
-        {
-          "alias": "Total",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "measurement": "http",
-          "orderByTime": "ASC",
-          "policy": "pod",
-          "refId": "Y",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "nominal_full_pack_energy"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        },
-        {
-          "alias": "Total Charge",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "measurement": "http",
-          "orderByTime": "ASC",
-          "policy": "pod",
-          "refId": "Z",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "nominal_energy_remaining"
                 ],
                 "type": "field"
               },
@@ -11068,12 +11279,14 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "axisSoftMin": 0,
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 32,
             "gradientMode": "opacity",
@@ -11082,6 +11295,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -11089,6 +11303,7 @@
               "type": "linear"
             },
             "showPoints": "never",
+            "showValues": false,
             "spanNulls": 3600000,
             "stacking": {
               "group": "A",
@@ -11105,7 +11320,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -11260,7 +11475,7 @@
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 70
+        "y": 67
       },
       "id": 92,
       "options": {
@@ -11274,11 +11489,12 @@
           "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "multi",
           "sort": "none"
         }
       },
-      "pluginVersion": "9.1.2",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "alias": "PW1",
@@ -11887,7 +12103,7 @@
             "steps": [
               {
                 "color": "orange",
-                "value": null
+                "value": 0
               }
             ]
           },
@@ -11899,17 +12115,16 @@
         "h": 2,
         "w": 24,
         "x": 0,
-        "y": 76
+        "y": 73
       },
       "id": 91,
-      "interval": "",
-      "links": [],
       "maxDataPoints": 10,
       "options": {
         "colorMode": "value",
         "graphMode": "none",
         "justifyMode": "center",
         "orientation": "vertical",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "sum"
@@ -11917,12 +12132,14 @@
           "fields": "",
           "values": false
         },
+        "showPercentChange": false,
         "text": {
           "valueSize": 27
         },
-        "textMode": "auto"
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "9.1.2",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "alias": "PW1",
@@ -12312,11 +12529,13 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -12325,6 +12544,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -12332,6 +12552,7 @@
               "type": "linear"
             },
             "showPoints": "never",
+            "showValues": false,
             "spanNulls": 3600000,
             "stacking": {
               "group": "A",
@@ -12348,7 +12569,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -12579,7 +12800,7 @@
         "h": 5,
         "w": 24,
         "x": 0,
-        "y": 78
+        "y": 75
       },
       "id": 86,
       "options": {
@@ -12593,11 +12814,12 @@
           "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "multi",
           "sort": "none"
         }
       },
-      "pluginVersion": "9.1.2",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "alias": "PW1",
@@ -12874,13 +13096,15 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pwtemps",
+          "query": "SELECT mean(\"PW7_POD_nom_full_pack_energy\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "G",
           "resultFormat": "time_series",
           "select": [
             [
               {
                 "params": [
-                  "PW7_temp"
+                  "PW6_temp"
                 ],
                 "type": "field"
               },
@@ -12916,13 +13140,15 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pwtemps",
+          "query": "SELECT mean(\"PW8_POD_nom_full_pack_energy\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "H",
           "resultFormat": "time_series",
           "select": [
             [
               {
                 "params": [
-                  "PW8_temp"
+                  "PW7_temp"
                 ],
                 "type": "field"
               },
@@ -12958,13 +13184,15 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pwtemps",
+          "query": "SELECT mean(\"PW9_POD_nom_full_pack_energy\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "I",
           "resultFormat": "time_series",
           "select": [
             [
               {
                 "params": [
-                  "PW9_temp"
+                  "PW8_temp"
                 ],
                 "type": "field"
               },
@@ -13000,13 +13228,15 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pwtemps",
+          "query": "SELECT mean(\"PW10_POD_nom_full_pack_energy\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "J",
           "resultFormat": "time_series",
           "select": [
             [
               {
                 "params": [
-                  "PW10_temp"
+                  "PW9_temp"
                 ],
                 "type": "field"
               },
@@ -13042,7 +13272,53 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pwtemps",
+          "query": "SELECT mean(\"PW11_POD_nom_full_pack_energy\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "K",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "PW10_temp"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "PW12",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "pwtemps",
+          "query": "SELECT mean(\"PW12_POD_nom_full_pack_energy\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "L",
           "resultFormat": "time_series",
           "select": [
             [
@@ -13084,7 +13360,9 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pwtemps",
-          "refId": "L",
+          "query": "SELECT mean(\"PW12_POD_nom_full_pack_energy\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "M",
           "resultFormat": "time_series",
           "select": [
             [
@@ -13126,7 +13404,7 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "fans",
-          "refId": "M",
+          "refId": "N",
           "resultFormat": "time_series",
           "select": [
             [
@@ -13168,7 +13446,7 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "fans",
-          "refId": "N",
+          "refId": "O",
           "resultFormat": "time_series",
           "select": [
             [
@@ -13210,7 +13488,7 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "fans",
-          "refId": "O",
+          "refId": "P",
           "resultFormat": "time_series",
           "select": [
             [
@@ -13252,7 +13530,7 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "fans",
-          "refId": "P",
+          "refId": "Q",
           "resultFormat": "time_series",
           "select": [
             [
@@ -13294,7 +13572,7 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "fans",
-          "refId": "Q",
+          "refId": "R",
           "resultFormat": "time_series",
           "select": [
             [
@@ -13336,7 +13614,7 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "fans",
-          "refId": "R",
+          "refId": "S",
           "resultFormat": "time_series",
           "select": [
             [
@@ -13378,7 +13656,7 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "fans",
-          "refId": "S",
+          "refId": "T",
           "resultFormat": "time_series",
           "select": [
             [
@@ -13420,7 +13698,7 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "fans",
-          "refId": "T",
+          "refId": "U",
           "resultFormat": "time_series",
           "select": [
             [
@@ -13462,7 +13740,7 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "fans",
-          "refId": "U",
+          "refId": "V",
           "resultFormat": "time_series",
           "select": [
             [
@@ -13504,7 +13782,7 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "fans",
-          "refId": "V",
+          "refId": "W",
           "resultFormat": "time_series",
           "select": [
             [
@@ -13546,7 +13824,7 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "fans",
-          "refId": "W",
+          "refId": "X",
           "resultFormat": "time_series",
           "select": [
             [
@@ -13588,7 +13866,7 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "fans",
-          "refId": "X",
+          "refId": "Y",
           "resultFormat": "time_series",
           "select": [
             [
@@ -13623,11 +13901,13 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -13636,6 +13916,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -13643,6 +13924,7 @@
               "type": "linear"
             },
             "showPoints": "never",
+            "showValues": false,
             "spanNulls": 3600000,
             "stacking": {
               "group": "A",
@@ -13659,7 +13941,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -13740,10 +14022,9 @@
         "h": 5,
         "w": 24,
         "x": 0,
-        "y": 83
+        "y": 80
       },
       "id": 38,
-      "interval": "",
       "options": {
         "legend": {
           "calcs": [
@@ -13755,11 +14036,12 @@
           "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "multi",
           "sort": "none"
         }
       },
-      "pluginVersion": "9.1.2",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "alias": "Home L1",
@@ -14643,11 +14925,13 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -14656,6 +14940,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -14663,6 +14948,7 @@
               "type": "linear"
             },
             "showPoints": "never",
+            "showValues": false,
             "spanNulls": 3600000,
             "stacking": {
               "group": "A",
@@ -14679,7 +14965,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -14765,10 +15051,9 @@
         "h": 5,
         "w": 24,
         "x": 0,
-        "y": 88
+        "y": 85
       },
       "id": 61,
-      "interval": "",
       "options": {
         "legend": {
           "calcs": [
@@ -14780,11 +15065,12 @@
           "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "multi",
           "sort": "none"
         }
       },
-      "pluginVersion": "9.1.2",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "alias": "Home L1",
@@ -14810,6 +15096,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
+          "query": "SELECT mean(\"ISLAND_VL1N_Load\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -14894,6 +15182,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
+          "query": "SELECT mean(\"ISLAND_VL3N_Load\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "C",
           "resultFormat": "time_series",
           "select": [
@@ -14936,6 +15226,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
+          "query": "SELECT mean(\"METER_X_VL1N\") FROM \"vitals\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "D",
           "resultFormat": "time_series",
           "select": [
@@ -15020,6 +15312,8 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "vitals",
+          "query": "SELECT mean(\"METER_X_VL3N\") FROM \"vitals\".\"http\" WHERE \"METER_X_VL3N\" > 0 AND $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
           "refId": "F",
           "resultFormat": "time_series",
           "select": [
@@ -16833,7 +17127,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 93
+        "y": 90
       },
       "id": 65,
       "panels": [],
@@ -16853,7 +17147,14 @@
             "mode": "thresholds"
           },
           "custom": {
+            "axisPlacement": "auto",
             "fillOpacity": 41,
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
             "lineWidth": 6,
             "spanNulls": false
           },
@@ -16863,7 +17164,7 @@
             "steps": [
               {
                 "color": "transparent",
-                "value": null
+                "value": 0
               },
               {
                 "color": "blue",
@@ -16887,7 +17188,7 @@
                   "steps": [
                     {
                       "color": "dark-green",
-                      "value": null
+                      "value": 0
                     }
                   ]
                 }
@@ -16907,7 +17208,7 @@
                   "steps": [
                     {
                       "color": "purple",
-                      "value": null
+                      "value": 0
                     }
                   ]
                 }
@@ -16927,7 +17228,7 @@
                   "steps": [
                     {
                       "color": "dark-blue",
-                      "value": null
+                      "value": 0
                     }
                   ]
                 }
@@ -16947,7 +17248,7 @@
                   "steps": [
                     {
                       "color": "dark-blue",
-                      "value": null
+                      "value": 0
                     }
                   ]
                 }
@@ -16967,7 +17268,7 @@
                   "steps": [
                     {
                       "color": "dark-purple",
-                      "value": null
+                      "value": 0
                     }
                   ]
                 }
@@ -16987,7 +17288,7 @@
                   "steps": [
                     {
                       "color": "dark-blue",
-                      "value": null
+                      "value": 0
                     }
                   ]
                 }
@@ -17000,7 +17301,7 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 94
+        "y": 91
       },
       "id": 68,
       "options": {
@@ -17014,10 +17315,12 @@
         "rowHeight": 0.51,
         "showValue": "never",
         "tooltip": {
+          "hideZeros": false,
           "mode": "single",
           "sort": "none"
         }
       },
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "datasource": {
@@ -17050,7 +17353,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 104
+        "y": 101
       },
       "id": 57,
       "panels": [],
@@ -17069,11 +17372,13 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 10,
             "gradientMode": "none",
@@ -17082,6 +17387,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -17089,6 +17395,7 @@
               "type": "linear"
             },
             "showPoints": "never",
+            "showValues": false,
             "spanNulls": true,
             "stacking": {
               "group": "A",
@@ -17105,7 +17412,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -17247,11 +17554,9 @@
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 105
+        "y": 102
       },
-      "hideTimeOverride": false,
       "id": 59,
-      "interval": "",
       "options": {
         "legend": {
           "calcs": [
@@ -17262,11 +17567,12 @@
           "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "multi",
           "sort": "none"
         }
       },
-      "pluginVersion": "9.1.2",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "alias": "Temperature",
@@ -17452,11 +17758,13 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 10,
             "gradientMode": "none",
@@ -17465,6 +17773,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -17472,6 +17781,7 @@
               "type": "linear"
             },
             "showPoints": "never",
+            "showValues": false,
             "spanNulls": true,
             "stacking": {
               "group": "A",
@@ -17489,7 +17799,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -17617,11 +17927,9 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 111
+        "y": 108
       },
-      "hideTimeOverride": false,
       "id": 60,
-      "interval": "",
       "options": {
         "legend": {
           "calcs": [
@@ -17632,11 +17940,12 @@
           "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "multi",
           "sort": "none"
         }
       },
-      "pluginVersion": "9.1.2",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "alias": "Snow",
@@ -17864,7 +18173,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 118
+        "y": 115
       },
       "id": 90,
       "panels": [],
@@ -17888,7 +18197,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -17903,15 +18212,15 @@
         "h": 2,
         "w": 24,
         "x": 0,
-        "y": 119
+        "y": 116
       },
       "id": 88,
-      "links": [],
       "options": {
         "colorMode": "none",
         "graphMode": "none",
         "justifyMode": "center",
         "orientation": "auto",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -17919,12 +18228,14 @@
           "fields": "/^v$/",
           "values": false
         },
+        "showPercentChange": false,
         "text": {
           "valueSize": 12
         },
-        "textMode": "value_and_name"
+        "textMode": "value_and_name",
+        "wideLayout": true
       },
-      "pluginVersion": "9.1.2",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "alias": "v",
@@ -17949,8 +18260,6 @@
           "measurement": "powerwall_dashboard",
           "orderByTime": "ASC",
           "policy": "raw",
-          "query": "SELECT last(\"version\") FROM \"raw\".\"powerwall_dashboard\"",
-          "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -17975,9 +18284,9 @@
       "type": "stat"
     }
   ],
+  "preload": false,
   "refresh": "5m",
-  "schemaVersion": 37,
-  "style": "dark",
+  "schemaVersion": 42,
   "tags": [],
   "templating": {
     "list": [
@@ -17987,7 +18296,7 @@
         "label": "Buy Cost per kWh",
         "name": "avg_buy_per_kwh",
         "query": "${VAR_AVG_BUY_PER_KWH}",
-        "skipUrlSync": false,
+        "skipUrlSync": true,
         "type": "constant",
         "current": {
           "value": "${VAR_AVG_BUY_PER_KWH}",
@@ -18008,7 +18317,7 @@
         "label": "Sell Cost per kWh",
         "name": "avg_sell_per_kwh",
         "query": "${VAR_AVG_SELL_PER_KWH}",
-        "skipUrlSync": false,
+        "skipUrlSync": true,
         "type": "constant",
         "current": {
           "value": "${VAR_AVG_SELL_PER_KWH}",
@@ -18029,7 +18338,7 @@
         "label": "Timezone",
         "name": "tz",
         "query": "${VAR_TZ}",
-        "skipUrlSync": false,
+        "skipUrlSync": true,
         "type": "constant",
         "current": {
           "value": "${VAR_TZ}",
@@ -18067,6 +18376,6 @@
   "timezone": "${VAR_TZ}",
   "title": "Powerwall - Power Flow",
   "uid": "RSabAvRRzZ",
-  "version": 62,
+  "version": 66,
   "weekStart": ""
 }

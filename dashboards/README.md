@@ -45,3 +45,14 @@ Thanks to [@Jot18](https://github.com/Jot18) for the example dashboard screensho
 ## Submit Your Dashboard
 
 Do you have a great dashboard?  Do you think others might be able to use it?  If so, submit a PR so we can get it added.
+
+## Color Scheme
+
+In general, the Dashboard uses this color scheme to help identify the metrics:
+
+| Swatch | Hex | RGB | Use Case |
+|------|------|------|---------|
+| <img width="50" height="50" alt="image" src="https://github.com/user-attachments/assets/194e3871-151a-4e28-afec-3fe907e3c646" /> | `#FADE2A` | `rgb(250, 222, 42)` | Solar |
+| <img width="50" height="50" alt="image" src="https://github.com/user-attachments/assets/b8175f7d-ca73-493e-81a8-5a005c9bd621" /> | `#73BF69` | `rgb(115, 191, 105)` | Powerwall |
+| <img width="50" height="50" alt="image" src="https://github.com/user-attachments/assets/32815264-0170-48d6-9189-f6395ff4a4c2" /> | `#5794F2` | `rgb(87, 148, 242)` | Home |
+| <img width="50" height="50" alt="image" src="https://github.com/user-attachments/assets/b1cf5a13-68e5-4437-b5a2-66b46c42542a" /> | `#B877D9` | `rgb(184, 119, 217)` | Grid |

@@ -674,8 +674,11 @@ Open Grafana at http://localhost:9000/ ... use admin/admin for login.
 
 To complete *Grafana Setup*:
 
-* From 'Dashboard\Browse', select 'New/Import', browse to ${PWD}/dashboards
-  and upload ${DASHBOARD}.
+* From 'Dashboard/New', select 'Import dashboard', click "Upload dashboard JSON file", 
+  browse to ${PWD}/dashboards and upload ${DASHBOARD}.
+* For InfluxDB select "InfluxDB (Auto provisioned)" dropdown.
+* For Sun and Moon select "Sun and Moon (Auto provisioned)" dropdown.
+* Click "Import" button.
 
 NOTE: The datasources for InfluxDB and SunAndMoon are already configured.
 If you need to modify them via Configuration\Data Sources:
