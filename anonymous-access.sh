@@ -28,20 +28,24 @@ function read_only_anonymous() {
 # Function to remove existing settings
 function remove_existing_settings() {
     if grep -q "^GF_FEATURE_TOGGLES_PUBLICDASHBOARDS" "${GF_ENV_FILE}"; then
-        sed -i.bak '/^# Read-Only Anonymous Access/d' "${GF_ENV_FILE}"
-        sed -i.bak '/^GF_FEATURE_TOGGLES_PUBLICDASHBOARDS/d' "${GF_ENV_FILE}"
-        sed -i.bak '/^GF_AUTH_ANONYMOUS_ENABLED/d' "${GF_ENV_FILE}"
-        sed -i.bak '/^GF_AUTH_ANONYMOUS_ORG_NAME/d' "${GF_ENV_FILE}"
-        sed -i.bak '/^GF_AUTH_ANONYMOUS_ORG_ROLE/d' "${GF_ENV_FILE}"
+        sed -i.bak \
+            -e '/^# Read-Only Anonymous Access/d' \
+            -e '/^GF_FEATURE_TOGGLES_PUBLICDASHBOARDS/d' \
+            -e '/^GF_AUTH_ANONYMOUS_ENABLED/d' \
+            -e '/^GF_AUTH_ANONYMOUS_ORG_NAME/d' \
+            -e '/^GF_AUTH_ANONYMOUS_ORG_ROLE/d' \
+            "${GF_ENV_FILE}"
         rm -f "${GF_ENV_FILE}.bak"
     fi
     if grep -q "^GF_AUTH_DISABLE_LOGIN_FORM" "${GF_ENV_FILE}"; then
-        sed -i.bak '/^# Read-Write Anonymous Access/d' "${GF_ENV_FILE}"
-        sed -i.bak '/^GF_AUTH_DISABLE_LOGIN_FORM/d' "${GF_ENV_FILE}"
-        sed -i.bak '/^GF_AUTH_ANONYMOUS_ENABLED/d' "${GF_ENV_FILE}"
-        sed -i.bak '/^GF_AUTH_ANONYMOUS_ORG_NAME/d' "${GF_ENV_FILE}"
-        sed -i.bak '/^GF_AUTH_ANONYMOUS_ORG_ROLE/d' "${GF_ENV_FILE}"
-        sed -i.bak '/^GF_USERS_ALLOW_SIGN_UP/d' "${GF_ENV_FILE}"
+        sed -i.bak \
+            -e '/^# Read-Write Anonymous Access/d' \
+            -e '/^GF_AUTH_DISABLE_LOGIN_FORM/d' \
+            -e '/^GF_AUTH_ANONYMOUS_ENABLED/d' \
+            -e '/^GF_AUTH_ANONYMOUS_ORG_NAME/d' \
+            -e '/^GF_AUTH_ANONYMOUS_ORG_ROLE/d' \
+            -e '/^GF_USERS_ALLOW_SIGN_UP/d' \
+            "${GF_ENV_FILE}"
         rm -f "${GF_ENV_FILE}.bak"
     fi
 
