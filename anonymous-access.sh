@@ -2,7 +2,7 @@
 
 GF_ENV_FILE="grafana.env"
 
-# This script will enable anonymous access to the repository
+# This script will enable anonymous access to Grafana dashboards
 echo "Anonymous Access Setup"
 echo "-----------------------------------------"
 
