@@ -1252,8 +1252,8 @@
       },
       "gridPos": {
         "h": 3,
-        "w": 8,
-        "x": 16,
+        "w": 6,
+        "x": 17,
         "y": 11
       },
       "id": 72,
@@ -2885,9 +2885,9 @@
         ]
       },
       "gridPos": {
-        "h": 5,
-        "w": 7,
-        "x": 17,
+        "h": 4,
+        "w": 5,
+        "x": 18,
         "y": 17
       },
       "id": 93,
@@ -2905,7 +2905,10 @@
           "values": false
         },
         "showPercentChange": false,
-        "text": {},
+        "text": {
+          "titleSize": 12,
+          "valueSize": 12
+        },
         "textMode": "value_and_name",
         "wideLayout": true
       },
