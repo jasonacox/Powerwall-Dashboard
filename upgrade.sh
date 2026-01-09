@@ -6,7 +6,7 @@
 set -e
 
 # Set Globals
-VERSION="5.0.1"
+VERSION="5.0.2"
 CURRENT="Unknown"
 COMPOSE_ENV_FILE="compose.env"
 INFLUXDB_ENV_FILE="influxdb.env"
@@ -253,7 +253,7 @@ if [ ! -f ${GF_ENV_FILE} ]; then
 fi
 
 # Check for latest Grafana settings (required in 2.6.2)
-if ! grep -q "Updated v4.1.1" "${GF_ENV_FILE}"; then
+if ! grep -q "Updated v5.0.0" "${GF_ENV_FILE}"; then
     echo "Your Grafana environmental settings are outdated."
     echo "  Updating these are not required but could add some enhancements."
     echo "  If you upgrade, any custom settings you made will be removed and"

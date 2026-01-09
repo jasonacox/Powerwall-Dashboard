@@ -1,5 +1,17 @@
 # RELEASE NOTES
 
+## v5.0.2 - Dashboard Enhancements
+
+### Dashboard Updates
+
+* Add dynamic color and text to Current State panel by @caubert in https://github.com/jasonacox/Powerwall-Dashboard/pull/734
+  - Current State panel now displays descriptive text indicating the flow of power (e.g., "Grid Import", "Grid Export", "Charging Battery", etc.).
+  - Panel background color dynamically changes based on power flow state for improved visual feedback.
+
+### Bug Fixes
+
+* Fix false alarm in `upgrade.sh` that incorrectly reported "Grafana environmental settings are outdated" after upgrading to v5.0.0+.
+
 ## v5.0.1 - Firmware 25.42.2+ Support
 
 ### pyPowerwall Update

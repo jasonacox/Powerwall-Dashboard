@@ -17,6 +17,13 @@
       "pluginName": "Sun and Moon"
     },
     {
+      "name": "DS_EXPRESSION",
+      "label": "Expression",
+      "description": "",
+      "type": "datasource",
+      "pluginId": "__expr__"
+    },
+    {
       "name": "VAR_AVG_BUY_PER_KWH",
       "type": "constant",
       "label": "Buy Cost per kWh",
@@ -40,6 +47,11 @@
   ],
   "__elements": {},
   "__requires": [
+    {
+      "type": "datasource",
+      "id": "__expr__",
+      "version": "1.0.0"
+    },
     {
       "type": "panel",
       "id": "barchart",
@@ -2687,8 +2699,7 @@
                 "value": 80
               }
             ]
-          },
-          "unit": "kwatt"
+          }
         },
         "overrides": [
           {
@@ -2698,11 +2709,41 @@
             },
             "properties": [
               {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#4d7fc9",
-                  "mode": "fixed"
-                }
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "0": {
+                        "color": "transparent",
+                        "index": 1,
+                        "text": "Idle"
+                      }
+                    },
+                    "type": "value"
+                  },
+                  {
+                    "options": {
+                      "pattern": "^-(.*)$",
+                      "result": {
+                        "color": "#4d7fc9",
+                        "index": 0,
+                        "text": "Producing $1 kW"
+                      }
+                    },
+                    "type": "regex"
+                  },
+                  {
+                    "options": {
+                      "pattern": "^(.*)$",
+                      "result": {
+                        "color": "#4d7fc9",
+                        "index": 2,
+                        "text": "Consuming $1 kW"
+                      }
+                    },
+                    "type": "regex"
+                  }
+                ]
               }
             ]
           },
@@ -2713,11 +2754,41 @@
             },
             "properties": [
               {
-                "id": "color",
-                "value": {
-                  "fixedColor": "yellow",
-                  "mode": "fixed"
-                }
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "0": {
+                        "color": "transparent",
+                        "index": 1,
+                        "text": "Idle"
+                      }
+                    },
+                    "type": "value"
+                  },
+                  {
+                    "options": {
+                      "pattern": "^-(.*)$",
+                      "result": {
+                        "color": "#FADE2A",
+                        "index": 0,
+                        "text": "Consuming $1 kW"
+                      }
+                    },
+                    "type": "regex"
+                  },
+                  {
+                    "options": {
+                      "pattern": "^(.*)$",
+                      "result": {
+                        "color": "#FADE2A",
+                        "index": 2,
+                        "text": "Producing $1 kW"
+                      }
+                    },
+                    "type": "regex"
+                  }
+                ]
               }
             ]
           },
@@ -2728,11 +2799,41 @@
             },
             "properties": [
               {
-                "id": "color",
-                "value": {
-                  "fixedColor": "green",
-                  "mode": "fixed"
-                }
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "0": {
+                        "color": "transparent",
+                        "index": 1,
+                        "text": "Standby"
+                      }
+                    },
+                    "type": "value"
+                  },
+                  {
+                    "options": {
+                      "pattern": "^-(.*)$",
+                      "result": {
+                        "color": "#73BF69",
+                        "index": 0,
+                        "text": "Charging $1 kW"
+                      }
+                    },
+                    "type": "regex"
+                  },
+                  {
+                    "options": {
+                      "pattern": "^(.*)$",
+                      "result": {
+                        "color": "#73BF69",
+                        "index": 2,
+                        "text": "Discharging $1 kW"
+                      }
+                    },
+                    "type": "regex"
+                  }
+                ]
               }
             ]
           },
@@ -2743,11 +2844,41 @@
             },
             "properties": [
               {
-                "id": "color",
-                "value": {
-                  "fixedColor": "purple",
-                  "mode": "fixed"
-                }
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "0": {
+                        "color": "transparent",
+                        "index": 1,
+                        "text": "Idle"
+                      }
+                    },
+                    "type": "value"
+                  },
+                  {
+                    "options": {
+                      "pattern": "^-(.*)$",
+                      "result": {
+                        "color": "purple",
+                        "index": 0,
+                        "text": "Exporting $1 kW"
+                      }
+                    },
+                    "type": "regex"
+                  },
+                  {
+                    "options": {
+                      "pattern": "^(.*)$",
+                      "result": {
+                        "color": "#F2495C",
+                        "index": 2,
+                        "text": "Importing $1 kW"
+                      }
+                    },
+                    "type": "regex"
+                  }
+                ]
               }
             ]
           }
@@ -2759,7 +2890,7 @@
         "x": 18,
         "y": 17
       },
-      "id": 80,
+      "id": 93,
       "options": {
         "colorMode": "background",
         "graphMode": "area",
@@ -2770,7 +2901,7 @@
           "calcs": [
             "lastNotNull"
           ],
-          "fields": "",
+          "fields": "/.*/",
           "values": false
         },
         "showPercentChange": false,
@@ -2789,7 +2920,7 @@
             "type": "influxdb",
             "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
-          "query": "SELECT last(\"load_instant_power\")  / 1000 AS \"Home\" FROM \"raw\".\"http\" WHERE time >= now() - 10m",
+          "query": "SELECT round(last(\"load_instant_power\") / 10)  / 100 AS \"Home\" FROM \"raw\".\"http\" WHERE time >= now() - 10m",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series"
@@ -2801,7 +2932,7 @@
             "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "hide": false,
-          "query": "SELECT last(\"solar_instant_power\")  / 1000 AS \"Solar\" FROM \"raw\".\"http\" WHERE time >= now() - 10m",
+          "query": "SELECT round(last(\"solar_instant_power\")  / 10) / 100 AS \"Solar\" FROM \"raw\".\"http\" WHERE time >= now() - 10m",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "time_series"
@@ -2813,7 +2944,7 @@
             "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "hide": false,
-          "query": "SELECT last(\"battery_instant_power\")  / 1000 AS \"Battery\" FROM \"raw\".\"http\" WHERE time >= now() - 10m",
+          "query": "SELECT round(last(\"battery_instant_power\") / 10)  / 100 AS \"Battery\" FROM \"raw\".\"http\" WHERE time >= now() - 10m",
           "rawQuery": true,
           "refId": "C",
           "resultFormat": "time_series"
@@ -2825,13 +2956,52 @@
             "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "hide": false,
-          "query": "SELECT last(\"site_instant_power\")  / 1000 AS \"Grid\" FROM \"raw\".\"http\" WHERE time >= now() - 10m",
+          "query": "SELECT round(last(\"site_instant_power\")  / 10) / 100 AS \"Grid\" FROM \"raw\".\"http\" WHERE time >= now() - 10m",
           "rawQuery": true,
           "refId": "D",
           "resultFormat": "time_series"
         }
       ],
       "title": "Current State",
+      "transformations": [
+        {
+          "id": "filterFieldsByName",
+          "options": {
+            "include": {
+              "names": [
+                "Home",
+                "Solar",
+                "Battery",
+                "Grid"
+              ]
+            }
+          }
+        },
+        {
+          "id": "convertFieldType",
+          "options": {
+            "conversions": [
+              {
+                "destinationType": "string",
+                "targetField": "Grid"
+              },
+              {
+                "destinationType": "string",
+                "targetField": "Home"
+              },
+              {
+                "destinationType": "string",
+                "targetField": "Solar"
+              },
+              {
+                "destinationType": "string",
+                "targetField": "Battery"
+              }
+            ],
+            "fields": {}
+          }
+        }
+      ],
       "transparent": true,
       "type": "stat"
     },
@@ -3376,7 +3546,7 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "red",
+                  "fixedColor": "#F2495C",
                   "mode": "fixed"
                 }
               }
@@ -3394,6 +3564,33 @@
                   "fixedColor": "purple",
                   "mode": "fixed"
                 }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Net"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "text",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.showPoints",
+                "value": "always"
+              },
+              {
+                "id": "custom.pointSize",
+                "value": 3
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 0
               }
             ]
           }
@@ -3511,6 +3708,16 @@
           ],
           "tags": [],
           "tz": "${tz:text}"
+        },
+        {
+          "datasource": {
+            "type": "__expr__",
+            "uid": "${DS_EXPRESSION}"
+          },
+          "expression": "$A + $B",
+          "hide": false,
+          "refId": "Net",
+          "type": "math"
         }
       ],
       "timeFrom": "1M",
@@ -18376,6 +18583,6 @@
   "timezone": "${VAR_TZ}",
   "title": "Powerwall - Power Flow",
   "uid": "RSabAvRRzZ",
-  "version": 66,
+  "version": 67,
   "weekStart": ""
 }
