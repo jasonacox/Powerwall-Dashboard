@@ -463,9 +463,6 @@ if [ ! -f ${ENV_FILE} ]; then
     ALLGOOD=0
 else
     echo -e $GOOD
-    if ! grep -q "yesoreyeram-boomtable-panel-1.5.0-alpha.3.zip" $ENV_FILE; then
-        echo -e "${dim} - ${alertdim}WARNING: Your Grafana settings are outdated."
-    fi
 fi
 echo -e -n "${dim} - Container ($CONTAINER): "
 RUNNING=$(docker inspect --format="{{.State.Running}}" $CONTAINER 2>/dev/null) || true
