@@ -1,5 +1,17 @@
 # RELEASE NOTES
 
+## v5.0.3 - Grid Outage Fix
+
+### pyPowerwall Update
+
+* Update pypowerwall to v0.14.9 - TEDAPI voltage calculation fix for grid outage scenarios - addresses https://github.com/jasonacox/Powerwall-Dashboard/issues/683
+  - Fix `compute_LL_voltage()` function to handle `None` voltage values when grid is down
+  - Added `None` value handling in three-phase voltage calculations to prevent `TypeError` exceptions
+  - Prevents crashes in `/api/meters/aggregates` endpoint when grid is offline and voltage readings are unavailable
+  - Converts `None` voltage parameters to `0` before performing arithmetic operations
+  - Resolves issue where power flow stats were not displayed during real grid outages (Note: "Go off grid" via app did not trigger this issue)
+  - Added comprehensive unit tests to verify None handling behavior for all voltage scenarios
+
 ## v5.0.2 - Dashboard Enhancements
 
 ### Dashboard Updates
