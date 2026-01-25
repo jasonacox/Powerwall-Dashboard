@@ -470,7 +470,7 @@ if [ "$RUNNING" = "true" ]; then
     echo -e $GOOD
     # Capture last 10 lines of logs for later display
     GRAFANA_LOG=$(docker logs $CONTAINER 2>&1 | tail -10)
-    VER=`v=$(docker exec --tty $CONTAINER sh -c "grafana-cli --version") && echo "$v" || echo "$UKN"`
+    VER=`v=$(docker exec --tty $CONTAINER sh -c "grafana-server --version") && echo "$v" || echo "$UKN"`
     echo -e -n "${dim} - Service (port $PORT): "
     if running http://localhost:$PORT/login 200 1 2>/dev/null; then
         echo -e $GOOD
