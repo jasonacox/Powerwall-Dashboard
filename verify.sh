@@ -102,6 +102,7 @@ DEBUG_COLORS=false
 FORCE_BACKGROUND=""
 NO_COLOR=false
 SHOW_LOGS_OPTION="ask"
+HOST="localhost"
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -129,6 +130,10 @@ while [[ $# -gt 0 ]]; do
             SHOW_LOGS_OPTION="no"
             shift
             ;;
+        --host|--hostname)
+            HOST="$2"
+            shift 2
+            ;;
         -h|--help)
             echo "Usage: $0 [OPTIONS]"
             echo ""
@@ -139,6 +144,7 @@ while [[ $# -gt 0 ]]; do
             echo "  --darkbg          Force dark background colors"
             echo "  --logs            Show logs automatically at end"
             echo "  --no-logs         Do not show logs automatically at end"
+            echo "  --host HOSTNAME   Specify hostname (default: localhost)"
             echo "  -h, --help        Show this help message"
             echo ""
             echo "This script verifies the Powerwall Dashboard installation and services."
@@ -262,13 +268,25 @@ fi
 echo -e "${dim}Tip: If colors are hard to read, try: ./verify.sh --no-color, --lightbg, or --darkbg${normal}"
 echo -e ""
 
-# Check compose env file
-COMPOSE_ENV_FILE="compose.env"
-if [ ! -f ${COMPOSE_ENV_FILE} ]; then
-    echo -e " - ${alert}ERROR: You are missing ${COMPOSE_ENV_FILE}${normal}"
-    ALLGOOD=0
+if [ "$HOST" != "localhost" ]; then
+    echo -e "${bold}REMOTE SCAN ONLY${normal}"
+    echo -e "${dim}"----------------------------------------------------------------------------"${normal}"
+    echo -e "${bold}Testing services on remote host: ${subbold}${HOST}${normal}"
+    echo -e "${dim}• Container checks and logs will be skipped${normal}"
+    echo -e "${dim}• Local filesystem tests will be skipped${normal}"
+    echo -e "${dim}• TEDAPI gateway connectivity cannot be tested (local network only)${normal}"
+    echo -e ""
 fi
-echo -e ""
+
+# Check compose env file
+if [ "$HOST" = "localhost" ]; then
+    COMPOSE_ENV_FILE="compose.env"
+    if [ ! -f ${COMPOSE_ENV_FILE} ]; then
+        echo -e " - ${alert}ERROR: You are missing ${COMPOSE_ENV_FILE}${normal}"
+        ALLGOOD=0
+    fi
+    echo -e ""
+fi
 
 # TEST: pypowerwall
 echo -e "${bold}Checking pypowerwall${dim}"
@@ -280,44 +298,57 @@ PWSTATE="${alert}ERROR: Not Connected${dim}"
 ENV_FILE="pypowerwall.env"
 AUTH_FILE=".auth/.pypowerwall.auth"
 PORT="8675"
-echo -e -n "${dim} - Config File ${ENV_FILE}: "
-if [ ! -f ${ENV_FILE} ]; then
-    echo -e "${alert}ERROR: Missing${normal}"
-    ALLGOOD=0
-else
-    echo -e $GOOD
-fi
-echo -e -n "${dim} - Container ($CONTAINER): "
-RUNNING=$(docker inspect --format="{{.State.Running}}" $CONTAINER 2>/dev/null) || true
-if [ "$RUNNING" = "true" ]; then
-    echo -e $GOOD
-    # Capture last 10 lines of logs for later display
-    PYPOWERWALL_LOG=$(docker logs $CONTAINER 2>&1 | tail -10)
-    echo -e -n "${dim} - Service (port $PORT): "
-    if running http://localhost:$PORT/stats 200 0 2>/dev/null; then
+if [ "$HOST" = "localhost" ]; then
+    echo -e -n "${dim} - Config File ${ENV_FILE}: "
+    if [ ! -f ${ENV_FILE} ]; then
+        echo -e "${alert}ERROR: Missing${normal}"
+        ALLGOOD=0
+    else
         echo -e $GOOD
-        VER=`curl --silent http://localhost:$PORT/stats | awk '{print $2" "$3" "$4}' | cut -d\" -f 2 2>/dev/null`
-        SITENAME=`curl --silent http://localhost:$PORT/stats | sed 's/.*"site_name": "\(.*\)", "cloudmode".*/\1/' 2>/dev/null`
-        CLOUDMODE=`curl --silent http://localhost:$PORT/stats | sed 's/.*"cloudmode": \(.*\), "fleetapi".*/\1/' 2>/dev/null`
-        SITEID=`curl --silent http://localhost:$PORT/stats | sed 's/.*"siteid": \(.*\), "counter".*/\1/' 2>/dev/null`
-        TEDAPI=`curl --silent http://localhost:$PORT/stats | sed 's/.*"tedapi": \(.*\), "pw3".*/\1/' 2>/dev/null`
-        TEDAPIMODE=`curl --silent http://localhost:$PORT/stats | sed 's/.*"tedapi_mode": "\(.*\)", "siteid".*/\1/' 2>/dev/null`
+    fi
+    echo -e -n "${dim} - Container ($CONTAINER): "
+    RUNNING=$(docker inspect --format="{{.State.Running}}" $CONTAINER 2>/dev/null) || true
+    if [ "$RUNNING" = "true" ]; then
+        echo -e $GOOD
+        # Capture last 10 lines of logs for later display
+        PYPOWERWALL_LOG=$(docker logs $CONTAINER 2>&1 | tail -10)
+    elif [ "$RUNNING" = "false" ]; then
+        echo -e "${alert}ERROR: Stopped${normal}"
+        ALLGOOD=0
+    else
+        echo -e "${alert}ERROR: Missing${normal}"
+        ALLGOOD=0
+    fi
+else
+    echo -e "${dim} - Testing remote host: ${subbold}$HOST${dim}"
+fi
+if [ "$HOST" != "localhost" ] || [ "$RUNNING" = "true" ]; then
+    echo -e -n "${dim} - Service (port $PORT): "
+    if running http://$HOST:$PORT/stats 200 0 2>/dev/null; then
+        echo -e $GOOD
+        STATS_JSON=`curl --silent http://$HOST:$PORT/stats 2>/dev/null`
+        # Extract version - works for both old and new formats
+        VER=`echo "$STATS_JSON" | sed 's/.*"pypowerwall"[: ]*"\([^"]*\)".*/\1/' 2>/dev/null`
+        # Extract site_name - works for both old and new formats
+        SITENAME=`echo "$STATS_JSON" | sed 's/.*"site_name"[: ]*"\([^"]*\)".*/\1/' 2>/dev/null`
+        # Extract cloudmode - handle both true/false values
+        CLOUDMODE=`echo "$STATS_JSON" | grep -o '"cloudmode"[: ]*[^,}]*' | cut -d: -f 2 | tr -d ' ' 2>/dev/null`
+        # Extract siteid - handle both null and numeric values
+        SITEID=`echo "$STATS_JSON" | grep -o '"siteid":[^,}]*' | cut -d: -f 2 | tr -d ' ' 2>/dev/null`
+        # Extract tedapi
+        TEDAPI=`echo "$STATS_JSON" | grep -o '"tedapi":[^,}]*' | cut -d: -f 2 | tr -d ' ' 2>/dev/null`
+        # Extract tedapi_mode
+        TEDAPIMODE=`echo "$STATS_JSON" | grep -o '"tedapi_mode":"[^"]*"' | cut -d\" -f 4 2>/dev/null`
         # check connection with powerwall
-        if running http://localhost:$PORT/version 200 0 2>/dev/null; then
+        if running http://$HOST:$PORT/version 200 0 2>/dev/null; then
             PWSTATE="CONNECTED"
-            PWVER=`curl --silent http://localhost:$PORT/version | awk '{print $2}' | cut -d\" -f 2 2>/dev/null`
+            PWVER=`curl --silent http://$HOST:$PORT/version | sed 's/.*"version"[: ]*"\([^"]*\)".*/\1/' 2>/dev/null`
         fi
     else
         echo -e "${alert}ERROR: Not Listening${normal}"
         LISTENING="false"
         ALLGOOD=0
     fi
-elif [ "$RUNNING" = "false" ]; then
-    echo -e "${alert}ERROR: Stopped${normal}"
-    ALLGOOD=0
-else
-    echo -e "${alert}ERROR: Missing${normal}"
-    ALLGOOD=0
 fi
 echo -e "${dim} - Version: ${subbold}$VER"
 echo -e "${dim} - Powerwall State: ${subbold}$PWSTATE${dim} - Firmware: ${subbold}$PWVER${dim}"
@@ -325,17 +356,19 @@ if [ -n "$SITENAME" ]; then
     echo -e "${dim} - Site Name: ${subbold}$SITENAME${normal}"
     SITEID="$SITEID ($SITENAME)"
 fi
-if running https://192.168.91.1/tedapi/din 403 0 2>/dev/null; then
-    # if TEDAPI = "true" show connected
-    if [ "$TEDAPI" = "true" ]; then
-        VAL="${subbold}Connected ${dim}- Mode: ${subbold}${TEDAPIMODE}"
+if [ "$HOST" = "localhost" ]; then
+    if running https://192.168.91.1/tedapi/din 403 0 2>/dev/null; then
+        # if TEDAPI = "true" show connected
+        if [ "$TEDAPI" = "true" ]; then
+            VAL="${subbold}Connected ${dim}- Mode: ${subbold}${TEDAPIMODE}"
+        else
+            VAL="${alert}Not Connected"
+        fi
+        echo -e "${dim} - Gateway TEDAPI: ${subbold}Available ${dim}(192.168.91.1)"
+        echo -e "${dim} - TEDAPI Vitals: ${VAL} ${dim}"
     else
-        VAL="${alert}Not Connected"
+        echo -e "${dim} - Powerwall Gateway TEDAPI: ${normal}Not Available ${dim}(192.168.91.1)"
     fi
-    echo -e "${dim} - Gateway TEDAPI: ${subbold}Available ${dim}(192.168.91.1)"
-    echo -e "${dim} - TEDAPI Vitals: ${VAL} ${dim}"
-else
-    echo -e "${dim} - Powerwall Gateway TEDAPI: ${normal}Not Available ${dim}(192.168.91.1)"
 fi
 if [ "$CLOUDMODE" = "true" ]; then
     echo -e "${dim} - Cloud Mode: ${subbold}YES ${dim}- Site ID: ${subbold}$SITEID"
@@ -353,6 +386,22 @@ if [ -f ${ENV_FILE} ] && ! grep -q "TZ=" ${ENV_FILE}; then
     echo -e "${dim} - ${alertdim}ERROR: Your pypowerwall settings are missing TZ.${normal}"
     ALLGOOD=0
 fi
+# Display current power metrics if service is available
+if [ "$HOST" != "localhost" ] || [ "$RUNNING" = "true" ]; then
+    if running http://$HOST:$PORT/csv/v2 200 0 2>/dev/null; then
+        METRICS=`curl --silent http://$HOST:$PORT/csv/v2 2>/dev/null`
+        if [ -n "$METRICS" ]; then
+            # Parse CSV values: Grid,Home,Solar,Battery,BatteryLevel,GridStatus,Reserve
+            IFS=',' read -r GRID HOME SOLAR BATTERY BATTERYLEVEL GRIDSTATUS RESERVE <<< "$METRICS"
+            # Scale battery level and reserve to account for Tesla's 5% reserve
+            # Actual = (Raw / 0.95) - (5 / 0.95)
+            BATTERYLEVEL_SCALED=$(echo "scale=2; ($BATTERYLEVEL / 0.95) - (5 / 0.95)" | bc 2>/dev/null)
+            echo -e "${dim} - Current Power Measurements:"
+            echo -e "${dim}   Grid: ${subbold}${GRID}W${dim}   Home: ${subbold}${HOME}W${dim}   Solar: ${subbold}${SOLAR}W${dim}"
+            echo -e "${dim}   Battery: ${subbold}${BATTERY}W${dim}   Battery Level: ${subbold}${BATTERYLEVEL_SCALED}%${dim}   Reserve: ${subbold}${RESERVE}%${dim}"
+        fi
+    fi
+fi
 echo -e ""
 
 # TEST: telegraf
@@ -361,37 +410,41 @@ echo -e "-----------------------------------------------------------------------
 CONTAINER="telegraf"
 VER=$UKN
 PORT=""
-CONF_FILE="telegraf.conf"
-echo -e -n "${dim} - Config File ${CONF_FILE}: "
-if [ ! -f ${CONF_FILE} ]; then
-    echo -e "${alert}ERROR: Missing${normal}"
-    ALLGOOD=0
+if [ "$HOST" = "localhost" ]; then
+    CONF_FILE="telegraf.conf"
+    echo -e -n "${dim} - Config File ${CONF_FILE}: "
+    if [ ! -f ${CONF_FILE} ]; then
+        echo -e "${alert}ERROR: Missing${normal}"
+        ALLGOOD=0
+    else
+        echo -e $GOOD
+    fi
+    CONF_FILE="telegraf.local"
+    echo -e -n "${dim} - Local Config File ${CONF_FILE}: "
+    if [ ! -f ${CONF_FILE} ]; then
+        echo -e "${alert}ERROR: Missing${normal}"
+        ALLGOOD=0
+    else
+        echo -e $GOOD
+    fi
+    echo -e -n "${dim} - Container ($CONTAINER): "
+    RUNNING=$(docker inspect --format="{{.State.Running}}" $CONTAINER 2>/dev/null) || true
+    if [ "$RUNNING" = "true" ]; then
+        echo -e $GOOD
+        # Capture last 10 lines of logs for later display
+        TELEGRAF_LOG=$(docker logs $CONTAINER 2>&1 | tail -10)
+        VER=`v=$(docker exec --tty $CONTAINER sh -c "telegraf --version") && echo "$v" || echo "$UKN"`
+    elif [ "$RUNNING" = "false" ]; then
+        echo -e "${alert}ERROR: Stopped${normal}"
+        ALLGOOD=0
+    else
+        echo -e "${alert}ERROR: Missing${normal}"
+        ALLGOOD=0
+    fi
+    echo -e "${dim} - Version: ${subbold}$VER"
 else
-    echo -e $GOOD
+    echo -e "${dim} - Skipping container checks for remote host"
 fi
-CONF_FILE="telegraf.local"
-echo -e -n "${dim} - Local Config File ${CONF_FILE}: "
-if [ ! -f ${CONF_FILE} ]; then
-    echo -e "${alert}ERROR: Missing${normal}"
-    ALLGOOD=0
-else
-    echo -e $GOOD
-fi
-echo -e -n "${dim} - Container ($CONTAINER): "
-RUNNING=$(docker inspect --format="{{.State.Running}}" $CONTAINER 2>/dev/null) || true
-if [ "$RUNNING" = "true" ]; then
-    echo -e $GOOD
-    # Capture last 10 lines of logs for later display
-    TELEGRAF_LOG=$(docker logs $CONTAINER 2>&1 | tail -10)
-    VER=`v=$(docker exec --tty $CONTAINER sh -c "telegraf --version") && echo "$v" || echo "$UKN"`
-elif [ "$RUNNING" = "false" ]; then
-    echo -e "${alert}ERROR: Stopped${normal}"
-    ALLGOOD=0
-else
-    echo -e "${alert}ERROR: Missing${normal}"
-    ALLGOOD=0
-fi
-echo -e "${dim} - Version: ${subbold}$VER"
 echo -e ""
 
 # TEST: influxdb
@@ -402,52 +455,63 @@ VER=$UKN
 CONF_FILE="influxdb.conf"
 ENV_FILE="influxdb.env"
 PORT="8086"
-echo -e -n "${dim} - Config File ${CONF_FILE}: "
-if [ ! -f ${CONF_FILE} ]; then
-    echo -e "${alert}ERROR: Missing${normal}"
-    ALLGOOD=0
-else
-    echo -e $GOOD
-fi
-echo -e -n "${dim} - Environment File ${ENV_FILE}: "
-if [ ! -f ${ENV_FILE} ]; then
-    echo -e "${alert}ERROR: Missing${normal}"
-    ALLGOOD=0
-else
-    echo -e $GOOD
-fi
-echo -e -n "${dim} - Container ($CONTAINER): "
-RUNNING=$(docker inspect --format="{{.State.Running}}" $CONTAINER 2>/dev/null) || true
-if [ "$RUNNING" = "true" ]; then
-    echo -e $GOOD
-    # Capture last 10 lines of logs for later display
-    INFLUXDB_LOG=$(docker logs $CONTAINER 2>&1 | tail -10)
-    echo -e -n "${dim} - Service (port $PORT): "
-    if running http://localhost:$PORT/ping 204 1 2>/dev/null; then
+if [ "$HOST" = "localhost" ]; then
+    echo -e -n "${dim} - Config File ${CONF_FILE}: "
+    if [ ! -f ${CONF_FILE} ]; then
+        echo -e "${alert}ERROR: Missing${normal}"
+        ALLGOOD=0
+    else
         echo -e $GOOD
-        VER=`v=$(docker exec --tty $CONTAINER sh -c "influx -version") && echo "$v" || echo "$UKN"`
+    fi
+    echo -e -n "${dim} - Environment File ${ENV_FILE}: "
+    if [ ! -f ${ENV_FILE} ]; then
+        echo -e "${alert}ERROR: Missing${normal}"
+        ALLGOOD=0
+    else
+        echo -e $GOOD
+    fi
+    echo -e -n "${dim} - Container ($CONTAINER): "
+    RUNNING=$(docker inspect --format="{{.State.Running}}" $CONTAINER 2>/dev/null) || true
+    if [ "$RUNNING" = "true" ]; then
+        echo -e $GOOD
+        # Capture last 10 lines of logs for later display
+        INFLUXDB_LOG=$(docker logs $CONTAINER 2>&1 | tail -10)
+    elif [ "$RUNNING" = "false" ]; then
+        echo -e "${alert}ERROR: Stopped${normal}"
+        ALLGOOD=0
+    else
+        echo -e "${alert}ERROR: Missing${normal}"
+        ALLGOOD=0
+    fi
+else
+    echo -e "${dim} - Testing remote host: ${subbold}$HOST${dim}"
+    RUNNING="true"  # Allow service check to proceed
+fi
+if [ "$RUNNING" = "true" ]; then
+    echo -e -n "${dim} - Service (port $PORT): "
+    if running http://$HOST:$PORT/ping 204 1 2>/dev/null; then
+        echo -e $GOOD
+        if [ "$HOST" = "localhost" ]; then
+            VER=`v=$(docker exec --tty $CONTAINER sh -c "influx -version") && echo "$v" || echo "$UKN"`
+        fi
     else
         echo -e "${alert}ERROR: Not Listening${normal}"
         ALLGOOD=0
     fi
-    echo -e -n "${dim} - Filesystem (./$CONTAINER): "
-    rm -f ./influxdb/WRITE
-    ERR=`docker exec -it $CONTAINER sh -c "touch /var/lib/influxdb/WRITE 2>/dev/null"` || true
-    if [ -e "./influxdb/WRITE" ]; then
-        echo -e $GOOD
+    if [ "$HOST" = "localhost" ]; then
+        echo -e -n "${dim} - Filesystem (./$CONTAINER): "
         rm -f ./influxdb/WRITE
-    else
-        echo -e "${alert}ERROR: Unable to write to filesystem - check permissions${normal}"
-        ALLGOOD=0
+        ERR=`docker exec -it $CONTAINER sh -c "touch /var/lib/influxdb/WRITE 2>/dev/null"` || true
+        if [ -e "./influxdb/WRITE" ]; then
+            echo -e $GOOD
+            rm -f ./influxdb/WRITE
+        else
+            echo -e "${alert}ERROR: Unable to write to filesystem - check permissions${normal}"
+            ALLGOOD=0
+        fi
+        echo -e "${dim} - Version: ${subbold}$VER"
     fi
-elif [ "$RUNNING" = "false" ]; then
-    echo -e "${alert}ERROR: Stopped${normal}"
-    ALLGOOD=0
-else
-    echo -e "${alert}ERROR: Missing${normal}"
-    ALLGOOD=0
 fi
-echo -e "${dim} - Version: ${subbold}$VER"
 echo -e ""
 
 # TEST: grafana
@@ -457,48 +521,59 @@ CONTAINER="grafana"
 VER=$UKN
 PORT="9000"
 ENV_FILE="grafana.env"
-echo -e -n "${dim} - Config File ${ENV_FILE}: "
-if [ ! -f ${ENV_FILE} ]; then
-    echo -e "${alert}ERROR: Missing${normal}"
-    ALLGOOD=0
+if [ "$HOST" = "localhost" ]; then
+    echo -e -n "${dim} - Config File ${ENV_FILE}: "
+    if [ ! -f ${ENV_FILE} ]; then
+        echo -e "${alert}ERROR: Missing${normal}"
+        ALLGOOD=0
+    else
+        echo -e $GOOD
+    fi
+    echo -e -n "${dim} - Container ($CONTAINER): "
+    RUNNING=$(docker inspect --format="{{.State.Running}}" $CONTAINER 2>/dev/null) || true
+    if [ "$RUNNING" = "true" ]; then
+        echo -e $GOOD
+        # Capture last 10 lines of logs for later display
+        GRAFANA_LOG=$(docker logs $CONTAINER 2>&1 | tail -10)
+        VER=`v=$(docker exec --tty $CONTAINER sh -c "grafana server --version") && echo "$v" || echo "$UKN"`
+    elif [ "$RUNNING" = "false" ]; then
+        echo -e "${alert}ERROR: Stopped${normal}"
+        ALLGOOD=0
+    else
+        echo -e "${alert}ERROR: Missing${normal}"
+        ALLGOOD=0
+    fi
 else
-    echo -e $GOOD
+    echo -e "${dim} - Testing remote host: ${subbold}$HOST${dim}"
+    RUNNING="true"  # Allow service check to proceed
 fi
-echo -e -n "${dim} - Container ($CONTAINER): "
-RUNNING=$(docker inspect --format="{{.State.Running}}" $CONTAINER 2>/dev/null) || true
 if [ "$RUNNING" = "true" ]; then
-    echo -e $GOOD
-    # Capture last 10 lines of logs for later display
-    GRAFANA_LOG=$(docker logs $CONTAINER 2>&1 | tail -10)
-    VER=`v=$(docker exec --tty $CONTAINER sh -c "grafana server --version") && echo "$v" || echo "$UKN"`
     echo -e -n "${dim} - Service (port $PORT): "
-    if running http://localhost:$PORT/login 200 1 2>/dev/null; then
+    if running http://$HOST:$PORT/login 200 1 2>/dev/null; then
         echo -e $GOOD
     else
         echo -e "${alert}ERROR: Not Listening - Logs:${alertdim}"
         echo -e "---"
-        docker logs $CONTAINER 2>&1 | tail -11
+        if [ "$HOST" = "localhost" ]; then
+            docker logs $CONTAINER 2>&1 | tail -11
+        fi
         echo -e "---${normal}"
         ALLGOOD=0
     fi
-    echo -e -n "${dim} - Filesystem (./$CONTAINER): "
-    rm -f ./grafana/WRITE
-    ERR=`docker exec -it $CONTAINER sh -c "touch /var/lib/grafana/WRITE 2>/dev/null"` || true
-    if [ -e "./grafana/WRITE" ]; then
-        echo -e $GOOD
+    if [ "$HOST" = "localhost" ]; then
+        echo -e -n "${dim} - Filesystem (./$CONTAINER): "
         rm -f ./grafana/WRITE
-    else
-        echo -e "${alert}ERROR: Unable to write to filesystem - check permissions${normal}"
-        ALLGOOD=0
+        ERR=`docker exec -it $CONTAINER sh -c "touch /var/lib/grafana/WRITE 2>/dev/null"` || true
+        if [ -e "./grafana/WRITE" ]; then
+            echo -e $GOOD
+            rm -f ./grafana/WRITE
+        else
+            echo -e "${alert}ERROR: Unable to write to filesystem - check permissions${normal}"
+            ALLGOOD=0
+        fi
+        echo -e "${dim} - Version: ${subbold}$VER"
     fi
-elif [ "$RUNNING" = "false" ]; then
-    echo -e "${alert}ERROR: Stopped${normal}"
-    ALLGOOD=0
-else
-    echo -e "${alert}ERROR: Missing${normal}"
-    ALLGOOD=0
 fi
-echo -e "${dim} - Version: ${subbold}$VER"
 echo -e ""
 
 if grep -q "tesla-history" powerwall.extend.yml 2>/dev/null; then
@@ -549,39 +624,50 @@ VER=$UKN
 WEATHER=$UKN
 ENV_FILE="weather/weather411.conf"
 PORT="8676"
-if [ ! -f ${ENV_FILE} ]; then
+if [ "$HOST" = "localhost" ] && [ ! -f ${ENV_FILE} ]; then
     echo -e "${dim} - Skipped: weather411 not set up (missing ${ENV_FILE})"
-else
-    echo -e -n "${dim} - Container ($CONTAINER): "
-    RUNNING=$(docker inspect --format="{{.State.Running}}" $CONTAINER 2>/dev/null) || true
-    if [ "$RUNNING" = "true" ]; then
-        echo -e $GOOD
-        # Capture last 10 lines of logs for later display
-        WEATHER411_LOG=$(docker logs $CONTAINER 2>&1 | tail -10)
-        echo -e -n "${dim} - Service (port $PORT): "
-        if running http://localhost:$PORT/stats 200 0 2>/dev/null; then
+elif [ "$HOST" = "localhost" ] || running http://$HOST:$PORT/stats 200 0 2>/dev/null; then
+    if [ "$HOST" = "localhost" ]; then
+        echo -e -n "${dim} - Container ($CONTAINER): "
+        RUNNING=$(docker inspect --format="{{.State.Running}}" $CONTAINER 2>/dev/null) || true
+        if [ "$RUNNING" = "true" ]; then
             echo -e $GOOD
-            VER=`curl --silent http://localhost:$PORT/stats | awk '{print $2" "$3" "$4}' | cut -d\" -f 2 2>/dev/null`
+            # Capture last 10 lines of logs for later display
+            WEATHER411_LOG=$(docker logs $CONTAINER 2>&1 | tail -10)
+        elif [ "$RUNNING" = "false" ]; then
+            echo -e "${alert}ERROR: Stopped${normal}"
+            ALLGOOD=0
+        else
+            echo -e "${alert}ERROR: Missing${normal}"
+            ALLGOOD=0
+        fi
+    else
+        echo -e "${dim} - Testing remote host: ${subbold}$HOST${dim}"
+        RUNNING="true"
+    fi
+    if [ "$RUNNING" = "true" ]; then
+        echo -e -n "${dim} - Service (port $PORT): "
+        if running http://$HOST:$PORT/stats 200 0 2>/dev/null; then
+            echo -e $GOOD
+            VER=`curl --silent http://$HOST:$PORT/stats | awk '{print $2" "$3" "$4}' | cut -d\" -f 2 2>/dev/null`
             # check connection with openweather
-            if running http://localhost:$PORT/temp 200 0 2>/dev/null; then
-                WEATHER=`curl --silent http://localhost:$PORT/temp 2>/dev/null`
+            if running http://$HOST:$PORT/temp 200 0 2>/dev/null; then
+                WEATHER=`curl --silent http://$HOST:$PORT/temp 2>/dev/null`
             fi
             echo -e "${dim} - Weather: ${subbold}${WEATHER}"
         else
             echo -e "${alert}ERROR: Not Listening - Logs:${alertdim}"
             echo -e "---"
-            docker logs $CONTAINER 2>&1 | tail -11
+            if [ "$HOST" = "localhost" ]; then
+                docker logs $CONTAINER 2>&1 | tail -11
+            fi
             echo -e "---${normal}"
             ALLGOOD=0
         fi
-    elif [ "$RUNNING" = "false" ]; then
-        echo -e "${alert}ERROR: Stopped${normal}"
-        ALLGOOD=0
-    else
-        echo -e "${alert}ERROR: Missing${normal}"
-        ALLGOOD=0
     fi
-    echo -e "${dim} - Version: ${subbold}$VER"
+    if [ "$HOST" = "localhost" ]; then
+        echo -e "${dim} - Version: ${subbold}$VER"
+    fi
 fi
 echo -e ""
 
@@ -594,43 +680,54 @@ if grep -q "ecowitt" powerwall.extend.yml 2>/dev/null; then
     WEATHER=$UKN
     ENV_FILE="weather/contrib/ecowitt/ecowitt.conf"
     PORT="8686"
-    echo -e -n "${dim} - Config File ${ENV_FILE}: "
-    if [ ! -f ${ENV_FILE} ]; then
-        echo -e "${alertdim}Missing - ecowitt not set up"
-        ALLGOOD=0
-    else
-        echo -e $GOOD
-    fi
-    echo -e -n "${dim} - Container ($CONTAINER): "
-    RUNNING=$(docker inspect --format="{{.State.Running}}" $CONTAINER 2>/dev/null) || true
-    if [ "$RUNNING" = "true" ]; then
-        echo -e $GOOD
-        # Capture last 10 lines of logs for later display
-        ECOWITT_LOG=$(docker logs $CONTAINER 2>&1 | tail -10)
-        echo -e -n "${dim} - Service (port $PORT): "
-        if running http://localhost:$PORT/stats 200 0 2>/dev/null; then
+    if [ "$HOST" = "localhost" ]; then
+        echo -e -n "${dim} - Config File ${ENV_FILE}: "
+        if [ ! -f ${ENV_FILE} ]; then
+            echo -e "${alertdim}Missing - ecowitt not set up"
+            ALLGOOD=0
+        else
             echo -e $GOOD
-            VER=`curl --silent http://localhost:$PORT/stats | awk '{print $2" "$3" "$4}' | cut -d\" -f 2 2>/dev/null`
+        fi
+        echo -e -n "${dim} - Container ($CONTAINER): "
+        RUNNING=$(docker inspect --format="{{.State.Running}}" $CONTAINER 2>/dev/null) || true
+        if [ "$RUNNING" = "true" ]; then
+            echo -e $GOOD
+            # Capture last 10 lines of logs for later display
+            ECOWITT_LOG=$(docker logs $CONTAINER 2>&1 | tail -10)
+        elif [ "$RUNNING" = "false" ]; then
+            echo -e "${alert}ERROR: Stopped${normal}"
+            ALLGOOD=0
+        else
+            echo -e "${alert}ERROR: Missing${normal}"
+            ALLGOOD=0
+        fi
+    else
+        echo -e "${dim} - Testing remote host: ${subbold}$HOST${dim}"
+        RUNNING="true"
+    fi
+    if [ "$RUNNING" = "true" ]; then
+        echo -e -n "${dim} - Service (port $PORT): "
+        if running http://$HOST:$PORT/stats 200 0 2>/dev/null; then
+            echo -e $GOOD
+            VER=`curl --silent http://$HOST:$PORT/stats | awk '{print $2" "$3" "$4}' | cut -d\" -f 2 2>/dev/null`
             # check connection with ecowitt
-            if running http://localhost:$PORT/temp 200 0 2>/dev/null; then
-                WEATHER=`curl --silent http://localhost:$PORT/temp 2>/dev/null`
+            if running http://$HOST:$PORT/temp 200 0 2>/dev/null; then
+                WEATHER=`curl --silent http://$HOST:$PORT/temp 2>/dev/null`
             fi
             echo -e "${dim} - Weather: ${subbold}${WEATHER}"
         else
             echo -e "${alert}ERROR: Not Listening - Logs:${alertdim}"
             echo -e "---"
-            docker logs $CONTAINER 2>&1 | tail -11
+            if [ "$HOST" = "localhost" ]; then
+                docker logs $CONTAINER 2>&1 | tail -11
+            fi
             echo -e "---${normal}"
             ALLGOOD=0
         fi
-    elif [ "$RUNNING" = "false" ]; then
-        echo -e "${alert}ERROR: Stopped${normal}"
-        ALLGOOD=0
-    else
-        echo -e "${alert}ERROR: Missing${normal}"
-        ALLGOOD=0
     fi
-    echo -e "${dim} - Version: ${subbold}$VER"
+    if [ "$HOST" = "localhost" ]; then
+        echo -e "${dim} - Version: ${subbold}$VER"
+    fi
     echo -e ""
 fi
 
@@ -645,7 +742,10 @@ read -t 0.1 -n 1000 2>/dev/null || true
 SHOW_LOGS=""
 
 # Log display logic: use SHOW_LOGS_OPTION to override prompt
-if [[ "$SHOW_LOGS_OPTION" == "yes" ]]; then
+if [ "$HOST" != "localhost" ]; then
+    # Skip logs for remote hosts
+    SHOW_LOGS="n"
+elif [[ "$SHOW_LOGS_OPTION" == "yes" ]]; then
     SHOW_LOGS="y"
 elif [[ "$SHOW_LOGS_OPTION" == "no" ]]; then
     SHOW_LOGS="n"
