@@ -41,10 +41,19 @@
   }
   window.addEventListener('resize', function(e){ scale(); }, false);
 
+  // Determine pypowerwall-server base URL
+  // When behind an HTTPS reverse proxy, use /pypowerwall/ path (same origin)
+  // When accessing Grafana directly via HTTP, use port 8675 directly
+  var pypowerwallBase;
+  if (window.location.protocol === 'https:') {
+      pypowerwallBase = "/pypowerwall";
+  } else {
+      pypowerwallBase = "http://" + window.location.hostname + ":8675";
+  }
+
   // Display Firmware Version
   function showversion() {
-      var pwver = window.location.protocol + "//" + window.location.hostname + ":8675/version";
-      $.getJSON(pwver, function(data) {
+      $.getJSON(pypowerwallBase + "/version", function(data) {
           var text = `Firmware: ${data.version.split(" ")[0]}`;
           $(".version").html(text);
       });
@@ -60,5 +69,5 @@
     // and scale the frame to fit...
     scale();
   }
-  powerFrame.src = window.location.protocol + "//" + window.location.hostname + ":8675/";
+  powerFrame.src = pypowerwallBase + "/";
   </script>
