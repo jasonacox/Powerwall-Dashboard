@@ -41,21 +41,22 @@
   }
   window.addEventListener('resize', function(e){ scale(); }, false);
 
-  // Determine pypowerwall-server base URL
-  // When behind an HTTPS reverse proxy, use /pypowerwall/ path (same origin)
-  // When accessing Grafana directly via HTTP, use port 8675 directly
-  var pypowerwallBase;
-  if (window.location.protocol === 'https:') {
-      pypowerwallBase = "/pypowerwall";
-  } else {
-      pypowerwallBase = "http://" + window.location.hostname + ":8675";
-  }
+  // Determine pypowerwall-server base URL.
+  // HTTPS (via nginx): pypowerwall is mounted at /pypowerwall/ on the same origin —
+  //   PROXY_BASE_URL=/pypowerwall makes the server prefix its API/asset paths so the
+  //   animation JS calls /pypowerwall/api/... routed back to pypowerwall by nginx.
+  // HTTP (direct access): hit pypowerwall directly on port 8675.
+  var pypowerwallBase = (window.location.protocol === 'https:')
+      ? '/pypowerwall'
+      : 'http://' + window.location.hostname + ':8675';
 
   // Display Firmware Version
   function showversion() {
       $.getJSON(pypowerwallBase + "/version", function(data) {
           var text = `Firmware: ${data.version.split(" ")[0]}`;
           $(".version").html(text);
+      }).fail(function(jqxhr, status, err) {
+          console.error("version fetch failed", status, err);
       });
       setTimeout(showversion, 60000);
   }

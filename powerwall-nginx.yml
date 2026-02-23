@@ -1,0 +1,32 @@
+# Docker Compose override - HTTPS via nginx reverse proxy
+#
+# Applied automatically by compose-dash.sh when NGINX_ENABLED=true in compose.env.
+# Adds the nginx service and sets PROXY_BASE_URL on pypowerwall so the compiled
+# animation app.js calls /pypowerwall/api/... rather than bare /api/...
+#
+# Manual usage:
+#   docker compose -f powerwall.yml -f powerwall-nginx.yml up -d
+
+services:
+    pypowerwall:
+        environment:
+            - PROXY_BASE_URL=/pypowerwall
+
+    nginx:
+        image: nginx:latest
+        container_name: nginx
+        restart: unless-stopped
+        ports:
+            - "443:443"
+        volumes:
+            - type: bind
+              source: ./nginx/conf.d
+              target: /etc/nginx/conf.d
+              read_only: true
+            - type: bind
+              source: ./nginx/ssl
+              target: /etc/nginx/ssl
+              read_only: true
+        depends_on:
+            - grafana
+            - pypowerwall

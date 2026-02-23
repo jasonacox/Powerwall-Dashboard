@@ -52,3 +52,10 @@ tools/weather-history/weather-history.conf
 tools/ecowitt-weather-history/ecowitt-weather-history.conf
 tools/export/export.csv
 tools/export/export.xz
+
+# sync helper script
+sync.sh
+
+# nginx SSL certificate and private key (auto-generated, never commit)
+nginx/ssl/server.crt
+nginx/ssl/server.key
