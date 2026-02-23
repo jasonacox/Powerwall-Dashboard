@@ -17384,6 +17384,42 @@
         "overrides": [
           {
             "matcher": {
+              "id": "byValue",
+              "options": {
+                "op": "neq",
+                "reducer": "max",
+                "value": 1
+              }
+            },
+            "properties": [
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": true,
+                  "tooltip": true,
+                  "viz": true
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byType",
+              "options": "time"
+            },
+            "properties": [
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
               "id": "byName",
               "options": "max_FWUpdateSucceeded"
             },
@@ -17527,6 +17563,7 @@
           "sort": "none"
         }
       },
+      "hideTimeOverride": false,
       "pluginVersion": "12.3.1",
       "targets": [
         {
@@ -17535,7 +17572,7 @@
             "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
           "hide": false,
-          "query": "SELECT *::field from alerts.alerts where $timeFilter",
+          "query": "SELECT *::field FROM alerts.alerts WHERE $timeFilter",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "table"
@@ -17546,8 +17583,8 @@
         {
           "id": "renameByRegex",
           "options": {
-            "regex": "max_(.*)",
-            "renamePattern": "$1"
+            "regex": "(alerts\\.)?max_(.*)",
+            "renamePattern": "$2"
           }
         }
       ],
@@ -18583,6 +18620,6 @@
   "timezone": "${VAR_TZ}",
   "title": "Powerwall - Power Flow",
   "uid": "RSabAvRRzZ",
-  "version": 67,
+  "version": 68,
   "weekStart": ""
 }

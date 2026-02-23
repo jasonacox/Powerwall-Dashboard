@@ -22,6 +22,15 @@
   - Favicon served from pypowerwall with automatic fallback to the Grafana icon on non-200 responses.
   - `nginx/generate-self-signed.sh` now checks for `openssl` and prints platform-specific install instructions if it is missing.
   - SSL certificate and key (`nginx/ssl/server.crt`, `nginx/ssl/server.key`) are git-ignored; `nginx/ssl/.gitkeep` preserves the directory in the repo.
+## v5.0.4 - Alerts Dashboard Fix
+
+### Dashboard Updates
+
+* Fixed Alerts State Timeline panel in Grafana 12, which was displaying empty rows for alert types that had no occurrences during the selected time period.
+  - **Problem**: The `state-timeline` panel was rendering a row for every alert field returned by InfluxDB, even when the field contained only `0` or `null` values throughout the selected time range. This resulted in a large number of empty, uninformative rows cluttering the panel.
+  - **Fix**: Added a `byValue` field override using Grafana's built-in "Fields with values" matcher, which hides any series where the maximum value does not equal `1`. A secondary `byType: time` override ensures the Time field is never inadvertently hidden by the first rule. Only alert rows that actually triggered (have at least one value of `1`) during the selected time range are displayed.
+  - Resolved "Data outside time range" UI errors while keeping the Alerts query in table format (`SELECT *::field`) by relying on override-based filtering and updated transformations instead of changing the query to time series format.
+  - Updated field rename transformation regex from `max_(.*)` → `$1` to `(alerts\.)?max_(.*)` → `$2` to strip the `alerts.max_` measurement prefix from row labels.
 
 ## v5.0.3 - Grid Outage Fix
 
