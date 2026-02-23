@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Generate a self-signed certificate for the nginx reverse proxy.
 # Usage: ./nginx/generate-self-signed.sh [domain]
 # Default domain is "localhost".
@@ -31,12 +31,34 @@ if ! command -v openssl > /dev/null 2>&1; then
     exit 1
 fi
 
-openssl req -x509 -newkey rsa:4096 -nodes \
-    -keyout ssl/server.key \
-    -out ssl/server.crt \
-    -days 365 \
-    -subj "/CN=$DOMAIN" \
-    -addext "subjectAltName=DNS:$DOMAIN"
+# -addext (for SubjectAltName) requires OpenSSL >= 1.1.1.
+# Older distros (e.g. CentOS 7 ships with 1.0.2) fall back to a config file.
+if openssl req -help 2>&1 | grep -q -- '-addext'; then
+    openssl req -x509 -newkey rsa:4096 -nodes \
+        -keyout ssl/server.key \
+        -out ssl/server.crt \
+        -days 365 \
+        -subj "/CN=$DOMAIN" \
+        -addext "subjectAltName=DNS:$DOMAIN"
+else
+    TMPCONF=$(mktemp)
+    cat > "$TMPCONF" <<SSLEOF
+[req]
+distinguished_name = req_distinguished_name
+x509_extensions    = v3_req
+prompt             = no
+[req_distinguished_name]
+CN = $DOMAIN
+[v3_req]
+subjectAltName = DNS:$DOMAIN
+SSLEOF
+    openssl req -x509 -newkey rsa:4096 -nodes \
+        -keyout ssl/server.key \
+        -out ssl/server.crt \
+        -days 365 \
+        -config "$TMPCONF"
+    rm -f "$TMPCONF"
+fi
 
 chmod 600 ssl/server.key
 

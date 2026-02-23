@@ -5,7 +5,7 @@
 ### pypowerwall-server
 
 * **Switched from `pypowerwall` proxy to `pypowerwall-server`** (`jasonacox/pypowerwall-server:0.2.0`), a new and improved proxy service built on the same pypowerwall library.
-  - Serves the Tesla power flow animation and a new `/pypowerwall/console`web interface for monitoring power usage.
+  - Serves the Tesla power flow animation and a new `/pypowerwall/console` web interface for monitoring power usage.
   - Supports `PROXY_BASE_URL` environment variable, which prefixes all API and asset paths with a sub-path (e.g. `/pypowerwall/`). This is the key capability that enables single-port HTTPS without any URL rewriting in nginx.
   - Drop-in replacement — no changes required to existing `pypowerwall.env` configuration.
 

@@ -46,9 +46,12 @@
   //   PROXY_BASE_URL=/pypowerwall makes the server prefix its API/asset paths so the
   //   animation JS calls /pypowerwall/api/... routed back to pypowerwall by nginx.
   // HTTP (direct access): hit pypowerwall directly on port 8675.
-  var pypowerwallBase = (window.location.protocol === 'https:')
-      ? '/pypowerwall'
-      : 'http://' + window.location.hostname + ':8675';
+  // Override: define window.PYPOWERWALL_BASE before this script to use a custom path
+  //   (e.g. if you use a different reverse proxy or a non-standard mount point).
+  var pypowerwallBase = window.PYPOWERWALL_BASE
+      || (window.location.protocol === 'https:'
+          ? '/pypowerwall'
+          : 'http://' + window.location.hostname + ':8675');
 
   // Display Firmware Version
   function showversion() {

@@ -49,9 +49,6 @@ Run the interactive setup script that will ask you for your setup details.
 
 The dashboard can be installed in four different configurations.
 
-A helper script `sync.sh` is included to mirror this repository to a remote
-machine (e.g. `jason@lab.lan:~/Powerwall-Dashboard`). It uses rsync and is
-git‑ignored by default. Run `./sync.sh` or pass an alternate destination.
 
 
   ```
