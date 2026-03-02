@@ -17,13 +17,6 @@
       "pluginName": "Sun and Moon"
     },
     {
-      "name": "DS_EXPRESSION",
-      "label": "Expression",
-      "description": "",
-      "type": "datasource",
-      "pluginId": "__expr__"
-    },
-    {
       "name": "VAR_AVG_BUY_PER_KWH",
       "type": "constant",
       "label": "Buy Cost per kWh",
@@ -47,11 +40,6 @@
   ],
   "__elements": {},
   "__requires": [
-    {
-      "type": "datasource",
-      "id": "__expr__",
-      "version": "1.0.0"
-    },
     {
       "type": "panel",
       "id": "barchart",
@@ -3710,14 +3698,34 @@
           "tz": "${tz:text}"
         },
         {
+          "alias": "Net",
           "datasource": {
-            "type": "__expr__",
-            "uid": "${DS_EXPRESSION}"
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
           },
-          "expression": "$A + $B",
+          "groupBy": [
+            {
+              "params": [
+                "1d"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "0"
+              ],
+              "type": "fill"
+            }
+          ],
           "hide": false,
+          "measurement": "http",
+          "orderByTime": "ASC",
+          "policy": "kwh",
+          "query": "SELECT sum(\"from_grid\") + (sum(\"to_grid\") * -1) FROM \"kwh\".\"http\" WHERE $timeFilter GROUP BY time(1d) fill(0) tz('${tz:text}')",
+          "rawQuery": true,
           "refId": "Net",
-          "type": "math"
+          "resultFormat": "time_series",
+          "tz": "${tz:text}"
         }
       ],
       "timeFrom": "1M",
@@ -18620,6 +18628,6 @@
   "timezone": "${VAR_TZ}",
   "title": "Powerwall - Power Flow",
   "uid": "RSabAvRRzZ",
-  "version": 68,
+  "version": 69,
   "weekStart": ""
 }
