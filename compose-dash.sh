@@ -55,14 +55,22 @@ else
     pwextend=""
 fi
 
+# nginx HTTPS Extension Check
+if [ "${NGINX_ENABLED}" = "true" ] && [ -f "powerwall-nginx.yml" ]; then
+    echo "Including powerwall-nginx.yml (HTTPS/nginx)"
+    nginxextend="-f powerwall-nginx.yml"
+else
+    nginxextend=""
+fi
+
 echo "Running Docker Compose..."
 if docker compose version > /dev/null 2>&1; then
     # Build Docker (v2)
-    docker compose -f powerwall.yml $pwextend $@
+    docker compose -f powerwall.yml $pwextend $nginxextend $@
 else
     if docker-compose version > /dev/null 2>&1; then
         # Build Docker (v1)
-        docker-compose -f powerwall.yml $pwextend $@
+        docker-compose -f powerwall.yml $pwextend $nginxextend $@
     else
         echo "ERROR: docker-compose/docker compose is not available or not running."
         echo "This script requires docker-compose or docker compose."

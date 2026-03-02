@@ -211,6 +211,56 @@ if [ ! -f ${COMPOSE_ENV_FILE} ]; then
     cp "${COMPOSE_ENV_FILE}.sample" "${COMPOSE_ENV_FILE}"
 fi
 
+# Prompt for installation type: standard HTTP or HTTPS via nginx
+if grep -q "^NGINX_ENABLED=true" "${COMPOSE_ENV_FILE}" 2>/dev/null; then
+    NGINX_ENABLED="true"
+    nginx_current="HTTPS (nginx)"
+    nginx_choice="[2] "
+else
+    NGINX_ENABLED="false"
+    nginx_current="Standard HTTP"
+    nginx_choice="[1] "
+fi
+echo "Installation Type:"
+echo ""
+echo "Current: ${nginx_current}"
+echo ""
+echo " 1 - Standard HTTP   (access Grafana at http://hostname:9000) - Default"
+echo " 2 - HTTPS via nginx (access Grafana at https://hostname)"
+echo ""
+while :; do
+    read -r -p "Select type: ${nginx_choice}" response
+    if [ "${response}" == "1" ]; then
+        NGINX_ENABLED="false"
+        break
+    elif [ "${response}" == "2" ]; then
+        NGINX_ENABLED="true"
+        break
+    elif [ -z "${response}" ]; then
+        break  # keep current
+    fi
+done
+echo ""
+# Save NGINX_ENABLED to compose.env
+if grep -q "^NGINX_ENABLED=" "${COMPOSE_ENV_FILE}"; then
+    sed -i.bak "s@^NGINX_ENABLED=.*@NGINX_ENABLED=${NGINX_ENABLED}@g" "${COMPOSE_ENV_FILE}"
+elif grep -q "^#NGINX_ENABLED=" "${COMPOSE_ENV_FILE}"; then
+    sed -i.bak "s@^#NGINX_ENABLED=.*@NGINX_ENABLED=${NGINX_ENABLED}@g" "${COMPOSE_ENV_FILE}"
+else
+    echo -e "\nNGINX_ENABLED=${NGINX_ENABLED}" >> "${COMPOSE_ENV_FILE}"
+fi
+# Generate SSL certificate if HTTPS selected
+if [ "${NGINX_ENABLED}" = "true" ]; then
+    if [ ! -f nginx/ssl/server.crt ] || [ ! -f nginx/ssl/server.key ]; then
+        echo "Generating self-signed SSL certificate for nginx..."
+        bash nginx/generate-self-signed.sh
+        echo ""
+    else
+        echo "SSL certificate already exists (nginx/ssl/), skipping generation."
+        echo ""
+    fi
+fi
+
 # Check if running as non-default user (not required for Windows Git Bash)
 if ! type winpty > /dev/null 2>&1; then
     notset=0
@@ -667,11 +717,18 @@ then
 else
     DASHBOARD="'dashboard.json'"
 fi
+if [ "${NGINX_ENABLED}" = "true" ]; then
+    GRAFANA_URL="https://localhost/"
+    GRAFANA_NOTE="NOTE: Your browser will show a security warning for the self-signed certificate."$'\n'"      Click 'Advanced' and proceed to continue."
+else
+    GRAFANA_URL="http://localhost:9000/"
+    GRAFANA_NOTE=""
+fi
 cat << EOF
 ------------------[ Final Setup Instructions ]-----------------
 
-Open Grafana at http://localhost:9000/ ... use admin/admin for login.
-
+Open Grafana at ${GRAFANA_URL} ... use admin/admin for login.
+${GRAFANA_NOTE}
 To complete *Grafana Setup*:
 
 * From 'Dashboard/New', select 'Import dashboard', click "Upload dashboard JSON file", 

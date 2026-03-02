@@ -28,6 +28,7 @@ The host system will require:
 * docker-compose (works with docker compose (v2) as well)
 * You should not need to run `sudo` to install this tool. See [Docker Errors](#docker-errors) below for help.
 * TCP ports: 8086 (InfluxDB), 8675 (pyPowerwall), and 9000 (Grafana)
+* (Optional) TCP port 443 — only needed if you choose the **HTTPS via nginx** option during `setup.sh`. The setup script will generate a self-signed SSL certificate automatically. See the [`nginx/` folder](nginx/) for details.
 
 ## Setup
 
@@ -48,6 +49,8 @@ Run the interactive setup script that will ask you for your setup details.
 
 The dashboard can be installed in four different configurations.
 
+
+
   ```
     Powerwall Dashboard (v4.0.0) - SETUP
     -----------------------------------------
@@ -58,6 +61,17 @@ The dashboard can be installed in four different configurations.
     3 - FleetAPI Cloud   (Powerwall systems using Official Telsa API)
     4 - Extended Metrics (Powerwall 2, +, or 3 using TEDAPI and local WiFi access)
   ```
+
+Next, you will be asked for the **Installation Type**:
+
+  ```
+    Installation Type:
+
+     1 - Standard HTTP   (access Grafana at http://hostname:9000) - Default
+     2 - HTTPS via nginx (access Grafana at https://hostname)
+  ```
+
+Choose **option 2** if you want Grafana and the Powerwall animation served over HTTPS on port 443. The setup script will automatically generate a self-signed SSL certificate. Your browser will show a security warning the first time — click **Advanced → Proceed** to continue. See [dashboards/README.md](dashboards/README.md#https--reverse-proxy-pypowerwall-server) for more details.
 
 ### Local Mode
 

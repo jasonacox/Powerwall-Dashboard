@@ -8,6 +8,118 @@ The default dashboard is [dashboard.json](dashboard.json) as shown in the main R
 
 <img width="1343" alt="image" src="https://github.com/jasonacox/Powerwall-Dashboard/assets/836718/bfe04a05-58fd-4c70-b569-508b694d5497">
 
+## HTTPS / Reverse Proxy (pypowerwall-server)
+
+If you access Grafana over HTTPS (e.g., via nginx / NGINX Proxy Manager / Traefik), browsers will block loading the Power Flow animation if it is fetched directly from `http://<host>:8675` (mixed content).
+
+The included nginx configuration (`nginx/conf.d/default.conf`) puts **both Grafana and pypowerwall behind a single HTTPS port (443)**. pypowerwall is mounted under the `/pypowerwall/` sub-path by setting `PROXY_BASE_URL=/pypowerwall` in the pypowerwall service (injected via `powerwall-nginx.yml`). This tells the server to prefix all its API and asset paths with `/pypowerwall/`, so the compiled animation JS calls `/pypowerwall/api/system_status/soe` instead of bare `/api/...`, which nginx can unambiguously route to pypowerwall rather than Grafana.
+
+The dashboards automatically detect the protocol:
+
+- **HTTP** (direct Grafana access) → animation iframe uses `http://<hostname>:8675` directly
+- **HTTPS** (via nginx) → animation iframe uses `/pypowerwall` (same-origin path on port 443)
+
+### Enabling nginx HTTPS
+
+The easiest way is to run `setup.sh` and choose option **2 – HTTPS via nginx** when prompted for installation type. This will:
+
+1. Set `NGINX_ENABLED=true` in `compose.env`
+2. Automatically generate a self-signed SSL certificate in `nginx/ssl/`
+3. Include `powerwall-nginx.yml` when starting containers
+
+To enable manually, add `NGINX_ENABLED=true` to `compose.env` and generate a certificate:
+
+```sh
+# Optionally pass your hostname/domain as an argument (default: localhost)
+./nginx/generate-self-signed.sh your.domain.local
+```
+
+Then restart with:
+
+```sh
+./compose-dash.sh up -d
+```
+
+### nginx config (`nginx/conf.d/default.conf`)
+
+```nginx
+# Grafana and pypowerwall-server on a single port 443.
+# pypowerwall is mounted under /pypowerwall/ (PROXY_BASE_URL=/pypowerwall in powerwall-nginx.yml).
+server {
+    listen 443 ssl;
+    server_name _;
+
+    ssl_certificate     /etc/nginx/ssl/server.crt;
+    ssl_certificate_key /etc/nginx/ssl/server.key;
+
+    # Tesla's animation JS calls /pypowerwall/api/networks expecting an array.
+    # pypowerwall returns an object {}; return [] directly to avoid a JS TypeError.
+    location ~ ^/pypowerwall/api/(networks|system/networks)$ {
+        default_type application/json;
+        return 200 '[]';
+    }
+
+    # pypowerwall-server — trailing slash strips /pypowerwall/ prefix before forwarding
+    location /pypowerwall/ {
+        proxy_pass http://pypowerwall:8675/;
+        proxy_set_header Host              $http_host;
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Host  $http_host;
+        proxy_set_header X-Forwarded-Port  $server_port;
+
+        # WebSocket support (required for /ws/* real-time endpoints)
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade    $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_read_timeout 3600s;
+
+        # allow embedding in Grafana iframe
+        proxy_hide_header X-Frame-Options;
+
+        # Strip upstream CORS headers to prevent duplicates
+        proxy_hide_header Access-Control-Allow-Origin;
+        proxy_hide_header Access-Control-Allow-Credentials;
+        proxy_hide_header Access-Control-Allow-Methods;
+        proxy_hide_header Access-Control-Allow-Headers;
+
+        add_header 'Access-Control-Allow-Origin'      $http_origin always;
+        add_header 'Access-Control-Allow-Credentials' 'true'       always;
+        add_header 'Access-Control-Allow-Methods'     '*'          always;
+        add_header 'Access-Control-Allow-Headers'     '*'          always;
+    }
+
+    # Favicon: try pypowerwall first, fall back to Grafana icon on non-200
+    location = /favicon.ico {
+        proxy_pass http://pypowerwall:8675;
+        proxy_intercept_errors on;
+        error_page 301 302 303 304 400 401 403 404 500 502 503 504 = @grafana_favicon;
+    }
+    location @grafana_favicon {
+        rewrite ^ /public/img/grafana_icon.svg break;
+        proxy_pass http://grafana:9000;
+    }
+
+    # Grafana — catch-all
+    location / {
+        proxy_pass http://grafana:9000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+}
+```
+
+Notes:
+
+- Only port **443** needs to be open — no extra firewall rules required.
+- Your browser will show a security warning for the self-signed certificate; click **Advanced → Proceed** to continue.
+- See https://github.com/jasonacox/Powerwall-Dashboard/issues/748 for background and troubleshooting.
 ## Alternative Dashboards
 
 ### Min-Mean-Max

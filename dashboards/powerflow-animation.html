@@ -41,12 +41,25 @@
   }
   window.addEventListener('resize', function(e){ scale(); }, false);
 
+  // Determine pypowerwall-server base URL.
+  // HTTPS (via nginx): pypowerwall is mounted at /pypowerwall/ on the same origin —
+  //   PROXY_BASE_URL=/pypowerwall makes the server prefix its API/asset paths so the
+  //   animation JS calls /pypowerwall/api/... routed back to pypowerwall by nginx.
+  // HTTP (direct access): hit pypowerwall directly on port 8675.
+  // Override: define window.PYPOWERWALL_BASE before this script to use a custom path
+  //   (e.g. if you use a different reverse proxy or a non-standard mount point).
+  var pypowerwallBase = window.PYPOWERWALL_BASE
+      || (window.location.protocol === 'https:'
+          ? '/pypowerwall'
+          : 'http://' + window.location.hostname + ':8675');
+
   // Display Firmware Version
   function showversion() {
-      var pwver = window.location.protocol + "//" + window.location.hostname + ":8675/version";
-      $.getJSON(pwver, function(data) {
+      $.getJSON(pypowerwallBase + "/version", function(data) {
           var text = `Firmware: ${data.version.split(" ")[0]}`;
           $(".version").html(text);
+      }).fail(function(jqxhr, status, err) {
+          console.error("version fetch failed", status, err);
       });
       setTimeout(showversion, 60000);
   }
@@ -60,5 +73,5 @@
     // and scale the frame to fit...
     scale();
   }
-  powerFrame.src = window.location.protocol + "//" + window.location.hostname + ":8675/";
+  powerFrame.src = pypowerwallBase + "/";
   </script>
