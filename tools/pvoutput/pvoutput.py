@@ -49,7 +49,7 @@ API_HOST = os.environ.get('PVOUTPUT_API_HOST', "pvoutput.org")
 
 # InfluxDB Settings (override via env: INFLUXDB_HOST, INFLUXDB_PORT, ...)
 INFLUXDB_HOST = os.environ.get('INFLUXDB_HOST', "localhost")
-INFLUXDB_PORT = os.environ.get('INFLUXDB_PORT', "8086")
+INFLUXDB_PORT = int(os.environ.get('INFLUXDB_PORT', "8086"))
 INFLUXDB_USER = os.environ.get('INFLUXDB_USER', "")
 INFLUXDB_PASS = os.environ.get('INFLUXDB_PASS', "")
 INFLUXDB_DB = os.environ.get('INFLUXDB_DB', "powerwall")
@@ -146,18 +146,18 @@ def make_request(method, path, params=None, max_retries=None, backoff_factor=Non
     eh	    Export High     	No	number	    watt hours	
 """
 def push_daily(date,  generated=None, exported=None, consumed=None, imported=None, tm=None, tx=None):
-        """Push daily aggregated values to PVOutput.
+    """Push daily aggregated values to PVOutput.
 
-        Parameters:
-            date (str): date as yyyymmdd
-            generated (int): generated Wh
-            exported (int): exported Wh
-            consumed (int): consumed Wh
-            imported (int): imported Wh (ip field)
-            tm (float): min temperature (C)
-            tx (float): max temperature (C)
-        """
-        path = '/service/r2/addoutput.jsp'
+    Parameters:
+        date (str): date as yyyymmdd
+        generated (int): generated Wh
+        exported (int): exported Wh
+        consumed (int): consumed Wh
+        imported (int): imported Wh (ip field)
+        tm (float): min temperature (C)
+        tx (float): max temperature (C)
+    """
+    path = '/service/r2/addoutput.jsp'
     params = {
             'd': date,
             }
@@ -323,8 +323,8 @@ while x < e:
         else:
             temprange = ""
         print("   Generated = %0.0f - Exported = %0.0f - Consumed = %0.0f - Imported = %0.0f %s" % (generated, exported, consumed, imported, temprange), end='')
-        
-         # Push data to PVoutput
+
+        # Push data to PVoutput
         day = x.strftime('%Y%m%d')
         push_daily(day, generated, exported, consumed, imported, tm, tx)
         print(" - Published")

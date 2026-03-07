@@ -54,3 +54,4 @@ tools/export/export.csv
 tools/export/export.xz
 issues/*
 sync.sh
+*.pyc
