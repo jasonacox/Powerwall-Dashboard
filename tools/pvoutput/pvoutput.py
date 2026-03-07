@@ -1,64 +1,126 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
- Command line tool to publish daily solar stats to PVoutput.org
- Set up as a cronjob or use to mass publish several days.
+Command line tool to publish daily solar stats to PVoutput.org.
 
- Author: Jason A. Cox
- For more information see https://github.com/jasonacox/Powerwall-Dashboard
+Set up as a cronjob or use to mass publish several days.
 
- Usage:
-    * Sign up at pvoutput.org and get an API KEY - update the settings below
-      with your API_SYSTEM_ID and API_KEY.
-    * Update the INFLUXDB_HOST below to the address of your Dashboard host
-      (default = localhost) and INFLUXDB_TZ for your timezone.
-    * Install the InfluxDB module:  pip install influxdb
-    * Run this script:
-        python3 pvoutput.py <option>
+Author: Jason A. Cox
+For more information see https://github.com/jasonacox/Powerwall-Dashboard
 
-              <option> is 'yesterday' or 'today' or empty
-    
-        If no <option> is provided you will be prompted for a start date and
-        and end date to send.
+Usage:
+    - `python3 pvoutput.py today`            Send today's data
+    - `python3 pvoutput.py yesterday`        Send yesterday's data
+    - `python3 pvoutput.py range START [END]` Send data for START..END (YYYY-mm-dd). If END is
+        omitted, it defaults to today.
+    - `-h, --help`                           Show help
+    - `-v, --version`                        Show script version
+
+Configuration:
+    Most global settings can be overridden with environment variables:
+        - PVOUTPUT_API_SYSTEM_ID, PVOUTPUT_API_KEY, PVOUTPUT_API_HOST
+        - INFLUXDB_HOST, INFLUXDB_PORT, INFLUXDB_USER, INFLUXDB_PASS, INFLUXDB_DB, INFLUXDB_TZ
+        - PVOUTPUT_WEATHER_UNITS (metric|imperial|standard)
+        - PVOUTPUT_MAX_RETRIES, PVOUTPUT_BACKOFF_FACTOR
+
+Dependencies:
+    - `influxdb` Python package (install with `pip install influxdb`)
+
+If no command-line option is provided the script will prompt interactively
+for a start and end date to send.
 """
 import datetime
 from datetime import date, timedelta
 import urllib.request, urllib.parse, urllib.error
 import http.client
+import time
+import socket
+import os
 import sys
 try:
     from influxdb import InfluxDBClient
 except:
     sys.exit("ERROR: Missing python influxdb module. Run 'pip install influxdb'.")
 
-# PVoutput API Credentials
-API_SYSTEM_ID = "SYSTEM_ID_FROM_PVOUTPUT.ORG"
-API_KEY = "API_KEY_FROM_PVOUTPUT.ORG"
-API_HOST = "pvoutput.org"
+# PVoutput API Credentials (can be overridden with environment variables)
+API_SYSTEM_ID = os.environ.get('PVOUTPUT_API_SYSTEM_ID', "SYSTEM_ID_FROM_PVOUTPUT.ORG")
+API_KEY = os.environ.get('PVOUTPUT_API_KEY', "API_KEY_FROM_PVOUTPUT.ORG")
+API_HOST = os.environ.get('PVOUTPUT_API_HOST', "pvoutput.org")
 
-# InfluxDB Settings
-INFLUXDB_HOST = "localhost"
-INFLUXDB_PORT = "8086"
-INFLUXDB_USER = ""
-INFLUXDB_PASS = ""
-INFLUXDB_DB = "powerwall"
-INFLUXDB_TZ = "America/Los_Angeles"
+# InfluxDB Settings (override via env: INFLUXDB_HOST, INFLUXDB_PORT, ...)
+INFLUXDB_HOST = os.environ.get('INFLUXDB_HOST', "localhost")
+INFLUXDB_PORT = os.environ.get('INFLUXDB_PORT', "8086")
+INFLUXDB_USER = os.environ.get('INFLUXDB_USER', "")
+INFLUXDB_PASS = os.environ.get('INFLUXDB_PASS', "")
+INFLUXDB_DB = os.environ.get('INFLUXDB_DB', "powerwall")
+INFLUXDB_TZ = os.environ.get('INFLUXDB_TZ', "America/Los_Angeles")
 
 # Weather Settings
-WEATHER_UNITS = "metric"  # metric, imperial or standard
+WEATHER_UNITS = os.environ.get('PVOUTPUT_WEATHER_UNITS', "metric")  # metric, imperial or standard
+
+# Retry/backoff defaults (can be overridden via env)
+MAX_RETRIES = int(os.environ.get('PVOUTPUT_MAX_RETRIES', '3'))
+BACKOFF_FACTOR = float(os.environ.get('PVOUTPUT_BACKOFF_FACTOR', '1'))
+
+# Script version
+VERSION = "2.0"
 
 # Helper Functions
-def make_request(method, path, params=None):
-    conn = http.client.HTTPConnection(API_HOST)
-    headers = {
-            'Content-type': 'application/x-www-form-urlencoded',
-            'Accept': 'text/plain',
-            'X-Pvoutput-Apikey': API_KEY,
-            'X-Pvoutput-SystemId': API_SYSTEM_ID
-            }
-    conn.request(method, path, params, headers)
+def make_request(method, path, params=None, max_retries=None, backoff_factor=None):
+    """Make an HTTP request to PVOutput with retry/backoff on transient errors.
 
-    return conn.getresponse()
+    Retries on network exceptions and on server-side or rate-limit responses
+    (HTTP 5xx and 429). By default the function uses the module-level
+    `MAX_RETRIES` and `BACKOFF_FACTOR` values (which can themselves be set
+    via the `PVOUTPUT_MAX_RETRIES` and `PVOUTPUT_BACKOFF_FACTOR` environment
+    variables). If `max_retries` or `backoff_factor` are provided they override
+    the environment defaults for that call.
+
+    Returns the final `http.client.HTTPResponse` object or raises the last
+    exception if retries are exhausted.
+    """
+    # Use module-level defaults if not provided
+    if max_retries is None:
+        max_retries = MAX_RETRIES
+    if backoff_factor is None:
+        backoff_factor = BACKOFF_FACTOR
+
+    retry_statuses = {429, 500, 502, 503, 504}
+    attempt = 0
+    while True:
+        attempt += 1
+        try:
+            conn = http.client.HTTPConnection(API_HOST, timeout=10)
+            headers = {
+                    'Content-type': 'application/x-www-form-urlencoded',
+                    'Accept': 'text/plain',
+                    'X-Pvoutput-Apikey': API_KEY,
+                    'X-Pvoutput-SystemId': API_SYSTEM_ID
+                    }
+            conn.request(method, path, params, headers)
+            response = conn.getresponse()
+
+            # If we get a retryable status and we have attempts left, wait and retry
+            if response.status in retry_statuses and attempt < max_retries:
+                wait = backoff_factor * (2 ** (attempt - 1))
+                try:
+                    body = response.read()
+                except Exception:
+                    body = b''
+                print(f"Request returned {response.status}, retrying in {wait}s... (attempt {attempt}/{max_retries})")
+                time.sleep(wait)
+                conn.close()
+                continue
+
+            return response
+
+        except (http.client.HTTPException, OSError, socket.error) as exc:
+            if attempt < max_retries:
+                wait = backoff_factor * (2 ** (attempt - 1))
+                print(f"Network error ({exc}), retrying in {wait}s... (attempt {attempt}/{max_retries})")
+                time.sleep(wait)
+                continue
+            raise
     
 # PVoutput API Fields - Daily Values
 """ PVoutput Data Fields
@@ -84,8 +146,18 @@ def make_request(method, path, params=None):
     eh	    Export High     	No	number	    watt hours	
 """
 def push_daily(date,  generated=None, exported=None, consumed=None, imported=None, tm=None, tx=None):
-    
-    path = '/service/r2/addoutput.jsp'
+        """Push daily aggregated values to PVOutput.
+
+        Parameters:
+            date (str): date as yyyymmdd
+            generated (int): generated Wh
+            exported (int): exported Wh
+            consumed (int): consumed Wh
+            imported (int): imported Wh (ip field)
+            tm (float): min temperature (C)
+            tx (float): max temperature (C)
+        """
+        path = '/service/r2/addoutput.jsp'
     params = {
             'd': date,
             }
@@ -165,14 +237,54 @@ def get_influx(start=None, end=None):
 
 s = e = None  # start and end
 
+def print_usage():
+    print("pvoutput.py - publish daily solar stats to PVOutput.org")
+    print("")
+    print("Usage:")
+    print("  python pvoutput.py today")
+    print("  python pvoutput.py yesterday")
+    print("  python pvoutput.py range START [END]")
+    print("")
+    print("Options:")
+    print("  -h, --help       Show this help message")
+    print("  -v, --version    Show script version (currently %s)" % VERSION)
+    print("")
+
 # Command line arguments for presets
 if len(sys.argv) >= 2:
-    if sys.argv[1].lower() == 'today':
+    # Global flags
+    if sys.argv[1] in ('-h', '--help'):
+        print_usage()
+        sys.exit(0)
+    if sys.argv[1] in ('-v', '--version', '-V'):
+        print(VERSION)
+        sys.exit(0)
+
+    cmd = sys.argv[1].lower()
+    if cmd == 'today':
         s = date.today()
         e = date.today() + timedelta(days=1)
-    elif sys.argv[1].lower() == 'yesterday':
+    elif cmd == 'yesterday':
         s = date.today() - timedelta(days=1)
         e = date.today()
+    elif cmd == 'range':
+        # Usage: range START [END]
+        # START and END format: YYYY-mm-dd. If END omitted, assume today.
+        if len(sys.argv) < 3:
+            sys.exit("ERROR: 'range' requires at least a start date (YYYY-mm-dd)")
+        try:
+            s = datetime.datetime.strptime(sys.argv[2], '%Y-%m-%d').date()
+        except Exception:
+            sys.exit("ERROR: unrecognized start date for range. Use YYYY-mm-dd")
+
+        if len(sys.argv) >= 4 and sys.argv[3]:
+            try:
+                end_date = datetime.datetime.strptime(sys.argv[3], '%Y-%m-%d').date()
+            except Exception:
+                sys.exit("ERROR: unrecognized end date for range. Use YYYY-mm-dd")
+            e = end_date + timedelta(days=1)
+        else:
+            e = date.today() + timedelta(days=1)
 
 if s is None:
     # Prompt for custom date range
