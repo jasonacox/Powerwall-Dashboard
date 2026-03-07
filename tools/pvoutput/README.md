@@ -70,6 +70,7 @@ All settings can be overridden with environment variables instead of editing the
 | `PVOUTPUT_WEATHER_UNITS` | Units for temperature: `metric`, `imperial`, or `standard` | `metric` |
 | `PVOUTPUT_MAX_RETRIES` | Number of HTTP retry attempts on network errors | `3` |
 | `PVOUTPUT_BACKOFF_FACTOR` | Exponential backoff multiplier between retries | `1` |
+| `PVOUTPUT_RATE_LIMIT_WAIT` | Set to `1` to force waiting on rate limit (403) in any mode | `0` |
 
 Example using environment variables:
 
@@ -83,6 +84,12 @@ python3 pvoutput.py range 2026-03-01 2026-03-07
 ## Retry Logic
 
 The script automatically retries failed HTTP requests due to transient network errors (e.g. `Network is unreachable`) or server-side errors (HTTP 5xx / 429). It uses exponential backoff between attempts. You can tune this with `PVOUTPUT_MAX_RETRIES` and `PVOUTPUT_BACKOFF_FACTOR`.
+
+For PVOutput's **rate limit (403 Exceeded 60 requests/hour)**, behavior depends on the mode:
+
+* `range` and interactive mode — the script waits until the top of the next clock hour and retries automatically. This is safe when running interactively or doing a bulk backfill.
+* `today` / `yesterday` (cron) — the script logs the rate limit error and exits immediately so the cron job does not hang.
+* Set `PVOUTPUT_RATE_LIMIT_WAIT=1` to force waiting in any mode (e.g. if running `today` manually).
 
 ## Example
 

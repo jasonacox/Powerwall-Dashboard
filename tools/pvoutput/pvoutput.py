@@ -22,6 +22,9 @@ Configuration:
         - INFLUXDB_HOST, INFLUXDB_PORT, INFLUXDB_USER, INFLUXDB_PASS, INFLUXDB_DB, INFLUXDB_TZ
         - PVOUTPUT_WEATHER_UNITS (metric|imperial|standard)
         - PVOUTPUT_MAX_RETRIES, PVOUTPUT_BACKOFF_FACTOR
+        - PVOUTPUT_RATE_LIMIT_WAIT=1  Force rate-limit waiting in any mode (default: only
+          enabled automatically for 'range' and interactive modes; disabled for cron-safe
+          modes 'today' and 'yesterday')
 
 Dependencies:
     - `influxdb` Python package (install with `pip install influxdb`)
@@ -62,6 +65,10 @@ WEATHER_UNITS = os.environ.get('PVOUTPUT_WEATHER_UNITS', "metric")  # metric, im
 MAX_RETRIES = int(os.environ.get('PVOUTPUT_MAX_RETRIES', '3'))
 BACKOFF_FACTOR = float(os.environ.get('PVOUTPUT_BACKOFF_FACTOR', '1'))
 
+# Wait on rate limit (403): only safe for interactive/range use, not cron.
+# Set PVOUTPUT_RATE_LIMIT_WAIT=1 to force-enable, or it is auto-enabled for 'range'.
+RATE_LIMIT_WAIT = os.environ.get('PVOUTPUT_RATE_LIMIT_WAIT', '0') == '1'
+
 # Script version
 VERSION = "2.0"
 
@@ -75,6 +82,13 @@ def make_request(method, path, params=None, max_retries=None, backoff_factor=Non
     via the `PVOUTPUT_MAX_RETRIES` and `PVOUTPUT_BACKOFF_FACTOR` environment
     variables). If `max_retries` or `backoff_factor` are provided they override
     the environment defaults for that call.
+
+    403 rate-limit handling ("Exceeded 60 requests per hour"):
+      - If `RATE_LIMIT_WAIT` is True (set automatically for 'range' and interactive
+        modes, or via PVOUTPUT_RATE_LIMIT_WAIT=1), the function waits until the top
+        of the next clock hour and retries automatically.
+      - Otherwise (cron-safe modes 'today'/'yesterday') it logs the error and returns
+        immediately so the cron job is not left hanging.
 
     Returns the final `http.client.HTTPResponse` object or raises the last
     exception if retries are exhausted.
@@ -100,18 +114,38 @@ def make_request(method, path, params=None, max_retries=None, backoff_factor=Non
             conn.request(method, path, params, headers)
             response = conn.getresponse()
 
+            # Read body so we can inspect it and the connection stays clean
+            try:
+                body = response.read()
+            except Exception:
+                body = b''
+
+            # 403 with rate-limit message
+            if response.status == 403 and b'Exceeded' in body:
+                if RATE_LIMIT_WAIT:
+                    now = datetime.datetime.now()
+                    next_hour = (now + datetime.timedelta(hours=1)).replace(minute=0, second=5, microsecond=0)
+                    wait = max(1, (next_hour - now).seconds)
+                    print(f"Rate limit hit (403): {body.decode(errors='replace')}")
+                    print(f"Waiting {wait}s until next hour ({next_hour.strftime('%H:%M:%S')}) before retrying...")
+                    time.sleep(wait)
+                    conn.close()
+                    continue  # retry indefinitely until it succeeds
+                else:
+                    print("Rate limit hit (403) - skipping wait (not in range/interactive mode).")
+                    response._body = body
+                    return response
+
             # If we get a retryable status and we have attempts left, wait and retry
             if response.status in retry_statuses and attempt < max_retries:
                 wait = backoff_factor * (2 ** (attempt - 1))
-                try:
-                    body = response.read()
-                except Exception:
-                    body = b''
                 print(f"Request returned {response.status}, retrying in {wait}s... (attempt {attempt}/{max_retries})")
                 time.sleep(wait)
                 conn.close()
                 continue
 
+            # Attach body to response so callers can still read it
+            response._body = body
             return response
 
         except (http.client.HTTPException, OSError, socket.error) as exc:
@@ -178,10 +212,11 @@ def push_daily(date,  generated=None, exported=None, consumed=None, imported=Non
 
     response = make_request('POST', path, params)
 
+    body = getattr(response, '_body', b'')
     if response.status == 400:
-        raise ValueError(response.read())
+        raise ValueError(body)
     if response.status != 200:
-       raise Exception(response.read())
+        raise Exception(body)
 
 # InfluxDB
 def get_influx(start=None, end=None):
@@ -243,7 +278,7 @@ def print_usage():
     print("Usage:")
     print("  python pvoutput.py today")
     print("  python pvoutput.py yesterday")
-    print("  python pvoutput.py range START [END]")
+    print("  python pvoutput.py range START [END]    (dates in YYYY-mm-dd format; END defaults to today)")
     print("")
     print("Options:")
     print("  -h, --help       Show this help message")
@@ -270,8 +305,9 @@ if len(sys.argv) >= 2:
     elif cmd == 'range':
         # Usage: range START [END]
         # START and END format: YYYY-mm-dd. If END omitted, assume today.
+        RATE_LIMIT_WAIT = True  # safe to wait in range mode
         if len(sys.argv) < 3:
-            sys.exit("ERROR: 'range' requires at least a start date (YYYY-mm-dd)")
+            sys.exit("ERROR: 'range' requires a start date. Usage: range YYYY-mm-dd [YYYY-mm-dd]")
         try:
             s = datetime.datetime.strptime(sys.argv[2], '%Y-%m-%d').date()
         except Exception:
@@ -287,11 +323,12 @@ if len(sys.argv) >= 2:
             e = date.today() + timedelta(days=1)
 
 if s is None:
-    # Prompt for custom date range
+    # Prompt for custom date range - safe to wait on rate limits
+    RATE_LIMIT_WAIT = True
     print("Select Custom Date Range")
     while True:
-        user1 = input(" - Enter start day (YYYY-mm-dd): ")
-        user2 = input(" - Enter end date (YYYY-mm-dd): ")
+        user1 = input(" - Enter start date (YYYY-mm-dd, e.g. 2026-01-01): ")
+        user2 = input(" - Enter end date   (YYYY-mm-dd, e.g. 2026-01-31): ")
         try:
             s = datetime.datetime.strptime(user1, '%Y-%m-%d')
             e = datetime.datetime.strptime(user2, '%Y-%m-%d')
