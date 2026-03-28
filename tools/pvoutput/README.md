@@ -35,7 +35,7 @@ Sending Solar Data [2022-06-20 to 2022-06-27]
 2022-06-26:    Generated = 48904 - Exported = 1083 - Consumed = 54617 - Imported = 8280 - Published
 Done.
 ```
-You can also add it to a daily cronjob by specifying a optional parameter:  'yesterday' or 'today'. 
+You can also add it to a daily cronjob by specifying an optional parameter: `yesterday`, `today`, or `range START [END]`.
 
 ```bash
 # Pull and publish yesterdays data
@@ -43,7 +43,53 @@ python3 pvoutput.py yesterday
 
 # Pull and publish todays data so far
 python3 pvoutput.py today
+
+# Pull and publish a specific date range (end date defaults to today if omitted)
+python3 pvoutput.py range 2026-03-01 2026-03-07
+
+# Show help or version
+python3 pvoutput.py --help
+python3 pvoutput.py --version
 ```
+
+## Configuration
+
+All settings can be overridden with environment variables instead of editing the script directly:
+
+| Variable | Description | Default |
+|---|---|---|
+| `PVOUTPUT_API_SYSTEM_ID` | PVOutput system ID | *(set in script)* |
+| `PVOUTPUT_API_KEY` | PVOutput API key | *(set in script)* |
+| `PVOUTPUT_API_HOST` | PVOutput hostname | `pvoutput.org` |
+| `INFLUXDB_HOST` | InfluxDB hostname | `localhost` |
+| `INFLUXDB_PORT` | InfluxDB port | `8086` |
+| `INFLUXDB_USER` | InfluxDB username | *(empty)* |
+| `INFLUXDB_PASS` | InfluxDB password | *(empty)* |
+| `INFLUXDB_DB` | InfluxDB database name | `powerwall` |
+| `INFLUXDB_TZ` | Timezone for queries | `America/Los_Angeles` |
+| `PVOUTPUT_WEATHER_UNITS` | Units for temperature: `metric`, `imperial`, or `standard` | `metric` |
+| `PVOUTPUT_MAX_RETRIES` | Number of HTTP retry attempts on network errors | `3` |
+| `PVOUTPUT_BACKOFF_FACTOR` | Exponential backoff multiplier between retries | `1` |
+| `PVOUTPUT_RATE_LIMIT_WAIT` | Set to `1` to force waiting on rate limit (403) in any mode | `0` |
+
+Example using environment variables:
+
+```bash
+export PVOUTPUT_API_KEY="abc123"
+export INFLUXDB_HOST="influx.local"
+export PVOUTPUT_MAX_RETRIES=5
+python3 pvoutput.py range 2026-03-01 2026-03-07
+```
+
+## Retry Logic
+
+The script automatically retries failed HTTP requests due to transient network errors (e.g. `Network is unreachable`) or server-side errors (HTTP 5xx / 429). It uses exponential backoff between attempts. You can tune this with `PVOUTPUT_MAX_RETRIES` and `PVOUTPUT_BACKOFF_FACTOR`.
+
+For PVOutput's **rate limit (403 Exceeded 60 requests/hour)**, behavior depends on the mode:
+
+* `range` and interactive mode — the script waits until the top of the next clock hour and retries automatically. This is safe when running interactively or doing a bulk backfill.
+* `today` / `yesterday` (cron) — the script logs the rate limit error and exits immediately so the cron job does not hang.
+* Set `PVOUTPUT_RATE_LIMIT_WAIT=1` to force waiting in any mode (e.g. if running `today` manually).
 
 ## Example
 

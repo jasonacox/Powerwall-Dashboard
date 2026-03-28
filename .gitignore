@@ -62,3 +62,5 @@ nginx/ssl/server.key
 
 # Issue response files
 issues/*
+issues/*
+*.pyc
