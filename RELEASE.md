@@ -1,5 +1,27 @@
 # RELEASE NOTES
 
+## v5.1.0 - Add HTTPS Support via Nginx
+
+### pypowerwall-server
+
+* **Switched from `pypowerwall` proxy to `pypowerwall-server`** (`jasonacox/pypowerwall-server:0.2.0`), a new and improved proxy service built on the same pypowerwall library.
+  - Serves the Tesla power flow animation and a new `/pypowerwall/console` web interface for monitoring power usage.
+  - Supports `PROXY_BASE_URL` environment variable, which prefixes all API and asset paths with a sub-path (e.g. `/pypowerwall/`). This is the key capability that enables single-port HTTPS without any URL rewriting in nginx.
+  - Drop-in replacement — no changes required to existing `pypowerwall.env` configuration.
+
+### New Features
+
+* **Optional HTTPS reverse proxy** via bundled nginx configuration.
+  - `setup.sh` now prompts for installation type after selecting configuration mode:
+    - **Option 1** – Standard HTTP (Grafana at `http://hostname:9000`) — default, no change from prior versions
+    - **Option 2** – HTTPS via nginx (Grafana and pypowerwall animation at `https://hostname` on port 443)
+  - Selecting HTTPS sets `NGINX_ENABLED=true` in `compose.env` and automatically generates a self-signed SSL certificate via `nginx/generate-self-signed.sh`.
+  - A new `powerwall-nginx.yml` Docker Compose override adds the nginx service and injects `PROXY_BASE_URL=/pypowerwall` into the pypowerwall container. `compose-dash.sh` automatically includes it when `NGINX_ENABLED=true`.
+  - The power flow animation dashboards auto-detect `https:` and switch to the `/pypowerwall` same-origin path, eliminating mixed-content browser blocks.
+  - nginx proxies both Grafana (`/`) and pypowerwall (`/pypowerwall/`) on a single port 443 — no extra firewall rules required.
+  - Favicon served from pypowerwall with automatic fallback to the Grafana icon on non-200 responses.
+  - `nginx/generate-self-signed.sh` now checks for `openssl` and prints platform-specific install instructions if it is missing.
+  - SSL certificate and key (`nginx/ssl/server.crt`, `nginx/ssl/server.key`) are git-ignored; `nginx/ssl/.gitkeep` preserves the directory in the repo.
 ## v5.0.4 - Alerts Dashboard Fix
 
 ### Dashboard Updates
