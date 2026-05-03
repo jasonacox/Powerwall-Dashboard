@@ -59,22 +59,19 @@ Generally, only your Tesla account `email address` and your `timezone` will be r
 
 After the config is saved, you will be prompted to login to your Tesla account.
 
-This is done by opening the displayed URL in your browser and then logging in:
+This is done via an external Tesla Auth tool which will return a refresh token. Paste the refresh token at the prompt:
 
 ```
 ----------------------------------------
 Tesla account: your@email.address
 ----------------------------------------
-Open the below address in your browser to login.
+Login required:
 
-<copy URL to browser> e.g.: https://auth.tesla.com/oauth2/v3/authorize?response_type=code...etc.
+ 1. Use Tesla Auth tool to login - https://github.com/adriankumpf/tesla_auth
+ 2. Copy the refresh token and paste this below
 
-After login, paste the URL of the 'Page Not Found' webpage below.
-
-Enter URL after login: <paste URL from browser> e.g.: https://auth.tesla.com/void/callback?code=...etc.
+Enter refresh token:
 ```
-
-After you have logged in successfully, the browser will show a 'Page Not Found' webpage. Copy the URL of this page and paste it at the prompt.
 
 Once logged in successfully, you will be shown details of the energy site(s) associated with your account:
 

@@ -1,5 +1,10 @@
 # RELEASE NOTES
 
+## v5.0.5 - Tesla-History Auth Fix
+
+* Revise tesla-history script auth method to use refresh token and external Tesla Auth tool for cloud login by @mcbirse in https://github.com/jasonacox/Powerwall-Dashboard/pull/764 - addresses https://github.com/jasonacox/Powerwall-Dashboard/discussions/762
+* Minor dashboard fix with alerts panel to prevent alerts extending beyond current time when viewing with time ranges like Today, This week, etc. by @mcbirse in https://github.com/jasonacox/Powerwall-Dashboard/pull/764
+
 ## v5.0.4 - Alerts Dashboard Fix
 
 ### Dashboard Updates

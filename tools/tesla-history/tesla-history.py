@@ -68,7 +68,7 @@ try:
 except:
     sys.exit("ERROR: Missing python influxdb module. Run 'pip install influxdb'.")
 
-BUILD = "0.1.5"
+BUILD = "0.1.6"
 VERBOSE = True
 SCRIPTPATH = os.path.dirname(os.path.realpath(sys.argv[0]))
 SCRIPTNAME = os.path.basename(sys.argv[0]).split('.')[0]
@@ -532,26 +532,20 @@ def tesla_login(email):
             sys_exit("ERROR: Tesla auth token invalid or missing. Run interactively with --login option to create")
 
         # Login to Tesla account and cache token
-        state = tesla.new_state()
-        code_verifier = tesla.new_code_verifier()
-
         try:
-            print("Open the below address in your browser to login.\n")
-            print(tesla.authorization_url(state=state, code_verifier=code_verifier))
+            print("Login required:\n")
+            print(" 1. Use Tesla Auth tool to login - https://github.com/adriankumpf/tesla_auth")
+            print(" 2. Copy the refresh token and paste this below\n")
+            tesla.refresh_token(refresh_token=input("Enter refresh token: "))
+            print("-" * 40)
         except Exception as err:
-            sys_exit(f"ERROR: Connection failure - {repr(err)}")
-
-        print("\nAfter login, paste the URL of the 'Page Not Found' webpage below.\n")
+            sys_exit(f"ERROR: Tesla login failed while refreshing auth token - {repr(err)}")
 
         tesla.close()
-        tesla = Tesla(email, retry=retry, state=state, code_verifier=code_verifier, cache_file=TAUTH)
+        tesla = Tesla(email, retry=retry, cache_file=TAUTH)
 
         if not tesla.authorized:
-            try:
-                tesla.fetch_token(authorization_response=input("Enter URL after login: "))
-                print("-" * 40)
-            except Exception as err:
-                sys_exit(f"ERROR: Login failure - {repr(err)}")
+            sys_exit("ERROR: Tesla auth token invalid or missing. Run interactively with --login option to create")
     else:
         # Enable retries
         tesla.close()
