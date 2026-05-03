@@ -17369,7 +17369,7 @@
               "tooltip": false,
               "viz": false
             },
-            "insertNulls": false,
+            "insertNulls": 60000,
             "lineWidth": 6,
             "spanNulls": false
           },
@@ -17571,7 +17571,6 @@
           "sort": "none"
         }
       },
-      "hideTimeOverride": false,
       "pluginVersion": "12.3.1",
       "targets": [
         {
@@ -18628,6 +18627,6 @@
   "timezone": "${VAR_TZ}",
   "title": "Powerwall - Power Flow",
   "uid": "RSabAvRRzZ",
-  "version": 69,
+  "version": 70,
   "weekStart": ""
 }
