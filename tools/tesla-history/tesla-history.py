@@ -539,7 +539,7 @@ def tesla_login(email):
             tesla.refresh_token(refresh_token=input("Enter refresh token: "))
             print("-" * 40)
         except Exception as err:
-            sys_exit(f"ERROR: Tesla auth token invalid - {repr(err)}")
+            sys_exit(f"ERROR: Tesla login failed while refreshing auth token - {repr(err)}")
 
         tesla.close()
         tesla = Tesla(email, retry=retry, cache_file=TAUTH)
