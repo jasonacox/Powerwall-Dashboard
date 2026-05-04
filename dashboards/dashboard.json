@@ -933,6 +933,7 @@
               "type": "fill"
             }
           ],
+          "hide": true,
           "measurement": "weather",
           "orderByTime": "ASC",
           "policy": "autogen",
@@ -18627,6 +18628,6 @@
   "timezone": "${VAR_TZ}",
   "title": "Powerwall - Power Flow",
   "uid": "RSabAvRRzZ",
-  "version": 70,
+  "version": 71,
   "weekStart": ""
 }
