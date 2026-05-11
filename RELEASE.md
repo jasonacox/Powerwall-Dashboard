@@ -1,14 +1,23 @@
 # RELEASE NOTES
 
-## v5.0.6 - pyPowerwall Update
+## v5.0.6 - Powerwall 3 Wired LAN Support (v1r)
 
 ### pyPowerwall Update
 
 * Update pypowerwall to v0.15.6 - includes significant new features and fixes from v0.14.10 through v0.15.6.
-  - **Powerwall Wired LAN (v1r) Support** (v0.15.0): New TEDAPI transport for PW3 access over ethernet using RSA-4096 key authentication — no WiFi connection to `192.168.91.1` required. Includes new `pypowerwall setup -v1r` CLI command to generate and register an RSA key pair.
-  - **Native Python Tesla Authentication** (v0.15.5): Cloud setup no longer works due to the API change Tesla has made. This introduces a `setup` process that launches a native python webview to allow user to log in to their Tesla account and provide token to pypowerwall for setup.
+  - **Powerwall 3 Wired LAN (v1r) Support** (v0.15.0): New TEDAPI transport for PW3 access over ethernet using RSA-4096 key authentication — no WiFi connection to `192.168.91.1` required. Includes new `pypowerwall setup -v1r` CLI command to generate and register an RSA key pair. Optional WiFi fallback (`PW_WIFI_HOST`) enables hybrid mode and Powerwall 3 follower data.
+  - **Island Mode Control** (v0.15.3): New `go_off_grid()` and `reconnect_grid()` functions for Powerwall island mode control.
+  - **Native Python Tesla Authentication** (v0.15.5): Replaces the external `tesla-auth` binary with a native Python WebView-based login flow. For SSH/headless setups, run `python3 -m pypowerwall authtoken` on a local machine to obtain a token and paste it during setup.
   - **Host:port Support** (v0.14.10): Non-standard HTTPS port support (e.g. `192.168.1.50:8443`) for travel router and NAT proxy setups mapping multiple gateways to distinct `ip:port` endpoints.
-  - **Reserve Scaling & CLI Fixes** (v0.15.6): Fixed reserve percent scaling round-trip errors in TEDAPI v1r mode and FleetAPI SOC reporting.
+  - **Reserve Scaling & CLI Fixes** (v0.15.6): Fixed reserve percent scaling round-trip errors in TEDAPI v1r mode and FleetAPI SOC reporting. CLI redesigned with explicit connection mode flags.
+
+### Setup Updates
+
+* `setup.sh` updated to support new pypowerwall features:
+  - Added **mode 5 - Wired LAN (v1r)**: new interactive setup flow for Powerwall 3 ethernet access — prompts for wired LAN IP, full 10-character QR code gateway password, and optional WiFi fallback host (`PW_WIFI_HOST`) for hybrid mode and follower data. Automatically probes `192.168.91.1` and offers it as the WiFi fallback if reachable.
+  - After docker startup, runs `pypowerwall setup -v1r` inside the container to generate the RSA-4096 key pair and register it with the Powerwall via the Tesla Owner API.
+  - **Tesla Cloud mode** now displays a notice for SSH/remote users explaining how to obtain an auth token from a local machine: `pip install pypowerwall -U && python3 -m pypowerwall authtoken`.
+  - Updated FleetAPI setup to use `pypowerwall setup -fleetapi` (replacing the deprecated `pypowerwall fleetapi` command).
 
 ## v5.0.5 - Tesla-History Auth Fix
 
