@@ -133,7 +133,7 @@ while getopts ":hf" opt; do
             echo ""
             echo "Running FleetAPI Cloud Mode Setup..."
             echo ""
-            docker exec -it pypowerwall python3 -m pypowerwall fleetapi
+            docker exec -it pypowerwall python3 -m pypowerwall setup -fleetapi
             echo ""
             echo "Restarting..."
             docker restart pypowerwall
@@ -168,8 +168,10 @@ echo " 1 - Local Access     (Powerwall 1, 2, or + using the Tesla Gateway on LAN
 echo " 2 - Tesla Cloud      (Solar-only systems or Powerwalls without LAN access)"
 echo " 3 - FleetAPI Cloud   (Powerwall systems using Official Telsa API)"
 echo " 4 - Extended Metrics (Powerwall 2, +, or 3 using TEDAPI and local WiFi access)"
+echo " 5 - Wired LAN (v1r)  (Powerwall 3 over ethernet with RSA key authentication)"
 echo ""
 pw3=0
+v1r=0
 while :; do
     read -r -p "Select mode: ${choice}" response
     if [ "${response}" == "1" ]; then
@@ -181,6 +183,10 @@ while :; do
     elif [ "${response}" == "4" ]; then
         selected="Local Access"
         pw3=1
+    elif [ "${response}" == "5" ]; then
+        selected="Local Access"
+        pw3=1
+        v1r=1
     elif [ -z "${response}" ] && [ ! -z "${choice}" ]; then
         selected="${config}"
     else
@@ -422,8 +428,43 @@ if [ ! -f ${PW_ENV_FILE} ]; then
             done
         fi
         IP=""
+        PW_GW_PWD=""
+        PW_RSA_KEY_PATH=""
+        PW_WIFI_HOST=""
+        if [ $v1r -eq 1 ]; then
+            # v1r Wired LAN mode - connect over ethernet, skip WiFi detection
+            echo "Wired LAN (v1r) Mode: Connects to Powerwall 3 over ethernet using RSA key authentication."
+            echo "The Powerwall 3 leader's ethernet port must be on a routable subnet (typically 10.42.1.x/24)."
+            echo ""
+            while [ -z "${IP}" ]; do
+                read -p 'Powerwall Wired LAN IP Address (e.g. 10.42.1.1): ' IP
+            done
+            echo ""
+            echo "The full 10-character gateway password is required for v1r mode."
+            echo "This is the complete QR code password on the Powerwall sticker (not the shorter local password)."
+            echo ""
+            while [ -z "${PW_GW_PWD}" ]; do
+                read -p 'Full 10-character Gateway Password: ' PW_GW_PWD
+            done
+            PW_RSA_KEY_PATH=".auth/pypowerwall_rsa_key.pem"
+            echo ""
+            echo "Optional: WiFi fallback host for hybrid mode and Powerwall 3 follower data."
+            echo "If your host can reach the Powerwall WiFi access point (default: 192.168.91.1),"
+            echo "entering it here enables follower queries and improves data completeness."
+            echo ""
+            if test_ip "192.168.91.1"; then
+                echo "Found Powerwall WiFi access point at 192.168.91.1"
+                read -p 'Use 192.168.91.1 as WiFi fallback host? [Y/n] ' response
+                if [[ ! "$response" =~ ^([nN][oO]|[nN])$ ]]; then
+                    PW_WIFI_HOST="192.168.91.1"
+                fi
+            fi
+            if [ -z "${PW_WIFI_HOST}" ]; then
+                read -p 'Enter WiFi Host (leave blank to skip): ' PW_WIFI_HOST
+            fi
+            echo ""
         # Can we reach 192.168.91.1
-        if test_ip "192.168.91.1"; then
+        elif test_ip "192.168.91.1"; then
             IP="192.168.91.1"
             echo "Found Powerwall Gateway at ${IP}"
             read -p 'Use this IP? [Y/n] ' response
@@ -457,7 +498,7 @@ if [ ! -f ${PW_ENV_FILE} ]; then
             fi
         else
             echo "The Powerwall Gateway (192.168.91.1) is not found on your LAN."
-            if [ $pw3 -eq 1 ]; then
+            if [ $pw3 -eq 1 ] && [ $v1r -ne 1 ]; then
                 echo ""
                 echo "Powerwall 3 requires access to the Gateway for pull local data."
                 echo "Ensure the Gateway can be reached by your host and rerun setup."
@@ -498,6 +539,12 @@ if [ ! -f ${PW_ENV_FILE} ]; then
     echo "PW_STYLE=${PW_STYLE}" >> ${PW_ENV_FILE}
     if [ ! -z "${PW_GW_PWD}" ]; then
         echo "PW_GW_PWD=${PW_GW_PWD}" >> ${PW_ENV_FILE}
+    fi
+    if [ ! -z "${PW_RSA_KEY_PATH}" ]; then
+        echo "PW_RSA_KEY_PATH=${PW_RSA_KEY_PATH}" >> ${PW_ENV_FILE}
+    fi
+    if [ ! -z "${PW_WIFI_HOST}" ]; then
+        echo "PW_WIFI_HOST=${PW_WIFI_HOST}" >> ${PW_ENV_FILE}
     fi
 fi
 
@@ -618,7 +665,29 @@ fi
 
 # Run Tesla Cloud mode setup
 if [ "${config}" == "Tesla Cloud" ]; then
+    echo ""
+    echo "NOTE: Tesla Cloud setup requires a browser-based login to obtain an auth token."
+    echo "If you are running this via SSH or on a headless server, you will need to run"
+    echo "the following command on a local machine (e.g. your laptop or workstation) that"
+    echo "has a desktop/browser available, then copy the refresh token back here:"
+    echo ""
+    echo "   pip install pypowerwall -U"
+    echo "   python3 -m pypowerwall authtoken"
+    echo ""
+    echo "Once you have the token, paste it when prompted by the setup below."
+    echo "-----------------------------------------"
     docker exec -it pypowerwall python3 -m pypowerwall setup -email=$(grep -E "^PW_EMAIL=.+" "${PW_ENV_FILE}" | cut -d= -f2)
+    echo "Restarting..."
+    docker restart pypowerwall
+    echo "-----------------------------------------"
+fi
+
+# Run v1r RSA key registration
+if [ $v1r -eq 1 ]; then
+    mkdir -p .auth
+    echo "Registering RSA key with Powerwall 3 (v1r mode)..."
+    echo "You will need your Tesla account credentials to complete registration."
+    docker exec -it pypowerwall python3 -m pypowerwall setup -v1r
     echo "Restarting..."
     docker restart pypowerwall
     echo "-----------------------------------------"
@@ -626,7 +695,7 @@ fi
 
 # Run FleetAPI mode setup
 if [ "${config}" == "FleetAPI Cloud" ]; then
-    docker exec -it pypowerwall python3 -m pypowerwall fleetapi
+    docker exec -it pypowerwall python3 -m pypowerwall setup -fleetapi
     echo "Restarting..."
     docker restart pypowerwall
     echo "-----------------------------------------"

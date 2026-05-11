@@ -1,5 +1,15 @@
 # RELEASE NOTES
 
+## v5.0.6 - pyPowerwall Update
+
+### pyPowerwall Update
+
+* Update pypowerwall to v0.15.6 - includes significant new features and fixes from v0.14.10 through v0.15.6.
+  - **Powerwall Wired LAN (v1r) Support** (v0.15.0): New TEDAPI transport for PW3 access over ethernet using RSA-4096 key authentication — no WiFi connection to `192.168.91.1` required. Includes new `pypowerwall setup -v1r` CLI command to generate and register an RSA key pair.
+  - **Native Python Tesla Authentication** (v0.15.5): Cloud setup no longer works due to the API change Tesla has made. This introduces a `setup` process that launches a native python webview to allow user to log in to their Tesla account and provide token to pypowerwall for setup.
+  - **Host:port Support** (v0.14.10): Non-standard HTTPS port support (e.g. `192.168.1.50:8443`) for travel router and NAT proxy setups mapping multiple gateways to distinct `ip:port` endpoints.
+  - **Reserve Scaling & CLI Fixes** (v0.15.6): Fixed reserve percent scaling round-trip errors in TEDAPI v1r mode and FleetAPI SOC reporting.
+
 ## v5.0.5 - Tesla-History Auth Fix
 
 * Revise tesla-history script auth method to use refresh token and external Tesla Auth tool for cloud login by @mcbirse in https://github.com/jasonacox/Powerwall-Dashboard/pull/764 - addresses https://github.com/jasonacox/Powerwall-Dashboard/discussions/762
