@@ -184,7 +184,7 @@ while :; do
         selected="Local Access"
         pw3=1
     elif [ "${response}" == "5" ]; then
-        selected="Local Access"
+        selected="Wired LAN (v1r)"
         pw3=1
         v1r=1
     elif [ -z "${response}" ] && [ ! -z "${choice}" ]; then
