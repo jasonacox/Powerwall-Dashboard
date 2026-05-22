@@ -59,18 +59,28 @@ Generally, only your Tesla account `email address` and your `timezone` will be r
 
 After the config is saved, you will be prompted to login to your Tesla account.
 
-This is done via an external Tesla Auth tool which will return a refresh token. Paste the refresh token at the prompt:
+This requires a web-based login which will open automatically if a browser is available. NOTE: If a browser is being detected but not working, you can prevent the browser from opening and force the remote session process (below) by re-running login with the `--headless` option, i.e. `python tesla-history.py --login --headless`
+
+If you are running setup over SSH, the remote session will be detected and you will be prompted for the refresh token. On a local machine (laptop/workstation) that has a browser available, install pypowerwall with `pip install -U pypowerwall` and then run `python -m pypowerwall authtoken` to obtain the token, which can then be pasted at the prompt.
 
 ```
 ----------------------------------------
 Tesla account: your@email.address
 ----------------------------------------
-Login required:
 
- 1. Use Tesla Auth tool to login - https://github.com/adriankumpf/tesla_auth
- 2. Copy the refresh token and paste this below
+============================================================
+Tesla Authentication — Remote Session Detected
+============================================================
 
-Enter refresh token:
+You're on a remote session. On your local Mac/PC with
+pypowerwall installed, run:
+
+    python -m pypowerwall authtoken
+
+That will open a login window. After authentication,
+copy the refresh token and paste it here.
+
+Refresh token:
 ```
 
 Once logged in successfully, you will be shown details of the energy site(s) associated with your account:
@@ -256,28 +266,33 @@ For more usage options, run without arguments or with the `--help` option:
 python3 tesla-history.py --help
 ```
 ```
-usage: tesla-history.py [-h] [-l] [-t] [-d] [--config CONFIG] [--site SITE] [--ignoretz] [--force] [--remove] [--start START] [--end END] [--today] [--yesterday]
+usage: tesla-history.py [-h] [-l] [-t] [-d] [--region {us,cn}] [--headless] [--config CONFIG] [--site SITE] [--reserve RESERVE] [--force] [--remove] [--daemon] [--start START] [--end END] [--today] [--yesterday]
 
-Import Powerwall history data from Tesla Owner API (Tesla cloud) into InfluxDB
+Import Powerwall or Solar history data from Tesla Owner API (Tesla cloud) into InfluxDB
 
 options:
-  -h, --help       show this help message and exit
-  -l, --login      login to Tesla account only and save auth token (do not get history)
-  -t, --test       enable test mode (do not import into InfluxDB)
-  -d, --debug      enable debug output (print raw responses from Tesla cloud)
+  -h, --help         show this help message and exit
+  -l, --login        login to Tesla account only and save auth token (do not get history)
+  -t, --test         enable test mode (do not import into InfluxDB)
+  -d, --debug        enable debug output (print raw responses from Tesla cloud)
+
+login options:
+  --region {us,cn}   specify Tesla account region (default: us)
+  --headless         headless mode (show auth token prompt instead of opening browser)
 
 advanced options:
-  --config CONFIG  specify an alternate config file (default: tesla-history.conf)
-  --site SITE      site id (required for Tesla accounts with multiple energy sites)
-  --ignoretz       ignore timezone difference between Tesla cloud and InfluxDB
-  --force          force import for date/time range (skip search for data gaps)
-  --remove         remove imported data from InfluxDB for date/time range
+  --config CONFIG    specify an alternate config file (default: tesla-history.conf)
+  --site SITE        site id (required for Tesla accounts with multiple energy sites)
+  --reserve RESERVE  also search for backup reserve percent data gaps and set to value
+  --force            force import for date/time range (skip search for data gaps)
+  --remove           remove imported data from InfluxDB for date/time range
+  --daemon           run as a daemon service (continually poll for history data)
 
 date/time range options:
-  --start START    start date and time ("YYYY-MM-DD hh:mm:ss")
-  --end END        end date and time ("YYYY-MM-DD hh:mm:ss")
-  --today          set start/end range to "today"
-  --yesterday      set start/end range to "yesterday"
+  --start START      start date and time ("YYYY-MM-DD hh:mm:ss")
+  --end END          end date and time ("YYYY-MM-DD hh:mm:ss")
+  --today            set start/end range to "today"
+  --yesterday        set start/end range to "yesterday"
 ```
 
 Please refer to issue [#12](https://github.com/jasonacox/Powerwall-Dashboard/issues/12) for further discussion on the other advanced options, or you have questions or find a problem with this script.
