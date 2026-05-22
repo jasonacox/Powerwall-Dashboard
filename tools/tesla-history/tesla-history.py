@@ -68,7 +68,7 @@ try:
 except:
     sys.exit("ERROR: Missing python influxdb module. Run 'pip install influxdb'.")
 
-BUILD = "0.1.6"
+BUILD = "0.1.7"
 VERBOSE = True
 SCRIPTPATH = os.path.dirname(os.path.realpath(sys.argv[0]))
 SCRIPTNAME = os.path.basename(sys.argv[0]).split('.')[0]
@@ -80,6 +80,9 @@ parser = argparse.ArgumentParser(description='Import Powerwall or Solar history 
 parser.add_argument('-l', '--login', action="store_true", help='login to Tesla account only and save auth token (do not get history)')
 parser.add_argument('-t', '--test', action="store_true", help='enable test mode (do not import into InfluxDB)')
 parser.add_argument('-d', '--debug', action="store_true", help='enable debug output (print raw responses from Tesla cloud)')
+group = parser.add_argument_group('login options')
+group.add_argument('--region', default="us", choices=["us", "cn"], help='specify Tesla account region (default: us)')
+group.add_argument('--headless', action="store_true", help='headless mode (show auth token prompt instead of opening browser)')
 group = parser.add_argument_group('advanced options')
 group.add_argument('--config', help=f'specify an alternate config file (default: {CONFIGNAME})')
 group.add_argument('--site', type=int, help='site id (required for Tesla accounts with multiple energy sites)')
@@ -531,15 +534,19 @@ def tesla_login(email):
         if args.daemon:
             sys_exit("ERROR: Tesla auth token invalid or missing. Run interactively with --login option to create")
 
+        try:
+            from pypowerwall.tesla_auth import login
+        except:
+            sys_exit("ERROR: Outdated python pypowerwall module. Run 'pip install -U pypowerwall' to update.")
+
         # Login to Tesla account and cache token
         try:
-            print("Login required:\n")
-            print(" 1. Use Tesla Auth tool to login - https://github.com/adriankumpf/tesla_auth")
-            print(" 2. Copy the refresh token and paste this below\n")
-            tesla.refresh_token(refresh_token=input("Enter refresh token: "))
+            # Get token via native browser (macOS/Linux/Windows) or headless (Linux/Windows/SSH)
+            refresh_token, detected_email, token_data = login(headless=args.headless, region=args.region)
+            tesla.refresh_token(refresh_token=refresh_token)
             print("-" * 40)
         except Exception as err:
-            sys_exit(f"ERROR: Tesla login failed while refreshing auth token - {repr(err)}")
+            sys_exit(f"ERROR: Tesla login failed - {repr(err)}")
 
         tesla.close()
         tesla = Tesla(email, retry=retry, cache_file=TAUTH)
