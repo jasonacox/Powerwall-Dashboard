@@ -22,8 +22,7 @@ pypowerwall.env
 telegraf.local
 
 # Auth files
-.auth/.pypowerwall.auth
-.auth/.pypowerwall.site
+.auth/
 
 # Local Dev files
 *.bak
