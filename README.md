@@ -46,10 +46,10 @@ Run the interactive setup script that will ask you for your setup details.
     ./setup.sh
   ```
 
-The dashboard can be installed in four different configurations.
+The dashboard can be installed in five different configurations.
 
   ```
-    Powerwall Dashboard (v4.0.0) - SETUP
+    Powerwall Dashboard - SETUP
     -----------------------------------------
     Select configuration mode:
 
@@ -57,6 +57,7 @@ The dashboard can be installed in four different configurations.
     2 - Tesla Cloud      (Solar-only systems or Powerwalls without LAN access)
     3 - FleetAPI Cloud   (Powerwall systems using Official Telsa API)
     4 - Extended Metrics (Powerwall 2, +, or 3 using TEDAPI and local WiFi access)
+    5 - Wired LAN (v1r)  (Powerwall 3 over ethernet with RSA key authentication)
   ```
 
 ### Local Mode
@@ -104,10 +105,25 @@ If you have access to the Powerwall 192.168.91.1 endpoint (see local mode Extend
 
 _Note: This mode also works for Powerwall 2/+ systems. Unlike TEDAPI hybrid mode which uses some existing local APIs, this full mode provides calculated values for extended metrics missing in the TEDAPI payload._
 
+### Wired LAN (v1r) Mode
+
+For Powerwall 3 owners who have their dashboard host connected to the same wired network as the Powerwall 3 leader's ethernet port, select `option 5` (Wired LAN / v1r). This mode uses RSA-4096 key authentication over ethernet and does not require WiFi connectivity to `192.168.91.1`.
+
+* The Powerwall 3 leader's ethernet port must be on a routable subnet (typically `10.42.1.x/24`).
+* Setup will prompt for the full 10-character QR code gateway password (not the shorter local API password).
+* Setup will run `pypowerwall setup -v1r` inside the container to generate and register an RSA key pair with the Powerwall via the Tesla Owner API.
+* Optionally, if your host can also reach `192.168.91.1` via WiFi, provide that as the `PW_WIFI_HOST` to enable hybrid fallback mode for follower Powerwall data and improved data completeness.
 
 ### Cloud and FleetAPI Mode
 
 For Tesla Solar or Powerwall 3 owners without TEDAPI access, select `option 2` (Tesla Owners unofficial Cloud API) or `option 3` (Tesla official FleetAPI) and the dashboard will be installed to pull data from the Tesla Cloud API. This mode should work for ALL systems but will have slightly less details and fidelity than the "Local Access" mode.
+
+**SSH/Headless users**: Tesla Cloud setup requires a browser-based login to obtain an auth token. If you are running setup over SSH, first run the following on a local machine (laptop/workstation) that has a browser available, then paste the token when prompted:
+
+```bash
+pip install pypowerwall -U
+python3 -m pypowerwall authtoken
+```
 
 ### Timezone
 
