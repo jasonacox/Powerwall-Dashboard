@@ -413,7 +413,7 @@ function test_ip() {
 
 # Create Powerwall Settings
 if [ ! -f ${PW_ENV_FILE} ]; then
-    if [ "${config}" == "Local Access" ]; then
+    if [ "${config}" == "Local Access" ] || [ "${config}" == "Wired LAN (v1r)" ]; then
         if [ $pw3 -eq 1 ]; then
             echo "Setting credentials for Powerwall 3..."
             PASSWORD=""
@@ -446,7 +446,7 @@ if [ ! -f ${PW_ENV_FILE} ]; then
             while [ -z "${PW_GW_PWD}" ]; do
                 read -p 'Full 10-character Gateway Password: ' PW_GW_PWD
             done
-            PW_RSA_KEY_PATH=".auth/pypowerwall_rsa_key.pem"
+            PW_RSA_KEY_PATH="/app/.auth/tedapi_rsa_private.pem"
             echo ""
             echo "Optional: WiFi fallback host for hybrid mode and Powerwall 3 follower data."
             echo "If your host can reach the Powerwall WiFi access point (default: 192.168.91.1),"
@@ -685,11 +685,52 @@ fi
 # Run v1r RSA key registration
 if [ $v1r -eq 1 ]; then
     mkdir -p .auth
+    # Ensure required v1r settings are present (for re-runs with an existing env file)
+    if ! grep -qE "^PW_HOST=.+" "${PW_ENV_FILE}"; then
+        echo "v1r mode requires the Powerwall 3 wired LAN IP address."
+        V1R_HOST=""
+        while [ -z "${V1R_HOST}" ]; do
+            read -p 'Powerwall Wired LAN IP Address (e.g. 10.42.1.1): ' V1R_HOST
+        done
+        sed -i.bak "s@^PW_HOST=.*@PW_HOST=${V1R_HOST}@g" "${PW_ENV_FILE}"
+    fi
+    if ! grep -qE "^PW_GW_PWD=.+" "${PW_ENV_FILE}"; then
+        echo "v1r mode requires the full 10-character gateway password."
+        V1R_PWD=""
+        while [ -z "${V1R_PWD}" ]; do
+            read -p 'Full 10-character Gateway Password: ' V1R_PWD
+        done
+        echo "PW_GW_PWD=${V1R_PWD}" >> "${PW_ENV_FILE}"
+    fi
+    if ! grep -q "^PW_RSA_KEY_PATH=" "${PW_ENV_FILE}"; then
+        echo "PW_RSA_KEY_PATH=/app/.auth/tedapi_rsa_private.pem" >> "${PW_ENV_FILE}"
+    fi
+    if ! grep -q "^PW_WIFI_HOST=" "${PW_ENV_FILE}"; then
+        echo "Optional: WiFi fallback host for Powerwall 3 follower battery metrics."
+        echo "If your host can reach the Powerwall WiFi access point (default: 192.168.91.1),"
+        echo "entering it here enables follower queries and improves data completeness."
+        echo ""
+        V1R_WIFI_HOST=""
+        if test_ip "192.168.91.1"; then
+            echo "Found Powerwall WiFi access point at 192.168.91.1"
+            read -p 'Use 192.168.91.1 as WiFi fallback host? [Y/n] ' response
+            if [[ ! "$response" =~ ^([nN][oO]|[nN])$ ]]; then
+                V1R_WIFI_HOST="192.168.91.1"
+            fi
+        fi
+        if [ -z "${V1R_WIFI_HOST}" ]; then
+            read -p 'Enter WiFi Host (leave blank to skip): ' V1R_WIFI_HOST
+        fi
+        if [ ! -z "${V1R_WIFI_HOST}" ]; then
+            echo "PW_WIFI_HOST=${V1R_WIFI_HOST}" >> "${PW_ENV_FILE}"
+        fi
+        echo ""
+    fi
     echo "Registering RSA key with Powerwall 3 (v1r mode)..."
     echo "You will need your Tesla account credentials to complete registration."
-    docker exec -it pypowerwall python3 -m pypowerwall setup -v1r
+    docker exec -it pypowerwall python3 -m pypowerwall setup -v1r -authpath /app/.auth
     echo "Restarting..."
-    docker restart pypowerwall
+    ./compose-dash.sh up -d
     echo "-----------------------------------------"
 fi
 
