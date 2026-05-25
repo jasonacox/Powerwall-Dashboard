@@ -692,17 +692,34 @@ if [ $v1r -eq 1 ]; then
         while [ -z "${V1R_HOST}" ]; do
             read -p 'Powerwall Wired LAN IP Address (e.g. 10.42.1.1): ' V1R_HOST
         done
-        sed -i.bak "s@^PW_HOST=.*@PW_HOST=${V1R_HOST}@g" "${PW_ENV_FILE}"
+        # Upsert: replace existing line or append if absent
+        if grep -q "^PW_HOST=" "${PW_ENV_FILE}"; then
+            sed -i.bak "s@^PW_HOST=.*@PW_HOST=${V1R_HOST}@g" "${PW_ENV_FILE}"
+        else
+            echo "PW_HOST=${V1R_HOST}" >> "${PW_ENV_FILE}"
+        fi
     fi
     if ! grep -qE "^PW_GW_PWD=.+" "${PW_ENV_FILE}"; then
         echo "v1r mode requires the full 10-character gateway password."
         V1R_PWD=""
-        while [ -z "${V1R_PWD}" ]; do
+        while [ -z "${V1R_PWD}" ] || [ "${#V1R_PWD}" -lt 10 ]; do
             read -p 'Full 10-character Gateway Password: ' V1R_PWD
+            if [ -n "${V1R_PWD}" ] && [ "${#V1R_PWD}" -lt 10 ]; then
+                echo "Password must be at least 10 characters."
+            fi
         done
-        echo "PW_GW_PWD=${V1R_PWD}" >> "${PW_ENV_FILE}"
+        # Upsert: replace existing (empty) line or append if absent
+        if grep -q "^PW_GW_PWD=" "${PW_ENV_FILE}"; then
+            sed -i.bak "s@^PW_GW_PWD=.*@PW_GW_PWD=${V1R_PWD}@g" "${PW_ENV_FILE}"
+        else
+            echo "PW_GW_PWD=${V1R_PWD}" >> "${PW_ENV_FILE}"
+        fi
     fi
-    if ! grep -q "^PW_RSA_KEY_PATH=" "${PW_ENV_FILE}"; then
+    # Always ensure PW_RSA_KEY_PATH is set to the correct container path
+    if grep -q "^PW_RSA_KEY_PATH=" "${PW_ENV_FILE}"; then
+        # Fix known-bad values (relative path or old filename)
+        sed -i.bak "s@^PW_RSA_KEY_PATH=.*@PW_RSA_KEY_PATH=/app/.auth/tedapi_rsa_private.pem@g" "${PW_ENV_FILE}"
+    else
         echo "PW_RSA_KEY_PATH=/app/.auth/tedapi_rsa_private.pem" >> "${PW_ENV_FILE}"
     fi
     if ! grep -q "^PW_WIFI_HOST=" "${PW_ENV_FILE}"; then
