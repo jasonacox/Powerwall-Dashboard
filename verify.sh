@@ -18,7 +18,7 @@ detect_light_background() {
             local oldstty=$(stty -g 2>/dev/null) || return 1
 
             # Set up a trap to ensure terminal settings are restored
-            trap 'stty "$oldstty" 2>/dev/null' RETURN
+            trap 'stty "$oldstty" 2>/dev/null || true' RETURN
 
             # Query background color (OSC 11) with timeout
             printf '\033]11;?\033\\' 2>/dev/null || return 1
@@ -519,6 +519,7 @@ echo -e "${bold}Checking grafana${dim}"
 echo -e "----------------------------------------------------------------------------"
 CONTAINER="grafana"
 VER=$UKN
+PORT="9000"
 ENV_FILE="grafana.env"
 if [ "$HOST" = "localhost" ]; then
     echo -e -n "${dim} - Config File ${ENV_FILE}: "
@@ -550,7 +551,7 @@ if [ "$RUNNING" = "true" ]; then
     set -a
     . "${ENV_FILE}"
     set +a
-    PORT=${GF_SERVER_HTTP_PORT:-9000}
+    PORT=${GF_SERVER_HTTP_PORT:-"${PORT}"}
     echo -e -n "${dim} - Service (port $PORT): "
     if running http://$HOST:$PORT/login 200 1 2>/dev/null; then
         echo -e $GOOD
