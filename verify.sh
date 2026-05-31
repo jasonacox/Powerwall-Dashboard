@@ -18,7 +18,7 @@ detect_light_background() {
             local oldstty=$(stty -g 2>/dev/null) || return 1
 
             # Set up a trap to ensure terminal settings are restored
-            trap 'stty "$oldstty" 2>/dev/null || true' RETURN
+            trap 'stty "$oldstty" 2>/dev/null || true; trap - RETURN' RETURN
 
             # Query background color (OSC 11) with timeout
             printf '\033]11;?\033\\' 2>/dev/null || return 1
@@ -548,9 +548,11 @@ else
     RUNNING="true"  # Allow service check to proceed
 fi
 if [ "$RUNNING" = "true" ]; then
-    set -a
-    . "${ENV_FILE}"
-    set +a
+    if [ -f "${ENV_FILE}" ]; then
+        set -a
+        . "${ENV_FILE}"
+        set +a
+    fi
     PORT=${GF_SERVER_HTTP_PORT:-"${PORT}"}
     echo -e -n "${dim} - Service (port $PORT): "
     if running http://$HOST:$PORT/login 200 1 2>/dev/null; then
