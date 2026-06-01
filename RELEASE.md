@@ -1,5 +1,15 @@
 # RELEASE NOTES
 
+## v5.0.7 - Custom Grafana Port Support
+
+### Dashboard Updates
+
+* Fixed support for custom Grafana ports — users who changed `GF_SERVER_HTTP_PORT` in `grafana.env` from the default `9000` can now use `compose-dash.sh` and `verify.sh` without errors by @nadams5755 in https://github.com/jasonacox/Powerwall-Dashboard/pull/773
+  - `compose-dash.sh` now loads `grafana.env` alongside `compose.env` so Docker Compose sees the custom port.
+  - `powerwall.yml` Grafana healthcheck uses `${GF_SERVER_HTTP_PORT:-9000}` instead of hardcoded `9000`.
+  - `verify.sh` sources `grafana.env` and reads `GF_SERVER_HTTP_PORT` for the service check.
+  - Minor linting: cleaned up whitespace in `verify.sh` and added `|| true` to the terminal-settings RETURN trap to prevent `set -e` failures.
+
 ## v5.0.6 - Powerwall 3 Wired LAN Support (v1r)
 
 ### pyPowerwall Update
