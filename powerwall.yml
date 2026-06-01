@@ -111,7 +111,7 @@ services:
         depends_on:
             - influxdb
         healthcheck:
-            test: curl -f http://grafana:9000/api/health || exit 1
+            test: curl -f http://grafana:"${GF_SERVER_HTTP_PORT:-9000}"/api/health || exit 1
             interval: 30s
             timeout: 10s
             retries: 3

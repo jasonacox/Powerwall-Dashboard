@@ -16,18 +16,18 @@ detect_light_background() {
         if [[ -t 1 ]]; then
             # Save current terminal settings
             local oldstty=$(stty -g 2>/dev/null) || return 1
-            
+
             # Set up a trap to ensure terminal settings are restored
-            trap 'stty "$oldstty" 2>/dev/null' RETURN
-            
+            trap 'stty "$oldstty" 2>/dev/null || true; trap - RETURN' RETURN
+
             # Query background color (OSC 11) with timeout
             printf '\033]11;?\033\\' 2>/dev/null || return 1
-            
+
             # Set terminal to raw mode to read response
             if ! stty raw -echo min 0 time 2 2>/dev/null; then
                 return 1
             fi
-            
+
             # Read response with timeout (0.2 seconds)
             local response=""
             local char
@@ -41,40 +41,40 @@ detect_light_background() {
                 ((count++))
                 [[ $count -gt 100 ]] && break
             done
-            
+
             # Restore terminal settings
             stty "$oldstty" 2>/dev/null
-            
+
             # Flush any remaining input to prevent artifacts in command line
             read -t 0.1 -n 1000 2>/dev/null || true
-            
+
             # Parse RGB values from response (format: rgb:RRRR/GGGG/BBBB)
             if [[ "$response" =~ rgb:([0-9a-fA-F]+)/([0-9a-fA-F]+)/([0-9a-fA-F]+) ]]; then
                 local r=$((0x${BASH_REMATCH[1]:0:2}))
                 local g=$((0x${BASH_REMATCH[2]:0:2}))
                 local b=$((0x${BASH_REMATCH[3]:0:2}))
-                
+
                 # Calculate perceived brightness (ITU-R BT.709)
                 local brightness=$((r * 299 + g * 587 + b * 114))
-                
+
                 # If brightness > 127500 (roughly 50% of max 255000), consider it light
                 [[ $brightness -gt 127500 ]]
                 return $?
             fi
         fi
     fi
-    
+
     # Method 2: Check environment variables for light themes
     if [[ "$COLORFGBG" =~ \;15$ ]] || [[ "$COLORFGBG" =~ \;7$ ]]; then
         return 0  # Light background
     fi
-    
+
     # Method 3: Check terminal theme environment variables
     case "${TERM_THEME:-}" in
         *light*|*Light*|*LIGHT*) return 0 ;;
         *dark*|*Dark*|*DARK*) return 1 ;;
     esac
-    
+
     # Method 4: Check some common terminal apps and their defaults
     case "${TERM_PROGRAM:-}" in
         "Apple_Terminal")
@@ -93,7 +93,7 @@ detect_light_background() {
             return 1  # Most developers use dark themes
             ;;
     esac
-    
+
     return 1  # Default to dark background assumption
 }
 
@@ -548,6 +548,12 @@ else
     RUNNING="true"  # Allow service check to proceed
 fi
 if [ "$RUNNING" = "true" ]; then
+    if [ -f "${ENV_FILE}" ]; then
+        set -a
+        . "${ENV_FILE}"
+        set +a
+    fi
+    PORT=${GF_SERVER_HTTP_PORT:-"${PORT}"}
     echo -e -n "${dim} - Service (port $PORT): "
     if running http://$HOST:$PORT/login 200 1 2>/dev/null; then
         echo -e $GOOD

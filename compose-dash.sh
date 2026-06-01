@@ -14,6 +14,7 @@ set -e
 
 # Set Globals
 COMPOSE_ENV_FILE="compose.env"
+GRAFANA_ENV_FILE="grafana.env"
 
 # Check for Arguments
 if [ -z "$1" ]
@@ -38,14 +39,26 @@ if ! docker info > /dev/null 2>&1; then
 fi
 
 # Load environment variables for compose
-if [ ! -f ${COMPOSE_ENV_FILE} ]; then
+if [ -f "${COMPOSE_ENV_FILE}" ]; then
+    set -a
+    . "${COMPOSE_ENV_FILE}"
+    set +a
+else
     echo "ERROR: Missing ${COMPOSE_ENV_FILE} file."
     echo "Please run setup.sh or copy ${COMPOSE_ENV_FILE}.sample to ${COMPOSE_ENV_FILE}."
     exit 1
 fi
-set -a
-. "${COMPOSE_ENV_FILE}"
-set +a
+
+# Load grafana environment variables for compose
+if [ -f "${GRAFANA_ENV_FILE}" ]; then
+    set -a
+    . "${GRAFANA_ENV_FILE}"
+    set +a
+else
+    echo "ERROR: Missing ${GRAFANA_ENV_FILE} file."
+    echo "Please run setup.sh or copy ${GRAFANA_ENV_FILE}.sample to ${GRAFANA_ENV_FILE}."
+    exit 1
+fi
 
 # Docker Compose Extension Check
 if [ -f "powerwall.extend.yml" ]; then
