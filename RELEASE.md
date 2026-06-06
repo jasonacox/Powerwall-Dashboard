@@ -1,5 +1,16 @@
 # RELEASE NOTES
 
+## v5.0.8 - v1r Setup Permission Fix
+
+### Bug Fixes
+
+* **Fixed v1r RSA key registration PermissionError** — the `setup.sh` v1r flow now runs the RSA key registration as root inside the container to avoid `PermissionError: [Errno 13] Permission denied: '/app/tedapi_rsa_private.pem'` when the container runs as a non-root user (`PWD_USER`). After registration, the key is copied to the bind-mounted `.auth/` directory and permissions are normalized so the runtime user can read it. No manual workarounds needed. Fixes [#774](https://github.com/jasonacox/Powerwall-Dashboard/issues/774).
+* **Fixed RSA key path mismatch** — `PW_RSA_KEY_PATH` was set to `.auth/pypowerwall_rsa_key.pem` but the v1r registration generates the key as `tedapi_rsa_private.pem`. The path now correctly points to `.auth/tedapi_rsa_private.pem`.
+
+### Documentation / KB Updates
+
+* **Use `compose-dash.sh` instead of `docker compose`** — always use `./compose-dash.sh down` and `./compose-dash.sh up -d` to restart the stack. Plain `docker compose` does NOT source the project environment files (`compose.env`, `grafana.env`, `pypowerwall.env`), which can cause settings like `PW_HOST`, `PW_RSA_KEY_PATH`, and `PW_PASSWORD` to be silently ignored on restart.
+
 ## v5.0.7 - Custom Grafana Port Support
 
 ### Dashboard Updates

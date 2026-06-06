@@ -446,7 +446,7 @@ if [ ! -f ${PW_ENV_FILE} ]; then
             while [ -z "${PW_GW_PWD}" ]; do
                 read -p 'Full 10-character Gateway Password: ' PW_GW_PWD
             done
-            PW_RSA_KEY_PATH=".auth/pypowerwall_rsa_key.pem"
+            PW_RSA_KEY_PATH=".auth/tedapi_rsa_private.pem"
             echo ""
             echo "Optional: WiFi fallback host for hybrid mode and Powerwall 3 follower data."
             echo "If your host can reach the Powerwall WiFi access point (default: 192.168.91.1),"
@@ -687,7 +687,24 @@ if [ $v1r -eq 1 ]; then
     mkdir -p .auth
     echo "Registering RSA key with Powerwall 3 (v1r mode)..."
     echo "You will need your Tesla account credentials to complete registration."
-    docker exec -it pypowerwall python3 -m pypowerwall setup -v1r
+    # Run as root to avoid PermissionError writing to /app/ in the container
+    docker exec -it -u root pypowerwall python3 -m pypowerwall setup -v1r
+    # Copy key from /app/ to bind-mounted .auth/ if not already there
+    if docker exec pypowerwall test -f /app/tedapi_rsa_private.pem 2>/dev/null; then
+        docker exec -u root pypowerwall cp /app/tedapi_rsa_private.pem /app/.auth/tedapi_rsa_private.pem 2>/dev/null || true
+    fi
+    # Ensure .auth files are readable by the container runtime user
+    chmod -R a+r .auth/ 2>/dev/null || true
+    # Verify the key was created
+    if [ ! -f ".auth/tedapi_rsa_private.pem" ]; then
+        echo ""
+        echo "WARNING: RSA key not found at .auth/tedapi_rsa_private.pem"
+        echo "Registration may have failed or saved to a different location."
+        echo "Check container logs: docker logs pypowerwall"
+        echo ""
+    else
+        echo "RSA key successfully saved to .auth/tedapi_rsa_private.pem"
+    fi
     echo "Restarting..."
     docker restart pypowerwall
     echo "-----------------------------------------"
