@@ -687,12 +687,9 @@ if [ $v1r -eq 1 ]; then
     mkdir -p .auth
     echo "Registering RSA key with Powerwall 3 (v1r mode)..."
     echo "You will need your Tesla account credentials to complete registration."
-    # Run as root to avoid PermissionError writing to /app/ in the container
-    docker exec -it -u root pypowerwall python3 -m pypowerwall setup -v1r
-    # Copy key from /app/ to bind-mounted .auth/ if not already there
-    if docker exec pypowerwall test -f /app/tedapi_rsa_private.pem 2>/dev/null; then
-        docker exec -u root pypowerwall cp /app/tedapi_rsa_private.pem /app/.auth/tedapi_rsa_private.pem 2>/dev/null || true
-    fi
+    # Run as root to avoid PermissionError; use -authpath to write key
+    # directly into the bind-mounted .auth/ directory
+    docker exec -it -u root pypowerwall python3 -m pypowerwall -authpath /app/.auth setup -v1r
     # Ensure .auth files are readable by the container runtime user.
     # Fix permissions inside the container since the key was created by root;
     # use +rX so files get read and directories get read+execute (traversal).

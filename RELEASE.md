@@ -4,7 +4,7 @@
 
 ### Bug Fixes
 
-* **Fixed v1r RSA key registration PermissionError** — the `setup.sh` v1r flow now runs the RSA key registration as root inside the container to avoid `PermissionError: [Errno 13] Permission denied: '/app/tedapi_rsa_private.pem'` when the container runs as a non-root user (`PWD_USER`). After registration, the key is copied to the bind-mounted `.auth/` directory and permissions are normalized so the runtime user can read it. No manual workarounds needed. Fixes [#774](https://github.com/jasonacox/Powerwall-Dashboard/issues/774).
+* **Fixed v1r RSA key registration PermissionError** — the `setup.sh` v1r flow now runs the RSA key registration as root inside the container to avoid `PermissionError: [Errno 13] Permission denied: '/app/tedapi_rsa_private.pem'` when the container runs as a non-root user (`PWD_USER`). The `-authpath /app/.auth` flag writes the key directly to the bind-mounted `.auth/` directory, and permissions are normalized so the runtime user can read it. No manual workarounds needed. Fixes [#774](https://github.com/jasonacox/Powerwall-Dashboard/issues/774).
 * **Fixed RSA key path mismatch** — `PW_RSA_KEY_PATH` was set to `.auth/pypowerwall_rsa_key.pem` but the v1r registration generates the key as `tedapi_rsa_private.pem`. The path now correctly points to `.auth/tedapi_rsa_private.pem`.
 
 ### Documentation / KB Updates
