@@ -693,8 +693,10 @@ if [ $v1r -eq 1 ]; then
     if docker exec pypowerwall test -f /app/tedapi_rsa_private.pem 2>/dev/null; then
         docker exec -u root pypowerwall cp /app/tedapi_rsa_private.pem /app/.auth/tedapi_rsa_private.pem 2>/dev/null || true
     fi
-    # Ensure .auth files are readable by the container runtime user
-    chmod -R a+r .auth/ 2>/dev/null || true
+    # Ensure .auth files are readable by the container runtime user.
+    # Fix permissions inside the container since the key was created by root;
+    # use +rX so files get read and directories get read+execute (traversal).
+    docker exec -u root pypowerwall chmod -R a+rX /app/.auth/ 2>/dev/null || true
     # Verify the key was created
     if [ ! -f ".auth/tedapi_rsa_private.pem" ]; then
         echo ""

@@ -9,7 +9,7 @@
 
 ### Documentation / KB Updates
 
-* **Use `compose-dash.sh` instead of `docker compose`** — always use `./compose-dash.sh down` and `./compose-dash.sh up -d` to restart the stack. Plain `docker compose` does NOT source the project environment files (`compose.env`, `grafana.env`, `pypowerwall.env`), which can cause settings like `PW_HOST`, `PW_RSA_KEY_PATH`, and `PW_PASSWORD` to be silently ignored on restart.
+* **Use `compose-dash.sh` instead of `docker compose`** — always use `./compose-dash.sh down` and `./compose-dash.sh up -d` to restart the stack. Docker Compose does not automatically load `compose.env` for compose-time variable interpolation (e.g., `PWD_USER`, `GRAFANA_PORTS`, `PYPOWERWALL_PORTS`), so plain `docker compose up -d` may use incorrect defaults for these values. `compose-dash.sh` handles loading `compose.env` (via `--env-file`) and `grafana.env` so all project settings are applied correctly. Note: runtime container variables like `PW_HOST`, `PW_RSA_KEY_PATH`, and `PW_PASSWORD` are still loaded from `pypowerwall.env` via the `env_file:` directive in `powerwall.yml` and do not require `compose-dash.sh`.
 
 ## v5.0.7 - Custom Grafana Port Support
 
