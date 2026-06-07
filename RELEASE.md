@@ -1,5 +1,30 @@
 # RELEASE NOTES
 
+## v5.0.8 - v1r Setup Fix and pyPowerwall Update
+
+### pyPowerwall Update
+
+* Update pypowerwall to v0.15.10 (proxy t90).
+  - v0.15.8+ correctly supports `-authpath` flag for v1r RSA key registration, allowing the key to be written to a custom directory instead of the default `/app/` location.
+  - This eliminates the permission error (`PermissionError: [Errno 13] Permission denied: '/app/tedapi_rsa_private.pem'`) that occurred when the container runs as a non-root user.
+
+### Setup Fixes
+
+* **Fixed v1r RSA key registration path:** `setup.sh` now passes `-authpath /app/.auth` to `pypowerwall setup -v1r`, which writes the RSA key directly to the bind-mounted `.auth/` directory. No manual key copying or root workarounds needed.
+* **Fixed RSA key path mismatch:** `PW_RSA_KEY_PATH` was set to `.auth/pypowerwall_rsa_key.pem` but v1r registration generates `tedapi_rsa_private.pem`. Corrected to `.auth/tedapi_rsa_private.pem`.
+* **Added post-registration verification:** After v1r registration, setup.sh verifies the RSA key file exists in `.auth/` and warns if registration may have failed.
+* **Added permission normalization:** `chmod -R a+r .auth/` runs after registration to ensure the runtime user can read the key file.
+* **Added mode assertion for existing installations:** When re-running `setup.sh` and keeping existing credentials, the script now validates that `pypowerwall.env` has the correct settings for the selected mode (v1r requires `PW_HOST`, `PW_GW_PWD`, and `PW_RSA_KEY_PATH`). Missing settings are prompted for and added.
+
+### Important Reminder
+
+Always use the project scripts to manage the stack:
+```bash
+./compose-dash.sh down
+./compose-dash.sh up -d
+```
+Plain `docker compose` does NOT source the environment files (`compose.env`, `grafana.env`, `pypowerwall.env`), which can cause settings to be silently ignored on restart.
+
 ## v5.0.7 - Custom Grafana Port Support
 
 ### Dashboard Updates

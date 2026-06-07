@@ -398,6 +398,54 @@ if [ -f ${PW_ENV_FILE} ]; then
     fi
 fi
 
+# Assert pypowerwall.env has correct settings for selected mode
+if [ -f ${PW_ENV_FILE} ]; then
+    if [ $v1r -eq 1 ]; then
+        # v1r mode requires PW_HOST, PW_GW_PWD, and PW_RSA_KEY_PATH
+        if ! grep -q "^PW_RSA_KEY_PATH=" "${PW_ENV_FILE}" || \
+           ! grep -q "^PW_GW_PWD=" "${PW_ENV_FILE}"; then
+            echo ""
+            echo "Your pypowerwall.env is missing v1r mode settings."
+            echo "The following values are required for Wired LAN (v1r) mode:"
+            echo ""
+            # Prompt for missing PW_HOST
+            if ! grep -qE "^PW_HOST=.+" "${PW_ENV_FILE}"; then
+                while [ -z "${IP}" ]; do
+                    read -p 'Powerwall Wired LAN IP Address (e.g. 10.42.1.1): ' IP
+                done
+                echo "PW_HOST=${IP}" >> ${PW_ENV_FILE}
+            fi
+            # Prompt for missing PW_GW_PWD
+            if ! grep -q "^PW_GW_PWD=" "${PW_ENV_FILE}"; then
+                echo ""
+                echo "The full 10-character gateway password is required for v1r mode."
+                echo "This is the complete QR code password on the Powerwall sticker."
+                echo ""
+                while [ -z "${PW_GW_PWD}" ]; do
+                    read -p 'Full 10-character Gateway Password: ' PW_GW_PWD
+                done
+                echo "PW_GW_PWD=${PW_GW_PWD}" >> ${PW_ENV_FILE}
+            fi
+            # Ensure PW_RSA_KEY_PATH is set correctly
+            if ! grep -q "^PW_RSA_KEY_PATH=" "${PW_ENV_FILE}"; then
+                echo "PW_RSA_KEY_PATH=.auth/tedapi_rsa_private.pem" >> ${PW_ENV_FILE}
+            else
+                # Fix incorrect RSA key path if it references old filename
+                sed -i.bak 's|^PW_RSA_KEY_PATH=.*|PW_RSA_KEY_PATH=.auth/tedapi_rsa_private.pem|g' "${PW_ENV_FILE}"
+            fi
+            # Clear PW_PASSWORD for v1r mode (not needed, avoids confusion)
+            if grep -qE "^PW_PASSWORD=.+" "${PW_ENV_FILE}"; then
+                sed -i.bak 's|^PW_PASSWORD=.*|PW_PASSWORD=|g' "${PW_ENV_FILE}"
+            fi
+            echo ""
+            echo "Updated ${PW_ENV_FILE} with v1r mode settings."
+        else
+            # Even if settings exist, ensure RSA key path is correct
+            sed -i.bak 's|^PW_RSA_KEY_PATH=.*|PW_RSA_KEY_PATH=.auth/tedapi_rsa_private.pem|g' "${PW_ENV_FILE}"
+        fi
+    fi
+fi
+
 # Function to test a GW IP to see if it responds
 function test_ip() {
     local IP=$1
@@ -446,7 +494,7 @@ if [ ! -f ${PW_ENV_FILE} ]; then
             while [ -z "${PW_GW_PWD}" ]; do
                 read -p 'Full 10-character Gateway Password: ' PW_GW_PWD
             done
-            PW_RSA_KEY_PATH=".auth/pypowerwall_rsa_key.pem"
+            PW_RSA_KEY_PATH=".auth/tedapi_rsa_private.pem"
             echo ""
             echo "Optional: WiFi fallback host for hybrid mode and Powerwall 3 follower data."
             echo "If your host can reach the Powerwall WiFi access point (default: 192.168.91.1),"
@@ -687,7 +735,15 @@ if [ $v1r -eq 1 ]; then
     mkdir -p .auth
     echo "Registering RSA key with Powerwall 3 (v1r mode)..."
     echo "You will need your Tesla account credentials to complete registration."
-    docker exec -it pypowerwall python3 -m pypowerwall setup -v1r
+    docker exec -it pypowerwall python3 -m pypowerwall setup -v1r -authpath /app/.auth
+    if [ ! -f ".auth/tedapi_rsa_private.pem" ]; then
+        echo ""
+        echo "WARNING: RSA key not found at .auth/tedapi_rsa_private.pem"
+        echo "Registration may have failed or saved to a different location."
+        echo "Check container logs: docker logs pypowerwall"
+        echo ""
+    fi
+    chmod -R a+r .auth/
     echo "Restarting..."
     docker restart pypowerwall
     echo "-----------------------------------------"
