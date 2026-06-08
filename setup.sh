@@ -401,22 +401,27 @@ fi
 # Assert pypowerwall.env has correct settings for selected mode
 if [ -f ${PW_ENV_FILE} ]; then
     if [ $v1r -eq 1 ]; then
-        # v1r mode requires PW_HOST, PW_GW_PWD, and PW_RSA_KEY_PATH
-        if ! grep -q "^PW_RSA_KEY_PATH=" "${PW_ENV_FILE}" || \
-           ! grep -q "^PW_GW_PWD=" "${PW_ENV_FILE}"; then
+        # v1r mode requires PW_HOST, PW_GW_PWD, and PW_RSA_KEY_PATH with non-empty values
+        if ! grep -qE "^PW_HOST=.+" "${PW_ENV_FILE}" || \
+           ! grep -qE "^PW_GW_PWD=.+" "${PW_ENV_FILE}" || \
+           ! grep -qE "^PW_RSA_KEY_PATH=.+" "${PW_ENV_FILE}"; then
             echo ""
             echo "Your pypowerwall.env is missing v1r mode settings."
             echo "The following values are required for Wired LAN (v1r) mode:"
             echo ""
-            # Prompt for missing PW_HOST
+            # Upsert PW_HOST
             if ! grep -qE "^PW_HOST=.+" "${PW_ENV_FILE}"; then
                 while [ -z "${IP}" ]; do
                     read -p 'Powerwall Wired LAN IP Address (e.g. 10.42.1.1): ' IP
                 done
-                echo "PW_HOST=${IP}" >> ${PW_ENV_FILE}
+                if grep -q "^PW_HOST=" "${PW_ENV_FILE}"; then
+                    sed -i.bak "s|^PW_HOST=.*|PW_HOST=${IP}|g" "${PW_ENV_FILE}"
+                else
+                    echo "PW_HOST=${IP}" >> ${PW_ENV_FILE}
+                fi
             fi
-            # Prompt for missing PW_GW_PWD
-            if ! grep -q "^PW_GW_PWD=" "${PW_ENV_FILE}"; then
+            # Upsert PW_GW_PWD
+            if ! grep -qE "^PW_GW_PWD=.+" "${PW_ENV_FILE}"; then
                 echo ""
                 echo "The full 10-character gateway password is required for v1r mode."
                 echo "This is the complete QR code password on the Powerwall sticker."
@@ -424,14 +429,17 @@ if [ -f ${PW_ENV_FILE} ]; then
                 while [ -z "${PW_GW_PWD}" ]; do
                     read -p 'Full 10-character Gateway Password: ' PW_GW_PWD
                 done
-                echo "PW_GW_PWD=${PW_GW_PWD}" >> ${PW_ENV_FILE}
+                if grep -q "^PW_GW_PWD=" "${PW_ENV_FILE}"; then
+                    sed -i.bak "s|^PW_GW_PWD=.*|PW_GW_PWD=${PW_GW_PWD}|g" "${PW_ENV_FILE}"
+                else
+                    echo "PW_GW_PWD=${PW_GW_PWD}" >> ${PW_ENV_FILE}
+                fi
             fi
-            # Ensure PW_RSA_KEY_PATH is set correctly
-            if ! grep -q "^PW_RSA_KEY_PATH=" "${PW_ENV_FILE}"; then
-                echo "PW_RSA_KEY_PATH=.auth/tedapi_rsa_private.pem" >> ${PW_ENV_FILE}
-            else
-                # Fix incorrect RSA key path if it references old filename
+            # Upsert PW_RSA_KEY_PATH
+            if grep -q "^PW_RSA_KEY_PATH=" "${PW_ENV_FILE}"; then
                 sed -i.bak 's|^PW_RSA_KEY_PATH=.*|PW_RSA_KEY_PATH=.auth/tedapi_rsa_private.pem|g' "${PW_ENV_FILE}"
+            else
+                echo "PW_RSA_KEY_PATH=.auth/tedapi_rsa_private.pem" >> ${PW_ENV_FILE}
             fi
             # Clear PW_PASSWORD for v1r mode (not needed, avoids confusion)
             if grep -qE "^PW_PASSWORD=.+" "${PW_ENV_FILE}"; then
@@ -743,7 +751,8 @@ if [ $v1r -eq 1 ]; then
         echo "Check container logs: docker logs pypowerwall"
         echo ""
     fi
-    chmod -R a+r .auth/
+    chmod 700 .auth/
+    chmod 600 .auth/tedapi_rsa_private.pem 2>/dev/null
     echo "Restarting..."
     docker restart pypowerwall
     echo "-----------------------------------------"
