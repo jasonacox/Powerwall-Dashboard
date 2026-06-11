@@ -741,9 +741,15 @@ fi
 # Run v1r RSA key registration
 if [ $v1r -eq 1 ]; then
     mkdir -p .auth
+    # Fix root-owned auth files from prior runs (docker exec without --user
+    # ran as root, creating files the dashboard user cannot overwrite).
+    docker exec pypowerwall chown -R "$(id -u):$(id -g)" /app/.auth/ 2>/dev/null || true
     echo "Registering RSA key with Powerwall 3 (v1r mode)..."
     echo "You will need your Tesla account credentials to complete registration."
-    docker exec -it pypowerwall python3 -m pypowerwall setup -v1r -authpath /app/.auth
+    # Run v1r registration as the dashboard user (not root) so auth files written
+    # to the bind-mounted .auth/ directory are owned by the host user, not root.
+    # This prevents PermissionError on subsequent runs.
+    docker exec -it --user "$(id -u):$(id -g)" pypowerwall python3 -m pypowerwall setup -v1r -authpath /app/.auth
     if [ ! -f ".auth/tedapi_rsa_private.pem" ]; then
         echo ""
         echo "WARNING: RSA key not found at .auth/tedapi_rsa_private.pem"
