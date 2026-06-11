@@ -398,6 +398,19 @@ if [ -f ${PW_ENV_FILE} ]; then
     fi
 fi
 
+# Function to test a GW IP to see if it responds
+function test_ip() {
+    local IP=$1
+    if [ -z "${IP}" ]; then
+        return 1
+    fi
+    if curl -k --head --connect-timeout 2 --silent https://${IP} > /dev/null 2>&1; then
+        return 0
+    else
+        return 1
+    fi
+}
+
 # Assert pypowerwall.env has correct settings for selected mode
 if [ $v1r -eq 1 ]; then
     # Create pypowerwall.env if it was removed earlier (e.g. mode change deleted it)
@@ -448,6 +461,47 @@ if [ $v1r -eq 1 ]; then
         if grep -qE "^PW_PASSWORD=.+" "${PW_ENV_FILE}"; then
             sed -i.bak 's|^PW_PASSWORD=.*|PW_PASSWORD=|g' "${PW_ENV_FILE}"
         fi
+        # WiFi fallback host for v1r mode
+        PW_WIFI_HOST=""
+        echo ""
+        echo "Optional: WiFi fallback host for hybrid mode and Powerwall 3 follower data."
+        echo "If your host can reach the Powerwall WiFi access point (default: 192.168.91.1),"
+        echo "entering it here enables follower queries and improves data completeness."
+        echo ""
+        if test_ip "192.168.91.1"; then
+            echo "Found Powerwall WiFi access point at 192.168.91.1"
+            read -p 'Use 192.168.91.1 as WiFi fallback host? [Y/n] ' response
+            if [[ ! "$response" =~ ^([nN][oO]|[nN])$ ]]; then
+                PW_WIFI_HOST="192.168.91.1"
+            fi
+        fi
+        if [ -z "${PW_WIFI_HOST}" ]; then
+            read -p 'Enter WiFi Host (leave blank to skip): ' PW_WIFI_HOST
+        fi
+        if [ ! -z "${PW_WIFI_HOST}" ]; then
+            echo "PW_WIFI_HOST=${PW_WIFI_HOST}" >> ${PW_ENV_FILE}
+        fi
+        # Append standard env vars if missing (PW_TIMEZONE, TZ, PW_DEBUG, PW_STYLE, PW_EMAIL, PW_PASSWORD)
+        # These are normally written by the "Create Powerwall Settings" block below, but when the v1r
+        # assertion block creates the file, that block sees the file exists and skips entirely.
+        if ! grep -qE "^PW_TIMEZONE=.+" "${PW_ENV_FILE}"; then
+            echo "PW_TIMEZONE=${TZ}" >> ${PW_ENV_FILE}
+        fi
+        if ! grep -qE "^TZ=.+" "${PW_ENV_FILE}"; then
+            echo "TZ=${TZ}" >> ${PW_ENV_FILE}
+        fi
+        if ! grep -qE "^PW_DEBUG=" "${PW_ENV_FILE}"; then
+            echo "PW_DEBUG=no" >> ${PW_ENV_FILE}
+        fi
+        if ! grep -qE "^PW_STYLE=.+" "${PW_ENV_FILE}"; then
+            echo "PW_STYLE=${PW_STYLE}" >> ${PW_ENV_FILE}
+        fi
+        if ! grep -qE "^PW_EMAIL=" "${PW_ENV_FILE}"; then
+            echo "PW_EMAIL=" >> ${PW_ENV_FILE}
+        fi
+        if ! grep -qE "^PW_PASSWORD=" "${PW_ENV_FILE}"; then
+            echo "PW_PASSWORD=" >> ${PW_ENV_FILE}
+        fi
         echo ""
         echo "Updated ${PW_ENV_FILE} with v1r mode settings."
     else
@@ -455,19 +509,6 @@ if [ $v1r -eq 1 ]; then
         sed -i.bak 's|^PW_RSA_KEY_PATH=.*|PW_RSA_KEY_PATH=.auth/tedapi_rsa_private.pem|g' "${PW_ENV_FILE}"
     fi
 fi
-
-# Function to test a GW IP to see if it responds
-function test_ip() {
-    local IP=$1
-    if [ -z "${IP}" ]; then
-        return 1
-    fi
-    if curl -k --head --connect-timeout 2 --silent https://${IP} > /dev/null 2>&1; then
-        return 0
-    else
-        return 1
-    fi
-}
 
 # Create Powerwall Settings
 if [ ! -f ${PW_ENV_FILE} ]; then
