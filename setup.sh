@@ -743,6 +743,9 @@ if [ $v1r -eq 1 ]; then
     mkdir -p .auth
     # Fix root-owned auth files from prior runs (docker exec without --user
     # ran as root, creating files the dashboard user cannot overwrite).
+    # Host-side chown is reliable — the bind mount reflects host changes.
+    chown -R "$(id -u):$(id -g)" .auth/ 2>/dev/null || true
+    # Also fix from inside the container as a fallback for non-bind-mount setups.
     docker exec pypowerwall chown -R "$(id -u):$(id -g)" /app/.auth/ 2>/dev/null || true
     echo "Registering RSA key with Powerwall 3 (v1r mode)..."
     echo "You will need your Tesla account credentials to complete registration."
