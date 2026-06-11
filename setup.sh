@@ -399,58 +399,60 @@ if [ -f ${PW_ENV_FILE} ]; then
 fi
 
 # Assert pypowerwall.env has correct settings for selected mode
-if [ -f ${PW_ENV_FILE} ]; then
-    if [ $v1r -eq 1 ]; then
-        # v1r mode requires PW_HOST, PW_GW_PWD, and PW_RSA_KEY_PATH with non-empty values
-        if ! grep -qE "^PW_HOST=.+" "${PW_ENV_FILE}" || \
-           ! grep -qE "^PW_GW_PWD=.+" "${PW_ENV_FILE}" || \
-           ! grep -qE "^PW_RSA_KEY_PATH=.+" "${PW_ENV_FILE}"; then
-            echo ""
-            echo "Your pypowerwall.env is missing v1r mode settings."
-            echo "The following values are required for Wired LAN (v1r) mode:"
-            echo ""
-            # Upsert PW_HOST
-            if ! grep -qE "^PW_HOST=.+" "${PW_ENV_FILE}"; then
-                while [ -z "${IP}" ]; do
-                    read -p 'Powerwall Wired LAN IP Address (e.g. 10.42.1.1): ' IP
-                done
-                if grep -q "^PW_HOST=" "${PW_ENV_FILE}"; then
-                    sed -i.bak "s|^PW_HOST=.*|PW_HOST=${IP}|g" "${PW_ENV_FILE}"
-                else
-                    echo "PW_HOST=${IP}" >> ${PW_ENV_FILE}
-                fi
-            fi
-            # Upsert PW_GW_PWD
-            if ! grep -qE "^PW_GW_PWD=.+" "${PW_ENV_FILE}"; then
-                echo ""
-                echo "The full 10-character gateway password is required for v1r mode."
-                echo "This is the complete QR code password on the Powerwall sticker."
-                echo ""
-                while [ -z "${PW_GW_PWD}" ]; do
-                    read -p 'Full 10-character Gateway Password: ' PW_GW_PWD
-                done
-                if grep -q "^PW_GW_PWD=" "${PW_ENV_FILE}"; then
-                    sed -i.bak "s|^PW_GW_PWD=.*|PW_GW_PWD=${PW_GW_PWD}|g" "${PW_ENV_FILE}"
-                else
-                    echo "PW_GW_PWD=${PW_GW_PWD}" >> ${PW_ENV_FILE}
-                fi
-            fi
-            # Upsert PW_RSA_KEY_PATH
-            if grep -q "^PW_RSA_KEY_PATH=" "${PW_ENV_FILE}"; then
-                sed -i.bak 's|^PW_RSA_KEY_PATH=.*|PW_RSA_KEY_PATH=.auth/tedapi_rsa_private.pem|g' "${PW_ENV_FILE}"
+if [ $v1r -eq 1 ]; then
+    # Create pypowerwall.env if it was removed earlier (e.g. mode change deleted it)
+    if [ ! -f ${PW_ENV_FILE} ]; then
+        touch ${PW_ENV_FILE}
+    fi
+    # v1r mode requires PW_HOST, PW_GW_PWD, and PW_RSA_KEY_PATH with non-empty values
+    if ! grep -qE "^PW_HOST=.+" "${PW_ENV_FILE}" || \
+       ! grep -qE "^PW_GW_PWD=.+" "${PW_ENV_FILE}" || \
+       ! grep -qE "^PW_RSA_KEY_PATH=.+" "${PW_ENV_FILE}"; then
+        echo ""
+        echo "Your pypowerwall.env is missing v1r mode settings."
+        echo "The following values are required for Wired LAN (v1r) mode:"
+        echo ""
+        # Upsert PW_HOST
+        if ! grep -qE "^PW_HOST=.+" "${PW_ENV_FILE}"; then
+            while [ -z "${IP}" ]; do
+                read -p 'Powerwall Wired LAN IP Address (e.g. 10.42.1.1): ' IP
+            done
+            if grep -q "^PW_HOST=" "${PW_ENV_FILE}"; then
+                sed -i.bak "s|^PW_HOST=.*|PW_HOST=${IP}|g" "${PW_ENV_FILE}"
             else
-                echo "PW_RSA_KEY_PATH=.auth/tedapi_rsa_private.pem" >> ${PW_ENV_FILE}
+                echo "PW_HOST=${IP}" >> ${PW_ENV_FILE}
             fi
-            # Clear PW_PASSWORD for v1r mode (not needed, avoids confusion)
-            if grep -qE "^PW_PASSWORD=.+" "${PW_ENV_FILE}"; then
-                sed -i.bak 's|^PW_PASSWORD=.*|PW_PASSWORD=|g' "${PW_ENV_FILE}"
-            fi
-            echo ""
-            echo "Updated ${PW_ENV_FILE} with v1r mode settings."
-        else
-            # Even if settings exist, ensure RSA key path is correct
-            sed -i.bak 's|^PW_RSA_KEY_PATH=.*|PW_RSA_KEY_PATH=.auth/tedapi_rsa_private.pem|g' "${PW_ENV_FILE}"
         fi
+        # Upsert PW_GW_PWD
+        if ! grep -qE "^PW_GW_PWD=.+" "${PW_ENV_FILE}"; then
+            echo ""
+            echo "The full 10-character gateway password is required for v1r mode."
+            echo "This is the complete QR code password on the Powerwall sticker."
+            echo ""
+            while [ -z "${PW_GW_PWD}" ]; do
+                read -p 'Full 10-character Gateway Password: ' PW_GW_PWD
+            done
+            if grep -q "^PW_GW_PWD=" "${PW_ENV_FILE}"; then
+                sed -i.bak "s|^PW_GW_PWD=.*|PW_GW_PWD=${PW_GW_PWD}|g" "${PW_ENV_FILE}"
+            else
+                echo "PW_GW_PWD=${PW_GW_PWD}" >> ${PW_ENV_FILE}
+            fi
+        fi
+        # Upsert PW_RSA_KEY_PATH
+        if grep -q "^PW_RSA_KEY_PATH=" "${PW_ENV_FILE}"; then
+            sed -i.bak 's|^PW_RSA_KEY_PATH=.*|PW_RSA_KEY_PATH=.auth/tedapi_rsa_private.pem|g' "${PW_ENV_FILE}"
+        else
+            echo "PW_RSA_KEY_PATH=.auth/tedapi_rsa_private.pem" >> ${PW_ENV_FILE}
+        fi
+        # Clear PW_PASSWORD for v1r mode (not needed, avoids confusion)
+        if grep -qE "^PW_PASSWORD=.+" "${PW_ENV_FILE}"; then
+            sed -i.bak 's|^PW_PASSWORD=.*|PW_PASSWORD=|g' "${PW_ENV_FILE}"
+        fi
+        echo ""
+        echo "Updated ${PW_ENV_FILE} with v1r mode settings."
+    else
+        # Even if settings exist, ensure RSA key path is correct
+        sed -i.bak 's|^PW_RSA_KEY_PATH=.*|PW_RSA_KEY_PATH=.auth/tedapi_rsa_private.pem|g' "${PW_ENV_FILE}"
     fi
 fi
 
