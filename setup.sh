@@ -530,40 +530,12 @@ if [ ! -f ${PW_ENV_FILE} ]; then
         PW_GW_PWD=""
         PW_RSA_KEY_PATH=""
         PW_WIFI_HOST=""
-        if [ $v1r -eq 1 ]; then
-            # v1r Wired LAN mode - connect over ethernet, skip WiFi detection
-            echo "Wired LAN (v1r) Mode: Connects to Powerwall 3 over ethernet using RSA key authentication."
-            echo "The Powerwall 3 leader's ethernet port must be on a routable subnet (typically 10.42.1.x/24)."
-            echo ""
-            while [ -z "${IP}" ]; do
-                read -p 'Powerwall Wired LAN IP Address (e.g. 10.42.1.1): ' IP
-            done
-            echo ""
-            echo "The full 10-character gateway password is required for v1r mode."
-            echo "This is the complete QR code password on the Powerwall sticker (not the shorter local password)."
-            echo ""
-            while [ -z "${PW_GW_PWD}" ]; do
-                read -p 'Full 10-character Gateway Password: ' PW_GW_PWD
-            done
-            PW_RSA_KEY_PATH=".auth/tedapi_rsa_private.pem"
-            echo ""
-            echo "Optional: WiFi fallback host for hybrid mode and Powerwall 3 follower data."
-            echo "If your host can reach the Powerwall WiFi access point (default: 192.168.91.1),"
-            echo "entering it here enables follower queries and improves data completeness."
-            echo ""
-            if test_ip "192.168.91.1"; then
-                echo "Found Powerwall WiFi access point at 192.168.91.1"
-                read -p 'Use 192.168.91.1 as WiFi fallback host? [Y/n] ' response
-                if [[ ! "$response" =~ ^([nN][oO]|[nN])$ ]]; then
-                    PW_WIFI_HOST="192.168.91.1"
-                fi
-            fi
-            if [ -z "${PW_WIFI_HOST}" ]; then
-                read -p 'Enter WiFi Host (leave blank to skip): ' PW_WIFI_HOST
-            fi
-            echo ""
+        # Note: v1r mode setup is handled by the assertion block above (line ~414).
+        # The assertion block runs when $v1r=1 and creates pypowerwall.env with all
+        # required v1r settings, so this "Create Powerwall Settings" block (which
+        # only runs when the file doesn't exist) is never reached for v1r mode.
         # Can we reach 192.168.91.1
-        elif test_ip "192.168.91.1"; then
+        if test_ip "192.168.91.1"; then
             IP="192.168.91.1"
             echo "Found Powerwall Gateway at ${IP}"
             read -p 'Use this IP? [Y/n] ' response
@@ -597,7 +569,7 @@ if [ ! -f ${PW_ENV_FILE} ]; then
             fi
         else
             echo "The Powerwall Gateway (192.168.91.1) is not found on your LAN."
-            if [ $pw3 -eq 1 ] && [ $v1r -ne 1 ]; then
+            if [ $pw3 -eq 1 ]; then
                 echo ""
                 echo "Powerwall 3 requires access to the Gateway for pull local data."
                 echo "Ensure the Gateway can be reached by your host and rerun setup."
