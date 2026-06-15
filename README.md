@@ -4,6 +4,8 @@ Monitoring Dashboard for Tesla Solar and Powerwall systems using Grafana, Influx
 
 > ⚠️ **NOTICE:** As of Powerwall Firmware version 25.10.0, network routing to the TEDAPI endpoint (`192.168.91.1`) is no longer supported by Tesla. You must connect directly to the Powerwall's WiFi access point to use TEDAPI features. If you previously set up a static route for TEDAPI, you can remove it using `./add_route.sh -disable`.
 
+> 🚨 **WARNING — Tesla Owner API Deprecated:** Tesla has deprecated the unofficial Owner API (`owner-api.teslamotors.com`), which powers the **Cloud mode (Option 2)** setup. Users on Cloud mode may experience `401` or `403` authentication errors and loss of data. **If you are using Cloud mode, please migrate to [FleetAPI mode (Option 3)](#cloud-and-fleetapi-mode) or a local connection mode (Options 1, 4, or 5).** See [Issue #779](https://github.com/jasonacox/Powerwall-Dashboard/issues/779) for details.
+
 ![Animation](https://user-images.githubusercontent.com/13752647/198901193-6f5d3f34-3ef6-4d6d-95ff-892a3763541b.png)
 ![Monthly](https://user-images.githubusercontent.com/836718/214475577-2a633228-4db0-41b8-8738-51642222f462.png)
 ![Yearly](https://user-images.githubusercontent.com/836718/214475014-4ba090dd-bca8-475f-bbdc-6d80ad5afbb0.png)
@@ -116,7 +118,9 @@ For Powerwall 3 owners who have their dashboard host connected to the same wired
 
 ### Cloud and FleetAPI Mode
 
-For Tesla Solar or Powerwall 3 owners without TEDAPI access, select `option 2` (Tesla Owners unofficial Cloud API) or `option 3` (Tesla official FleetAPI) and the dashboard will be installed to pull data from the Tesla Cloud API. This mode should work for ALL systems but will have slightly less details and fidelity than the "Local Access" mode.
+> ⚠️ **Tesla Owner API Deprecated:** The unofficial Tesla Owner API used by **Option 2 (Tesla Cloud)** has been deprecated and is no longer reliable. Users on this mode are seeing `401`/`403` errors. **It is strongly recommended to migrate to Option 3 (FleetAPI)** or a local connection mode. See [Issue #779](https://github.com/jasonacox/Powerwall-Dashboard/issues/779) for details and migration guidance.
+
+For Tesla Solar or Powerwall 3 owners without TEDAPI access, select `option 3` (Tesla official FleetAPI) for a stable cloud connection, or see the local options (1, 4, 5) below. The legacy `option 2` (Tesla Owners unofficial Cloud API) is no longer recommended. This mode should work for ALL systems but will have slightly less details and fidelity than the "Local Access" mode.
 
 **SSH/Headless users**: Tesla Cloud setup requires a browser-based login to obtain an auth token. If you are running setup over SSH, first run the following on a local machine (laptop/workstation) that has a browser available, then paste the token when prompted:
 
