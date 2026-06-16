@@ -411,6 +411,105 @@ function test_ip() {
     fi
 }
 
+# Assert pypowerwall.env has correct settings for selected mode
+if [ $v1r -eq 1 ]; then
+    # Create pypowerwall.env if it was removed earlier (e.g. mode change deleted it)
+    if [ ! -f ${PW_ENV_FILE} ]; then
+        touch ${PW_ENV_FILE}
+    fi
+    # v1r mode requires PW_HOST, PW_GW_PWD, and PW_RSA_KEY_PATH with non-empty values
+    if ! grep -qE "^PW_HOST=.+" "${PW_ENV_FILE}" || \
+       ! grep -qE "^PW_GW_PWD=.+" "${PW_ENV_FILE}" || \
+       ! grep -qE "^PW_RSA_KEY_PATH=.+" "${PW_ENV_FILE}"; then
+        echo ""
+        echo "Your pypowerwall.env is missing v1r mode settings."
+        echo "The following values are required for Wired LAN (v1r) mode:"
+        echo ""
+        # Upsert PW_HOST
+        if ! grep -qE "^PW_HOST=.+" "${PW_ENV_FILE}"; then
+            while [ -z "${IP}" ]; do
+                read -p 'Powerwall Wired LAN IP Address (e.g. 10.42.1.1): ' IP
+            done
+            if grep -q "^PW_HOST=" "${PW_ENV_FILE}"; then
+                sed -i.bak "s|^PW_HOST=.*|PW_HOST=${IP}|g" "${PW_ENV_FILE}"
+            else
+                echo "PW_HOST=${IP}" >> ${PW_ENV_FILE}
+            fi
+        fi
+        # Upsert PW_GW_PWD
+        if ! grep -qE "^PW_GW_PWD=.+" "${PW_ENV_FILE}"; then
+            echo ""
+            echo "The full 10-character gateway password is required for v1r mode."
+            echo "This is the complete QR code password on the Powerwall sticker."
+            echo ""
+            while [ -z "${PW_GW_PWD}" ]; do
+                read -p 'Full 10-character Gateway Password: ' PW_GW_PWD
+            done
+            if grep -q "^PW_GW_PWD=" "${PW_ENV_FILE}"; then
+                sed -i.bak "s|^PW_GW_PWD=.*|PW_GW_PWD=${PW_GW_PWD}|g" "${PW_ENV_FILE}"
+            else
+                echo "PW_GW_PWD=${PW_GW_PWD}" >> ${PW_ENV_FILE}
+            fi
+        fi
+        # Upsert PW_RSA_KEY_PATH
+        if grep -q "^PW_RSA_KEY_PATH=" "${PW_ENV_FILE}"; then
+            sed -i.bak 's|^PW_RSA_KEY_PATH=.*|PW_RSA_KEY_PATH=.auth/tedapi_rsa_private.pem|g' "${PW_ENV_FILE}"
+        else
+            echo "PW_RSA_KEY_PATH=.auth/tedapi_rsa_private.pem" >> ${PW_ENV_FILE}
+        fi
+        # Clear PW_PASSWORD for v1r mode (not needed, avoids confusion)
+        if grep -qE "^PW_PASSWORD=.+" "${PW_ENV_FILE}"; then
+            sed -i.bak 's|^PW_PASSWORD=.*|PW_PASSWORD=|g' "${PW_ENV_FILE}"
+        fi
+        # WiFi fallback host for v1r mode
+        PW_WIFI_HOST=""
+        echo ""
+        echo "Optional: WiFi fallback host for hybrid mode and Powerwall 3 follower data."
+        echo "If your host can reach the Powerwall WiFi access point (default: 192.168.91.1),"
+        echo "entering it here enables follower queries and improves data completeness."
+        echo ""
+        if test_ip "192.168.91.1"; then
+            echo "Found Powerwall WiFi access point at 192.168.91.1"
+            read -p 'Use 192.168.91.1 as WiFi fallback host? [Y/n] ' response
+            if [[ ! "$response" =~ ^([nN][oO]|[nN])$ ]]; then
+                PW_WIFI_HOST="192.168.91.1"
+            fi
+        fi
+        if [ -z "${PW_WIFI_HOST}" ]; then
+            read -p 'Enter WiFi Host (leave blank to skip): ' PW_WIFI_HOST
+        fi
+        if [ ! -z "${PW_WIFI_HOST}" ]; then
+            echo "PW_WIFI_HOST=${PW_WIFI_HOST}" >> ${PW_ENV_FILE}
+        fi
+        # Append standard env vars if missing (PW_TIMEZONE, TZ, PW_DEBUG, PW_STYLE, PW_EMAIL, PW_PASSWORD)
+        # These are normally written by the "Create Powerwall Settings" block below, but when the v1r
+        # assertion block creates the file, that block sees the file exists and skips entirely.
+        if ! grep -qE "^PW_TIMEZONE=.+" "${PW_ENV_FILE}"; then
+            echo "PW_TIMEZONE=${TZ}" >> ${PW_ENV_FILE}
+        fi
+        if ! grep -qE "^TZ=.+" "${PW_ENV_FILE}"; then
+            echo "TZ=${TZ}" >> ${PW_ENV_FILE}
+        fi
+        if ! grep -qE "^PW_DEBUG=" "${PW_ENV_FILE}"; then
+            echo "PW_DEBUG=no" >> ${PW_ENV_FILE}
+        fi
+        if ! grep -qE "^PW_STYLE=.+" "${PW_ENV_FILE}"; then
+            echo "PW_STYLE=${PW_STYLE}" >> ${PW_ENV_FILE}
+        fi
+        if ! grep -qE "^PW_EMAIL=" "${PW_ENV_FILE}"; then
+            echo "PW_EMAIL=" >> ${PW_ENV_FILE}
+        fi
+        if ! grep -qE "^PW_PASSWORD=" "${PW_ENV_FILE}"; then
+            echo "PW_PASSWORD=" >> ${PW_ENV_FILE}
+        fi
+        echo ""
+        echo "Updated ${PW_ENV_FILE} with v1r mode settings."
+    else
+        # Even if settings exist, ensure RSA key path is correct
+        sed -i.bak 's|^PW_RSA_KEY_PATH=.*|PW_RSA_KEY_PATH=.auth/tedapi_rsa_private.pem|g' "${PW_ENV_FILE}"
+    fi
+fi
+
 # Create Powerwall Settings
 if [ ! -f ${PW_ENV_FILE} ]; then
     if [ "${config}" == "Local Access" ]; then
@@ -431,40 +530,12 @@ if [ ! -f ${PW_ENV_FILE} ]; then
         PW_GW_PWD=""
         PW_RSA_KEY_PATH=""
         PW_WIFI_HOST=""
-        if [ $v1r -eq 1 ]; then
-            # v1r Wired LAN mode - connect over ethernet, skip WiFi detection
-            echo "Wired LAN (v1r) Mode: Connects to Powerwall 3 over ethernet using RSA key authentication."
-            echo "The Powerwall 3 leader's ethernet port must be on a routable subnet (typically 10.42.1.x/24)."
-            echo ""
-            while [ -z "${IP}" ]; do
-                read -p 'Powerwall Wired LAN IP Address (e.g. 10.42.1.1): ' IP
-            done
-            echo ""
-            echo "The full 10-character gateway password is required for v1r mode."
-            echo "This is the complete QR code password on the Powerwall sticker (not the shorter local password)."
-            echo ""
-            while [ -z "${PW_GW_PWD}" ]; do
-                read -p 'Full 10-character Gateway Password: ' PW_GW_PWD
-            done
-            PW_RSA_KEY_PATH=".auth/pypowerwall_rsa_key.pem"
-            echo ""
-            echo "Optional: WiFi fallback host for hybrid mode and Powerwall 3 follower data."
-            echo "If your host can reach the Powerwall WiFi access point (default: 192.168.91.1),"
-            echo "entering it here enables follower queries and improves data completeness."
-            echo ""
-            if test_ip "192.168.91.1"; then
-                echo "Found Powerwall WiFi access point at 192.168.91.1"
-                read -p 'Use 192.168.91.1 as WiFi fallback host? [Y/n] ' response
-                if [[ ! "$response" =~ ^([nN][oO]|[nN])$ ]]; then
-                    PW_WIFI_HOST="192.168.91.1"
-                fi
-            fi
-            if [ -z "${PW_WIFI_HOST}" ]; then
-                read -p 'Enter WiFi Host (leave blank to skip): ' PW_WIFI_HOST
-            fi
-            echo ""
+        # Note: v1r mode setup is handled by the assertion block above (line ~414).
+        # The assertion block runs when $v1r=1 and creates pypowerwall.env with all
+        # required v1r settings, so this "Create Powerwall Settings" block (which
+        # only runs when the file doesn't exist) is never reached for v1r mode.
         # Can we reach 192.168.91.1
-        elif test_ip "192.168.91.1"; then
+        if test_ip "192.168.91.1"; then
             IP="192.168.91.1"
             echo "Found Powerwall Gateway at ${IP}"
             read -p 'Use this IP? [Y/n] ' response
@@ -498,7 +569,7 @@ if [ ! -f ${PW_ENV_FILE} ]; then
             fi
         else
             echo "The Powerwall Gateway (192.168.91.1) is not found on your LAN."
-            if [ $pw3 -eq 1 ] && [ $v1r -ne 1 ]; then
+            if [ $pw3 -eq 1 ]; then
                 echo ""
                 echo "Powerwall 3 requires access to the Gateway for pull local data."
                 echo "Ensure the Gateway can be reached by your host and rerun setup."
@@ -685,9 +756,27 @@ fi
 # Run v1r RSA key registration
 if [ $v1r -eq 1 ]; then
     mkdir -p .auth
+    # Fix root-owned auth files from prior runs (docker exec without --user
+    # ran as root, creating files the dashboard user cannot overwrite).
+    # Host-side chown is reliable — the bind mount reflects host changes.
+    chown -R "$(id -u):$(id -g)" .auth/ 2>/dev/null || true
+    # Also fix from inside the container as a fallback for non-bind-mount setups.
+    docker exec pypowerwall chown -R "$(id -u):$(id -g)" /app/.auth/ 2>/dev/null || true
     echo "Registering RSA key with Powerwall 3 (v1r mode)..."
     echo "You will need your Tesla account credentials to complete registration."
-    docker exec -it pypowerwall python3 -m pypowerwall setup -v1r
+    # Run v1r registration as the dashboard user (not root) so auth files written
+    # to the bind-mounted .auth/ directory are owned by the host user, not root.
+    # This prevents PermissionError on subsequent runs.
+    docker exec -it --user "$(id -u):$(id -g)" pypowerwall python3 -m pypowerwall setup -v1r -authpath /app/.auth
+    if [ ! -f ".auth/tedapi_rsa_private.pem" ]; then
+        echo ""
+        echo "WARNING: RSA key not found at .auth/tedapi_rsa_private.pem"
+        echo "Registration may have failed or saved to a different location."
+        echo "Check container logs: docker logs pypowerwall"
+        echo ""
+    fi
+    chmod 700 .auth/
+    chmod 600 .auth/tedapi_rsa_private.pem 2>/dev/null
     echo "Restarting..."
     docker restart pypowerwall
     echo "-----------------------------------------"
