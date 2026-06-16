@@ -692,12 +692,9 @@ if [ $v1r -eq 1 ]; then
         while [ -z "${V1R_HOST}" ]; do
             read -p 'Powerwall Wired LAN IP Address (e.g. 10.42.1.1): ' V1R_HOST
         done
-        # Upsert: replace existing line or append if absent
-        if grep -q "^PW_HOST=" "${PW_ENV_FILE}"; then
-            sed -i.bak "s@^PW_HOST=.*@PW_HOST=${V1R_HOST}@g" "${PW_ENV_FILE}"
-        else
-            echo "PW_HOST=${V1R_HOST}" >> "${PW_ENV_FILE}"
-        fi
+        # Upsert: remove existing line if present, then append
+        sed -i.bak '/^PW_HOST=/d' "${PW_ENV_FILE}"
+        echo "PW_HOST=${V1R_HOST}" >> "${PW_ENV_FILE}"
     fi
     if ! grep -qE "^PW_GW_PWD=.+" "${PW_ENV_FILE}"; then
         echo "v1r mode requires the full 10-character gateway password."
@@ -708,20 +705,14 @@ if [ $v1r -eq 1 ]; then
                 echo "Password must be at least 10 characters."
             fi
         done
-        # Upsert: replace existing (empty) line or append if absent
-        if grep -q "^PW_GW_PWD=" "${PW_ENV_FILE}"; then
-            sed -i.bak "s@^PW_GW_PWD=.*@PW_GW_PWD=${V1R_PWD}@g" "${PW_ENV_FILE}"
-        else
-            echo "PW_GW_PWD=${V1R_PWD}" >> "${PW_ENV_FILE}"
-        fi
+        # Upsert: remove existing line if present, then append
+        # Using delete+append to avoid sed delimiter issues with passwords
+        sed -i.bak '/^PW_GW_PWD=/d' "${PW_ENV_FILE}"
+        echo "PW_GW_PWD=${V1R_PWD}" >> "${PW_ENV_FILE}"
     fi
-    # Always ensure PW_RSA_KEY_PATH is set to the correct container path
-    if grep -q "^PW_RSA_KEY_PATH=" "${PW_ENV_FILE}"; then
-        # Fix known-bad values (relative path or old filename)
-        sed -i.bak "s@^PW_RSA_KEY_PATH=.*@PW_RSA_KEY_PATH=/app/.auth/tedapi_rsa_private.pem@g" "${PW_ENV_FILE}"
-    else
-        echo "PW_RSA_KEY_PATH=/app/.auth/tedapi_rsa_private.pem" >> "${PW_ENV_FILE}"
-    fi
+    # Always force PW_RSA_KEY_PATH to the correct container path
+    sed -i.bak '/^PW_RSA_KEY_PATH=/d' "${PW_ENV_FILE}"
+    echo "PW_RSA_KEY_PATH=/app/.auth/tedapi_rsa_private.pem" >> "${PW_ENV_FILE}"
     if ! grep -q "^PW_WIFI_HOST=" "${PW_ENV_FILE}"; then
         echo "Optional: WiFi fallback host for Powerwall 3 follower battery metrics."
         echo "If your host can reach the Powerwall WiFi access point (default: 192.168.91.1),"
