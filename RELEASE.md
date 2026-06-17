@@ -4,7 +4,7 @@
 
 ### pyPowerwall Update
 
-* Update pypowerwall to v0.15.11 (proxy t93).
+* Update pypowerwall Docker image to `0.15.11t93` (proxy t93).
   - Adds HTTP/2 support for Tesla Owner API authentication endpoints (`auth.tesla.com` and `owner-api.teslamotors.com`), resolving the `401`/`403` errors that affected Cloud mode (Option 2) users since Tesla's June 2026 protocol change.
   - See [pypowerwall PR #326](https://github.com/jasonacox/pypowerwall/pull/326) for details.
 

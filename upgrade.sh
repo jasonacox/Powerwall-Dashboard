@@ -6,7 +6,7 @@
 set -e
 
 # Set Globals
-VERSION="5.0.8"
+VERSION="5.0.9"
 CURRENT="Unknown"
 COMPOSE_ENV_FILE="compose.env"
 INFLUXDB_ENV_FILE="influxdb.env"
