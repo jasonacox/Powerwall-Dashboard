@@ -28,7 +28,7 @@ services:
             start_period: 60s
 
     pypowerwall:
-        image: jasonacox/pypowerwall:0.15.10t90
+        image: jasonacox/pypowerwall:0.15.11t93
         container_name: pypowerwall
         hostname: pypowerwall
         restart: unless-stopped
