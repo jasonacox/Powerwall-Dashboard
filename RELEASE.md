@@ -1,5 +1,25 @@
 # RELEASE NOTES
 
+## v5.0.10 - Cloud Mode Fix (Token + HTTP/2)
+
+### pyPowerwall Update
+
+* Update pypowerwall Docker image to `0.15.12t93` (proxy t93).
+  - Fixes Tesla Owner API Cloud mode authentication by adding HTTP/2 support for all Tesla auth and API endpoints.
+  - Resolves the `401`/`403` errors that affected Cloud mode (Option 2) users since Tesla's June 2026 protocol change requiring HTTP/2.
+  - Adds improved token handling for SSH/headless setups — both Access Token and Refresh Token are now required during setup.
+  - See [pypowerwall PR #333](https://github.com/jasonacox/pypowerwall/pull/333) for details on the token input fix.
+
+### tesla-history Update
+
+* Update tesla-history to v0.1.8 — includes compatibility fixes for the new auth flow.
+
+### Documentation
+
+* Updated README.md Cloud mode section to document the new token-based auth process (Access Token + Refresh Token required).
+* Added note about the HTTP/2 requirement and minimum version (v5.0.10).
+* Added reference to the [tesla_auth](https://github.com/adriankumpf/tesla_auth) desktop app as an alternative token generation method for headless users.
+
 ## v5.0.9 - Tesla Owner API HTTP/2 Fix
 
 ### pyPowerwall Update
