@@ -61,7 +61,7 @@ After the config is saved, you will be prompted to login to your Tesla account.
 
 This requires a web-based login which will open automatically if a browser is available. NOTE: If a browser is being detected but not working, you can prevent the browser from opening and force the remote session process (below) by re-running login with the `--headless` option, i.e. `python tesla-history.py --login --headless`
 
-If you are running setup over SSH, the remote session will be detected and you will be prompted for the refresh token. On a local machine (laptop/workstation) that has a browser available, install pypowerwall with `pip install -U pypowerwall` and then run `python -m pypowerwall authtoken` to obtain the token, which can then be pasted at the prompt.
+If you are running setup over SSH, the remote session will be detected and you will be prompted for both your refresh token and access token. On a local machine (laptop/workstation) that has a browser available, install pypowerwall with `pip install -U pypowerwall` and then run `python -m pypowerwall authtoken` to obtain the tokens, which can then be pasted at the prompts.
 
 ```
 ----------------------------------------
@@ -78,9 +78,10 @@ pypowerwall installed, run:
     python -m pypowerwall authtoken
 
 That will open a login window. After authentication,
-copy the refresh token and paste it here.
+copy both the refresh token and access token, then paste them here.
 
 Refresh token:
+Access token (valid ~8h):
 ```
 
 Once logged in successfully, you will be shown details of the energy site(s) associated with your account:
