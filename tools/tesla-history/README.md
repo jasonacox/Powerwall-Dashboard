@@ -78,10 +78,10 @@ pypowerwall installed, run:
     python -m pypowerwall authtoken
 
 That will open a login window. After authentication,
-copy the refresh token and paste it here.
+copy both the refresh token and access token, then paste them here.
 
 Refresh token:
-Access token (valid ~8h, press Enter to skip):
+Access token (valid ~8h):
 ```
 
 Once logged in successfully, you will be shown details of the energy site(s) associated with your account:
