@@ -737,10 +737,11 @@ fi
 # Run Tesla Cloud mode setup
 if [ "${config}" == "Tesla Cloud" ]; then
     echo ""
-    echo "NOTE: Tesla Cloud setup requires a browser-based login to obtain an auth token."
+    echo "NOTE: Tesla Cloud setup requires a browser-based login to obtain auth tokens."
     echo "If you are running this via SSH or on a headless server, you will need to run"
     echo "the following command on a local machine (e.g. your laptop or workstation) that"
-    echo "has a desktop/browser available, then copy the refresh token back here:"
+    echo "has a desktop/browser available, then copy both the refresh token and access"
+    echo "token back here:"
     echo ""
     echo "   pip install pypowerwall -U"
     echo "   python3 -m pypowerwall authtoken"
