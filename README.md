@@ -118,12 +118,16 @@ For Powerwall 3 owners who have their dashboard host connected to the same wired
 
 For Tesla Solar or Powerwall 3 owners without TEDAPI access, select `option 2` (Tesla Owners unofficial Cloud API) or `option 3` (Tesla official FleetAPI) and the dashboard will be installed to pull data from the Tesla Cloud API. This mode should work for ALL systems but will have slightly less details and fidelity than the "Local Access" mode.
 
-**SSH/Headless users**: Tesla Cloud setup requires a browser-based login to obtain auth tokens. If you are running setup over SSH, first run the following on a local machine (laptop/workstation) that has a browser available, then paste both the refresh token and access token when prompted:
+> **Note:** As of June 2026, Tesla requires HTTP/2 for Owner API authentication. Cloud mode (Option 2) requires **Powerwall-Dashboard v5.0.10 or later** (which includes pypowerwall `0.15.12t93` with HTTP/2 support). If you are running an older version, run `./upgrade.sh` first.
+
+**SSH/Headless users**: Tesla Cloud setup (Option 2) requires both an **Access Token** and a **Refresh Token** obtained via a browser-based Tesla login. If you are running setup over SSH, first run the following on a local machine (laptop/workstation) that has a browser available, then paste both tokens when prompted during setup:
 
 ```bash
 pip install pypowerwall -U
 python3 -m pypowerwall authtoken
 ```
+
+This will open a browser window for Tesla account login and display both tokens to copy. Alternative: use the [tesla_auth](https://github.com/adriankumpf/tesla_auth) desktop app (Windows/macOS/Linux) to generate tokens.
 
 ### Timezone
 
