@@ -8,7 +8,7 @@
   - Switch Dockerfile from `python:3.11-alpine` to `python:3.11-slim` (Debian-based).
     Alpine's musl libc produces a TLS ClientHello fingerprint that Tesla rejects, causing `403` errors after token refresh. Debian-based images use OpenSSL, which produces the accepted fingerprint.
   - Add `httpx` and `h2` to the Docker image dependencies to enable HTTP/2 for all Tesla API calls.
-  - Pin `pypowerwall>=0.15.12` in the Dockerfile and README install instructions to ensure the HTTP/2 auth fix and improved token handling are always included.
+  - Require `pypowerwall>=0.15.12` in the Dockerfile and README install instructions to ensure the HTTP/2 auth fix and improved token handling are always included.
 
 ### Documentation
 
