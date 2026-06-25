@@ -1,5 +1,19 @@
 # RELEASE NOTES
 
+## v5.0.11 - tesla-history Docker Fix (Alpine → Debian)
+
+### tesla-history Update
+
+* Update tesla-history to v0.1.9.
+  - Switch Dockerfile from `python:3.11-alpine` to `python:3.11-slim` (Debian-based).
+    Alpine's musl libc produces a TLS ClientHello fingerprint that Tesla rejects, causing `403` errors after token refresh. Debian-based images use OpenSSL, which produces the accepted fingerprint.
+  - Add `httpx` and `h2` to the Docker image dependencies to enable HTTP/2 for all Tesla API calls.
+  - Require `pypowerwall>=0.15.12` in the Dockerfile and README install instructions to ensure the HTTP/2 auth fix and improved token handling are always included.
+
+### Documentation
+
+* Updated `tools/tesla-history/README.md` pip install instructions to require `pypowerwall>=0.15.12`, `httpx`, and `h2`.
+
 ## v5.0.10 - Cloud Mode Fix (Token + HTTP/2)
 
 ### pyPowerwall Update

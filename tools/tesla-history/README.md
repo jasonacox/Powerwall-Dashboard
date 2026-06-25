@@ -14,9 +14,9 @@ This could be useful for instance to import data from before you started using P
 ## Usage
 
 To use the script:
-- Install the required python modules: 
+- Install the required python modules (requires **pypowerwall v0.15.12 or later**):
   ```bash
-  pip install python-dateutil pypowerwall influxdb
+  pip install "pypowerwall>=0.15.12" python-dateutil influxdb httpx h2
   ```
 - Follow the steps below
 

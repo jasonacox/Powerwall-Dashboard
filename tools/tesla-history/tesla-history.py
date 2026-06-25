@@ -9,7 +9,7 @@
 
  Usage:
     * Install the required python modules (not required if run from docker):
-        pip install python-dateutil pypowerwall influxdb
+        pip install "pypowerwall>=0.15.12" python-dateutil influxdb httpx h2
 
     * Or, if running as a docker container, replace below examples with:
         docker exec -it tesla-history python3 tesla-history.py [arguments]
@@ -68,7 +68,7 @@ try:
 except:
     sys.exit("ERROR: Missing python influxdb module. Run 'pip install influxdb'.")
 
-BUILD = "0.1.8"
+BUILD = "0.1.9"
 VERBOSE = True
 SCRIPTPATH = os.path.dirname(os.path.realpath(sys.argv[0]))
 SCRIPTNAME = os.path.basename(sys.argv[0]).split('.')[0]
