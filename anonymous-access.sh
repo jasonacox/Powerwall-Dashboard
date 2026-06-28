@@ -2,11 +2,43 @@
 
 GF_ENV_FILE="grafana.env"
 
-# This script will enable anonymous access to Grafana dashboards
-echo "Anonymous Access Setup"
+# This script configures dashboard access method for Grafana
+echo "Dashboard Access Setup"
 echo "-----------------------------------------"
 
+# Function to remove existing anonymous access settings from grafana.env
+function remove_existing_settings() {
+    sed -i.bak \
+        -e '/^# Read-Only Anonymous Access/d' \
+        -e '/^# Read-Write Anonymous Access/d' \
+        -e '/^GF_FEATURE_TOGGLES_PUBLICDASHBOARDS/d' \
+        -e '/^GF_AUTH_DISABLE_LOGIN_FORM/d' \
+        -e '/^GF_AUTH_ANONYMOUS_ENABLED/d' \
+        -e '/^GF_AUTH_ANONYMOUS_ORG_NAME/d' \
+        -e '/^GF_AUTH_ANONYMOUS_ORG_ROLE/d' \
+        -e '/^GF_USERS_ALLOW_SIGN_UP/d' \
+        "${GF_ENV_FILE}"
+    rm -f "${GF_ENV_FILE}.bak"
+
+    # Re-comment the built-in sample lines if they were uncommented
+    sed -i.bak -E 's/^(GF_AUTH_ANONYMOUS_(ENABLED|ORG_NAME|ORG_ROLE))/#\1/' "${GF_ENV_FILE}"
+    rm -f "${GF_ENV_FILE}.bak"
+}
+
+# Function to enable read-only anonymous access
+function read_only_anonymous() {
+    remove_existing_settings
+    echo "" >> "${GF_ENV_FILE}"
+    echo "# Read-Only Anonymous Access" >> "${GF_ENV_FILE}"
+    echo "GF_FEATURE_TOGGLES_PUBLICDASHBOARDS=true" >> "${GF_ENV_FILE}"
+    echo "GF_AUTH_ANONYMOUS_ENABLED=true" >> "${GF_ENV_FILE}"
+    echo "GF_AUTH_ANONYMOUS_ORG_NAME=Main Org." >> "${GF_ENV_FILE}"
+    echo "GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer" >> "${GF_ENV_FILE}"
+}
+
+# Function to enable read-write anonymous access
 function read_write_anonymous() {
+    remove_existing_settings
     echo "" >> "${GF_ENV_FILE}"
     echo "# Read-Write Anonymous Access" >> "${GF_ENV_FILE}"
     echo "GF_AUTH_DISABLE_LOGIN_FORM=true" >> "${GF_ENV_FILE}"
@@ -16,83 +48,44 @@ function read_write_anonymous() {
     echo "GF_USERS_ALLOW_SIGN_UP=false" >> "${GF_ENV_FILE}"
 }
 
-function read_only_anonymous() {
-    echo "" >> "${GF_ENV_FILE}"
-    echo "# Read-Only Anonymous Access" >> "${GF_ENV_FILE}"
-    echo "GF_FEATURE_TOGGLES_PUBLICDASHBOARDS=true" >> "${GF_ENV_FILE}"
-    echo "GF_AUTH_ANONYMOUS_ENABLED=true" >> "${GF_ENV_FILE}"
-    echo "GF_AUTH_ANONYMOUS_ORG_NAME=Main Org." >> "${GF_ENV_FILE}"
-    echo "GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer" >> "${GF_ENV_FILE}"
-}
-
-# Function to remove existing settings
-function remove_existing_settings() {
-    if grep -q "^GF_FEATURE_TOGGLES_PUBLICDASHBOARDS" "${GF_ENV_FILE}"; then
-        sed -i.bak \
-            -e '/^# Read-Only Anonymous Access/d' \
-            -e '/^GF_FEATURE_TOGGLES_PUBLICDASHBOARDS/d' \
-            -e '/^GF_AUTH_ANONYMOUS_ENABLED/d' \
-            -e '/^GF_AUTH_ANONYMOUS_ORG_NAME/d' \
-            -e '/^GF_AUTH_ANONYMOUS_ORG_ROLE/d' \
-            "${GF_ENV_FILE}"
-        rm -f "${GF_ENV_FILE}.bak"
-    fi
-    if grep -q "^GF_AUTH_DISABLE_LOGIN_FORM" "${GF_ENV_FILE}"; then
-        sed -i.bak \
-            -e '/^# Read-Write Anonymous Access/d' \
-            -e '/^GF_AUTH_DISABLE_LOGIN_FORM/d' \
-            -e '/^GF_AUTH_ANONYMOUS_ENABLED/d' \
-            -e '/^GF_AUTH_ANONYMOUS_ORG_NAME/d' \
-            -e '/^GF_AUTH_ANONYMOUS_ORG_ROLE/d' \
-            -e '/^GF_USERS_ALLOW_SIGN_UP/d' \
-            "${GF_ENV_FILE}"
-        rm -f "${GF_ENV_FILE}.bak"
-    fi
-
-    sed -i.bak 's/^GF_AUTH_ANONYMOUS/#GF_AUTH_ANONYMOUS/' "${GF_ENV_FILE}"
-    rm -f "${GF_ENV_FILE}.bak"
-}
-
-
-read -r -p "Do you want to allow access to your dashboards without a login? [y/N] " response
-if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
-    echo "What type of access do you want to allow?"
-    echo ""
-else
-    remove_existing_settings
-    echo ""
-    exit 0
+# Detect current access mode (1=password, 2=read-only, 3=read-write)
+current_mode=1
+if grep -q "^GF_AUTH_DISABLE_LOGIN_FORM=true" "${GF_ENV_FILE}" 2>/dev/null; then
+    current_mode=3
+elif grep -q "^GF_FEATURE_TOGGLES_PUBLICDASHBOARDS=true" "${GF_ENV_FILE}" 2>/dev/null; then
+    current_mode=2
 fi
-echo " 1 - Read-Only (default)"
-echo $' 2 - Read-Write Admin (\e[33m**WARNING:**\e[0m This may allow anyone on your network to edit your dashboards)'
-echo " 3 - Nevermind, I don't want to enable anonymous access"
-echo ""
-read -r -p "Select mode: " access_choice
 
-case $access_choice in
+# Display options
+echo "Select Dashboard Access Method"
+echo "  1) Username / Password [Default]"
+echo "  2) Anonymous Read-Only"
+echo "  3) Anonymous Read/Write"
+echo ""
+read -r -p "Enter your selection (or select 1 if you don't know) [current = ${current_mode}]: " choice
+
+# Default to current mode on empty input
+choice=${choice:-$current_mode}
+
+case $choice in
     1)
         remove_existing_settings
+        echo ""
+        echo "Username / Password authentication enabled."
+        ;;
+    2)
         read_only_anonymous
-
-        # Feedback
         echo ""
         echo "Anonymous read-only access has been enabled."
         ;;
-    2)
-        remove_existing_settings
-        read_write_anonymous
-
-        # Feedback
-        echo ""
-        echo "Anonymous read-write access has been enabled."
-        ;;
     3)
-        remove_existing_settings
-        echo "No anonymous access will be enabled."
-        exit 0
+        read_write_anonymous
+        echo ""
+        echo -e "Anonymous read-write access has been enabled. \e[33mWARNING:\e[0m Anyone on your network can edit your dashboards."
         ;;
     *)
+        echo ""
+        echo "Invalid selection. Defaulting to Username / Password authentication."
         remove_existing_settings
-        read_only_anonymous
         ;;
 esac
