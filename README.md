@@ -110,7 +110,7 @@ _Note: This mode also works for Powerwall 2/+ systems. Unlike TEDAPI hybrid mode
 For Powerwall 3 owners who have their dashboard host connected to the same wired network as the Powerwall 3 leader's ethernet port, select `option 5` (Wired LAN / v1r). This mode uses RSA-4096 key authentication over ethernet and does not require WiFi connectivity to `192.168.91.1`.
 
 * The Powerwall 3 leader's ethernet port must be on a routable subnet (typically `10.42.1.x/24`).
-* Setup will prompt for the full 10-character QR code gateway password (not the shorter local API password).
+* Setup will prompt for the full 10-character password from the QR sticker on your Powerwall 3 unit (not the shorter 5-character local API password). This is the same password used for TEDAPI mode — see [Powerwall 3](#powerwall-3) notes below.
 * Setup will run `pypowerwall setup -v1r` inside the container to generate and register an RSA key pair with the Powerwall via the Tesla Owner API.
 * Optionally, if your host can also reach `192.168.91.1` via WiFi, provide that as the `PW_WIFI_HOST` to enable hybrid fallback mode for follower Powerwall data and improved data completeness.
 

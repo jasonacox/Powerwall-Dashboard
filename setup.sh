@@ -439,11 +439,12 @@ if [ $v1r -eq 1 ]; then
         # Upsert PW_GW_PWD
         if ! grep -qE "^PW_GW_PWD=.+" "${PW_ENV_FILE}"; then
             echo ""
-            echo "The full 10-character gateway password is required for v1r mode."
-            echo "This is the complete QR code password on the Powerwall sticker."
+            echo "The full 10-character password from your Powerwall 3 QR sticker is required."
+            echo "This is NOT the shorter 5-character local API password."
+            echo "It is the same password used for TEDAPI mode — the one on the PW3 unit itself."
             echo ""
             while [ -z "${PW_GW_PWD}" ]; do
-                read -p 'Full 10-character Gateway Password: ' PW_GW_PWD
+                read -p 'Powerwall 3 Password (10 characters): ' PW_GW_PWD
             done
             if grep -q "^PW_GW_PWD=" "${PW_ENV_FILE}"; then
                 sed -i.bak "s|^PW_GW_PWD=.*|PW_GW_PWD=${PW_GW_PWD}|g" "${PW_ENV_FILE}"
