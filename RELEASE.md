@@ -1,5 +1,16 @@
 # RELEASE NOTES
 
+## v5.1.0 - Anonymous Dashboard Access
+
+### New Feature
+
+* Add anonymous access mode for Grafana dashboard — allows running the dashboard without a login prompt on trusted/private networks.
+  - New `anonymous-access.sh` script invoked during `setup.sh` to configure access mode.
+  - Three options: Username/Password (default), Anonymous Read-Only, Anonymous Read/Write.
+  - Re-runnable: users can change access mode at any time by re-running `setup.sh`.
+  - Cleans up previous configuration before applying new settings.
+  - Contributed by @mccahan ([PR #583](https://github.com/jasonacox/Powerwall-Dashboard/pull/583)).
+
 ## v5.0.11 - tesla-history Docker Fix (Alpine → Debian)
 
 ### tesla-history Update
