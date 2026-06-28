@@ -1,5 +1,17 @@
 # RELEASE NOTES
 
+## v5.1.1 - Bug Fix Release
+
+### Bug Fix
+
+* Fix `grafana.env` shell error when anonymous access is enabled: `GF_AUTH_ANONYMOUS_ORG_NAME="Main Org."` was written without quotes, causing `bash` to interpret `Org.` as a separate command when `compose-dash.sh` sources the file. The value is now quoted in both `anonymous-access.sh` and `grafana.env.sample`.
+  - Reported by @JonMurphy after upgrading to v5.1.0; fix identified by @mccahan.
+
+### Documentation
+
+* Clarify v1r mode password prompt — the password comes from the QR sticker on the Powerwall 3 unit, not the Gateway. Updated both `setup.sh` and README.md to eliminate ambiguity for PW3 owners who also have a separate Gateway device.
+  - Reported by @michalperth in [Discussion #784](https://github.com/jasonacox/Powerwall-Dashboard/discussions/784).
+
 ## v5.1.0 - Anonymous Dashboard Access
 
 ### New Feature

@@ -32,7 +32,7 @@ function read_only_anonymous() {
     echo "# Read-Only Anonymous Access" >> "${GF_ENV_FILE}"
     echo "GF_FEATURE_TOGGLES_PUBLICDASHBOARDS=true" >> "${GF_ENV_FILE}"
     echo "GF_AUTH_ANONYMOUS_ENABLED=true" >> "${GF_ENV_FILE}"
-    echo "GF_AUTH_ANONYMOUS_ORG_NAME=Main Org." >> "${GF_ENV_FILE}"
+    echo 'GF_AUTH_ANONYMOUS_ORG_NAME="Main Org."' >> "${GF_ENV_FILE}"
     echo "GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer" >> "${GF_ENV_FILE}"
 }
 
@@ -43,7 +43,7 @@ function read_write_anonymous() {
     echo "# Read-Write Anonymous Access" >> "${GF_ENV_FILE}"
     echo "GF_AUTH_DISABLE_LOGIN_FORM=true" >> "${GF_ENV_FILE}"
     echo "GF_AUTH_ANONYMOUS_ENABLED=true" >> "${GF_ENV_FILE}"
-    echo "GF_AUTH_ANONYMOUS_ORG_NAME=Main Org." >> "${GF_ENV_FILE}"
+    echo 'GF_AUTH_ANONYMOUS_ORG_NAME="Main Org."' >> "${GF_ENV_FILE}"
     echo "GF_AUTH_ANONYMOUS_ORG_ROLE=Admin" >> "${GF_ENV_FILE}"
     echo "GF_USERS_ALLOW_SIGN_UP=false" >> "${GF_ENV_FILE}"
 }
