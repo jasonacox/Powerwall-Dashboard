@@ -3512,7 +3512,7 @@
             [
               {
                 "params": [
-                  "A_Volatage"
+                  "B2_Voltage"
                 ],
                 "type": "field"
               },
