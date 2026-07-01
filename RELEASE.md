@@ -8,7 +8,6 @@
   - **Zombie process fix (PID 1):** Installs a `SIGCHLD` handler in `proxy/server.py` to reap terminated healthcheck child processes, and adds `tini` to the Dockerfile as defense-in-depth. Without this fix, each 30-second `wget` healthcheck spawned by Docker's `HEALTHCHECK` becomes an unreaped `<defunct>` zombie that accumulates for the life of the container and can eventually exhaust the PID table. Affects any deployment where the container runs as PID 1 (the default). ([pypowerwall PR #343](https://github.com/jasonacox/pypowerwall/pull/343))
   - **Alpine → Debian-slim base switch:** Switches all four Docker build platforms from `python:3.10-alpine` (musl libc) to `python:3.10-slim` (Debian/glibc). Alpine's musl libc produces a TLS ClientHello fingerprint that Tesla rejects for token refresh requests after the initial access token expires (~8 hours), causing `403 token expired` errors in long-running Docker deployments. This is the same root cause already fixed in tesla-history (v5.0.11). ([pypowerwall PR #345](https://github.com/jasonacox/pypowerwall/pull/345))
 
-— Sam 🌊
 
 ## v5.1.1 - Bug Fix Release
 
