@@ -1,5 +1,12 @@
 # RELEASE NOTES
 
+## v5.1.6 - Upgrade Script Grafana Teardown Guard
+
+### Bug Fix
+
+* Guard the Grafana container teardown in `upgrade.sh` with an existence check (`docker ps -aq -f name=^grafana$`), matching the pattern already used for `pypowerwall`, `telegraf`, `weather411`, and `tesla-history`. Previously, `docker stop grafana` / `docker rm grafana` ran unconditionally — with `set -e`, a non-zero exit (no container found) would abort the upgrade after `git pull --rebase` but before `./compose-dash.sh up -d`, leaving the entire stack down. This affected users who disable the bundled Grafana via a compose override (`profiles: ["disabled"]`) to reuse an existing Grafana instance.
+  - Reported in [#819](https://github.com/jasonacox/Powerwall-Dashboard/issues/819). Fixed in [PR #820](https://github.com/jasonacox/Powerwall-Dashboard/pull/820).
+
 ## v5.1.5 - Inverter Power Panel Fix (4-string & 6-string Systems)
 
 ### Bug Fix
