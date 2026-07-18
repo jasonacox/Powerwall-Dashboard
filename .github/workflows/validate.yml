@@ -29,12 +29,19 @@ jobs:
           sudo apt-get install --no-install-recommends --yes shellcheck
 
       - name: Check Bash syntax
-        run: git ls-files -z '*.sh' | xargs -0 -n1 bash -n
+        shell: bash
+        run: |
+          while IFS= read -r -d '' file; do
+            bash -n "$file"
+          done < <(git ls-files -z '*.sh' '*.sh.sample')
 
       - name: Run ShellCheck
+        shell: bash
         run: |
           # These rules flag existing argument-forwarding patterns. Keep all other error-level checks enabled.
-          git ls-files -z '*.sh' | xargs -0 shellcheck --shell=bash --severity=error --exclude=SC2068,SC2145
+          while IFS= read -r -d '' file; do
+            shellcheck --shell=bash --severity=error --exclude=SC2068,SC2145 "$file"
+          done < <(git ls-files -z '*.sh' '*.sh.sample')
 
   structured-data:
     name: JSON and YAML
@@ -76,3 +83,17 @@ jobs:
             echo "VERSION ($file_version) does not match upgrade.sh ($upgrade_version)"
             exit 1
           fi
+
+  whitespace:
+    name: Whitespace
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check changed lines
+        run: git diff --check "${{ github.event.pull_request.base.sha }}...HEAD"
