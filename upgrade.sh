@@ -6,7 +6,7 @@
 set -e
 
 # Set Globals
-VERSION="5.1.5"
+VERSION="5.1.6"
 CURRENT="Unknown"
 COMPOSE_ENV_FILE="compose.env"
 INFLUXDB_ENV_FILE="influxdb.env"
@@ -264,8 +264,10 @@ if ! grep -q "Updated v5.0.0" "${GF_ENV_FILE}"; then
         cp "${GF_ENV_FILE}" "${GF_ENV_FILE}.bak"
         cp "${GF_ENV_FILE}.sample" "${GF_ENV_FILE}"
         echo "Updated - Old settings backed up to ${GF_ENV_FILE}.bak"
-        docker stop grafana
-        docker rm grafana
+        if [ ! -z "$(docker ps -aq -f name=^grafana$)" ]; then
+            docker stop grafana
+            docker rm grafana
+        fi
     else
         echo "No Change"
     fi
