@@ -1,6 +1,6 @@
 # RELEASE NOTES
 
-## v5.1.7 - Upgrade pypowerwall Proxy to v0.16.2 (t97)
+## v5.1.7 - Upgrade pypowerwall Proxy to v0.16.2t97
 
 ### Upgrade
 
@@ -8,15 +8,15 @@
 
 ### What's New in the Proxy (v0.15.13t94 → v0.16.2t97)
 
-**v0.16.2 — TEDAPI Fallback, v1r Diagnostics, and Firmware Version Improvements**
+**v0.16.2t97 — TEDAPI Fallback, v1r Diagnostics, and Firmware Version Improvements**
 
-* **feat(proxy): TEDAPI SolarOnly fallback auto-recovery** — when TEDAPI connectivity is lost after a startup network blip, the proxy automatically continues serving solar data without interruption and recovers automatically. Enable via `PW_TEDAPI_RECOVERY=yes` in `pypowerwall.env`. Fixes [#821](https://github.com/jasonacox/Powerwall-Dashboard/issues/821).
+* **feat(proxy): TEDAPI SolarOnly fallback auto-recovery** — when TEDAPI connectivity is lost after a startup network blip, the proxy can continue serving solar data without interruption and recover automatically when `PW_TEDAPI_RECOVERY=yes` is set in `pypowerwall.env`. This recovery path is opt-in and disabled by default. Added for [#821](https://github.com/jasonacox/Powerwall-Dashboard/issues/821).
   * Background probe thread retries with exponential backoff (60s → 300s max); hardware-verified on live PW3+follower
   * `/health` and `/stats` now include a `fallback_mode` block with status, reason, and recovery attempt count
   * `POST /health/reset` resets fallback state and triggers an immediate recovery attempt
 * **fix(v1r):** `PENDING_VERIFICATION` and `UNKNOWN_KEY_ID` auth warnings now surface at normal log level — previously required `PW_DEBUG=yes`
 * **feat(tedapi):** `get_firmware_version()` unified across `V2024_06`/`V2026_06` query sets and basic/v1r transports
-* **fix(proxy):** Docker `HEALTHCHECK` now uses `curl` — prior `wget`-based check failed silently on Alpine; previously could mark proxy `(unhealthy)` even when running normally
+* **fix(proxy image):** the `pypowerwall` image's Dockerfile `HEALTHCHECK` now uses `curl` — the prior `wget`-based check failed silently on Alpine and could mark the proxy `(unhealthy)` even when it was running normally. Powerwall-Dashboard's compose-level `pypowerwall` healthcheck in `powerwall.yml` remains a separate check.
 
 **v0.16.1 — Windows TLS Fix for Tesla Auth**
 
