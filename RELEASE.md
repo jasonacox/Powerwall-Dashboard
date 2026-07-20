@@ -1,5 +1,9 @@
 # RELEASE NOTES
 
+## v5.1.7 (2026-07-19)
+
+* **fix(proxy):** Upgrade pypowerwall proxy to v0.16.2 (build t97) — includes TEDAPI SolarOnly fallback auto-recovery. When TEDAPI connectivity is lost after a startup network blip, the proxy now automatically continues serving solar data without interruption and recovers automatically. Enable via `PW_TEDAPI_RECOVERY=yes`. Fixes #821.
+
 ## v5.1.6 - Upgrade Script Grafana Teardown Guard
 
 ### Bug Fix
