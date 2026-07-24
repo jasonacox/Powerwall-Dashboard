@@ -45,12 +45,14 @@ echo "========================================="
 # ── 1. InfluxDB Snapshot ──────────────────────────────────────────────
 # Use influxd backup to create a consistent snapshot instead of
 # tarring the live data directory (which can capture mid-write files).
+# The -portable flag creates a self-contained, version-independent
+# backup that can be restored on a different machine or InfluxDB version.
 echo ""
 echo "[1/3] Creating InfluxDB snapshot backup..."
 cd "${DASHBOARD}"
 mkdir -p influxdb/backups
 chmod g+w influxdb/backups
-docker exec influxdb influxd backup -database powerwall /var/lib/influxdb/backups
+docker exec influxdb influxd backup -portable -database powerwall /var/lib/influxdb/backups
 
 # Copy the snapshot into staging (the backup files are the consistent copy)
 mkdir -p "${STAGING}/influxdb"
