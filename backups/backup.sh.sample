@@ -62,23 +62,23 @@ echo "  ✓ InfluxDB snapshot captured"
 
 # ── 2. Grafana Database ───────────────────────────────────────────────
 # Use sqlite3 .backup for a consistent copy of grafana.db instead of
-# copying the live file which may be mid-write.
+# copying the live file which may be mid-write. Uses the host sqlite3
+# (the Grafana container does not include it).
 echo ""
 echo "[2/3] Backing up Grafana database..."
 mkdir -p "${STAGING}/grafana"
 
 GRAFANA_DB="${DASHBOARD}/grafana/grafana.db"
 if [ -f "${GRAFANA_DB}" ]; then
-  # Try a consistent sqlite backup via the running container first
-  if docker exec grafana sqlite3 /var/lib/grafana/grafana.db ".backup '/tmp/grafana_backup.db'" 2>/dev/null; then
-    docker cp grafana:/tmp/grafana_backup.db "${STAGING}/grafana/grafana.db"
-    docker exec grafana rm -f /tmp/grafana_backup.db
+  # Try a consistent sqlite backup using the host sqlite3 (if available)
+  if command -v sqlite3 >/dev/null 2>&1; then
+    sqlite3 "${GRAFANA_DB}" ".backup '${STAGING}/grafana/grafana.db'"
     echo "  ✓ Grafana DB backed up (consistent copy via sqlite3)"
   else
-    # Fall back to direct copy (best effort) if sqlite3 is unavailable
+    # Fall back to direct copy (best effort) if sqlite3 is not on host
     cp -a "${GRAFANA_DB}" "${STAGING}/grafana/grafana.db"
-    echo "  ⚠ Grafana DB copied directly (sqlite3 not available in container)"
-    echo "    For consistent backups, install sqlite3 in the grafana container."
+    echo "  ⚠ Grafana DB copied directly (sqlite3 not installed on host)"
+    echo "    For consistent backups: sudo apt install sqlite3"
   fi
 else
   echo "  - No grafana.db found (skipping)"

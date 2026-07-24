@@ -36,7 +36,7 @@ Backup the Powerwall-Dashboard folder. In that folder are two important folders:
 
 The backup script creates a consistent snapshot of:
 1. **InfluxDB** — uses `influxd backup` to create a proper snapshot (not a copy of live data files)
-2. **Grafana** — uses `sqlite3 .backup` for a consistent copy of `grafana.db` (falls back to direct copy if sqlite3 is unavailable)
+2. **Grafana** — uses `sqlite3 .backup` for a consistent copy of `grafana.db` (falls back to direct copy if sqlite3 is not installed on the host: `sudo apt install sqlite3`)
 3. **Configuration files** — all `.env`, `.conf`, and `.yml` files needed to restore your setup
 
 The following shows an example of how to set up automated backups (see backup.sh):
