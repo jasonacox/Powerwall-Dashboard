@@ -92,24 +92,28 @@ To restore from a backup script archive:
     ```
 3. Restore backup files
     ```bash
+    # Set your dashboard location
+    DASHBOARD="/home/user/Powerwall-Dashboard"
+
     # Extract the backup archive to a temporary location
     mkdir -p /tmp/pwd-restore
-    sudo tar --no-same-owner -Jxvf ./backups/Powerwall-Dashboard.xyz.tar.xz -C /tmp/pwd-restore
+    sudo tar --no-same-owner -Jxvf "${DASHBOARD}/backups/Powerwall-Dashboard.xyz.tar.xz" -C /tmp/pwd-restore
 
-    # Restore InfluxDB snapshot
-    sudo cp -a /tmp/pwd-restore/influxdb/backups/. ${DASHBOARD}/influxdb/backups/
-    # Then restore the snapshot into InfluxDB:
-    docker exec influxdb influxd restore -database powerwall /var/lib/influxdb/backups
+    # Restore InfluxDB snapshot (files are in influxdb/ from the portable backup)
+    mkdir -p "${DASHBOARD}/influxdb/backups"
+    sudo cp -a /tmp/pwd-restore/influxdb/. "${DASHBOARD}/influxdb/backups/"
+    # Restore using -portable to match the backup format:
+    docker exec influxdb influxd restore -portable /var/lib/influxdb/backups
 
     # Restore Grafana
-    sudo cp -a /tmp/pwd-restore/grafana/grafana.db ${DASHBOARD}/grafana/
-    sudo cp -a /tmp/pwd-restore/grafana/provisions/. ${DASHBOARD}/grafana/provisions/ 2>/dev/null
+    sudo cp -a /tmp/pwd-restore/grafana/grafana.db "${DASHBOARD}/grafana/"
+    sudo cp -a /tmp/pwd-restore/grafana/provisions/. "${DASHBOARD}/grafana/provisions/" 2>/dev/null
 
     # Restore config files
-    sudo cp -a /tmp/pwd-restore/config/. ${DASHBOARD}/
+    sudo cp -a /tmp/pwd-restore/config/. "${DASHBOARD}/"
 
     # Clean up
-    rm -rf /tmp/pwd-restore
+    sudo rm -rf /tmp/pwd-restore
     ```
 4. Start containers
     ```bash

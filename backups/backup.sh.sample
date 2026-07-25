@@ -117,11 +117,15 @@ for FILE in "${CONFIG_FILES[@]}"; do
   fi
 done
 
-# Also back up .env files that may exist
-for ENVFILE in "${DASHBOARD}"/.*.env "${DASHBOARD}"/*.env; do
-  if [ -f "${ENVFILE}" ]; then
-    cp -a "${ENVFILE}" "${STAGING}/config/"
-    FOUND=$((FOUND + 1))
+# Also back up any additional .env, .conf, and .yml/.yaml files
+for EXTRA in "${DASHBOARD}"/.*.env "${DASHBOARD}"/*.env "${DASHBOARD}"/*.conf "${DASHBOARD}"/*.yml "${DASHBOARD}"/*.yaml; do
+  if [ -f "${EXTRA}" ]; then
+    # Don't double-copy files already in CONFIG_FILES
+    BASENAME=$(basename "${EXTRA}")
+    if [[ ! " ${CONFIG_FILES[*]} " =~ " ${BASENAME} " ]]; then
+      cp -a "${EXTRA}" "${STAGING}/config/"
+      FOUND=$((FOUND + 1))
+    fi
   fi
 done 2>/dev/null
 
@@ -136,7 +140,7 @@ tar -Jcvf "${BACKUP_FOLDER}/Powerwall-Dashboard.${STAMP}.tar.xz" .
 # Cleanup Old Backups
 echo ""
 echo "Cleaning up old backups..."
-find "${BACKUP_FOLDER}"/Powerwall-Dashboard.*.tar.xz -mtime +${KEEP} -type f -delete
+find "${BACKUP_FOLDER}" -name "Powerwall-Dashboard.*.tar.xz" -mtime +${KEEP} -type f -delete
 echo ""
 echo "========================================="
 echo " Backup complete!"
