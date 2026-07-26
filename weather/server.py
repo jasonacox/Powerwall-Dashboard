@@ -76,7 +76,7 @@ import logging
 import json
 import requests
 import resource
-from datetime import datetime
+from datetime import datetime, timezone
 import signal
 import sys
 import os
@@ -330,7 +330,13 @@ def fetchWeather():
                     if TSDB:
                         log.debug("Writing to TimescaleDB")
                         try:
-                            ts = datetime.utcfromtimestamp(weather["dt"])
+                            # tz-aware, unlike datetime.utcfromtimestamp() --
+                            # psycopg2 sends naive datetimes to Postgres with
+                            # no offset, so they get interpreted in the
+                            # session's TimeZone (e.g. America/New_York)
+                            # instead of UTC, silently shifting every row by
+                            # the local UTC offset.
+                            ts = datetime.fromtimestamp(weather["dt"], tz=timezone.utc)
                             rows = []
                             for key, val in weather.items():
                                 if val is None:
