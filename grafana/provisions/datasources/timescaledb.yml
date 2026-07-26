@@ -3,6 +3,7 @@ apiVersion: 1
 datasources:
   - name: TimescaleDB (auto provisioned)
     type: postgres
+    uid: pwd-timescaledb-auto
     access: proxy
     url: $__env{TIMESCALEDB_HOST}:$__env{TIMESCALEDB_PORT}
     database: $__env{POSTGRES_DB}
