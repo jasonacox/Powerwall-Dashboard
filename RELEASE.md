@@ -1,5 +1,49 @@
 # RELEASE NOTES
 
+## v5.1.7 - Upgrade pypowerwall Proxy to v0.16.2t97
+
+### Upgrade
+
+* Upgrades the pypowerwall proxy container from `v0.15.13t94` to `v0.16.2t97`.
+
+### What's New in the Proxy (v0.15.13t94 → v0.16.2t97)
+
+**v0.16.2t97 — TEDAPI Fallback, v1r Diagnostics, and Firmware Version Improvements**
+
+* **feat(proxy): TEDAPI SolarOnly fallback auto-recovery** — when TEDAPI connectivity is lost after a startup network blip, the proxy can continue serving solar data without interruption and recover automatically when `PW_TEDAPI_RECOVERY=yes` is set in `pypowerwall.env`. This recovery path is opt-in and disabled by default. Added for [#821](https://github.com/jasonacox/Powerwall-Dashboard/issues/821).
+  * Background probe thread retries with exponential backoff (60s → 300s max); hardware-verified on live PW3+follower
+  * `/health` and `/stats` now include a `fallback_mode` block with status, reason, and recovery attempt count
+  * `POST /health/reset` resets fallback state and triggers an immediate recovery attempt
+* **fix(v1r):** `PENDING_VERIFICATION` and `UNKNOWN_KEY_ID` auth warnings now surface at normal log level — previously required `PW_DEBUG=yes`
+* **feat(tedapi):** `get_firmware_version()` unified across `V2024_06`/`V2026_06` query sets and basic/v1r transports
+* **fix(proxy image):** the `pypowerwall` image's Dockerfile `HEALTHCHECK` now uses `curl` — the prior `wget`-based check failed silently on Alpine and could mark the proxy `(unhealthy)` even when it was running normally. Powerwall-Dashboard's compose-level `pypowerwall` healthcheck in `powerwall.yml` remains a separate check.
+
+**v0.16.1 — Windows TLS Fix for Tesla Auth**
+
+* **fix(windows):** TLS capped to 1.2 on Windows to fix `403 Forbidden` during Tesla PKCE auth flow — the Windows OpenSSL TLS 1.3 fingerprint was being rejected by Tesla during token exchange. Linux/macOS retain TLS 1.3.
+* **fix(register):** `api_call()` now uses httpx with HTTP/2 for Tesla API endpoints (Tesla now requires HTTP/2 for `owner-api.teslamotors.com` calls as of June 2026)
+
+**v0.16.0 — Code Review Fixes: Correctness, Security, and Robustness**
+
+* **fix(critical):** `set_operation()`/`set_mode()` no longer silently lowers battery reserve — scale-aware fix per backend
+* **fix(critical):** Proxy degradation-cache crash fixed — `/csv` and `/json` crashed with `AttributeError` during gateway outages
+* **fix(critical):** `alerts(alertsonly=False)` crash fixed — `TypeError` since introduction
+* **fix(critical):** FleetAPI token refresh wedge fixed — stuck `refreshing` flag could permanently block the client
+* **fix(security):** Proxy DISABLED/ALLOWLIST matching no longer bypassable via query string
+* **fix(security):** Unallowlisted `/api/*` paths no longer proxied to gateway with proxy's credentials
+* **fix(security):** GET `/control/max_backup` CSRF hardening; constant-time token comparison; 4KB POST body cap
+* **fix(security):** `/help` stored XSS fixed; credential files now created `0600` atomically; tokens redacted from debug logs
+* **fix(performance):** Local negative caching now actually works; native lock timeouts removed
+* **fix(perf):** FleetAPI reuses one HTTP/2 client and never re-sends POSTs after transmission (eliminates duplicate write commands)
+* **fix:** 19 crash-on-None fixes across all backends and the proxy
+* 224 regression tests passing (up from 123 pre-v0.16.0); hardware-verified against TEDAPI WiFi, v1r+WiFi hybrid, Cloud, and FleetAPI modes
+## v5.1.6 - Upgrade Script Grafana Teardown Guard
+
+### Bug Fix
+
+* Guard the Grafana container teardown in `upgrade.sh` with an existence check (`docker ps -aq -f name=^grafana$`), matching the pattern already used for `pypowerwall`, `telegraf`, `weather411`, and `tesla-history`. Previously, if no Grafana container existed, `docker stop grafana` returned a non-zero status and aborted the upgrade before the stack could be updated or restarted. In migration paths that had already stopped services, this could leave the stack down. This affected users who disable the bundled Grafana via a compose override (`profiles: ["disabled"]`) to reuse an existing Grafana instance.
+  - Reported in [#819](https://github.com/jasonacox/Powerwall-Dashboard/issues/819). Fixed in [PR #820](https://github.com/jasonacox/Powerwall-Dashboard/pull/820).
+
 ## v5.1.5 - Inverter Power Panel Fix (4-string & 6-string Systems)
 
 ### Bug Fix
