@@ -54,6 +54,55 @@ cd Powerwall-Dashboard/
 ./setup.sh 
 ```
 
+## Debian
+
+**Note:** For the most up-to-date Docker installation instructions, refer to the official Docker documentation at https://docs.docker.com/engine/install/debian/
+
+The install block below was tested on Debian Trixie (v13) and should also work on earlier versions (Bullseye, Bookworm) — only the repository codename will differ.
+
+```bash
+# install dependencies
+sudo apt update
+sudo apt upgrade
+sudo apt install ca-certificates curl
+
+# Add Docker's official GPG key (Debian repo, not Ubuntu)
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+# Add the repository to Apt sources (Debian repo, not Ubuntu)
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt update
+
+# Install Docker
+sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
+
+# add local user to docker group so you can run docker commands
+sudo usermod -aG docker $USER
+newgrp docker
+
+# verify it is running
+sudo systemctl status docker
+docker ps
+
+# make sure it starts on reboot
+sudo systemctl enable docker
+
+# `newgrp` leaves you in a temporary 'docker' group shell
+# `exit` gets back to your normal primary group
+#    This avoids setup.sh detecting a mismatched uid:gid (e.g. 1000:989 instead of 1000:1000)
+exit
+
+# Powerwall Dashboard Setup
+git clone https://github.com/jasonacox/Powerwall-Dashboard.git
+cd Powerwall-Dashboard/
+./setup.sh
+```
+
 ## MacOS
 
 * Install Docker Desktop - [Instructions](https://docs.docker.com/desktop/install/mac-install/)
