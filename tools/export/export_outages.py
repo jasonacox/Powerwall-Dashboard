@@ -63,13 +63,13 @@ def query_outages(start, end):
     outages = []
     interval_start = None
     last_ts = None
-    lowest_status = 0
+    lowest_status = None
 
     for point in points:
         ts = parse_ts(point["time"])
         status = int(point["grid_status"])
 
-        if status < lowest_status:
+        if lowest_status is None or status < lowest_status:
             lowest_status = status
 
         if interval_start is None:
