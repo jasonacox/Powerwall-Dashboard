@@ -7,7 +7,7 @@
  Author: Adapted from tools/export/export.py
 """
 import csv
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 import sys
 import zoneinfo
 
@@ -23,6 +23,7 @@ INFLUXDB_USER = ""
 INFLUXDB_PASS = ""
 INFLUXDB_DB = "powerwall"
 TZ = zoneinfo.ZoneInfo("America/New_York")
+TZ_STR = "America/New_York"
 OUTPUT_FILE = "outages.csv"
 
 
@@ -44,9 +45,10 @@ def query_outages(start, end):
 
     query = (
         'SELECT "grid_status" FROM "grid"."http" '
-        'WHERE "grid_status" <= 0 AND time >= \'%s\' AND time <= \'%s\' '
+        'WHERE "grid_status" <= 0 AND time >= \'%s\' AND time < \'%s\' '
+        "tz('%s') "
         'ORDER BY time ASC'
-    ) % (start, end)
+    ) % (start, end, TZ_STR)
 
     print(f"Querying InfluxDB ...", flush=True)
     result = client.query(query)
