@@ -1059,7 +1059,7 @@
           "policy": "default",
           "query": "SELECT min(\"grid_status\") +1  FROM \"grid\".\"http\" WHERE grid_status = 0 and $timeFilter GROUP BY time($__interval) ",
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket ('$__interval', time) as time, \n(grid_status) +1  as \"Grid Down\" \nFROM pw_grid_1m WHERE  grid_status = 0\nand $__timeFilter(time) \nGROUP by 1, 2",
+          "rawSql": "SELECT time_bucket_gapfill('$__interval', time, $__timeFrom()::timestamptz, $__timeTo()::timestamptz) as time, \nmin(grid_status) +1  as \"Grid Down\" \nFROM pw_grid_1m WHERE  grid_status = 0\nand time BETWEEN $__timeFrom()::timestamptz AND $__timeTo()::timestamptz \nGROUP by 1",
           "refId": "J",
           "resultFormat": "time_series",
           "select": [
@@ -1407,7 +1407,7 @@
           "format": "table",
           "hide": false,
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket('$__interval', time) as time,\n       min(grid_status) + 1 as \"off_grid\"\nFROM pw_grid_1m\nWHERE grid_status = 0 AND $__timeFilter(time)\nGROUP BY 1",
+          "rawSql": "SELECT time_bucket_gapfill('$__interval', time, $__timeFrom()::timestamptz, $__timeTo()::timestamptz) as time,\n       min(grid_status) + 1 as \"off_grid\"\nFROM pw_grid_1m\nWHERE grid_status = 0 AND time BETWEEN $__timeFrom()::timestamptz AND $__timeTo()::timestamptz\nGROUP BY 1",
           "refId": "B",
           "sql": {
             "columns": [
@@ -1438,7 +1438,7 @@
           "format": "table",
           "hide": false,
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket('$__interval', time) as time,\n       min(grid_status) + 1 as \"off_grid\"\nFROM pw_grid_1m\nWHERE grid_status = 0 AND $__timeFilter(time)\nGROUP BY 1",
+          "rawSql": "SELECT time_bucket_gapfill('$__interval', time, $__timeFrom()::timestamptz, $__timeTo()::timestamptz) as time,\n       min(grid_status) + 1 as \"off_grid\"\nFROM pw_grid_1m\nWHERE grid_status = 0 AND time BETWEEN $__timeFrom()::timestamptz AND $__timeTo()::timestamptz\nGROUP BY 1",
           "refId": "C"
         }
       ],
@@ -4397,7 +4397,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": " Grid L3"
+              "options": "Grid L3"
             },
             "properties": [
               {
@@ -4413,7 +4413,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": " Home L3"
+              "options": "Home L3"
             },
             "properties": [
               {
@@ -4497,7 +4497,7 @@
         {
           "id": "renameByRegex",
           "options": {
-            "regex": "value(.*)$",
+            "regex": "value (.*)$",
             "renamePattern": "$1"
           }
         }
@@ -4640,7 +4640,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": " Grid L3"
+              "options": "Grid L3"
             },
             "properties": [
               {
@@ -4656,7 +4656,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": " Home L3"
+              "options": "Home L3"
             },
             "properties": [
               {
@@ -4740,7 +4740,7 @@
         {
           "id": "renameByRegex",
           "options": {
-            "regex": "value(.*)$",
+            "regex": "value (.*)$",
             "renamePattern": "$1"
           }
         }
@@ -4883,7 +4883,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": " Grid L3"
+              "options": "Grid L3"
             },
             "properties": [
               {
@@ -4899,7 +4899,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": " Home L3"
+              "options": "Home L3"
             },
             "properties": [
               {
@@ -4983,7 +4983,7 @@
         {
           "id": "renameByRegex",
           "options": {
-            "regex": "value(.*)$",
+            "regex": "value (.*)$",
             "renamePattern": "$1"
           }
         }
@@ -5126,7 +5126,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": " Grid L3"
+              "options": "Grid L3"
             },
             "properties": [
               {
@@ -5142,7 +5142,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": " Home L3"
+              "options": "Home L3"
             },
             "properties": [
               {
@@ -5226,7 +5226,7 @@
         {
           "id": "renameByRegex",
           "options": {
-            "regex": "value(.*)$",
+            "regex": "value (.*)$",
             "renamePattern": "$1"
           }
         }
@@ -7233,7 +7233,7 @@
           "orderByTime": "ASC",
           "policy": "vitals",
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket('$__interval', time) AS time,\n  CASE metric_name\n    WHEN 'ISLAND_FreqL1_Load' THEN 'Home L1'\n    WHEN 'ISLAND_FreqL2_Load' THEN 'Home L2'\n    WHEN 'ISLAND_FreqL3_Load' THEN 'Home L3'\n    WHEN 'ISLAND_FreqL1_Main' THEN 'Grid L1'\n    WHEN 'ISLAND_FreqL2_Main' THEN 'Grid L2'\n    WHEN 'ISLAND_FreqL3_Main' THEN 'Grid L3'\n    ELSE regexp_replace(metric_name, '_PINV_Fout$', '')\n  END AS metric_name,\n  avg(value) AS value\nFROM pw_vitals_log\nWHERE $__timeFilter(time)\n  AND (metric_name IN ('ISLAND_FreqL1_Load','ISLAND_FreqL2_Load','ISLAND_FreqL3_Load',\n                        'ISLAND_FreqL1_Main','ISLAND_FreqL2_Main','ISLAND_FreqL3_Main')\n       OR metric_name ~ '^PW[0-9]+_PINV_Fout$')\nGROUP BY 1, metric_name\n\nUNION ALL\n\nSELECT time_bucket('$__interval', time) AS time,\n  'Off Grid' AS metric_name,\n  min(grid_status) + 1 AS value\nFROM pw_grid_1m\nWHERE grid_status = 0 AND $__timeFilter(time)\nGROUP BY 1\n\nORDER BY 1, 2",
+          "rawSql": "SELECT time_bucket('$__interval', time) AS time,\n  CASE metric_name\n    WHEN 'ISLAND_FreqL1_Load' THEN 'Home L1'\n    WHEN 'ISLAND_FreqL2_Load' THEN 'Home L2'\n    WHEN 'ISLAND_FreqL3_Load' THEN 'Home L3'\n    WHEN 'ISLAND_FreqL1_Main' THEN 'Grid L1'\n    WHEN 'ISLAND_FreqL2_Main' THEN 'Grid L2'\n    WHEN 'ISLAND_FreqL3_Main' THEN 'Grid L3'\n    ELSE regexp_replace(metric_name, '_PINV_Fout$', '')\n  END AS metric_name,\n  avg(value) AS value\nFROM pw_vitals_log\nWHERE $__timeFilter(time)\n  AND (metric_name IN ('ISLAND_FreqL1_Load','ISLAND_FreqL2_Load','ISLAND_FreqL3_Load',\n                        'ISLAND_FreqL1_Main','ISLAND_FreqL2_Main','ISLAND_FreqL3_Main')\n       OR metric_name ~ '^PW[0-9]+_PINV_Fout$')\nGROUP BY 1, metric_name\n\nUNION ALL\n\nSELECT time_bucket_gapfill('$__interval', time, $__timeFrom()::timestamptz, $__timeTo()::timestamptz) AS time,\n  'Off Grid' AS metric_name,\n  min(grid_status) + 1 AS value\nFROM pw_grid_1m\nWHERE grid_status = 0 AND time BETWEEN $__timeFrom()::timestamptz AND $__timeTo()::timestamptz\nGROUP BY 1\n\nORDER BY 1, 2",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -7427,7 +7427,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": " Grid L3"
+              "options": "Grid L3"
             },
             "properties": [
               {
@@ -7443,7 +7443,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": " Home L3"
+              "options": "Home L3"
             },
             "properties": [
               {
@@ -7492,7 +7492,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH gate AS (\n  SELECT\n    time_bucket('$__interval', time) AS bucket,\n    avg(value) FILTER (WHERE metric_name = 'ISLAND_VL1N_Load') AS island_vl1n_load\n  FROM pw_vitals_log\n  WHERE $__timeFilter(time)\n    AND metric_name = 'ISLAND_VL1N_Load'\n  GROUP BY 1\n),\nscalars AS (\n  SELECT\n    time_bucket('$__interval', time) AS bucket,\n    CASE metric_name\n      WHEN 'ISLAND_VL1N_Load' THEN 'Home L1'\n      WHEN 'ISLAND_VL2N_Load' THEN 'Home L2'\n      WHEN 'ISLAND_VL3N_Load' THEN 'Home L3'\n      WHEN 'METER_X_VL1N'     THEN 'Grid L1'\n      WHEN 'METER_X_VL2N'     THEN 'Grid L2'\n      WHEN 'METER_X_VL3N'     THEN 'Grid L3'\n    END AS metric_name,\n    avg(value) AS value\n  FROM pw_vitals_log\n  WHERE $__timeFilter(time)\n    AND metric_name IN ('ISLAND_VL1N_Load','ISLAND_VL2N_Load','ISLAND_VL3N_Load',\n                        'METER_X_VL1N','METER_X_VL2N','METER_X_VL3N')\n  GROUP BY 1, metric_name\n),\nsplits AS (\n  SELECT\n    time_bucket('$__interval', v.time) AS bucket,\n    regexp_replace(v.metric_name, '_PINV_VSplit[12]$', '') AS pw,\n    CASE WHEN v.metric_name ~ 'VSplit1$' THEN v.value END AS vsplit1,\n    CASE WHEN v.metric_name ~ 'VSplit2$' THEN v.value END AS vsplit2\n  FROM pw_vitals_log v\n  WHERE $__timeFilter(v.time)\n    AND v.metric_name ~ '^PW[0-9]+_PINV_VSplit[12]$'\n),\nsplits_agg AS (\n  SELECT bucket, pw, avg(vsplit1) AS vsplit1, avg(vsplit2) AS vsplit2\n  FROM splits\n  GROUP BY bucket, pw\n),\npw_series AS (\n  -- split-phase (single-phase panel voltage < 200V): show L1 and L2 separately\n  SELECT s.bucket, s.pw || ' L1' AS metric_name, s.vsplit1 AS value\n  FROM splits_agg s\n  JOIN gate g ON g.bucket = s.bucket\n  WHERE g.island_vl1n_load < 200.0\n  UNION ALL\n  SELECT s.bucket, s.pw || ' L2' AS metric_name, s.vsplit2 AS value\n  FROM splits_agg s\n  JOIN gate g ON g.bucket = s.bucket\n  WHERE g.island_vl1n_load < 200.0\n  UNION ALL\n  -- combined phase (panel voltage > 200V): show one summed value, no suffix\n  SELECT s.bucket, s.pw AS metric_name, s.vsplit1 + s.vsplit2 AS value\n  FROM splits_agg s\n  JOIN gate g ON g.bucket = s.bucket\n  WHERE g.island_vl1n_load > 200.0\n),\nvout AS (\n  SELECT time_bucket('$__interval', time) AS bucket,\n    regexp_replace(metric_name, '_v_out$', '') || ' Vout' AS metric_name,\n    avg(value) AS value\n  FROM pw_vitals_log\n  WHERE $__timeFilter(time)\n    AND metric_name ~ '^PW[0-9]+_v_out$'\n  GROUP BY 1, metric_name\n)\nSELECT bucket AS time, metric_name, value FROM scalars\nUNION ALL\nSELECT bucket AS time, metric_name, value FROM pw_series\nUNION ALL\nSELECT bucket AS time, metric_name, value FROM vout\nUNION ALL\nSELECT time_bucket('$__interval', time) AS time, 'Grid Status' AS metric_name, min(grid_status) + 1 AS value\nFROM pw_grid_1m\nWHERE grid_status = 0\n  AND $__timeFilter(time)\nGROUP BY 1\nORDER BY 1, 2",
+          "rawSql": "WITH gate AS (\n  SELECT\n    time_bucket('$__interval', time) AS bucket,\n    avg(value) FILTER (WHERE metric_name = 'ISLAND_VL1N_Load') AS island_vl1n_load\n  FROM pw_vitals_log\n  WHERE $__timeFilter(time)\n    AND metric_name = 'ISLAND_VL1N_Load'\n  GROUP BY 1\n),\nscalars AS (\n  SELECT\n    time_bucket('$__interval', time) AS bucket,\n    CASE metric_name\n      WHEN 'ISLAND_VL1N_Load' THEN 'Home L1'\n      WHEN 'ISLAND_VL2N_Load' THEN 'Home L2'\n      WHEN 'ISLAND_VL3N_Load' THEN 'Home L3'\n      WHEN 'METER_X_VL1N'     THEN 'Grid L1'\n      WHEN 'METER_X_VL2N'     THEN 'Grid L2'\n      WHEN 'METER_X_VL3N'     THEN 'Grid L3'\n    END AS metric_name,\n    avg(value) AS value\n  FROM pw_vitals_log\n  WHERE $__timeFilter(time)\n    AND metric_name IN ('ISLAND_VL1N_Load','ISLAND_VL2N_Load','ISLAND_VL3N_Load',\n                        'METER_X_VL1N','METER_X_VL2N','METER_X_VL3N')\n  GROUP BY 1, metric_name\n),\nsplits AS (\n  SELECT\n    time_bucket('$__interval', v.time) AS bucket,\n    regexp_replace(v.metric_name, '_PINV_VSplit[12]$', '') AS pw,\n    CASE WHEN v.metric_name ~ 'VSplit1$' THEN v.value END AS vsplit1,\n    CASE WHEN v.metric_name ~ 'VSplit2$' THEN v.value END AS vsplit2\n  FROM pw_vitals_log v\n  WHERE $__timeFilter(v.time)\n    AND v.metric_name ~ '^PW[0-9]+_PINV_VSplit[12]$'\n),\nsplits_agg AS (\n  SELECT bucket, pw, avg(vsplit1) AS vsplit1, avg(vsplit2) AS vsplit2\n  FROM splits\n  GROUP BY bucket, pw\n),\npw_series AS (\n  -- split-phase (single-phase panel voltage < 200V): show L1 and L2 separately\n  SELECT s.bucket, s.pw || ' L1' AS metric_name, s.vsplit1 AS value\n  FROM splits_agg s\n  JOIN gate g ON g.bucket = s.bucket\n  WHERE g.island_vl1n_load < 200.0\n  UNION ALL\n  SELECT s.bucket, s.pw || ' L2' AS metric_name, s.vsplit2 AS value\n  FROM splits_agg s\n  JOIN gate g ON g.bucket = s.bucket\n  WHERE g.island_vl1n_load < 200.0\n  UNION ALL\n  -- combined phase (panel voltage > 200V): show one summed value, no suffix\n  SELECT s.bucket, s.pw AS metric_name, s.vsplit1 + s.vsplit2 AS value\n  FROM splits_agg s\n  JOIN gate g ON g.bucket = s.bucket\n  WHERE g.island_vl1n_load > 200.0\n),\nvout AS (\n  SELECT time_bucket('$__interval', time) AS bucket,\n    regexp_replace(metric_name, '_v_out$', '') || ' Vout' AS metric_name,\n    avg(value) AS value\n  FROM pw_vitals_log\n  WHERE $__timeFilter(time)\n    AND metric_name ~ '^PW[0-9]+_v_out$'\n  GROUP BY 1, metric_name\n)\nSELECT bucket AS time, metric_name, value FROM scalars\nUNION ALL\nSELECT bucket AS time, metric_name, value FROM pw_series\nUNION ALL\nSELECT bucket AS time, metric_name, value FROM vout\nUNION ALL\nSELECT time_bucket_gapfill('$__interval', time, $__timeFrom()::timestamptz, $__timeTo()::timestamptz) AS time, 'Grid Status' AS metric_name, min(grid_status) + 1 AS value\nFROM pw_grid_1m\nWHERE grid_status = 0\n  AND time BETWEEN $__timeFrom()::timestamptz AND $__timeTo()::timestamptz\nGROUP BY 1\nORDER BY 1, 2",
           "refId": "A",
           "sql": {
             "columns": [
@@ -7527,7 +7527,7 @@
         {
           "id": "renameByRegex",
           "options": {
-            "regex": "value(.*)$",
+            "regex": "value (.*)$",
             "renamePattern": "$1"
           }
         }
