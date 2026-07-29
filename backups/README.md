@@ -85,10 +85,10 @@ config/            # configuration files (.env, .conf, .yml)
 
 To restore from a backup script archive:
 
-1. Install a fresh instance of Powerwall-Dashboard per [Setup instructions](https://github.com/jasonacox/Powerwall-Dashboard#setup).
-2. Stop containers using convenience script in Powerwall-Dashboard root folder
+1. Install a fresh instance of Powerwall-Dashboard per [Setup instructions](https://github.com/jasonacox/Powerwall-Dashboard#setup), then start it once so the `influxdb` container is running and the default `powerwall` database exists.
+2. Stop **telegraf and grafana** only — keep `influxdb` running so `docker exec` works:
     ```bash
-    ./compose-dash.sh stop
+    docker compose stop telegraf grafana
     ```
 3. Restore backup files
     ```bash
@@ -102,6 +102,9 @@ To restore from a backup script archive:
     # Restore InfluxDB snapshot (files are in influxdb/ from the portable backup)
     mkdir -p "${DASHBOARD}/influxdb/backups"
     sudo cp -a /tmp/pwd-restore/influxdb/. "${DASHBOARD}/influxdb/backups/"
+    # Drop the existing database — influxd restore refuses to restore into an
+    # existing database (setup.sh creates an empty powerwall DB):
+    docker exec influxdb influx -database powerwall -execute "DROP DATABASE powerwall"
     # Restore using -portable to match the backup format:
     docker exec influxdb influxd restore -portable /var/lib/influxdb/backups
 
