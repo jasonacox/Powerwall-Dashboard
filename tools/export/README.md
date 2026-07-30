@@ -37,3 +37,30 @@ TimeStamp,Solar,Powerwall,Home,Grid,Charge
 2024-03-13T01:02:00Z,350,821,1171,0,100
 2024-03-13T01:03:00Z,342,833,1178,2,100
 ```
+
+## Outage Export (export_outages.py)
+
+Export grid outage intervals detected from InfluxDB. Reads `grid_status` from the `grid` retention policy where `<= 0` indicates off-grid.
+
+```
+python3 export_outages.py
+
+Usage: export_outages.py [today|yesterday|all] or [YYYY-mm-dd] [YYYY-mm-dd]
+    today      - export today's outages
+    yesterday  - export yesterday's outages
+    all        - export all recorded outages
+    YYYY-mm-dd - export single day
+    YYYY-mm-dd YYYY-mm-dd - export date range
+```
+
+**Output:** CSV with columns `StartTime`, `EndTime`, `DurationMinutes`, `StatusValue`
+
+**Note:** Timezone is set to `America/New_York` in the script — change the `TZ` variable to match your location if different.
+
+### Output Example
+
+```csv
+StartTime,EndTime,DurationMinutes,StatusValue
+2025-12-18 23:20:00,2025-12-18 23:27:00,7.0,0
+2026-03-24 13:54:00,2026-03-24 14:02:00,8.0,0
+```
