@@ -1,8 +1,8 @@
 # RELEASE NOTES
 
-## v5.2.0 - Backup Script: Consistent Snapshots, Grafana & Config Backup
+## v5.2.0 - Backup Overhaul, Outage Export, verify.sh Fixes & More
 
-### Backup Improvements
+### Backup Script Improvements
 
 * **InfluxDB consistent snapshots** — the backup script now archives the InfluxDB **snapshot** (via `influxd backup -portable`) instead of tarring the live `influxdb/` directory while InfluxDB is actively writing. This eliminates the `file changed as we read it` warnings and eliminates the risk of archive corruption from concurrent writes. The `-portable` flag produces a version-independent snapshot that can be restored reliably on any InfluxDB 1.x instance.
 * **Grafana database backup** — `grafana.db` is now backed up using `sqlite3 .backup` (SQLite's online backup API) for a consistent copy. Falls back to `cp -a` if sqlite3 is not installed on the host, with a hint to `sudo apt install sqlite3`.
@@ -10,7 +10,19 @@
 * **Staging directory with trap cleanup** — the script uses `mktemp -d` for staging with a trap to clean up on exit.
 * **Proper quoting** — all variable references are properly quoted throughout the script.
 
-### Archive Structure
+### New Features
+
+* **Outage export script** — `tools/export_outages/export_outages.py` by **@ondrejch** exports grid outage data from InfluxDB as CSV. Reads `grid_status` from `powerwall.grid.http`, merges consecutive readings into outage intervals, and outputs columns: StartTime, EndTime, DurationMinutes, StatusValue. Supports `all`, `today`, `yesterday`, or custom date ranges. ([PR #833](https://github.com/jasonacox/Powerwall-Dashboard/pull/833))
+
+### Bug Fixes
+
+* **verify.sh `--debug` mode and `bc` fix** — adds `--debug` flag that disables `set -e` and enables `set -x` tracing so users can see exactly where the script fails. Makes the `bc` call non-fatal — if `bc` is not installed, falls back to the raw battery level with a visible warning instead of silently killing the script. Fixes [#827](https://github.com/jasonacox/Powerwall-Dashboard/issues/827) reported by **@hatchjdecho**. ([PR #834](https://github.com/jasonacox/Powerwall-Dashboard/pull/834))
+
+### Documentation
+
+* **Debian Docker installation instructions** — adds a Debian section to `tools/DOCKER.md` with steps tested on Debian Trixie (v13), including the correct Docker GPG key and apt repository paths. Based on testing by **@JonMurphy**. ([#831](https://github.com/jasonacox/Powerwall-Dashboard/issues/831), [PR #832](https://github.com/jasonacox/Powerwall-Dashboard/pull/832))
+
+### Backup Archive Structure
 
 ```
 influxdb/     # InfluxDB portable snapshot (metadata + shard data)
@@ -21,16 +33,30 @@ config/       # .env, .conf, .yml/.yaml configuration files
 ### Files Changed
 
 * `backups/backup.sh.sample` — rewritten with three-part backup approach
-* `backups/README.md` — updated to describe new backup format and restore instructions
+* `backups/README.md` — updated backup format description, restore instructions, and automation guide
+* `tools/export_outages/export_outages.py` — new outage export tool
+* `tools/export_outages/README.md` — usage documentation
+* `tools/DOCKER.md` — Debian installation instructions
+* `verify.sh` — `--debug` mode and non-fatal `bc`
+* `VERSION` — `5.1.7` → `5.2.0`
+* `upgrade.sh` — version consistency
 
 ### Contributors
 
-Thanks to **@JonMurphy** for the detailed bug report (#825), thorough testing, and review feedback — the `-portable` flag suggestion, config files question, and `.sql` files check all made the script better. Thanks to **@hulkster** for the weather data backup verification question.
+Thanks to the community members who made this release possible:
+
+* **@JonMurphy** — reported the backup corruption issue (#825), tested every iteration of the backup script, suggested the `-portable` flag, reviewed config backup scope, tested Debian Docker instructions (#831), and confirmed the final build A-OK
+* **@hulkster** — verified weather data backup coverage and asked about historical weather import options
+* **@ondrejch** — contributed the outage export script `export_outages.py` (PR #833)
+* **@hatchjdecho** — reported the verify.sh silent exit bug (#827) with detailed troubleshooting
 
 ### Links
 
-* Reported in [#825](https://github.com/jasonacox/Powerwall-Dashboard/issues/825)
-* Fixed in [PR #826](https://github.com/jasonacox/Powerwall-Dashboard/pull/826)
+* Backup issue: [#825](https://github.com/jasonacox/Powerwall-Dashboard/issues/825)
+* Backup PR: [#826](https://github.com/jasonacox/Powerwall-Dashboard/pull/826)
+* Outage export: [PR #833](https://github.com/jasonacox/Powerwall-Dashboard/pull/833)
+* verify.sh fix: [#827](https://github.com/jasonacox/Powerwall-Dashboard/issues/827) / [PR #834](https://github.com/jasonacox/Powerwall-Dashboard/pull/834)
+* Debian Docker docs: [#831](https://github.com/jasonacox/Powerwall-Dashboard/issues/831) / [PR #832](https://github.com/jasonacox/Powerwall-Dashboard/pull/832)
 
 ## v5.1.7 - Upgrade pypowerwall Proxy to v0.16.2t97
 
