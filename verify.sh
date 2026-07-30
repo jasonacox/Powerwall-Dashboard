@@ -2,8 +2,23 @@
 #
 # Setup Verification Tool for Powerwall Dashboard
 
-# Stop on Errors
-set -e
+# Debug mode: --debug flag disables set -e and reveals hidden errors
+# Check all args so --debug works in any position (not just first)
+DEBUG_MODE=false
+for arg in "$@"; do
+    if [[ "$arg" == "--debug" ]]; then
+        DEBUG_MODE=true
+        break
+    fi
+done
+
+# Stop on Errors (disabled in debug mode)
+if [[ "$DEBUG_MODE" == "true" ]]; then
+    set +e
+    set -x  # Trace every command
+else
+    set -e
+fi
 
 # Function to detect if terminal has light background
 detect_light_background() {
@@ -134,10 +149,15 @@ while [[ $# -gt 0 ]]; do
             HOST="$2"
             shift 2
             ;;
+        --debug)
+            # Already handled above, just consume the arg
+            shift
+            ;;
         -h|--help)
             echo "Usage: $0 [OPTIONS]"
             echo ""
             echo "Options:"
+            echo "  --debug           Disable set -e and trace all commands (verbose)"
             echo "  --no-color        Disable colored output"
             echo "  --debug-colors    Show color detection info"
             echo "  --lightbg         Force light background colors"
@@ -395,7 +415,12 @@ if [ "$HOST" != "localhost" ] || [ "$RUNNING" = "true" ]; then
             IFS=',' read -r GRID HOME SOLAR BATTERY BATTERYLEVEL GRIDSTATUS RESERVE <<< "$METRICS"
             # Scale battery level and reserve to account for Tesla's 5% reserve
             # Actual = (Raw / 0.95) - (5 / 0.95)
-            BATTERYLEVEL_SCALED=$(echo "scale=2; ($BATTERYLEVEL / 0.95) - (5 / 0.95)" | bc 2>/dev/null)
+            if command -v bc &>/dev/null; then
+                BATTERYLEVEL_SCALED=$(echo "scale=2; ($BATTERYLEVEL / 0.95) - (5 / 0.95)" | bc 2>/dev/null) || { BATTERYLEVEL_SCALED="$BATTERYLEVEL"; echo -e "${dim}   ${alertdim}NOTE: Battery level scaling failed - showing raw value.${normal}"; }
+            else
+                BATTERYLEVEL_SCALED="$BATTERYLEVEL"
+                echo -e "${dim}   ${alertdim}NOTE: 'bc' not installed - showing raw battery level. Install with: sudo apt install bc${normal}"
+            fi
             echo -e "${dim} - Current Power Measurements:"
             echo -e "${dim}   Grid: ${subbold}${GRID}W${dim}   Home: ${subbold}${HOME}W${dim}   Solar: ${subbold}${SOLAR}W${dim}"
             echo -e "${dim}   Battery: ${subbold}${BATTERY}W${dim}   Battery Level: ${subbold}${BATTERYLEVEL_SCALED}%${dim}   Reserve: ${subbold}${RESERVE}%${dim}"
