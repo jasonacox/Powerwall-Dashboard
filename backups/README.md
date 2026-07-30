@@ -73,7 +73,30 @@ KEEP="5"                                      # Days to keep backup
 
 Naturally, whatever backup plan you decide to do, make sure you test it. Copy the backup to another VM or box, install Powerwall-Dashboard and restore the backup to see if it all comes back up without any data loss.
 
-### Using the backup script archive
+### Using the restore script (recommended)
+
+A companion `restore.sh.sample` is provided to automate the restore process. It handles permissions, pre-restore safety copies, and the correct InfluxDB restore sequence.
+
+1. Copy restore.sh.sample to restore.sh (cp restore.sh.sample restore.sh)
+2. Make the script executable with `chmod +x restore.sh`
+3. Run as root:
+    ```bash
+    # Restore from the most recent backup archive
+    sudo ./restore.sh
+
+    # Or specify a specific archive
+    sudo ./restore.sh /path/to/Powerwall-Dashboard.2026-01-15.tar.xz
+    ```
+
+The restore script will:
+1. **Auto-detect** the Powerwall-Dashboard directory by locating `compose-dash.sh`
+2. **Stop all containers** before touching data
+3. **Restore InfluxDB** from the `influxd backup -portable` snapshot, moving existing data aside first (not deleted — you get a rollback path)
+4. **Restore Grafana** database and provisioning files with correct ownership
+5. **Restore configuration files**, rewriting `PWD_USER` in `compose.env` to match this host's actual user and docker group
+6. **Restart the stack** and print a list of pre-restore backup paths to clean up once confirmed
+
+### Manual restore from a backup script archive
 
 The backup script creates an archive with this structure:
 
@@ -83,7 +106,7 @@ grafana/           # grafana.db (consistent copy) + provisions
 config/            # configuration files (.env, .conf, .yml)
 ```
 
-To restore from a backup script archive:
+To restore manually from a backup script archive:
 
 1. Install a fresh instance of Powerwall-Dashboard per [Setup instructions](https://github.com/jasonacox/Powerwall-Dashboard#setup), then start it once so the `influxdb` container is running and the default `powerwall` database exists.
 2. Stop **telegraf and grafana** only — keep `influxdb` running so `docker exec` works:

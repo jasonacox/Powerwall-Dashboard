@@ -1,0 +1,208 @@
+#!/bin/bash
+#
+# Restore Script for Powerwall Dashboard Data
+#   https://github.com/jasonacox/Powerwall-Dashboard
+#   by JonMurphy & Sam Cox
+#
+# Companion to backup.sh — restores InfluxDB snapshot, Grafana database,
+# and configuration files from a backup archive created by that script.
+# Safe for both same-machine restores and migrations to a new machine.
+
+# Restore Powerwall-Dashboard Data
+if [ "$EUID" -ne 0 ]
+  then echo "Must run as root"
+  exit
+fi
+
+# ── Locate the Powerwall-Dashboard directory ──────────────────────────
+# compose-dash.sh is a unique marker file for the dashboard root, so we
+# search for it rather than hardcoding a path.
+echo "Searching for compose-dash.sh..."
+MATCH=$(find / -type f -iname "compose-dash.sh" 2>/dev/null | head -n 1)
+
+DASHBOARD=""
+if [ -n "${MATCH}" ]; then
+  DASHBOARD="$(dirname "${MATCH}")"
+fi
+
+if [ -z "${DASHBOARD}" ]; then
+  echo "ERROR: Could not locate the Powerwall-Dashboard directory (no compose-dash.sh found)."
+  echo "Place this script in your Powerwall-Dashboard/backups directory and re-run it."
+  exit 1
+fi
+
+BACKUP_FOLDER="${DASHBOARD}/backups"          # Location of backup archives
+
+echo "Using Powerwall-Dashboard directory: ${DASHBOARD}"
+
+if [ ! -d "${BACKUP_FOLDER}" ]; then
+  echo "Backup directory ${BACKUP_FOLDER} does not exist."
+  exit 1
+fi
+
+# ── Determine this host's correct owner:group for container files ─────
+# Derive PWD_USER from compose-dash.sh ownership + the host's docker GID
+# instead of trusting compose.env (which can get overwritten during restore).
+DOCKER_GID=$(getent group docker 2>/dev/null | cut -d: -f3)
+HOST_UID=$(stat -c '%u' "${DASHBOARD}/compose-dash.sh" 2>/dev/null)
+
+PWD_USER="${HOST_UID:-1000}:${DOCKER_GID:-1000}"
+echo "Detected owner:group for this host: ${PWD_USER} (from compose-dash.sh ownership + docker group)"
+
+# ── Determine which archive to restore ────────────────────────────────
+# Usage: restore.sh [path-to-archive.tar.xz]
+# If no archive is given, the most recent one in BACKUP_FOLDER is used.
+if [ -n "$1" ]; then
+  ARCHIVE="$1"
+else
+  ARCHIVE=$(ls -1t "${BACKUP_FOLDER}"/Powerwall-Dashboard.*.tar.xz 2>/dev/null | head -n 1)
+fi
+
+if [ -z "${ARCHIVE}" ] || [ ! -f "${ARCHIVE}" ]; then
+  echo "No backup archive found."
+  echo "Usage: $0 [path-to-Powerwall-Dashboard.YYYY-MM-DD.tar.xz]"
+  exit 1
+fi
+
+STAMP=$(date '+%Y-%m-%d_%H%M%S')
+STAGING=$(mktemp -d)
+PRERESTORE_PATHS=()
+
+# Cleanup staging on exit
+cleanup() {
+  rm -rf "${STAGING}"
+}
+trap cleanup EXIT
+
+echo "========================================="
+echo " Powerwall-Dashboard Restore - ${STAMP}"
+echo "========================================="
+echo "Archive: ${ARCHIVE}"
+echo ""
+read -r -p "This will OVERWRITE existing data. Continue? [y/N] " CONFIRM
+if [[ ! "${CONFIRM}" =~ ^[Yy]$ ]]; then
+  echo "Restore cancelled."
+  exit 0
+fi
+
+# ── Extract archive to staging ────────────────────────────────────────
+echo ""
+echo "Extracting archive..."
+tar --no-same-owner -Jxvf "${ARCHIVE}" -C "${STAGING}"
+
+# ── Stop the stack before touching data ───────────────────────────────
+echo ""
+echo "Stopping Powerwall-Dashboard containers..."
+cd "${DASHBOARD}"
+./compose-dash.sh stop
+
+# ── 1. InfluxDB Snapshot ──────────────────────────────────────────────
+echo ""
+echo "[1/3] Restoring InfluxDB snapshot..."
+if [ -d "${STAGING}/influxdb" ] && [ -n "$(ls -A "${STAGING}/influxdb" 2>/dev/null)" ]; then
+  mkdir -p influxdb/backups
+  chmod g+w influxdb/backups
+  rm -rf influxdb/backups/*
+  cp -a "${STAGING}/influxdb/." influxdb/backups/
+
+  # Move existing data aside (not deleted) so influxd restore has a clean target.
+  # This provides a rollback path if the restore fails.
+  for SUBDIR in data meta wal; do
+    if [ -d "influxdb/${SUBDIR}" ]; then
+      mv "influxdb/${SUBDIR}" "influxdb/${SUBDIR}.pre-restore.${STAMP}"
+      echo "  - Existing influxdb/${SUBDIR} saved as influxdb/${SUBDIR}.pre-restore.${STAMP}"
+      PRERESTORE_PATHS+=("${DASHBOARD}/influxdb/${SUBDIR}.pre-restore.${STAMP}")
+    fi
+  done
+
+  # Start only influxdb so influxd restore has a running server to talk to
+  ./compose-dash.sh up -d influxdb
+  sleep 5
+
+  if docker exec influxdb influxd restore -portable -db powerwall /var/lib/influxdb/backups; then
+    echo "  ✓ InfluxDB snapshot restored"
+  else
+    echo "  ✗ InfluxDB restore command failed - check output above"
+  fi
+
+  rm -rf influxdb/backups/*
+else
+  echo "  - No InfluxDB snapshot found in archive (skipping)"
+fi
+
+# ── 2. Grafana Database ───────────────────────────────────────────────
+echo ""
+echo "[2/3] Restoring Grafana database..."
+
+GRAFANA_DB="${DASHBOARD}/grafana/grafana.db"
+if [ -f "${STAGING}/grafana/grafana.db" ]; then
+  mkdir -p "${DASHBOARD}/grafana"
+  if [ -f "${GRAFANA_DB}" ]; then
+    cp -a "${GRAFANA_DB}" "${GRAFANA_DB}.pre-restore.${STAMP}"
+    echo "  - Existing grafana.db saved as grafana.db.pre-restore.${STAMP}"
+    PRERESTORE_PATHS+=("${GRAFANA_DB}.pre-restore.${STAMP}")
+  fi
+  cp -a "${STAGING}/grafana/grafana.db" "${GRAFANA_DB}"
+  chown "${PWD_USER}" "${GRAFANA_DB}"
+  echo "  ✓ Grafana DB restored (owner set to ${PWD_USER})"
+else
+  echo "  - No grafana.db found in archive (skipping)"
+fi
+
+# Restore Grafana provisioning files if present
+if [ -d "${STAGING}/grafana/provisions" ]; then
+  cp -a "${STAGING}/grafana/provisions" "${DASHBOARD}/grafana/"
+  chown -R "${PWD_USER}" "${DASHBOARD}/grafana/provisions"
+  echo "  ✓ Grafana provisioning files restored (owner set to ${PWD_USER})"
+fi
+
+# ── 3. Configuration Files ────────────────────────────────────────────
+echo ""
+echo "[3/3] Restoring configuration files..."
+
+FOUND=0
+if [ -d "${STAGING}/config" ]; then
+  for FILE in "${STAGING}"/config/*; do
+    [ -f "${FILE}" ] || continue
+    BASENAME=$(basename "${FILE}")
+    if [ -f "${DASHBOARD}/${BASENAME}" ]; then
+      cp -a "${DASHBOARD}/${BASENAME}" "${DASHBOARD}/${BASENAME}.pre-restore.${STAMP}"
+      PRERESTORE_PATHS+=("${DASHBOARD}/${BASENAME}.pre-restore.${STAMP}")
+    fi
+    cp -a "${FILE}" "${DASHBOARD}/${BASENAME}"
+    chown "${PWD_USER}" "${DASHBOARD}/${BASENAME}"
+
+    # Rewrite PWD_USER in compose.env to match this host's actual user:group
+    if [ "${BASENAME}" == "compose.env" ]; then
+      grep -vE '^PWD_USER=' "${DASHBOARD}/${BASENAME}" > "${DASHBOARD}/${BASENAME}.tmp"
+      echo "PWD_USER=\"${PWD_USER}\"" >> "${DASHBOARD}/${BASENAME}.tmp"
+      mv "${DASHBOARD}/${BASENAME}.tmp" "${DASHBOARD}/${BASENAME}"
+      chown "${PWD_USER}" "${DASHBOARD}/${BASENAME}"
+      echo "  - Set PWD_USER=\"${PWD_USER}\" in compose.env (matches this host)"
+    fi
+
+    FOUND=$((FOUND + 1))
+  done
+fi
+echo "  ✓ ${FOUND} config file(s) restored (owner set to ${PWD_USER})"
+
+# ── Restart the stack ─────────────────────────────────────────────────
+echo ""
+echo "Starting Powerwall-Dashboard containers..."
+cd "${DASHBOARD}"
+./compose-dash.sh start
+
+echo ""
+echo "========================================="
+echo " Restore complete!"
+echo " Restored from: ${ARCHIVE}"
+if [ "${#PRERESTORE_PATHS[@]}" -gt 0 ]; then
+  echo ""
+  echo " Anything overwritten was saved first. Once you've confirmed"
+  echo " the restore looks good, remove the pre-restore copies with:"
+  echo ""
+  for PATHNAME in "${PRERESTORE_PATHS[@]}"; do
+    echo "   rm -rf \"${PATHNAME}\""
+  done
+fi
+echo "========================================="
