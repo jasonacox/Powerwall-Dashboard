@@ -3,12 +3,14 @@
 # Setup Verification Tool for Powerwall Dashboard
 
 # Debug mode: --debug flag disables set -e and reveals hidden errors
-if [[ "$1" == "--debug" ]]; then
-    DEBUG_MODE=true
-    shift
-else
-    DEBUG_MODE=false
-fi
+# Check all args so --debug works in any position (not just first)
+DEBUG_MODE=false
+for arg in "$@"; do
+    if [[ "$arg" == "--debug" ]]; then
+        DEBUG_MODE=true
+        break
+    fi
+done
 
 # Stop on Errors (disabled in debug mode)
 if [[ "$DEBUG_MODE" == "true" ]]; then
@@ -414,7 +416,7 @@ if [ "$HOST" != "localhost" ] || [ "$RUNNING" = "true" ]; then
             # Scale battery level and reserve to account for Tesla's 5% reserve
             # Actual = (Raw / 0.95) - (5 / 0.95)
             if command -v bc &>/dev/null; then
-                BATTERYLEVEL_SCALED=$(echo "scale=2; ($BATTERYLEVEL / 0.95) - (5 / 0.95)" | bc 2>/dev/null) || BATTERYLEVEL_SCALED="$BATTERYLEVEL"
+                BATTERYLEVEL_SCALED=$(echo "scale=2; ($BATTERYLEVEL / 0.95) - (5 / 0.95)" | bc 2>/dev/null) || { BATTERYLEVEL_SCALED="$BATTERYLEVEL"; echo -e "${dim}   ${alertdim}NOTE: Battery level scaling failed - showing raw value.${normal}"; }
             else
                 BATTERYLEVEL_SCALED="$BATTERYLEVEL"
                 echo -e "${dim}   ${alertdim}NOTE: 'bc' not installed - showing raw battery level. Install with: sudo apt install bc${normal}"
