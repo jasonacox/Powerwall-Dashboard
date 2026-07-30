@@ -39,10 +39,9 @@ sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin dock
 
 # add local user to docker group so you can run docker commands
 sudo usermod -aG docker $USER
-newgrp docker
 
-# verify it is running
-sudo systemctl status docker
+# Log out and back in (or reboot) for the group change to take effect
+# Then verify docker works without sudo:
 docker ps
 
 # make sure it starts on reboot
@@ -83,19 +82,17 @@ sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin dock
 
 # add local user to docker group so you can run docker commands
 sudo usermod -aG docker $USER
-newgrp docker
 
-# verify it is running
-sudo systemctl status docker
+# Log out and back in (or reboot) for the group change to take effect.
+# This is required — `newgrp docker` only creates a temporary subshell
+# and `setup.sh` may detect a mismatched uid:gid if the group hasn't
+# been applied to your session.
+#
+# After logging back in, verify docker works without sudo:
 docker ps
 
 # make sure it starts on reboot
 sudo systemctl enable docker
-
-# `newgrp` leaves you in a temporary 'docker' group shell
-# `exit` gets back to your normal primary group
-#    This avoids setup.sh detecting a mismatched uid:gid (e.g. 1000:989 instead of 1000:1000)
-exit
 
 # Powerwall Dashboard Setup
 git clone https://github.com/jasonacox/Powerwall-Dashboard.git
@@ -135,7 +132,8 @@ sudo apt install -y docker-compose
 
 # Add your user to docker group
 sudo usermod -aG docker $USER
-newgrp docker
+
+# Log out and back in (or reboot) for the group change to take effect
 
 # Set docker to start on boot
 sudo systemctl enable docker.service
