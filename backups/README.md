@@ -34,11 +34,17 @@ Backup the Powerwall-Dashboard folder. In that folder are two important folders:
 * influxdb - This is the folder for the database that stores the metrics.
 * grafana - This is the folder for the dashboard which holds your setup and customization.
 
-The following shows an example of how to migrate the data (influxdb) from one system to another (see backup.sh):
+The backup script creates a consistent snapshot of:
+1. **InfluxDB** — uses `influxd backup` to create a proper snapshot (not a copy of live data files)
+2. **Grafana** — uses `sqlite3 .backup` for a consistent copy of `grafana.db` (falls back to direct copy if sqlite3 is not installed on the host: `sudo apt install sqlite3`)
+3. **Configuration files** — all `.env`, `.conf`, and `.yml` files needed to restore your setup
+
+The following shows an example of how to set up automated backups (see backup.sh):
 
 1. Copy backup.sh.sample to backup.sh (cp backup.sh.sample backup.sh)
 2. Edit the line that says DASHBOARD="/home/user/Powerwall-Dashboard" to have your dashboard location.
 3. Make the script executable with `chmod +x backup.sh`
+4. Add to crontab for daily backups: `0 2 * * * /home/user/Powerwall-Dashboard/backups/backup.sh`
 
 ## Backup Script Example
 
@@ -55,53 +61,73 @@ DASHBOARD="/home/user/Powerwall-Dashboard"    # Location of Dashboard to backup
 BACKUP_FOLDER="${DASHBOARD}/backups"          # Destination folder for backups
 KEEP="5"                                      # Days to keep backup
 
-# Check to see if directory exists
-if [ ! -d "${DASHBOARD}" ]; then
-  echo "Dashboard directory ${DASHBOARD} does not exist."
-  exit
-fi
-if [ ! -d "${BACKUP_FOLDER}" ]; then
-  echo "Backup directory ${BACKUP_FOLDER} does not exist."
-  exit
-fi
+# ... (see backup.sh.sample for full script)
 
-# Timestamp for Backup Filename
-STAMP=$(date '+%Y-%m-%d')
-
-# Optional: Ask InfluxDB to create a snapshot backup 
-echo "Creating InfluxDB Backup"
-cd ${DASHBOARD}
-mkdir -p influxdb/backups
-chmod g+w influxdb/backups
-docker exec influxdb influxd backup -database powerwall /var/lib/influxdb/backups
-
-# Backup Powerwall-Dashboard Data
-echo "Backing up Powerwall-Dashboard Data (influxdb)"
-cd  ${DASHBOARD}
-tar -Jcvf ${BACKUP_FOLDER}/Powerwall-Dashboard.$STAMP.tar.xz influxdb 
-
-# Cleanup Old Backups
-echo "Cleaning up old backups"
-rm -rf ${DASHBOARD}/influxdb/backups/*        # Delete InfluxDB snapshots after backup
-find ${BACKUP_FOLDER}/Powerwall-Dashboard.*tar.xz -mtime +${KEEP} -type f -delete
-echo "Done"
+# The improved backup script:
+# 1. Creates an InfluxDB snapshot via influxd backup (avoids "file changed" errors)
+# 2. Creates a consistent Grafana DB copy via sqlite3 .backup
+# 3. Backs up all config files (compose.env, pypowerwall.env, telegraf.local, etc.)
 ```
 
 ## Restore Backup
 
 Naturally, whatever backup plan you decide to do, make sure you test it. Copy the backup to another VM or box, install Powerwall-Dashboard and restore the backup to see if it all comes back up without any data loss.
 
-1. Install a fresh instance of Powerwall-Dashboard per [Setup instructions](https://github.com/jasonacox/Powerwall-Dashboard#setup).
-2. Stop containers using convenience script in Powerwall-Dashboard root folder
+### Using the backup script archive
+
+The backup script creates an archive with this structure:
+
+```
+influxdb/          # InfluxDB snapshot files (from influxd backup)
+grafana/           # grafana.db (consistent copy) + provisions
+config/            # configuration files (.env, .conf, .yml)
+```
+
+To restore from a backup script archive:
+
+1. Install a fresh instance of Powerwall-Dashboard per [Setup instructions](https://github.com/jasonacox/Powerwall-Dashboard#setup), then start it once so the `influxdb` container is running and the default `powerwall` database exists.
+2. Stop **telegraf and grafana** only — keep `influxdb` running so `docker exec` works:
     ```bash
-    ./compose-dash.sh stop
+    docker compose stop telegraf grafana
     ```
 3. Restore backup files
     ```bash
-    # Inside the Powerwall-Dashboard folder, extract the backup archive
-    sudo tar --no-same-owner -Jxvf ./backups/Powerwall-Dashboard.xyz.tar.xz
+    # Set your dashboard location
+    DASHBOARD="/home/user/Powerwall-Dashboard"
+
+    # Extract the backup archive to a temporary location
+    mkdir -p /tmp/pwd-restore
+    sudo tar --no-same-owner -Jxvf "${DASHBOARD}/backups/Powerwall-Dashboard.xyz.tar.xz" -C /tmp/pwd-restore
+
+    # Restore InfluxDB snapshot (files are in influxdb/ from the portable backup)
+    mkdir -p "${DASHBOARD}/influxdb/backups"
+    sudo cp -a /tmp/pwd-restore/influxdb/. "${DASHBOARD}/influxdb/backups/"
+    # Drop the existing database — influxd restore refuses to restore into an
+    # existing database (setup.sh creates an empty powerwall DB):
+    docker exec influxdb influx -database powerwall -execute "DROP DATABASE powerwall"
+    # Restore using -portable to match the backup format:
+    docker exec influxdb influxd restore -portable /var/lib/influxdb/backups
+
+    # Restore Grafana
+    sudo cp -a /tmp/pwd-restore/grafana/grafana.db "${DASHBOARD}/grafana/"
+    sudo cp -a /tmp/pwd-restore/grafana/provisions/. "${DASHBOARD}/grafana/provisions/" 2>/dev/null
+
+    # Restore config files
+    sudo cp -a /tmp/pwd-restore/config/. "${DASHBOARD}/"
+
+    # Clean up
+    sudo rm -rf /tmp/pwd-restore
     ```
 4. Start containers
     ```bash
     ./compose-dash.sh start
     ```
+
+### Using a full directory backup (transfer method)
+
+If you used the full tar method from the [Transfer to a New Computer](#transfer-to-a-new-computer) section above, simply extract over the fresh clone:
+
+```bash
+sudo tar --no-same-owner -zxvf ../Powerwall-Dashboard.tgz
+./setup.sh
+```

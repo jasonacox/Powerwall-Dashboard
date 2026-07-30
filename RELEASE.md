@@ -1,5 +1,37 @@
 # RELEASE NOTES
 
+## v5.2.0 - Backup Script: Consistent Snapshots, Grafana & Config Backup
+
+### Backup Improvements
+
+* **InfluxDB consistent snapshots** — the backup script now archives the InfluxDB **snapshot** (via `influxd backup -portable`) instead of tarring the live `influxdb/` directory while InfluxDB is actively writing. This eliminates the `file changed as we read it` warnings and eliminates the risk of archive corruption from concurrent writes. The `-portable` flag produces a version-independent snapshot that can be restored reliably on any InfluxDB 1.x instance.
+* **Grafana database backup** — `grafana.db` is now backed up using `sqlite3 .backup` (SQLite's online backup API) for a consistent copy. Falls back to `cp -a` if sqlite3 is not installed on the host, with a hint to `sudo apt install sqlite3`.
+* **Configuration files backup** — all `.env`, `.conf`, and `.yml`/`.yaml` files at the dashboard root are now included in the archive, making disaster recovery straightforward. A fixed `CONFIG_FILES` array guarantees essentials (`compose.env`, `pypowerwall.env`, `telegraf.local`, etc.) are always captured; globs catch anything additional.
+* **Staging directory with trap cleanup** — the script uses `mktemp -d` for staging with a trap to clean up on exit.
+* **Proper quoting** — all variable references are properly quoted throughout the script.
+
+### Archive Structure
+
+```
+influxdb/     # InfluxDB portable snapshot (metadata + shard data)
+grafana/      # grafana.db (consistent copy) + provisions/
+config/       # .env, .conf, .yml/.yaml configuration files
+```
+
+### Files Changed
+
+* `backups/backup.sh.sample` — rewritten with three-part backup approach
+* `backups/README.md` — updated to describe new backup format and restore instructions
+
+### Contributors
+
+Thanks to **@JonMurphy** for the detailed bug report (#825), thorough testing, and review feedback — the `-portable` flag suggestion, config files question, and `.sql` files check all made the script better. Thanks to **@hulkster** for the weather data backup verification question.
+
+### Links
+
+* Reported in [#825](https://github.com/jasonacox/Powerwall-Dashboard/issues/825)
+* Fixed in [PR #826](https://github.com/jasonacox/Powerwall-Dashboard/pull/826)
+
 ## v5.1.7 - Upgrade pypowerwall Proxy to v0.16.2t97
 
 ### Upgrade
