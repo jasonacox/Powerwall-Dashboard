@@ -60,6 +60,14 @@ cp -a "${DASHBOARD}/influxdb/backups/." "${STAGING}/influxdb/"
 
 # Clean up snapshots from the live directory
 rm -rf "${DASHBOARD}/influxdb/backups"/*
+
+# Export continuous queries as a safety net.
+# influxd backup captures CQs in the .meta file, but influxd restore
+# does not reliably restore them (known InfluxDB 1.x limitation).
+# This export captures the live CQ state, including any user customizations.
+docker exec influxdb influx -database powerwall \
+  -execute "SHOW CONTINUOUS QUERIES" > "${STAGING}/influxdb/continuous_queries.txt" 2>/dev/null
+
 echo "  ✓ InfluxDB snapshot captured"
 
 # ── 2. Grafana Database ───────────────────────────────────────────────
