@@ -74,6 +74,68 @@ reconciles every declared service back to running) will start them again.
 Re-run the script above afterward if you want them to stay stopped. Existing
 InfluxDB data is never touched either way.
 
+## Backup and restore
+
+TimescaleDB is a real Postgres-compatible database with an active WAL, so
+copying `timescaledb-data/` directly while the container is running risks
+capturing a torn, inconsistent snapshot -- unlike the InfluxDB backup covered
+in [`backups/README.md`](../../backups/README.md), which doesn't apply here.
+Use Postgres's own backup tool instead (`pg_dump`).
+
+The "Transfer to a New Computer" steps in `backups/README.md` (stop the
+stack, `tar` everything, restore on the new machine) are still fine for
+TimescaleDB *as long as the stack is stopped first* -- a cold copy of a
+stopped database is safe. The steps below are for backing up TimescaleDB
+*while it keeps running*.
+
+1. Copy the sample script into `backups/` (matching where the InfluxDB
+   backup script lives, for consistency with any cron setup you may already
+   have):
+   ```bash
+   cp tools/timescaledb/backup-timescaledb.sh.sample backups/backup-timescaledb.sh
+   ```
+2. Edit `DASHBOARD="/home/user/Powerwall-Dashboard"` to your dashboard location.
+3. Edit `PG_USER`/`PG_DB` if you changed `POSTGRES_USER`/`POSTGRES_DB` from
+   their defaults in `timescaledb.env`.
+4. Make it executable: `chmod +x backups/backup-timescaledb.sh`.
+
+### Restoring a TimescaleDB backup
+
+`pg_restore`'s usual `--clean` option (drop-and-recreate objects in place)
+does **not** work against TimescaleDB hypertables -- it generates
+`ALTER TABLE ONLY ... DROP CONSTRAINT`, and TimescaleDB rejects the `ONLY`
+option on hypertable operations. Drop and recreate the database instead; this
+was verified end-to-end (backup taken from a live database with real data,
+restored into a fresh database, hypertable/compression metadata and all rows
+confirmed identical):
+
+```bash
+# 1. Stop the stack (or at least anything writing to TimescaleDB)
+./compose-dash.sh stop
+
+# 2. Start just the timescaledb container
+docker compose -f powerwall.yml -f powerwall.extend.yml up -d timescaledb
+
+# 3. Drop and recreate the database, then re-add the extension
+#    (replace telegraf_powerwall/powerwall if you customized these in timescaledb.env)
+docker exec -u postgres timescaledb psql -U telegraf_powerwall -d postgres -c "DROP DATABASE IF EXISTS powerwall;"
+docker exec -u postgres timescaledb psql -U telegraf_powerwall -d postgres -c "CREATE DATABASE powerwall OWNER telegraf_powerwall;"
+docker exec -u postgres timescaledb psql -U telegraf_powerwall -d powerwall -c "CREATE EXTENSION IF NOT EXISTS timescaledb;"
+
+# 4. Copy the backup file into the container and restore
+docker cp ./backups/timescaledb.xyz.dump timescaledb:/tmp/restore.dump
+docker exec -u postgres timescaledb pg_restore -U telegraf_powerwall -d powerwall --no-owner /tmp/restore.dump
+
+# 5. Start everything else back up
+./compose-dash.sh start
+```
+
+If you're restoring onto a brand-new install where `tools/timescaledb/setup.sh`
+already ran and applied `timescaledb/schema.sql`, step 3 above (drop/recreate
+the database) is still required -- restoring on top of the already-created
+schema will fail with "relation already exists" errors, since `pg_restore`
+recreates the schema itself as part of the dump.
+
 ## Removing the extension
 
 ```bash
@@ -83,4 +145,5 @@ rm grafana/provisions/datasources/timescaledb.yml
 # hand (or delete the file, if TimescaleDB is the only thing in it), and:
 rm timescaledb.env
 rm -rf timescaledb-data/   # only if you want the bundled container's data gone too
+rm -f backups/backup-timescaledb.sh   # if you set up scheduled backups
 ```
