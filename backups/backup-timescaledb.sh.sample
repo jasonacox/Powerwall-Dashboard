@@ -34,7 +34,7 @@ STAMP=$(date '+%Y-%m-%d')
 
 # Ask TimescaleDB to create a consistent logical backup (pg_dump custom
 # format). This is safe to run against a live database -- unlike copying
-# the timescaledb/data directory directly while the container is running,
+# the timescaledb-data/ directory directly while the container is running,
 # which can capture a torn/inconsistent snapshot mid-write. Custom format
 # (-Fc) is compressed already, no need to pipe through gzip/xz.
 #

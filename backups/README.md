@@ -108,7 +108,7 @@ Naturally, whatever backup plan you decide to do, make sure you test it. Copy th
 
 ## TimescaleDB Backup
 
-If you selected the TimescaleDB datastore (instead of, or alongside, InfluxDB) during `./setup.sh`, back it up differently than the `influxdb` folder above -- TimescaleDB is a real Postgres-compatible database with an active WAL, so copying `timescaledb/data` directly while the container is running risks capturing a torn, inconsistent snapshot. Use Postgres's own backup tool instead (`pg_dump`), the same way the InfluxDB approach above uses `influxd backup` rather than copying `influxdb/` directly.
+If you installed the TimescaleDB extension (see `tools/timescaledb/`) alongside InfluxDB, back it up differently than the `influxdb` folder above -- TimescaleDB is a real Postgres-compatible database with an active WAL, so copying `timescaledb-data/` directly while the container is running risks capturing a torn, inconsistent snapshot. Use Postgres's own backup tool instead (`pg_dump`), the same way the InfluxDB approach above uses `influxd backup` rather than copying `influxdb/` directly.
 
 The "Transfer to a New Computer" steps at the top of this file (stop the stack, `tar` everything, restore on the new machine) are still fine for TimescaleDB *as long as the stack is stopped first* -- a cold copy of a stopped database is safe. The daily/scheduled backup below is for backing up TimescaleDB *while it keeps running*.
 
