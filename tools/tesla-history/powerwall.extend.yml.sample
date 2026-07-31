@@ -22,6 +22,7 @@ services:
             - INFLUX_PORT=8086
             - PGHOST=timescaledb
             - PGPORT=5432
+            - PGSSLMODE=disable
             - TESLA_CONF=/var/lib/tesla-history/tesla-history.conf
             - TESLA_AUTH=/var/lib/tesla-history/tesla-history.auth
         env_file:

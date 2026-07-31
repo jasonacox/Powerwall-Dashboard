@@ -247,6 +247,7 @@ if os.path.exists(CONFIGFILE):
         PGDB = os.getenv('POSTGRES_DB', config.get('TimescaleDB', 'DB', fallback='powerwall') if config.has_section('TimescaleDB') else 'powerwall')
         PGUSER = os.getenv('POSTGRES_USER', config.get('TimescaleDB', 'USER', fallback='telegraf_powerwall') if config.has_section('TimescaleDB') else 'telegraf_powerwall')
         PGPASS = os.getenv('POSTGRES_PASSWORD', config.get('TimescaleDB', 'PASS', fallback='') if config.has_section('TimescaleDB') else '')
+        PGSSLMODE = os.getenv('PGSSLMODE', config.get('TimescaleDB', 'SSLMODE', fallback='disable') if config.has_section('TimescaleDB') else 'disable')
 
         # --target overrides config file datastore selection
         if args.target == 'influxdb':
@@ -422,8 +423,11 @@ else:
 
             response = input("Pass (leave blank if not used): [blank] ").strip()
             PGPASS = response
+
+            PGSSLMODE = os.getenv('PGSSLMODE', 'disable')
         else:
             PGHOST, PGPORT, PGDB, PGUSER, PGPASS = "timescaledb", 5432, "powerwall", "telegraf_powerwall", ""
+            PGSSLMODE = "disable"
 
     if args.setup and args.timezone not in (None, "") and tz.gettz(args.timezone) is not None:
         # Get timezone if passed when running setup
@@ -451,6 +455,7 @@ else:
         PGDB = "powerwall"
         PGUSER = "telegraf_powerwall"
         PGPASS = ""
+        PGSSLMODE = "disable"
 
     INFLUX_ENABLED = TARGET_INFLUX
     TSDB_ENABLED = TARGET_TSDB
@@ -495,6 +500,8 @@ else:
     config['TimescaleDB']['# Auth (leave blank if not used)'] = None
     config['TimescaleDB']['USER'] = PGUSER
     config['TimescaleDB']['PASS'] = PGPASS
+    config['TimescaleDB']['# SSL mode (disable, allow, prefer, require, verify-ca, verify-full)'] = None
+    config['TimescaleDB']['SSLMODE'] = PGSSLMODE
     config['daemon'] = {}
     config['daemon']['; Config options when running as a daemon (i.e. docker container)'] = None
     config['daemon']['# Minutes to wait between poll requests'] = None
@@ -572,7 +579,7 @@ if args.daemon:
             sys.stderr.write(f", User: {IUSER}, Pass: {IPASS}")
     sys.stderr.write(f"\n + TimescaleDB - Enabled: {TSDB_ENABLED}")
     if TSDB_ENABLED:
-        sys.stderr.write(f", Host: {PGHOST}, Port: {PGPORT}, DB: {PGDB}, User: {PGUSER}")
+        sys.stderr.write(f", Host: {PGHOST}, Port: {PGPORT}, DB: {PGDB}, User: {PGUSER}, SSLMode: {PGSSLMODE}")
     sys.stderr.write("\n")
     sys.stderr.flush()
 
@@ -1513,7 +1520,7 @@ def pg_connect():
     """
     Create a new psycopg2 connection to TimescaleDB
     """
-    return psycopg2.connect(host=PGHOST, port=PGPORT, dbname=PGDB, user=PGUSER, password=PGPASS)
+    return psycopg2.connect(host=PGHOST, port=PGPORT, dbname=PGDB, user=PGUSER, password=PGPASS, sslmode=PGSSLMODE)
 
 def search_timescaledb(start, end, datatype):
     """
@@ -1796,7 +1803,7 @@ def update_timescaledb(start, end):
     if VERBOSE:
         print("Updating TimescaleDB")
 
-    dsn = f"host={PGHOST} port={PGPORT} dbname={PGDB} user={PGUSER} password={PGPASS}"
+    dsn = f"host={PGHOST} port={PGPORT} dbname={PGDB} user={PGUSER} password={PGPASS} sslmode={PGSSLMODE}"
     try:
         subprocess.run(
             [
