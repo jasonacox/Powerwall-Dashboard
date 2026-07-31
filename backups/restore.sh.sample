@@ -154,6 +154,18 @@ if [ -d "${STAGING}/influxdb" ] && [ -n "$(ls -A "${STAGING}/influxdb" 2>/dev/nu
     echo "  ✗ InfluxDB restore command failed - check output above"
   fi
 
+  # Re-create continuous queries from influxdb.sql.
+  # influxd restore -portable does not reliably restore CQs (known InfluxDB 1.x
+  # limitation). The portable .meta file contains them, but the restore merge
+  # into a live instance can drop them. Re-running the CREATE CONTINUOUS QUERY
+  # statements from influxdb.sql guarantees they exist after restore.
+  if [ -f "${DASHBOARD}/influxdb/influxdb.sql" ]; then
+    grep '^CREATE CONTINUOUS QUERY' "${DASHBOARD}/influxdb/influxdb.sql" \
+      | docker exec -i influxdb influx -database powerwall \
+      && echo "  ✓ Continuous queries re-created from influxdb.sql" \
+      || echo "  ⚠ Failed to re-create continuous queries — see influxdb/influxdb.sql"
+  fi
+
   rm -rf influxdb/backups/*
 else
   echo "  - No InfluxDB snapshot found in archive (skipping)"

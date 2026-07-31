@@ -130,6 +130,9 @@ To restore manually from a backup script archive:
     docker exec influxdb influx -database powerwall -execute "DROP DATABASE powerwall"
     # Restore using -portable to match the backup format:
     docker exec influxdb influxd restore -portable /var/lib/influxdb/backups
+    # Re-create continuous queries (influxd restore does not reliably restore CQs):
+    grep '^CREATE CONTINUOUS QUERY' "${DASHBOARD}/influxdb/influxdb.sql" \
+      | docker exec -i influxdb influx -database powerwall
 
     # Restore Grafana
     sudo cp -a /tmp/pwd-restore/grafana/grafana.db "${DASHBOARD}/grafana/"
