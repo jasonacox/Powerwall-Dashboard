@@ -9,20 +9,26 @@
 # Safe for both same-machine restores and migrations to a new machine.
 
 # Restore Powerwall-Dashboard Data
-if [ "$EUID" -ne 0 ]
-  then echo "Must run as root"
-  exit
+if [ "$EUID" -ne 0 ]; then
+  echo "Must run as root"
+  exit 1
 fi
 
 # ── Locate the Powerwall-Dashboard directory ──────────────────────────
-# compose-dash.sh is a unique marker file for the dashboard root, so we
-# search for it rather than hardcoding a path.
-echo "Searching for compose-dash.sh..."
-MATCH=$(find / -type f -iname "compose-dash.sh" 2>/dev/null | head -n 1)
+# Try script-relative path first (common case: run from backups/ dir),
+# then fall back to a system-wide search for compose-dash.sh.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PARENT_DIR="$(dirname "${SCRIPT_DIR}")"
 
 DASHBOARD=""
-if [ -n "${MATCH}" ]; then
-  DASHBOARD="$(dirname "${MATCH}")"
+if [ -f "${PARENT_DIR}/compose-dash.sh" ]; then
+  DASHBOARD="${PARENT_DIR}"
+else
+  echo "Searching for compose-dash.sh..."
+  MATCH=$(find / -type f -iname "compose-dash.sh" 2>/dev/null | head -n 1)
+  if [ -n "${MATCH}" ]; then
+    DASHBOARD="$(dirname "${MATCH}")"
+  fi
 fi
 
 if [ -z "${DASHBOARD}" ]; then
@@ -88,13 +94,24 @@ fi
 # ── Extract archive to staging ────────────────────────────────────────
 echo ""
 echo "Extracting archive..."
-tar --no-same-owner -Jxvf "${ARCHIVE}" -C "${STAGING}"
+if ! tar --no-same-owner -Jxvf "${ARCHIVE}" -C "${STAGING}" 2>&1; then
+  echo "ERROR: Archive extraction failed. Aborting."
+  exit 1
+fi
+# Verify extraction stayed within staging (no path traversal)
+if find "${STAGING}" -type f | grep -qE '/\.\./'; then
+  echo "ERROR: Archive contained path traversal entries. Aborting."
+  exit 1
+fi
 
 # ── Stop the stack before touching data ───────────────────────────────
 echo ""
 echo "Stopping Powerwall-Dashboard containers..."
 cd "${DASHBOARD}"
-./compose-dash.sh stop
+if ! ./compose-dash.sh stop; then
+  echo "ERROR: Failed to stop containers. Aborting restore to prevent data corruption."
+  exit 1
+fi
 
 # ── 1. InfluxDB Snapshot ──────────────────────────────────────────────
 echo ""
@@ -117,7 +134,19 @@ if [ -d "${STAGING}/influxdb" ] && [ -n "$(ls -A "${STAGING}/influxdb" 2>/dev/nu
 
   # Start only influxdb so influxd restore has a running server to talk to
   ./compose-dash.sh up -d influxdb
-  sleep 5
+
+  # Wait for InfluxDB to become healthy (up to 60 seconds)
+  echo "  Waiting for InfluxDB to be ready..."
+  for i in $(seq 1 30); do
+    HEALTH=$(docker inspect --format='{{.State.Health.Status}}' influxdb 2>/dev/null)
+    if [ "${HEALTH}" = "healthy" ]; then
+      break
+    fi
+    sleep 2
+  done
+  if [ "${HEALTH}" != "healthy" ]; then
+    echo "  ⚠ InfluxDB not reporting healthy after 60s — attempting restore anyway..."
+  fi
 
   if docker exec influxdb influxd restore -portable -db powerwall /var/lib/influxdb/backups; then
     echo "  ✓ InfluxDB snapshot restored"
@@ -151,6 +180,11 @@ fi
 
 # Restore Grafana provisioning files if present
 if [ -d "${STAGING}/grafana/provisions" ]; then
+  # Save existing provisions before overwriting
+  if [ -d "${DASHBOARD}/grafana/provisions" ]; then
+    cp -a "${DASHBOARD}/grafana/provisions" "${DASHBOARD}/grafana/provisions.pre-restore.${STAMP}"
+    PRERESTORE_PATHS+=("${DASHBOARD}/grafana/provisions.pre-restore.${STAMP}")
+  fi
   cp -a "${STAGING}/grafana/provisions" "${DASHBOARD}/grafana/"
   chown -R "${PWD_USER}" "${DASHBOARD}/grafana/provisions"
   echo "  ✓ Grafana provisioning files restored (owner set to ${PWD_USER})"
@@ -162,6 +196,9 @@ echo "[3/3] Restoring configuration files..."
 
 FOUND=0
 if [ -d "${STAGING}/config" ]; then
+  # Use nullglob + include hidden files (.*.env) so dotfiles backed up by
+  # backup.sh are also restored.
+  shopt -s nullglob dotglob
   for FILE in "${STAGING}"/config/*; do
     [ -f "${FILE}" ] || continue
     BASENAME=$(basename "${FILE}")
