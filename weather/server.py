@@ -136,15 +136,15 @@ if os.path.exists(CONFIGFILE):
 
     # TimescaleDB (optional section - absent/disabled means skip entirely)
     if config.has_section("TimescaleDB"):
-        TSDB = config["TimescaleDB"]["ENABLE"].lower() == "yes"
-        TSHOST = config["TimescaleDB"]["HOST"]
-        TSPORT = int(config["TimescaleDB"]["PORT"])
-        TSNAME = config["TimescaleDB"]["DB"]
-        TSUSER = config["TimescaleDB"]["USER"]
-        TSPASS = config["TimescaleDB"]["PASSWORD"]
+        TSDB = config.get("TimescaleDB", "ENABLE", fallback="no").lower() == "yes"
+        TSHOST = config.get("TimescaleDB", "HOST", fallback="")
+        TSPORT = int(config.get("TimescaleDB", "PORT", fallback="0"))
+        TSNAME = config.get("TimescaleDB", "DB", fallback="")
+        TSUSER = config.get("TimescaleDB", "USER", fallback="")
+        TSPASS = config.get("TimescaleDB", "PASSWORD", fallback="")
         # Older configs predate this setting -- fall back to "disable" (the
         # bundled container's mode) rather than psycopg2's own "prefer".
-        TSSSLMODE = config["TimescaleDB"].get("SSLMODE", "disable")
+        TSSSLMODE = config.get("TimescaleDB", "SSLMODE", fallback="disable")
     else:
         TSDB = False
         TSHOST = TSNAME = TSUSER = TSPASS = TSSSLMODE = ""
@@ -329,6 +329,7 @@ def fetchWeather():
 
                     if TSDB:
                         log.debug("Writing to TimescaleDB")
+                        conn = None
                         try:
                             # tz-aware, unlike datetime.utcfromtimestamp() --
                             # psycopg2 sends naive datetimes to Postgres with
@@ -357,13 +358,14 @@ def fetchWeather():
                                     rows,
                                 )
                             conn.commit()
-                            conn.close()
                             serverstats['timescaledb'] += 1
-                        except:
-                            log.debug("Error writing to TimescaleDB")
+                        except Exception:
+                            log.exception("Error writing to TimescaleDB")
                             sys.stderr.write("! Error writing to TimescaleDB\n")
                             serverstats['timescaledberrors'] += 1
-                            pass
+                        finally:
+                            if conn is not None:
+                                conn.close()
                 else:
                     # showing the error message
                     log.debug("Bad response from OpenWeatherMap")

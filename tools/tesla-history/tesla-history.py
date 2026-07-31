@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
  Command line tool to retrieve Powerwall or Solar history data by date/time period from
- Tesla Owner API (Tesla cloud) and import into InfluxDB of Powerwall-Dashboard.
+ Tesla Owner API (Tesla cloud) and import into InfluxDB and/or TimescaleDB of Powerwall-Dashboard.
 
  Author: Michael Birse (for Powerwall-Dashboard by Jason A. Cox)
  For more information see https://github.com/jasonacox/Powerwall-Dashboard
@@ -92,9 +92,9 @@ if not os.path.exists(KWH_BACKFILL_SQL):
     KWH_BACKFILL_SQL = str(SCRIPTPATH / '..' / '..' / 'timescaledb' / 'aggregate' / 'kwh_backfill.sql')
 
 # Parse command line arguments
-parser = argparse.ArgumentParser(description='Import Powerwall or Solar history data from Tesla Owner API (Tesla cloud) into InfluxDB')
+parser = argparse.ArgumentParser(description='Import Powerwall or Solar history data from Tesla Owner API (Tesla cloud) into InfluxDB and/or TimescaleDB')
 parser.add_argument('-l', '--login', action="store_true", help='login to Tesla account only and save auth token (do not get history)')
-parser.add_argument('-t', '--test', action="store_true", help='enable test mode (do not import into InfluxDB)')
+parser.add_argument('-t', '--test', action="store_true", help='enable test mode (do not import into datastore(s))')
 parser.add_argument('-d', '--debug', action="store_true", help='enable debug output (print raw responses from Tesla cloud)')
 group = parser.add_argument_group('login options')
 group.add_argument('--region', default="us", choices=["us", "cn"], help='specify Tesla account region (default: us)')
@@ -105,7 +105,7 @@ group.add_argument('--target', choices=["influxdb", "timescaledb", "both"], help
 group.add_argument('--site', type=int, help='site id (required for Tesla accounts with multiple energy sites)')
 group.add_argument('--reserve', type=int, help='also search for backup reserve percent data gaps and set to value')
 group.add_argument('--force', action="store_true", help='force import for date/time range (skip search for data gaps)')
-group.add_argument('--remove', action="store_true", help='remove imported data from InfluxDB for date/time range')
+group.add_argument('--remove', action="store_true", help='remove imported data from datastore(s) for date/time range')
 group.add_argument('--daemon', action="store_true", help='run as a daemon service (continually poll for history data)')
 group.add_argument('--setup', action="store_true", help=argparse.SUPPRESS)
 group.add_argument('--timezone', help=argparse.SUPPRESS)

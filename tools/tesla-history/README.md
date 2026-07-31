@@ -1,6 +1,6 @@
 # Tesla History Import Tool
 
-This is a command line tool to retrieve Powerwall history data from the Tesla Owner API (Tesla cloud) and import into InfluxDB of Powerwall-Dashboard. This tool was submitted by @mcbirse and can be discussed further in issue [#12](https://github.com/jasonacox/Powerwall-Dashboard/issues/12) if you have any questions or find problems.
+This is a command line tool to retrieve Powerwall history data from the Tesla Owner API (Tesla cloud) and import into InfluxDB and/or TimescaleDB of Powerwall-Dashboard. This tool was submitted by @mcbirse and can be discussed further in issue [#12](https://github.com/jasonacox/Powerwall-Dashboard/issues/12) if you have any questions or find problems.
 
 ## Features
 
@@ -305,13 +305,13 @@ usage: tesla-history.py [-h] [-l] [-t] [-d] [--region {us,cn}] [--headless]
                         [--start START] [--end END] [--today] [--yesterday]
 
 Import Powerwall or Solar history data from Tesla Owner API (Tesla cloud) into
-InfluxDB
+InfluxDB and/or TimescaleDB
 
 options:
   -h, --help            show this help message and exit
   -l, --login           login to Tesla account only and save auth token (do
                         not get history)
-  -t, --test            enable test mode (do not import into InfluxDB)
+  -t, --test            enable test mode (do not import into datastore(s))
   -d, --debug           enable debug output (print raw responses from Tesla
                         cloud)
 
@@ -332,7 +332,8 @@ advanced options:
                         set to value
   --force               force import for date/time range (skip search for data
                         gaps)
-  --remove              remove imported data from InfluxDB for date/time range
+  --remove              remove imported data from datastore(s) for date/time
+                        range
   --daemon              run as a daemon service (continually poll for history
                         data)
 
