@@ -4,7 +4,6 @@ services:
         container_name: influxdb
         hostname: influxdb
         restart: unless-stopped
-        profiles: ["influxdb"]
         ulimits:
             nofile:
                 soft: 65536
@@ -56,7 +55,6 @@ services:
         container_name: telegraf
         hostname: telegraf
         restart: unless-stopped
-        profiles: ["influxdb"]
         user: "${PWD_USER:-1000:1000}"
         command: [
             "telegraf",
@@ -110,22 +108,8 @@ services:
             - "${GRAFANA_PORTS:-9000:9000}"
         env_file:
             - grafana.env
-            - timescaledb.env
-        # "required: false" lets this resolve to a no-op when timescaledb isn't
-        # in the active profile set (InfluxDB-only installs) instead of Compose
-        # erroring over a dependency on a service that doesn't exist in this
-        # run. When it *is* active, this blocks Grafana's startup -- and so its
-        # first connection attempt -- until TimescaleDB's pg_isready healthcheck
-        # passes. Without it, Grafana starts in parallel with TimescaleDB, its
-        # postgres datasource plugin's first connection attempt can land before
-        # Postgres is accepting connections, and that failure sticks (dashboards
-        # show "you do not currently have a default database configured for
-        # this data source" until someone manually hits Save & Test on the
-        # datasource) rather than clearing on its own.
         depends_on:
-            timescaledb:
-                condition: service_healthy
-                required: false
+            - influxdb
         healthcheck:
             test: curl -f http://grafana:"${GF_SERVER_HTTP_PORT:-9000}"/api/health || exit 1
             interval: 30s
@@ -134,9 +118,7 @@ services:
             start_period: 60s
 
     weather411:
-        build: ./weather
-        image: weather411-timescaledb:local
-        pull_policy: build
+        image: jasonacox/weather411:0.2.3
         container_name: weather411
         hostname: weather411
         restart: unless-stopped
@@ -150,100 +132,11 @@ services:
             - "${WEATHER411_PORTS:-8676:8676}"
         environment:
             - WEATHERCONF=/var/lib/weather/weather411.conf
+        depends_on:
+            - influxdb
         healthcheck:
             test: wget --spider -q http://weather411:8676/stats || exit 1
             interval: 30s
             timeout: 10s
             retries: 3
             start_period: 60s
-
-    timescaledb:
-        # This stack's own bundled TimescaleDB container -- part of the
-        # "timescaledb-local" profile so it can be left out when
-        # PWD_TIMESCALEDB_MODE=external points telegraf-timescale/aggregate-cron/
-        # grafana/weather411 at an existing server instead (see
-        # timescaledb/README.md). Those services are on the separate
-        # "timescaledb" profile and stay active either way.
-        image: timescale/timescaledb:latest-pg16
-        container_name: timescaledb
-        hostname: timescaledb
-        restart: unless-stopped
-        profiles: ["timescaledb-local"]
-        volumes:
-            - type: bind
-              source: ./timescaledb/data
-              target: /var/lib/postgresql/data
-        ports:
-            - "${TIMESCALEDB_PORTS:-127.0.0.1:5432:5432}"
-        env_file:
-            - timescaledb.env
-        healthcheck:
-            test: pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}" || exit 1
-            interval: 30s
-            timeout: 10s
-            retries: 3
-            start_period: 60s
-
-    telegraf-timescale:
-        image: telegraf:1.28.2
-        container_name: telegraf-timescale
-        hostname: telegraf-timescale
-        restart: unless-stopped
-        profiles: ["timescaledb"]
-        user: "${PWD_USER:-1000:1000}"
-        command: [
-            "telegraf",
-            "--config",
-            "/etc/telegraf/telegraf.conf"
-        ]
-        volumes:
-            - type: bind
-              source: ./telegraf-timescale.conf
-              target: /etc/telegraf/telegraf.conf
-              read_only: true
-            - type: bind
-              source: ./VERSION
-              target: /etc/telegraf/VERSION
-              read_only: true
-            - type: bind
-              source: ./ver.sh
-              target: /etc/telegraf/ver.sh
-              read_only: true
-        env_file:
-            - timescaledb.env
-        depends_on:
-            # "required: false" lets this resolve to a no-op when the bundled
-            # timescaledb container isn't in the active profile set (external
-            # server mode) instead of Compose erroring over a dependency on a
-            # service that doesn't exist in this run. When it *is* active,
-            # this waits for its pg_isready healthcheck, same as grafana.
-            timescaledb:
-                condition: service_healthy
-                required: false
-            pypowerwall:
-                condition: service_started
-        healthcheck:
-            test: pgrep telegraf || exit 1
-            interval: 30s
-            timeout: 10s
-            retries: 3
-            start_period: 30s
-
-    aggregate-cron:
-        image: postgres:16-alpine
-        container_name: aggregate-cron
-        hostname: aggregate-cron
-        restart: unless-stopped
-        profiles: ["timescaledb"]
-        entrypoint: ["/bin/sh", "/timescaledb/cron-entrypoint.sh"]
-        volumes:
-            - type: bind
-              source: ./timescaledb
-              target: /timescaledb
-              read_only: true
-        env_file:
-            - timescaledb.env
-        depends_on:
-            timescaledb:
-                condition: service_healthy
-                required: false

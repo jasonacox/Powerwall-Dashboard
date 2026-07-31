@@ -22,6 +22,7 @@ pypowerwall.env
 telegraf.local
 timescaledb.env
 grafana/provisions/datasources/sunandmoon.yml
+grafana/provisions/datasources/timescaledb.yml
 
 # Auth files
 .auth/
@@ -42,7 +43,7 @@ influxdb/meta/
 influxdb/wal/
 influxdb/data/
 
-timescaledb/data/
+timescaledb-data/
 
 weather/uploadtest.sh
 weather/weather411.conf
