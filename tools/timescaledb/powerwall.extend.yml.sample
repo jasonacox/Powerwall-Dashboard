@@ -1,0 +1,138 @@
+# EXPERIMENTAL: TimescaleDB (PostgreSQL) as an additional datastore.
+#
+# Adds a second, parallel write path (pypowerwall -> telegraf-timescale ->
+# TimescaleDB, plus a weather411 patch and an aggregate-cron sidecar) that
+# runs alongside your existing InfluxDB stack -- InfluxDB/telegraf are never
+# touched or disabled by this file. See ../../timescaledb/README.md for the
+# architecture and tools/timescaledb/README.md for setup/removal.
+#
+# This is not wired into the main ./setup.sh; it's entirely opt-in via the
+# stack's existing powerwall.extend.yml mechanism (the same one used by
+# tools/tesla-history and tools/pgadmin).
+#
+# To use: run tools/timescaledb/setup.sh, which copies this file to the repo
+# root as powerwall.extend.yml (asking first whether to hand-merge if you
+# already have one for another add-on -- docker compose only reads a single
+# powerwall.extend.yml) and walks you through bundled-vs-external setup.
+#
+# powerwall.extend.yml is gitignored, so your local copy (and any edits you
+# make to it) survives `git pull` / setup.sh re-runs.
+
+services:
+    # EXTMODE-BUNDLED-ONLY-START
+    timescaledb:
+        # This stack's own bundled TimescaleDB container. Only used in
+        # "bundled" mode -- tools/timescaledb/setup.sh removes this entire
+        # block (between the EXTMODE-BUNDLED-ONLY markers) when you choose
+        # "external server" instead, since telegraf-timescale/aggregate-cron/
+        # grafana/weather411 all read TIMESCALEDB_HOST/PORT/SSLMODE from
+        # timescaledb.env rather than assuming this service exists.
+        image: timescale/timescaledb:latest-pg16
+        container_name: timescaledb
+        hostname: timescaledb
+        restart: unless-stopped
+        volumes:
+            - type: bind
+              source: ./timescaledb-data
+              target: /var/lib/postgresql/data
+        ports:
+            - "${TIMESCALEDB_PORTS:-127.0.0.1:5432:5432}"
+        env_file:
+            - timescaledb.env
+        healthcheck:
+            test: pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}" || exit 1
+            interval: 30s
+            timeout: 10s
+            retries: 3
+            start_period: 60s
+    # EXTMODE-BUNDLED-ONLY-END
+
+    telegraf-timescale:
+        image: telegraf:1.28.2
+        container_name: telegraf-timescale
+        hostname: telegraf-timescale
+        restart: unless-stopped
+        user: "${PWD_USER:-1000:1000}"
+        command: [
+            "telegraf",
+            "--config",
+            "/etc/telegraf/telegraf.conf"
+        ]
+        volumes:
+            - type: bind
+              source: ./telegraf-timescale.conf
+              target: /etc/telegraf/telegraf.conf
+              read_only: true
+            - type: bind
+              source: ./VERSION
+              target: /etc/telegraf/VERSION
+              read_only: true
+            - type: bind
+              source: ./ver.sh
+              target: /etc/telegraf/ver.sh
+              read_only: true
+        env_file:
+            - timescaledb.env
+        depends_on:
+            # EXTMODE-BUNDLED-ONLY-START
+            timescaledb:
+                condition: service_healthy
+                required: false
+            # EXTMODE-BUNDLED-ONLY-END
+            pypowerwall:
+                condition: service_started
+        healthcheck:
+            test: pgrep telegraf || exit 1
+            interval: 30s
+            timeout: 10s
+            retries: 3
+            start_period: 30s
+
+    aggregate-cron:
+        image: postgres:16-alpine
+        container_name: aggregate-cron
+        hostname: aggregate-cron
+        restart: unless-stopped
+        entrypoint: ["/bin/sh", "/timescaledb/cron-entrypoint.sh"]
+        volumes:
+            - type: bind
+              source: ./timescaledb
+              target: /timescaledb
+              read_only: true
+        env_file:
+            - timescaledb.env
+        healthcheck:
+            test: pg_isready -h "${TIMESCALEDB_HOST:-timescaledb}" -p "${TIMESCALEDB_PORT:-5432}" -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}" || exit 1
+            interval: 30s
+            timeout: 10s
+            retries: 3
+            start_period: 60s
+        # EXTMODE-BUNDLED-ONLY-START
+        depends_on:
+            timescaledb:
+                condition: service_healthy
+                required: false
+        # EXTMODE-BUNDLED-ONLY-END
+
+    # Patches onto the core `grafana` service defined in powerwall.yml --
+    # docker compose merges these in (env_file/depends_on entries are added
+    # to what powerwall.yml already declares, not replaced).
+    grafana:
+        env_file:
+            - timescaledb.env
+        # EXTMODE-BUNDLED-ONLY-START
+        depends_on:
+            timescaledb:
+                condition: service_healthy
+                required: false
+        # EXTMODE-BUNDLED-ONLY-END
+
+    # Patches onto the core `weather411` service. Overrides it to build
+    # locally (with psycopg2 for the TimescaleDB write path) instead of using
+    # the published jasonacox/weather411 image, which doesn't have it yet.
+    # TODO: drop this override (and the two lines above) once an official
+    # multi-arch weather411 image with psycopg2 support is published.
+    weather411:
+        build: ./weather
+        image: weather411-timescaledb:local
+        pull_policy: build
