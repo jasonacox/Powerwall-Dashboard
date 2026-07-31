@@ -36,8 +36,9 @@ URL =
 # Record data directly in TimescaleDB (PostgreSQL) server -- bypasses
 # Telegraf polling, writes straight to pw_weather_log
 # HOST/PORT/DB/USER/PASSWORD/SSLMODE are kept in sync with timescaledb.env by
-# setup.sh -- edit there, not here, if you're using this file directly (see
-# timescaledb/README.md for the bundled-vs-external-server setup).
+# tools/timescaledb/setup.sh -- edit there, not here, if you're using this
+# file directly (see timescaledb/README.md for the bundled-vs-external-server
+# setup).
 ENABLE = no
 HOST = timescaledb
 PORT = 5432

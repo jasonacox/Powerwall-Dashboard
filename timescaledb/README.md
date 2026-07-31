@@ -1,9 +1,14 @@
 # TimescaleDB (PostgreSQL) datastore
 
-A fully deployable alternative to InfluxDB for this Powerwall Dashboard fork,
-using PostgreSQL/TimescaleDB instead. Select it via `./setup.sh` ("Select
-datastore" prompt) — InfluxDB, TimescaleDB, or both side by side. No manual
-editing required.
+> **EXPERIMENTAL.** This is an opt-in, community-contributed extension, not
+> part of the core supported stack — InfluxDB remains the default, tested
+> datastore. See [`tools/timescaledb/`](../tools/timescaledb/) for setup.
+
+A fully deployable additional datastore for Powerwall-Dashboard, using
+PostgreSQL/TimescaleDB alongside your existing InfluxDB stack. Install it via
+[`tools/timescaledb/setup.sh`](../tools/timescaledb/setup.sh) — a bundled
+container or an existing PostgreSQL/TimescaleDB server, dual-write alongside
+InfluxDB. It is not part of the main `./setup.sh` flow.
 
 ## Architecture
 
@@ -34,44 +39,49 @@ no custom build) that runs the SQL scripts in `aggregate/` on a
 schedule — this is the TimescaleDB equivalent of InfluxDB's continuous
 queries.
 
-### Datastore selection is a Docker Compose profile, not a separate stack
+### Datastore selection is an opt-in Compose extend file, not a core stack change
 
-`powerwall.yml` defines all services in one file; `setup.sh`'s datastore
-prompt writes `COMPOSE_PROFILES` into `compose.env`:
+Core `powerwall.yml` is unmodified by this feature — `influxdb`/`telegraf`
+always run, exactly as on a stock install. TimescaleDB support ships
+entirely through [`tools/timescaledb/powerwall.extend.yml.sample`](../tools/timescaledb/powerwall.extend.yml.sample),
+which [`tools/timescaledb/setup.sh`](../tools/timescaledb/setup.sh) copies to
+the repo root as `powerwall.extend.yml` (the same mechanism
+[`tools/tesla-history`](../tools/tesla-history/) and
+[`tools/pgadmin`](../tools/pgadmin/) use) and merges in via
+`docker compose -f powerwall.yml -f powerwall.extend.yml`. That file adds the
+`timescaledb`/`telegraf-timescale`/`aggregate-cron` services and patches
+`grafana`/`weather411` with the additions they need (env vars, a build
+override, a startup dependency) — Compose merges partial service definitions
+across `-f` files rather than requiring them to be fully redeclared.
 
-| Selection     | `COMPOSE_PROFILES`      | What runs |
-|---------------|--------------------------|-----------|
-| InfluxDB      | `influxdb`               | stock `influxdb` + `telegraf` |
-| TimescaleDB   | `timescaledb`            | `timescaledb` + `telegraf-timescale` + `aggregate-cron` |
-| Both          | `influxdb,timescaledb`   | all of the above |
-
-`grafana`, `pypowerwall`, and `weather411` are unprofiled (always run).
-Switching to TimescaleDB-only on an existing install stops InfluxDB from
-receiving new data but never deletes its container or `influxdb/` data
-directory — switch back any time by re-running `setup.sh`.
+This is **dual-write only** — TimescaleDB runs alongside InfluxDB, not instead
+of it. There's no supported way to disable InfluxDB through this extension
+(unlike the Compose-profile approach an earlier version of this feature used,
+which could silently stop `influxdb`/`telegraf` on existing installs during
+an upgrade — see `tools/timescaledb/README.md`'s "Running InfluxDB-idle"
+section for the manual, non-profile alternative if you want it idle anyway).
 
 ### Bundled container vs. an existing server
 
-The `timescaledb` profile above only covers `telegraf-timescale` and
-`aggregate-cron` — the services that *use* TimescaleDB. Whether they talk to
-this stack's own container or to a TimescaleDB/PostgreSQL server you already
-run (e.g. one already running in a homelab) is a second, independent choice,
-asked right after datastore selection whenever TimescaleDB is active:
+`telegraf-timescale`/`aggregate-cron`/`grafana`/`weather411` all read
+`TIMESCALEDB_HOST`/`TIMESCALEDB_PORT`/`TIMESCALEDB_SSLMODE` from
+`timescaledb.env` rather than assuming the `timescaledb` service name, so
+they work identically whether that's this stack's own bundled container or a
+TimescaleDB/PostgreSQL server you already run (e.g. one already running in a
+homelab). `tools/timescaledb/setup.sh` asks which you want:
 
-| Selection | `COMPOSE_PROFILES` gets | `timescaledb.env` |
+| Selection | `powerwall.extend.yml` | `timescaledb.env` |
 |-----------|--------------------------|--------------------|
-| Bundled container (default) | `...,timescaledb-local` appended | `TIMESCALEDB_HOST=timescaledb`, `TIMESCALEDB_PORT=5432`, `TIMESCALEDB_SSLMODE=disable` |
-| Existing server | unchanged (no `timescaledb-local`) | `TIMESCALEDB_HOST`/`PORT`/`SSLMODE` set from your prompted answers |
+| Bundled container (default) | includes the `timescaledb` service | `TIMESCALEDB_HOST=timescaledb`, `TIMESCALEDB_PORT=5432`, `TIMESCALEDB_SSLMODE=disable` |
+| Existing server | `timescaledb` service removed | `TIMESCALEDB_HOST`/`PORT`/`SSLMODE` set from your prompted answers |
 
-The bundled `timescaledb` container itself sits on its own `timescaledb-local`
-profile (separate from `timescaledb`) specifically so it can be left out of
-`COMPOSE_PROFILES` in external mode — `telegraf-timescale`/`aggregate-cron`/
-`grafana`/`weather411` all read `TIMESCALEDB_HOST`/`TIMESCALEDB_PORT`/
-`TIMESCALEDB_SSLMODE` from `timescaledb.env` rather than assuming the
-`timescaledb` service name, so they work identically either way.
+In external mode, `tools/timescaledb/setup.sh` removes the bundled
+`timescaledb` service block from `powerwall.extend.yml` (there's no reason to
+run an unused local Postgres container) — see that script for the exact
+marker-delimited region it strips.
 
-**Prerequisites for an existing server** (setup.sh prints these at the
-prompt too):
+**Prerequisites for an existing server** (`tools/timescaledb/setup.sh` prints
+these at the prompt too):
 - TimescaleDB 2.x+ on PostgreSQL 13+ — the bundled image is pinned to
   `timescale/timescaledb:latest-pg16`, which is what's actually tested, but
   nothing in `schema.sql` or the aggregate scripts uses anything newer than
@@ -87,15 +97,16 @@ prompt too):
 - Network reachability from this Docker host to `host:port` — same as any
   other container-to-external-service dependency.
 - If the server requires TLS, set `TIMESCALEDB_SSLMODE` (in `timescaledb.env`,
-  or at the setup.sh prompt) to `require`/`verify-ca`/`verify-full` as
-  appropriate — the bundled container never speaks TLS, so this only matters
-  for external mode.
+  or at the `tools/timescaledb/setup.sh` prompt) to `require`/`verify-ca`/
+  `verify-full` as appropriate — the bundled container never speaks TLS, so
+  this only matters for external mode.
 
-Switching between bundled and external (either direction, via re-running
-`setup.sh`) doesn't touch existing data in either place — `./timescaledb/data`
-(the bundled container's volume) and the external server's own data are both
-left alone regardless of which is currently active. `schema.sql` is
-idempotent and gets (re-)applied to whichever one is active on every run.
+Switching from bundled to external doesn't touch existing data in either
+place — `./timescaledb-data/` (the bundled container's volume) and the
+external server's own data are both left alone. Switching from external back
+to bundled isn't currently a clean one-command re-toggle — see
+`tools/timescaledb/README.md`. `schema.sql` is idempotent and gets
+(re-)applied to whichever one is active on every run.
 
 `tools/pgadmin` (optional pgAdmin add-on) has its own `servers.json` with a
 hardcoded `Host`/`Port` that needs manual editing to match an external server
@@ -163,8 +174,8 @@ every aggregate table.
 ## Directory guide
 
 - `schema.sql` — aggregate table DDL (hypertables, compression, `migration_progress`).
-  Applied automatically by `setup.sh` and by `aggregate-cron` on startup; safe
-  to re-run.
+  Applied automatically by `tools/timescaledb/setup.sh` and by
+  `aggregate-cron` on startup; safe to re-run.
 - `cron-entrypoint.sh` — the `aggregate-cron` container's entrypoint: applies
   `schema.sql`, then loops every 60s running `aggregate/*.sql`.
 - `aggregate/` — recurring cron scripts (raw → 1-minute/1-hour tables), plus
@@ -181,8 +192,8 @@ Related files elsewhere in the repo: `telegraf-timescale.conf` (repo root),
 
 ## Historical migration
 
-`setup.sh` offers to run this automatically when TimescaleDB is selected. To
-run it manually: `python3 timescaledb/migrate/run_all.py` (needs `psycopg2`
+`tools/timescaledb/setup.sh` offers to run this automatically. To run it
+manually: `python3 timescaledb/migrate/run_all.py` (needs `psycopg2`
 and `requests`; connection details come from env vars if set, otherwise you're
 prompted — see `migrate_common.get_config()`). It's a one-time pull of each
 InfluxDB RP's history via the InfluxDB 1.x HTTP query API, walking backward in
@@ -250,11 +261,14 @@ since averaging doesn't apply to text. `weather/server.py` writes one row per
 field directly on each OpenWeatherMap fetch (~every 10 minutes internally),
 via a `[TimescaleDB]` config section parallel to its existing `[InfluxDB]`
 one — the same pattern InfluxDB itself uses (weather411 writes directly there
-too; there's no `cq_weather` continuous query). `setup.sh` enables/disables
-each writer section independently based on the selected datastore. This is
-why `weather411` in `powerwall.yml` builds locally (`build: ./weather`)
-instead of pulling the published `jasonacox/weather411` image — the added
-TimescaleDB writer and its `psycopg2-binary` dependency aren't in that image.
+too; there's no `cq_weather` continuous query). `tools/timescaledb/setup.sh`
+enables the `[TimescaleDB]` section without touching `[InfluxDB]`'s. This is
+why `tools/timescaledb/powerwall.extend.yml.sample` patches `weather411` to
+build locally (`build: ./weather`) instead of using the published
+`jasonacox/weather411` image — the added TimescaleDB writer and its
+`psycopg2-binary` dependency aren't in that image yet; the patch only applies
+for installs that opt into this extension, core `powerwall.yml` still uses
+the published image for everyone else.
 
 **kwh: boundary-interpolated integration (a genuine accuracy improvement over
 InfluxDB).** `pw_kwh_1h` uses `LAG()`-based trapezoidal integration that
@@ -279,10 +293,10 @@ duration, so an unevenly-multi-polled transient gets uneven weight. Known
 limitation: this discrepancy is on the order of low single-digit percent
 during transition-heavy periods.
 
-**Generalizing pack count / phase / timezone (this fork's productization
-work).** The original build-out of this feature was done against one specific
-LAN install (3 Powerwalls, split-phase, hardcoded hostnames). Turning it into
-a real `setup.sh` option required removing those assumptions:
+**Generalizing pack count / phase / timezone.** The original build-out of
+this feature was done against one specific LAN install (3 Powerwalls,
+split-phase, hardcoded hostnames). Turning it into a reusable extension
+required removing those assumptions:
 - Pack-count hardcoding in `aggregate_vitals_log.sql`/`aggregate_pod_log.sql`/
   `aggregate_pwtemps_log.sql` (and the equivalent migration scripts) replaced
   with the regex/whole-row-unpivot pattern described above.
@@ -358,8 +372,8 @@ aggregate scripts.
 **Running scripts on the host (outside Docker)**
 - `timescaledb/migrate/run_all.py` (and the individual `migrate_*.py`
   scripts) need `psycopg2-binary` installed on the host if you run them
-  directly with `python3` instead of letting `setup.sh` run them in its
-  ephemeral `python:3-alpine` container. `pip install psycopg2-binary
+  directly with `python3` instead of letting `tools/timescaledb/setup.sh` run
+  them in its ephemeral `python:3-alpine` container. `pip install psycopg2-binary
   requests` first, or you'll hit `ModuleNotFoundError: No module named
   'psycopg2'` immediately.
 - Likewise, `tools/tesla-history/tesla-history.py` run directly on the host
@@ -395,17 +409,22 @@ aggregate scripts.
   before it'll render a panel, so a provisioning file that only sets the
   top-level field runs queries fine but still shows the "no default
   database" error every time the page loads fresh. Fixed by also setting
-  `database` under `jsonData` in
-  `grafana/provisions/datasources/timescaledb.yml`, alongside the existing
+  `database` under `jsonData` in `grafana/timescaledb-template.yml`
+  (`tools/timescaledb/setup.sh` copies this to
+  `grafana/provisions/datasources/timescaledb.yml`), alongside the existing
   top-level `database` field. Verified against a real installation: the
   error no longer appears after a full stack restart, with no manual
   Save & Test needed.
-- Separately, `grafana` also has a `depends_on: timescaledb: condition:
-  service_healthy, required: false` in `powerwall.yml` — `required: false`
-  makes it a no-op when TimescaleDB isn't in the active profile set, but
-  when it is, Grafana waits for TimescaleDB's `pg_isready` healthcheck
-  before starting. This closes a real (but separate) startup-race window;
-  it was not, on its own, the fix for the "no default database" error above.
+- Separately, `tools/timescaledb/powerwall.extend.yml.sample` patches
+  `grafana` with a `depends_on: timescaledb: condition: service_healthy,
+  required: false` — `required: false` makes it a no-op in external mode
+  (where the extend file has no `timescaledb` service to depend on at all,
+  see "Bundled container vs. an existing server" above), but in bundled mode
+  it makes Grafana wait for TimescaleDB's `pg_isready` healthcheck before
+  starting. Verified via `docker compose config` that this merges cleanly
+  with core `powerwall.yml`'s own list-form `depends_on: [influxdb]` on the
+  same service. This closes a real (but separate) startup-race window; it
+  was not, on its own, the fix for the "no default database" error above.
 
 **Timestamps / timezones**
 - `AT TIME ZONE` on an already-`timestamptz` value vs. a naive `timestamp`
@@ -465,11 +484,21 @@ aggregate scripts.
   `OR`), silently reintroducing the null-cast crash the guard was meant to
   prevent for whichever branch is `OR`-ed in.
 - Docker Compose `profiles:` gating an always-on service's `depends_on`
-  target (e.g. `grafana` depending on `influxdb` when only the `timescaledb`
-  profile is active) makes `docker compose up` fail outright. Either drop the
-  hard dependency (the pattern used here — Grafana/weather411 tolerate their
-  datasource/target not being up at boot) or put both services in the same
-  profile.
+  target (e.g. `grafana` depending on `influxdb` when only a `timescaledb`
+  profile is active) makes `docker compose up` fail outright. An earlier
+  version of this feature used Compose profiles for datastore selection and
+  hit exactly this; it's part of why the current design (see "Datastore
+  selection is an opt-in Compose extend file" above) avoids `profiles:`
+  entirely in favor of an extend file that either exists or doesn't, and
+  drops hard `depends_on` dependencies where a service should tolerate its
+  datasource/target not being up at boot (Grafana/weather411 both do).
+- `depends_on: <service>: required: false` still requires that service to be
+  *defined* somewhere in the merged compose files — `required: false` only
+  makes it optional to be *running*, not optional to exist. A compose file
+  referencing an undefined service (even with `required: false`) fails
+  `docker compose config`/`up` outright. This is why external mode removes
+  the bundled `timescaledb` service's `depends_on` entries along with the
+  service itself, rather than leaving them pointing at nothing.
 
 ## Powerwall+ strings and Backup Switch fans (best-effort, unvalidated)
 

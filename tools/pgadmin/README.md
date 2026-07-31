@@ -43,8 +43,8 @@ it) survive `git pull` and `setup.sh` re-runs.
 `servers.json` assumes the defaults from `timescaledb.env.sample`
 (`POSTGRES_USER=telegraf_powerwall`, `POSTGRES_DB=powerwall`, bundled
 container on `timescaledb:5432`). If you changed any of these -- including
-setup.sh's "existing server" TimescaleDB option (`PWD_TIMESCALEDB_MODE=
-external`, see `timescaledb/README.md`) -- edit `tools/pgadmin/servers.json`'s
+`tools/timescaledb/setup.sh`'s "existing server" option (see
+`timescaledb/README.md`) -- edit `tools/pgadmin/servers.json`'s
 `Host`/`Port`/`Username`/`MaintenanceDB` to match your actual
 `timescaledb.env` (`TIMESCALEDB_HOST`/`TIMESCALEDB_PORT`/`POSTGRES_USER`/
 `POSTGRES_DB`) before starting pgAdmin. It's only read on pgAdmin's *first*

@@ -29,10 +29,14 @@ services:
         container_name: pgadmin
         hostname: pgadmin
         restart: unless-stopped
-        depends_on:
-            timescaledb:
-                condition: service_healthy
-                required: false
+        # No depends_on on `timescaledb` here: `required: false` only makes a
+        # dependency optional to be *running*, not optional to be *defined* --
+        # if TimescaleDB is set up in "external server" mode (see
+        # tools/timescaledb/README.md), there's no bundled `timescaledb`
+        # service in powerwall.extend.yml at all, and a depends_on referencing
+        # it would fail `docker compose config`/`up` outright regardless of
+        # required: false. pgAdmin tolerates connecting before its target is
+        # ready the same way Grafana/weather411 do (retry in the UI).
         environment:
             - PGADMIN_DEFAULT_EMAIL=admin@example.com
             - PGADMIN_DEFAULT_PASSWORD=changeme
