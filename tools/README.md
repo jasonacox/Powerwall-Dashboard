@@ -101,6 +101,13 @@ This tool automates both the Powerwall's operating mode (self-powered/time-based
 * [Details and Instructions](switch-mode/)
 * Scripts: [switch-mode.zsh](switch-mode/switch-mode.zsh), [switch-mode.sh](switch-mode/switch-mode.sh)
 
+## TimescaleDB (PostgreSQL) Datastore Extension — EXPERIMENTAL
+
+An opt-in extension that adds TimescaleDB as an additional datastore alongside your existing InfluxDB stack -- a bundled container or an existing PostgreSQL/TimescaleDB server, with optional historical migration from InfluxDB. Not part of `setup.sh`; added via the stack's `powerwall.extend.yml` mechanism (the same one `tesla-history` and `pgadmin` below use). InfluxDB is never disabled by this extension.
+
+* [Details and Instructions](timescaledb/)
+* Architecture, design decisions, and troubleshooting: [`timescaledb/README.md`](../timescaledb/README.md)
+
 ## pgAdmin for TimescaleDB
 
 An optional [pgAdmin](https://www.pgadmin.org/) service, added to the stack via `powerwall.extend.yml`, for browsing/querying the TimescaleDB datastore directly -- inspecting tables, running ad hoc SQL, checking compression/chunk status, etc. Not part of `setup.sh`; entirely opt-in for advanced users.
