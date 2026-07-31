@@ -2,7 +2,10 @@
 #
 # Backup Script for Powerwall Dashboard Data
 #   https://github.com/jasonacox/Powerwall-Dashboard
-#   by Jason Cox - 27 Feb 2022 
+#   by Jason Cox - 27 Feb 2022
+#
+# Improved backup: archives InfluxDB snapshot (not live data),
+# Grafana database (consistent copy), and configuration files.
 
 # Daily Backup for Powerwall-Dashboard Data
 if [ "$EUID" -ne 0 ]
@@ -27,21 +30,119 @@ fi
 
 # Timestamp for Backup Filename
 STAMP=$(date '+%Y-%m-%d')
+STAGING=$(mktemp -d)
 
-# Optional: Ask InfluxDB to create a snapshot backup 
-echo "Creating InfluxDB Backup"
-cd ${DASHBOARD}
+# Cleanup staging on exit
+cleanup() {
+  rm -rf "${STAGING}"
+}
+trap cleanup EXIT
+
+echo "========================================="
+echo " Powerwall-Dashboard Backup - ${STAMP}"
+echo "========================================="
+
+# ── 1. InfluxDB Snapshot ──────────────────────────────────────────────
+# Use influxd backup to create a consistent snapshot instead of
+# tarring the live data directory (which can capture mid-write files).
+# The -portable flag creates a self-contained, version-independent
+# backup that can be restored on a different machine or InfluxDB version.
+echo ""
+echo "[1/3] Creating InfluxDB snapshot backup..."
+cd "${DASHBOARD}"
 mkdir -p influxdb/backups
 chmod g+w influxdb/backups
-docker exec influxdb influxd backup -database powerwall /var/lib/influxdb/backups
+docker exec influxdb influxd backup -portable -database powerwall /var/lib/influxdb/backups
 
-# Backup Powerwall-Dashboard Data
-echo "Backing up Powerwall-Dashboard Data (influxdb)"
-cd  ${DASHBOARD}
-tar -Jcvf ${BACKUP_FOLDER}/Powerwall-Dashboard.$STAMP.tar.xz influxdb 
+# Copy the snapshot into staging (the backup files are the consistent copy)
+mkdir -p "${STAGING}/influxdb"
+cp -a "${DASHBOARD}/influxdb/backups/." "${STAGING}/influxdb/"
+
+# Clean up snapshots from the live directory
+rm -rf "${DASHBOARD}/influxdb/backups"/*
+echo "  ✓ InfluxDB snapshot captured"
+
+# ── 2. Grafana Database ───────────────────────────────────────────────
+# Use sqlite3 .backup for a consistent copy of grafana.db instead of
+# copying the live file which may be mid-write. Uses the host sqlite3
+# (the Grafana container does not include it).
+echo ""
+echo "[2/3] Backing up Grafana database..."
+mkdir -p "${STAGING}/grafana"
+
+GRAFANA_DB="${DASHBOARD}/grafana/grafana.db"
+if [ -f "${GRAFANA_DB}" ]; then
+  # Try a consistent sqlite backup using the host sqlite3 (if available)
+  if command -v sqlite3 >/dev/null 2>&1; then
+    sqlite3 "${GRAFANA_DB}" ".backup '${STAGING}/grafana/grafana.db'"
+    echo "  ✓ Grafana DB backed up (consistent copy via sqlite3)"
+  else
+    # Fall back to direct copy (best effort) if sqlite3 is not on host
+    cp -a "${GRAFANA_DB}" "${STAGING}/grafana/grafana.db"
+    echo "  ⚠ Grafana DB copied directly (sqlite3 not installed on host)"
+    echo "    For consistent backups: sudo apt install sqlite3"
+  fi
+else
+  echo "  - No grafana.db found (skipping)"
+fi
+
+# Also copy Grafana provisioning files if present
+if [ -d "${DASHBOARD}/grafana/provisions" ]; then
+  cp -a "${DASHBOARD}/grafana/provisions" "${STAGING}/grafana/"
+fi
+
+# ── 3. Configuration Files ────────────────────────────────────────────
+# Back up all configuration files needed to restore the dashboard.
+echo ""
+echo "[3/3] Backing up configuration files..."
+mkdir -p "${STAGING}/config"
+
+CONFIG_FILES=(
+  "compose.env"
+  "pypowerwall.env"
+  "grafana.env"
+  "influxdb.env"
+  "influxdb.conf"
+  "telegraf.conf"
+  "telegraf.local"
+  "powerwall.yml"
+  "VERSION"
+)
+
+FOUND=0
+for FILE in "${CONFIG_FILES[@]}"; do
+  if [ -f "${DASHBOARD}/${FILE}" ]; then
+    cp -a "${DASHBOARD}/${FILE}" "${STAGING}/config/"
+    FOUND=$((FOUND + 1))
+  fi
+done
+
+# Also back up any additional .env, .conf, and .yml/.yaml files
+for EXTRA in "${DASHBOARD}"/.*.env "${DASHBOARD}"/*.env "${DASHBOARD}"/*.conf "${DASHBOARD}"/*.yml "${DASHBOARD}"/*.yaml; do
+  if [ -f "${EXTRA}" ]; then
+    # Don't double-copy files already in CONFIG_FILES
+    BASENAME=$(basename "${EXTRA}")
+    if [[ ! " ${CONFIG_FILES[*]} " =~ " ${BASENAME} " ]]; then
+      cp -a "${EXTRA}" "${STAGING}/config/"
+      FOUND=$((FOUND + 1))
+    fi
+  fi
+done 2>/dev/null
+
+echo "  ✓ ${FOUND} config file(s) backed up"
+
+# ── Create Archive ────────────────────────────────────────────────────
+echo ""
+echo "Creating backup archive..."
+cd "${STAGING}"
+tar -Jcvf "${BACKUP_FOLDER}/Powerwall-Dashboard.${STAMP}.tar.xz" .
 
 # Cleanup Old Backups
-echo "Cleaning up old backups"
-rm -rf ${DASHBOARD}/influxdb/backups/*        # Delete InfluxDB snapshots after backup
-find ${BACKUP_FOLDER}/Powerwall-Dashboard.*tar.xz -mtime +${KEEP} -type f -delete
-echo "Done"
+echo ""
+echo "Cleaning up old backups..."
+find "${BACKUP_FOLDER}" -name "Powerwall-Dashboard.*.tar.xz" -mtime +${KEEP} -type f -delete
+echo ""
+echo "========================================="
+echo " Backup complete!"
+echo " File: ${BACKUP_FOLDER}/Powerwall-Dashboard.${STAMP}.tar.xz"
+echo "========================================="
