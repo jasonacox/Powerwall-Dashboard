@@ -138,11 +138,18 @@ if [ "${TSDB_MODE}" == "external" ]; then
     TSDB_DBNAME="${input:-${CUR_DB:-powerwall}}"
     read -r -p "Username [${CUR_USER:-telegraf_powerwall}]: " input
     TSDB_USERNAME="${input:-${CUR_USER:-telegraf_powerwall}}"
+    CUR_PASSWORD=$(grep -E "^POSTGRES_PASSWORD=" "${TIMESCALEDB_ENV_FILE}" | cut -d= -f2)
     TSDB_PASSWORD_EXT=""
     while [ -z "${TSDB_PASSWORD_EXT}" ]; do
-        read -r -s -p "Password: " input
+        read -r -s -p "Password (leave blank to keep current, if any): " input
         echo ""
-        TSDB_PASSWORD_EXT="${input}"
+        if [ -n "${input}" ]; then
+            TSDB_PASSWORD_EXT="${input}"
+        elif [ -n "${CUR_PASSWORD}" ]; then
+            TSDB_PASSWORD_EXT="${CUR_PASSWORD}"
+        else
+            echo "Password is required the first time you set up an existing server."
+        fi
     done
     read -r -p "SSL mode [${CUR_SSLMODE}] (disable/allow/prefer/require/verify-ca/verify-full): " input
     TSDB_SSLMODE="${input:-${CUR_SSLMODE}}"
