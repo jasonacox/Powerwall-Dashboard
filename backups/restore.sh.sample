@@ -173,14 +173,14 @@ if [ -d "${STAGING}/influxdb" ] && [ -n "$(ls -A "${STAGING}/influxdb" 2>/dev/nu
     # clean format and raw table output with query_id prefix), append ';'.
     sed -n 's/.*\(CREATE CONTINUOUS QUERY.*\)/\1/p' "${STAGING}/influxdb/continuous_queries.txt" \
       | sed 's/$/;/' \
-      | docker exec -i influxdb influx -database powerwall \
+      | docker exec -i influxdb influx -database powerwall > /dev/null \
       && { echo "  ✓ Continuous queries re-created from backup (continuous_queries.txt)"; CQ_RESTORED=1; } \
       || echo "  ⚠ Failed to re-create continuous queries from continuous_queries.txt"
   fi
   if [ "${CQ_RESTORED}" -eq 0 ] && [ -f "${DASHBOARD}/influxdb/influxdb.sql" ]; then
     grep '^CREATE CONTINUOUS QUERY' "${DASHBOARD}/influxdb/influxdb.sql" \
       | sed 's/$/;/' \
-      | docker exec -i influxdb influx -database powerwall \
+      | docker exec -i influxdb influx -database powerwall > /dev/null \
       && echo "  ✓ Continuous queries re-created from influxdb.sql (repo defaults)" \
       || echo "  ⚠ Failed to re-create continuous queries — see influxdb/influxdb.sql"
   fi
