@@ -165,17 +165,21 @@ if [ -d "${STAGING}/influxdb" ] && [ -n "$(ls -A "${STAGING}/influxdb" 2>/dev/nu
   #
   # backup.sh exports clean CREATE statements (newer versions) or raw
   # SHOW CONTINUOUS QUERIES table output (older versions). Handle both.
+  # Each statement must be terminated with ';' so the influx CLI can parse
+  # multiple CREATE CONTINUOUS QUERY lines piped via stdin.
   CQ_RESTORED=0
   if [ -f "${STAGING}/influxdb/continuous_queries.txt" ] && grep -q 'CREATE CONTINUOUS QUERY' "${STAGING}/influxdb/continuous_queries.txt"; then
     # Extract just the CREATE statement from each line (handles both
-    # clean format and raw table output with query_id prefix).
+    # clean format and raw table output with query_id prefix), append ';'.
     sed -n 's/.*\(CREATE CONTINUOUS QUERY.*\)/\1/p' "${STAGING}/influxdb/continuous_queries.txt" \
+      | sed 's/$/;/' \
       | docker exec -i influxdb influx -database powerwall \
       && { echo "  ✓ Continuous queries re-created from backup (continuous_queries.txt)"; CQ_RESTORED=1; } \
       || echo "  ⚠ Failed to re-create continuous queries from continuous_queries.txt"
   fi
   if [ "${CQ_RESTORED}" -eq 0 ] && [ -f "${DASHBOARD}/influxdb/influxdb.sql" ]; then
     grep '^CREATE CONTINUOUS QUERY' "${DASHBOARD}/influxdb/influxdb.sql" \
+      | sed 's/$/;/' \
       | docker exec -i influxdb influx -database powerwall \
       && echo "  ✓ Continuous queries re-created from influxdb.sql (repo defaults)" \
       || echo "  ⚠ Failed to re-create continuous queries — see influxdb/influxdb.sql"
