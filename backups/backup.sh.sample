@@ -83,8 +83,13 @@ rm -rf "${DASHBOARD}/influxdb/backups"/*
 # influxd backup captures CQs in the .meta file, but influxd restore
 # does not reliably restore them (known InfluxDB 1.x limitation).
 # This export captures the live CQ state, including any user customizations.
+# The raw SHOW CONTINUOUS QUERIES output is a tab-separated table
+# (name/query_id/query columns); extract just the CREATE statements so
+# restore.sh can replay them directly.
 docker exec influxdb influx -database powerwall \
-  -execute "SHOW CONTINUOUS QUERIES" > "${STAGING}/influxdb/continuous_queries.txt" 2>/dev/null
+  -execute "SHOW CONTINUOUS QUERIES" 2>/dev/null \
+  | sed -n 's/.*\(CREATE CONTINUOUS QUERY.*\)/\1/p' \
+  > "${STAGING}/influxdb/continuous_queries.txt"
 
 echo "  ✓ InfluxDB snapshot captured"
 
