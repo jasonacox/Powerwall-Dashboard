@@ -1397,21 +1397,28 @@ if args.dry_run:
     start, end = get_start_end()
     print(f"Running for period: [{start.astimezone(influxtz)}] - [{end.astimezone(influxtz)}] ({str(end - start)}s)\n")
 
-    # Search InfluxDB for power usage data gaps
-    powergaps = search_influx(start, end, 'power usage')
-    print() if powergaps else print("* None found\n")
+    if args.force:
+        # When --force is used, treat the entire range as a single gap (skip gap search)
+        powergaps = [{'start': start, 'end': end}]
+        gridgaps = [{'start': start, 'end': end}]
+        reservegaps = [{'start': start, 'end': end}] if args.reserve is not None else None
+        print("Forced range — treating entire period as one gap.\n")
+    else:
+        # Search InfluxDB for power usage data gaps
+        powergaps = search_influx(start, end, 'power usage')
+        print() if powergaps else print("* None found\n")
 
-    gridgaps = None
-    reservegaps = None
+        gridgaps = None
+        reservegaps = None
 
-    # Note: We cannot determine if the site is a Battery without Tesla API access.
-    # We search for grid status gaps (local query only) and include them in the count.
-    gridgaps = search_influx(start, end, 'grid status')
-    print() if gridgaps else print("* None found\n")
+        # Note: We cannot determine if the site is a Battery without Tesla API access.
+        # We search for grid status gaps (local query only) and include them in the count.
+        gridgaps = search_influx(start, end, 'grid status')
+        print() if gridgaps else print("* None found\n")
 
-    if args.reserve is not None:
-        reservegaps = search_influx(start, end, 'backup reserve percent')
-        print() if reservegaps else print("* None found\n")
+        if args.reserve is not None:
+            reservegaps = search_influx(start, end, 'backup reserve percent')
+            print() if reservegaps else print("* None found\n")
 
     if not (powergaps or gridgaps or reservegaps):
         print("Done.")
@@ -1455,7 +1462,7 @@ if args.dry_run:
         print(f"  Backup history calls: {backup_calls}+ (lifetime events, may paginate)")
     if reservegaps:
         print(f"  Reserve history:      0 (generated locally, no API calls)")
-    print(f"  {'─' * 45}")
+    print(f"  {'-' * 45}")
     print(f"  Total estimated calls: {total_calls}+")
     print("\nNote: SOE and backup calls only apply to Powerwall (Battery) sites.")
     print("      Backup call count is a minimum; actual calls depend on event history length.")
