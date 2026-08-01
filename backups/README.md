@@ -42,9 +42,8 @@ The backup script creates a consistent snapshot of:
 The following shows an example of how to set up automated backups (see backup.sh):
 
 1. Copy backup.sh.sample to backup.sh (cp backup.sh.sample backup.sh)
-2. Edit the line that says DASHBOARD="/home/user/Powerwall-Dashboard" to have your dashboard location.
-3. Make the script executable with `chmod +x backup.sh`
-4. Add to crontab for daily backups: `0 2 * * * /home/user/Powerwall-Dashboard/backups/backup.sh`
+2. Make the script executable with `chmod +x backup.sh` (the script auto-detects the dashboard location by finding `compose-dash.sh`)
+3. Add to crontab for daily backups: `0 2 * * * /home/user/Powerwall-Dashboard/backups/backup.sh`
 
 ## Backup Script Example
 
@@ -56,8 +55,8 @@ if [ "$EUID" -ne 0 ]
   exit
 fi
 
-# Set values for your environment 
-DASHBOARD="/home/user/Powerwall-Dashboard"    # Location of Dashboard to backup
+# Dashboard location is auto-detected (script-relative, with a fallback
+# search for compose-dash.sh) - see backup.sh.sample
 BACKUP_FOLDER="${DASHBOARD}/backups"          # Destination folder for backups
 KEEP="5"                                      # Days to keep backup
 
@@ -93,8 +92,8 @@ The restore script will:
 2. **Stop all containers** before touching data
 3. **Restore InfluxDB** from the `influxd backup -portable` snapshot, moving existing data aside first (not deleted — you get a rollback path)
 4. **Restore Grafana** database and provisioning files with correct ownership
-5. **Restore configuration files**, rewriting `PWD_USER` in `compose.env` to match this host's actual user and docker group
-6. **Restart the stack** and print a list of pre-restore backup paths to clean up once confirmed
+5. **Restore configuration files**, rewriting `PWD_USER` in `compose.env` to match this host's actual user and docker group. Project files managed by git (`powerwall.yml`, `telegraf.conf`, `influxdb.conf`, `VERSION`) are kept in the archive for reference but are NOT restored over the current checkout — this prevents an older backup from downgrading the stack or breaking future upgrades.
+6. **Recreate the stack** (`compose-dash.sh up -d`, so restored settings take effect) and print a list of pre-restore backup paths to clean up once confirmed
 
 ### Manual restore from a backup script archive
 
@@ -138,15 +137,23 @@ To restore manually from a backup script archive:
     sudo cp -a /tmp/pwd-restore/grafana/grafana.db "${DASHBOARD}/grafana/"
     sudo cp -a /tmp/pwd-restore/grafana/provisions/. "${DASHBOARD}/grafana/provisions/" 2>/dev/null
 
-    # Restore config files
-    sudo cp -a /tmp/pwd-restore/config/. "${DASHBOARD}/"
+    # Restore config files (exclude git-managed project files - restoring an
+    # older powerwall.yml/telegraf.conf/VERSION would downgrade the stack and
+    # cause git pull conflicts on future upgrades)
+    for f in /tmp/pwd-restore/config/* /tmp/pwd-restore/config/.*.env; do
+      case "$(basename "$f")" in
+        powerwall.yml|telegraf.conf|influxdb.conf|VERSION|_config.yml) continue ;;
+      esac
+      [ -f "$f" ] && sudo cp -a "$f" "${DASHBOARD}/"
+    done
 
     # Clean up
     sudo rm -rf /tmp/pwd-restore
     ```
-4. Start containers
+4. Recreate containers so restored settings take effect ('start' alone would
+   resume the old containers with stale configuration)
     ```bash
-    ./compose-dash.sh start
+    ./compose-dash.sh up -d
     ```
 
 ### Using a full directory backup (transfer method)

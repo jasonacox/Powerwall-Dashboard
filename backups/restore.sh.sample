@@ -86,21 +86,21 @@ echo "========================================="
 echo "Archive: ${ARCHIVE}"
 echo ""
 read -r -p "This will OVERWRITE existing data. Continue? [y/N] " CONFIRM
-if [[ ! "${CONFIRM}" =~ ^[Yy]$ ]]; then
+if [[ ! "${CONFIRM}" =~ ^([yY][eE][sS]|[yY])$ ]]; then
   echo "Restore cancelled."
   exit 0
 fi
 
 # ── Extract archive to staging ────────────────────────────────────────
+# Reject archive members with path traversal entries before extracting
+if tar -tf "${ARCHIVE}" | grep -qE '(^|/)\.\.(/|$)'; then
+  echo "ERROR: Archive contains path traversal entries. Aborting."
+  exit 1
+fi
 echo ""
 echo "Extracting archive..."
 if ! tar --no-same-owner -Jxvf "${ARCHIVE}" -C "${STAGING}" 2>&1; then
   echo "ERROR: Archive extraction failed. Aborting."
-  exit 1
-fi
-# Verify extraction stayed within staging (no path traversal)
-if find "${STAGING}" -type f | grep -qE '/\.\./'; then
-  echo "ERROR: Archive contained path traversal entries. Aborting."
   exit 1
 fi
 
@@ -137,7 +137,7 @@ if [ -d "${STAGING}/influxdb" ] && [ -n "$(ls -A "${STAGING}/influxdb" 2>/dev/nu
 
   # Wait for InfluxDB to become healthy (up to 60 seconds)
   echo "  Waiting for InfluxDB to be ready..."
-  for i in $(seq 1 30); do
+  for _ in $(seq 1 30); do
     HEALTH=$(docker inspect --format='{{.State.Health.Status}}' influxdb 2>/dev/null)
     if [ "${HEALTH}" = "healthy" ]; then
       break
@@ -206,7 +206,22 @@ fi
 echo ""
 echo "[3/3] Restoring configuration files..."
 
+# Git-tracked project files are archived for reference but must NOT be
+# restored over the current checkout: restoring an older backup would
+# silently downgrade powerwall.yml (container image tags), confuse
+# upgrade.sh via a stale VERSION, and dirty the git tree causing future
+# 'git pull' conflicts. Only user-owned config (*.env, telegraf.local,
+# etc.) is restored.
+GIT_TRACKED_SKIP=(
+  "powerwall.yml"
+  "telegraf.conf"
+  "influxdb.conf"
+  "VERSION"
+  "_config.yml"
+)
+
 FOUND=0
+SKIPPED=0
 if [ -d "${STAGING}/config" ]; then
   # Use nullglob + include hidden files (.*.env) so dotfiles backed up by
   # backup.sh are also restored.
@@ -214,6 +229,11 @@ if [ -d "${STAGING}/config" ]; then
   for FILE in "${STAGING}"/config/*; do
     [ -f "${FILE}" ] || continue
     BASENAME=$(basename "${FILE}")
+    if [[ " ${GIT_TRACKED_SKIP[*]} " == *" ${BASENAME} "* ]]; then
+      echo "  - Skipped ${BASENAME} (project file - managed by git, kept in archive for reference)"
+      SKIPPED=$((SKIPPED + 1))
+      continue
+    fi
     if [ -f "${DASHBOARD}/${BASENAME}" ]; then
       cp -a "${DASHBOARD}/${BASENAME}" "${DASHBOARD}/${BASENAME}.pre-restore.${STAMP}"
       PRERESTORE_PATHS+=("${DASHBOARD}/${BASENAME}.pre-restore.${STAMP}")
@@ -234,12 +254,20 @@ if [ -d "${STAGING}/config" ]; then
   done
 fi
 echo "  ✓ ${FOUND} config file(s) restored (owner set to ${PWD_USER})"
+if [ "${SKIPPED}" -gt 0 ]; then
+  echo "  - ${SKIPPED} project file(s) skipped (already provided by this checkout)"
+fi
 
 # ── Restart the stack ─────────────────────────────────────────────────
+# Use 'up -d' (not 'start') so containers are RECREATED and pick up the
+# restored env files (compose.env PWD_USER, pypowerwall.env, grafana.env,
+# influxdb.env). 'docker compose start' would resume the old containers
+# with their stale configuration baked in — and fails outright on a fresh
+# machine where containers were never created.
 echo ""
 echo "Starting Powerwall-Dashboard containers..."
 cd "${DASHBOARD}"
-./compose-dash.sh start
+./compose-dash.sh up -d
 
 echo ""
 echo "========================================="

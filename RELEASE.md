@@ -1,5 +1,34 @@
 # RELEASE NOTES
 
+## v5.3.0 - Restore Script: Companion restore.sh for backup.sh
+
+### Upgrading
+
+* **Grafana datasource UID change** — auto-provisioned InfluxDB and Sun/Moon datasources now have explicit, stable UIDs (`pwd-influxdb-auto` and `pwd-sunandmoon-auto`) instead of Grafana-generated ones. This prevents UID collisions and drift across reprovisioning. **Existing installs:** after upgrading, Grafana will create new datasource entries with the pinned UIDs. If dashboards show "datasource not found" on affected panels, either re-import the dashboard or re-link the panel datasource to the same-named entry in the Grafana UI. ([PR #840](https://github.com/jasonacox/Powerwall-Dashboard/pull/840) by **@youzer-name**)
+
+### New Features
+
+* **Restore script** — new `backups/restore.sh.sample`, an automated companion to `backup.sh.sample`, based on `restore_v16a.sh` by **@JonMurphy** ([#836](https://github.com/jasonacox/Powerwall-Dashboard/issues/836)). One command restores a backup archive on the same machine or migrates to a new one:
+  - Auto-detects the Powerwall-Dashboard directory by locating `compose-dash.sh`
+  - Non-destructive — moves existing InfluxDB `data`/`meta`/`wal` and `grafana.db` aside as `.pre-restore.<timestamp>` copies (rollback path) instead of deleting
+  - Restores InfluxDB from the `influxd backup -portable` snapshot into a clean instance, then re-creates continuous queries from `influxdb.sql` (`influxd restore -portable` does not reliably restore CQs — a known InfluxDB 1.x limitation)
+  - Restores Grafana database and provisioning files with correct ownership, deriving `PWD_USER` from live filesystem state (`compose-dash.sh` owner + docker group GID)
+  - Restores user configuration files (`*.env`, `telegraf.local`, etc.) while **skipping git-managed project files** (`powerwall.yml`, `telegraf.conf`, `influxdb.conf`, `VERSION`) so an older backup can never downgrade the stack or break future `git pull`/upgrades
+  - Finishes with `compose-dash.sh up -d` so containers are **recreated** and restored settings (including the rewritten `PWD_USER`) actually take effect
+* **Backup script** — `backup.sh.sample` now auto-detects the dashboard directory (no more editing `DASHBOARD=` by hand) and exports `SHOW CONTINUOUS QUERIES` output into the archive as a safety net.
+
+### Documentation
+
+* `backups/README.md` — documents the restore script as the recommended method; manual restore steps retained as a fallback and corrected to exclude git-managed files and use `compose-dash.sh up -d`.
+
+### Contributors
+
+Thanks to **@JonMurphy** for the original `restore_v16a.sh` script, testing, and the detailed restore-procedure feedback in [#836](https://github.com/jasonacox/Powerwall-Dashboard/issues/836).
+
+### Links
+
+* Reported in [#836](https://github.com/jasonacox/Powerwall-Dashboard/issues/836)
+* Added in [PR #838](https://github.com/jasonacox/Powerwall-Dashboard/pull/838)
 ## v5.2.0 - Backup Overhaul, Outage Export, verify.sh Fixes & More
 
 ### Backup Script Improvements
