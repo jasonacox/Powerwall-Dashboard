@@ -154,15 +154,29 @@ if [ -d "${STAGING}/influxdb" ] && [ -n "$(ls -A "${STAGING}/influxdb" 2>/dev/nu
     echo "  ✗ InfluxDB restore command failed - check output above"
   fi
 
-  # Re-create continuous queries from influxdb.sql.
+  # Re-create continuous queries after restore.
   # influxd restore -portable does not reliably restore CQs (known InfluxDB 1.x
   # limitation). The portable .meta file contains them, but the restore merge
-  # into a live instance can drop them. Re-running the CREATE CONTINUOUS QUERY
-  # statements from influxdb.sql guarantees they exist after restore.
-  if [ -f "${DASHBOARD}/influxdb/influxdb.sql" ]; then
+  # into a live instance can drop them.
+  #
+  # Priority: use continuous_queries.txt from the backup archive (captures
+  # live CQ state including user customizations) → fallback to influxdb.sql
+  # (repo defaults) → skip with warning if neither exists.
+  #
+  # backup.sh exports via: influx -execute "SHOW CONTINUOUS QUERIES"
+  # The output is a tab-separated table with the CREATE statement in the
+  # last column — extract just the CREATE CONTINUOUS QUERY lines.
+  CQ_RESTORED=0
+  if [ -f "${STAGING}/influxdb/continuous_queries.txt" ] && grep -q '^CREATE CONTINUOUS QUERY' "${STAGING}/influxdb/continuous_queries.txt"; then
+    grep '^CREATE CONTINUOUS QUERY' "${STAGING}/influxdb/continuous_queries.txt" \
+      | docker exec -i influxdb influx -database powerwall \
+      && { echo "  ✓ Continuous queries re-created from backup (continuous_queries.txt)"; CQ_RESTORED=1; } \
+      || echo "  ⚠ Failed to re-create continuous queries from continuous_queries.txt"
+  fi
+  if [ "${CQ_RESTORED}" -eq 0 ] && [ -f "${DASHBOARD}/influxdb/influxdb.sql" ]; then
     grep '^CREATE CONTINUOUS QUERY' "${DASHBOARD}/influxdb/influxdb.sql" \
       | docker exec -i influxdb influx -database powerwall \
-      && echo "  ✓ Continuous queries re-created from influxdb.sql" \
+      && echo "  ✓ Continuous queries re-created from influxdb.sql (repo defaults)" \
       || echo "  ⚠ Failed to re-create continuous queries — see influxdb/influxdb.sql"
   fi
 
