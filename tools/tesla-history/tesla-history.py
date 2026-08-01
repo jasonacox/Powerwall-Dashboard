@@ -81,6 +81,7 @@ parser = argparse.ArgumentParser(description='Import Powerwall or Solar history 
 parser.add_argument('-l', '--login', action="store_true", help='login to Tesla account only and save auth token (do not get history)')
 parser.add_argument('-t', '--test', action="store_true", help='enable test mode (do not import into InfluxDB)')
 parser.add_argument('-d', '--debug', action="store_true", help='enable debug output (print raw responses from Tesla cloud)')
+parser.add_argument('--dry-run', action="store_true", help='identify data gaps and show number of API calls required without making any API calls')
 group = parser.add_argument_group('login options')
 group.add_argument('--region', default="us", choices=["us", "cn"], help='specify Tesla account region (default: us)')
 group.add_argument('--headless', action="store_true", help='headless mode (show auth token prompt instead of opening browser)')
@@ -172,6 +173,8 @@ else:
         parser.error("both arguments --start and --end are required")
     if not (args.login or args.setup) and not ((args.start and args.end) or (args.today or args.yesterday)):
         parser.error("missing arguments: --start/end or --today/yesterday")
+    if args.dry_run and (args.login or args.setup or args.remove or args.daemon):
+        parser.error("--dry-run cannot be used with --login, --setup, --remove, or --daemon")
     if args.reserve is not None and (args.reserve < 0 or args.reserve > 100):
         parser.error(f"argument --reserve: invalid value: '{args.reserve}'")
 
@@ -1386,6 +1389,76 @@ if args.remove and not (args.login or args.setup):
 
     # Remove imported data from InfluxDB between start and end date/time
     remove_influx(start, end)
+    print("\nDone.")
+    sys_exit()
+
+if args.dry_run:
+    # Dry-run mode: identify data gaps and count required API calls without making any Tesla Cloud requests
+    start, end = get_start_end()
+    print(f"Running for period: [{start.astimezone(influxtz)}] - [{end.astimezone(influxtz)}] ({str(end - start)}s)\n")
+
+    # Search InfluxDB for power usage data gaps
+    powergaps = search_influx(start, end, 'power usage')
+    print() if powergaps else print("* None found\n")
+
+    gridgaps = None
+    reservegaps = None
+
+    # Note: We cannot determine if the site is a Battery without Tesla API access.
+    # We search for grid status gaps (local query only) and include them in the count.
+    gridgaps = search_influx(start, end, 'grid status')
+    print() if gridgaps else print("* None found\n")
+
+    if args.reserve is not None:
+        reservegaps = search_influx(start, end, 'backup reserve percent')
+        print() if reservegaps else print("* None found\n")
+
+    if not (powergaps or gridgaps or reservegaps):
+        print("Done.")
+        sys_exit()
+
+    # Count the number of Tesla Cloud API calls that would be required
+    # Power history: one 'power' call per day per gap + one 'soe' call per day per gap (for Battery sites)
+    power_calls = 0
+    soe_calls = 0
+    if powergaps:
+        for period in powergaps:
+            gap_start = period['start']
+            gap_end = period['end']
+            # Count days (aligned to site timezone, but we use influxtz as fallback)
+            day = gap_start.astimezone(influxtz).replace(hour=0, minute=0, second=0, tzinfo=None)
+            endday = gap_end.astimezone(influxtz).replace(hour=0, minute=0, second=0, tzinfo=None)
+            days = 0
+            d = day
+            while d <= endday:
+                days += 1
+                d += timedelta(days=1)
+            power_calls += days  # one 'power' API call per day
+            soe_calls += days    # one 'soe' API call per day (for Battery sites)
+
+    # Backup history: at least one call to retrieve lifetime backup events
+    # (exact count depends on number of event pages, which requires an API call to determine)
+    backup_calls = 0
+    if gridgaps:
+        backup_calls = 1  # At least one call; more may be needed for pagination
+
+    # Reserve history: no API calls (data is generated locally from --reserve value)
+    total_calls = power_calls + soe_calls + backup_calls
+
+    print("-" * 51)
+    print("Dry Run Summary - Estimated Tesla Cloud API calls:")
+    print("-" * 51)
+    if powergaps:
+        print(f"  Power history calls:  {power_calls} (one per day per gap)")
+        print(f"  SOE history calls:    {soe_calls} (one per day per gap, Battery sites only)")
+    if gridgaps:
+        print(f"  Backup history calls: {backup_calls}+ (lifetime events, may paginate)")
+    if reservegaps:
+        print(f"  Reserve history:      0 (generated locally, no API calls)")
+    print(f"  {'─' * 45}")
+    print(f"  Total estimated calls: {total_calls}+")
+    print("\nNote: SOE and backup calls only apply to Powerwall (Battery) sites.")
+    print("      Backup call count is a minimum; actual calls depend on event history length.")
     print("\nDone.")
     sys_exit()
 

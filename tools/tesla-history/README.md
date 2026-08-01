@@ -267,7 +267,7 @@ For more usage options, run without arguments or with the `--help` option:
 python3 tesla-history.py --help
 ```
 ```
-usage: tesla-history.py [-h] [-l] [-t] [-d] [--region {us,cn}] [--headless] [--config CONFIG] [--site SITE] [--reserve RESERVE] [--force] [--remove] [--daemon] [--start START] [--end END] [--today] [--yesterday]
+usage: tesla-history.py [-h] [-l] [-t] [-d] [--dry-run] [--region {us,cn}] [--headless] [--config CONFIG] [--site SITE] [--reserve RESERVE] [--force] [--remove] [--daemon] [--start START] [--end END] [--today] [--yesterday]
 
 Import Powerwall or Solar history data from Tesla Owner API (Tesla cloud) into InfluxDB
 
@@ -276,6 +276,7 @@ options:
   -l, --login        login to Tesla account only and save auth token (do not get history)
   -t, --test         enable test mode (do not import into InfluxDB)
   -d, --debug        enable debug output (print raw responses from Tesla cloud)
+  --dry-run          identify data gaps and show number of API calls required without making any API calls
 
 login options:
   --region {us,cn}   specify Tesla account region (default: us)

@@ -65,6 +65,7 @@ import configparser
 import requests
 from urllib3 import Retry
 import time
+from pathlib import Path
 from datetime import datetime, timedelta
 try:
     from dateutil.parser import isoparse
@@ -76,16 +77,17 @@ try:
 except:
     sys.exit("ERROR: Missing python influxdb module. Run 'pip install influxdb'.")
 
-SCRIPTPATH = os.path.dirname(os.path.realpath(sys.argv[0]))
+SCRIPTPATH = Path(sys.argv[0]).resolve().parent
 SCRIPTNAME = os.path.basename(sys.argv[0]).split('.')[0]
 CONFIGNAME = CONFIGFILE = f"{SCRIPTNAME}.conf"
-W411CONFIG = f"{SCRIPTPATH}/../../weather/weather411.conf"
+W411CONFIG = str(SCRIPTPATH / ".." / ".." / "weather" / "weather411.conf")
 
 # Parse command line arguments
 parser = argparse.ArgumentParser(description='Import weather history data from OpenWeatherMap One Call API 3.0 into InfluxDB')
 parser.add_argument('-s', '--setup', action='store_true', help='run setup to create or update configuration only (do not get history)')
 parser.add_argument('-t', '--test', action='store_true', help='enable test mode (do not import into InfluxDB)')
 parser.add_argument('-d', '--debug', action='store_true', help='enable debug output (print raw responses from OpenWeatherMap)')
+parser.add_argument('--dry-run', action='store_true', help='identify data gaps and show number of API calls required without making any API calls')
 group = parser.add_argument_group('advanced options')
 group.add_argument('--config', help=f'specify an alternate config file (default: {CONFIGNAME})')
 group.add_argument('--w411conf', help='specify Weather411 config file to set defaults from during setup')
@@ -103,6 +105,8 @@ args = parser.parse_args()
 if len(sys.argv) == 1:
     parser.print_help(sys.stderr)
     sys.exit()
+if args.dry_run and (args.setup or args.remove):
+    parser.error("--dry-run cannot be used with --setup or --remove")
 if (args.start or args.end) and (args.today or args.yesterday):
     parser.error("arguments --start and --end cannot be used with --today or --yesterday")
 if (args.start and not args.end) or (args.end and not args.start):
@@ -123,9 +127,9 @@ if args.w411conf:
 # Load Configuration File
 configloaded = False
 config = configparser.ConfigParser(allow_no_value=True)
-if not os.path.exists(CONFIGFILE) and "/" not in CONFIGFILE:
+if not os.path.exists(CONFIGFILE) and not Path(CONFIGFILE).is_absolute():
     # Look for config file in script location if not found
-    CONFIGFILE = f"{SCRIPTPATH}/{CONFIGFILE}"
+    CONFIGFILE = str(SCRIPTPATH / CONFIGFILE)
 if os.path.exists(CONFIGFILE):
     try:
         config.read(CONFIGFILE)
@@ -830,6 +834,43 @@ if args.remove:
     # Remove imported data from InfluxDB between start and end date/time
     remove_influx(start, end)
     print("Done.")
+    sys.exit()
+
+if args.dry_run:
+    # Dry-run mode: identify data gaps and count required API calls without making any requests
+    if args.force:
+        # When --force is used, treat the entire range as a single gap
+        weathergaps = [{'start': start, 'end': end}]
+        print(f"Forced range: [{start.astimezone(influxtz)}] - [{end.astimezone(influxtz)}] ({str(end - start)}s)\n")
+    else:
+        # Search InfluxDB for weather data gaps
+        weathergaps = search_influx(start, end)
+        print() if weathergaps else print("* None found\n")
+
+    if not weathergaps:
+        print("Done.")
+        sys.exit()
+
+    # Count the number of API calls that would be required
+    total_calls = 0
+    interval = timedelta(minutes=OWGAP)
+    for period in weathergaps:
+        period_calls = 0
+        curr = period['start']
+        while curr <= period['end']:
+            period_calls += 1
+            curr += interval
+        total_calls += period_calls
+
+    # The stdcall (current weather) is also made once per run
+    total_calls += 1
+
+    print(f"API calls required: {total_calls} (including 1 for current weather data)")
+    print(f"Data gaps found: {len(weathergaps)}")
+    if total_calls > 1000:
+        print(f"Note: This exceeds the free tier limit of 1,000 API calls/day. "
+              f"See https://home.openweathermap.org/subscriptions to manage your limits.")
+    print("\nDone.")
     sys.exit()
 
 # Create session object for http connection re-use
