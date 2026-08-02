@@ -4,140 +4,148 @@
 #   https://github.com/jasonacox/Powerwall-Dashboard
 #   by Jason Cox - 27 Feb 2022
 #
-# Improved backup: archives InfluxDB snapshot (not live data),
-# Grafana database (consistent copy), and configuration files.
+# Creates a consistent, restorable archive (see restore.sh) containing:
+#   influxdb/   InfluxDB portable snapshot (influxd backup -portable)
+#   grafana/    grafana.db (sqlite3 online backup) + provisions/
+#   config/     configuration files (*.env, *.conf, *.yml, telegraf.local, ...)
+#   weather/    weather411.conf (if present)
+#   auth/       .auth/ Tesla cloud tokens (if present)
+#
+# Usage:
+#   sudo ./backup.sh
+#
+# Notes:
+#   - Keep this script in Powerwall-Dashboard/backups/ (location is
+#     auto-detected from the script's own path).
+#   - The influxdb container must be running (the snapshot is taken online -
+#     no downtime).
+#   - Archives contain credentials (.env files, Tesla tokens). They are
+#     created with mode 600 - keep them protected.
+#   - Data is staged under mktemp -d (usually /tmp). For large datasets,
+#     point staging at a disk with more space:
+#       sudo TMPDIR=/path/with/space ./backup.sh
+#   - Cron example (daily at 2am):
+#       0 2 * * * /home/user/Powerwall-Dashboard/backups/backup.sh
 
-# Daily Backup for Powerwall-Dashboard Data
-if [ "$EUID" -ne 0 ]
-  then echo "Must run as root"
-  exit
-fi
+set -o pipefail
 
-# ── Locate the Powerwall-Dashboard directory ──────────────────────────
-# Resolve relative to this script's location (normally in backups/).
+KEEP="5"    # Days of backup archives to keep
+
+die() { echo "ERROR: $*" >&2; exit 1; }
+
+# ── Preflight checks ──────────────────────────────────────────────────
+[ "$EUID" -eq 0 ] || die "Must run as root (sudo ./backup.sh)"
+
+# Locate the Powerwall-Dashboard directory relative to this script.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PARENT_DIR="$(dirname "${SCRIPT_DIR}")"
+DASHBOARD="$(dirname "${SCRIPT_DIR}")"
+[ -f "${DASHBOARD}/compose-dash.sh" ] \
+  || die "Could not locate Powerwall-Dashboard (no compose-dash.sh in ${DASHBOARD}).
+Place this script in your Powerwall-Dashboard/backups/ directory."
 
-if [ -f "${PARENT_DIR}/compose-dash.sh" ]; then
-  DASHBOARD="${PARENT_DIR}"
-else
-  echo "ERROR: Could not locate Powerwall-Dashboard (no compose-dash.sh in ${PARENT_DIR})."
-  echo "Run this script from your Powerwall-Dashboard/backups/ directory."
-  exit 1
-fi
-
-BACKUP_FOLDER="${DASHBOARD}/backups"          # Destination folder for backups
-KEEP="5"                                      # Days to keep backup
+BACKUP_FOLDER="${DASHBOARD}/backups"
+[ -d "${BACKUP_FOLDER}" ] || die "Backup directory ${BACKUP_FOLDER} does not exist."
 
 echo "Using Powerwall-Dashboard directory: ${DASHBOARD}"
 
-if [ ! -d "${BACKUP_FOLDER}" ]; then
-  echo "Backup directory ${BACKUP_FOLDER} does not exist."
-  exit
+# The snapshot is taken online - influxdb must be up.
+[ "$(docker inspect -f '{{.State.Running}}' influxdb 2>/dev/null)" = "true" ] \
+  || die "The influxdb container is not running. Start the stack first: ./compose-dash.sh up -d"
+
+# Pre-flight disk space on the DASHBOARD filesystem: influxd backup writes
+# its snapshot into ${DASHBOARD}/influxdb/backups before anything is staged.
+# The snapshot (gzip-compressed shards) is normally smaller than the data
+# directory, so the data directory size is a safe upper-bound estimate.
+DATA_KB=$(du -sk "${DASHBOARD}/influxdb/data" 2>/dev/null | cut -f1)
+DASH_AVAIL_KB=$(df -Pk "${DASHBOARD}" | awk 'NR==2 {print $4}')
+if [ -n "${DATA_KB}" ] && [ -n "${DASH_AVAIL_KB}" ] && [ "${DASH_AVAIL_KB}" -lt "${DATA_KB}" ]; then
+  die "Not enough free space on the dashboard disk for the InfluxDB snapshot.
+  Estimated needed: $((DATA_KB / 1024)) MB (size of influxdb/data)
+  Available:        $((DASH_AVAIL_KB / 1024)) MB
+Free up space before backing up."
 fi
 
-# Timestamp for Backup Filename
+# ── Staging ───────────────────────────────────────────────────────────
 STAMP=$(date '+%Y-%m-%d')
 STAGING=$(mktemp -d)
+trap 'rm -rf "${STAGING}"' EXIT
 
-# Cleanup staging on exit
-cleanup() {
-  rm -rf "${STAGING}"
-}
-trap cleanup EXIT
+ARCHIVE="${BACKUP_FOLDER}/Powerwall-Dashboard.${STAMP}.tar.xz"
 
 echo "========================================="
 echo " Powerwall-Dashboard Backup - ${STAMP}"
 echo "========================================="
 
-# ── 1. InfluxDB Snapshot ──────────────────────────────────────────────
-# Use influxd backup to create a consistent snapshot instead of
-# tarring the live data directory (which can capture mid-write files).
-# The -portable flag creates a self-contained, version-independent
-# backup that can be restored on a different machine or InfluxDB version.
+# ── 1. InfluxDB snapshot ──────────────────────────────────────────────
+# influxd backup creates a consistent online snapshot (no downtime, no
+# "file changed as we read it" risk). The -portable flag makes it
+# self-contained and restorable on any InfluxDB 1.x instance.
 echo ""
-echo "[1/3] Creating InfluxDB snapshot backup..."
-cd "${DASHBOARD}"
+echo "[1/5] Creating InfluxDB snapshot..."
+cd "${DASHBOARD}" || die "Cannot cd to ${DASHBOARD}"
 mkdir -p influxdb/backups
 chmod g+w influxdb/backups
-docker exec influxdb influxd backup -portable -database powerwall /var/lib/influxdb/backups
+rm -rf influxdb/backups/*    # clear stale snapshots from earlier runs
 
-# ── Check staging disk space ──────────────────────────────────────────
-# The snapshot is copied into ${STAGING} (usually under /tmp) before being
-# archived. On systems where /tmp is a RAM-backed tmpfs, a multi-GB
-# snapshot can exhaust memory. Abort (rather than risk OOM) if the staging
-# filesystem can't hold the snapshot plus 10% headroom. Override the
-# staging location with: sudo TMPDIR=/path/with/space ./backup.sh
-SNAPSHOT_KB=$(du -sk "${DASHBOARD}/influxdb/backups" | cut -f1)
-NEEDED_KB=$((SNAPSHOT_KB + SNAPSHOT_KB / 10))
-AVAIL_KB=$(df -Pk "${STAGING}" | awk 'NR==2 {print $4}')
-if [ -n "${AVAIL_KB}" ] && [ "${AVAIL_KB}" -lt "${NEEDED_KB}" ]; then
-  echo "ERROR: Staging area ${STAGING} does not have enough free space."
-  echo "  Snapshot size: $((SNAPSHOT_KB / 1024)) MB"
-  echo "  Available:     $((AVAIL_KB / 1024)) MB"
-  echo "If /tmp is a RAM-backed tmpfs, staging there can exhaust memory."
-  echo "Point staging at a disk with more space and re-run:"
-  echo "  sudo TMPDIR=/path/with/space $0"
-  rm -rf "${DASHBOARD}/influxdb/backups"/*
-  exit 1
+docker exec influxdb influxd backup -portable -database powerwall /var/lib/influxdb/backups \
+  || { rm -rf influxdb/backups/*; die "influxd backup failed - no archive created."; }
+
+# Staging disk space: now that the snapshot exists we know its exact size.
+# Abort (cron-safe - no prompt) rather than fill a RAM-backed /tmp.
+SNAPSHOT_KB=$(du -sk influxdb/backups | cut -f1)
+STAGING_AVAIL_KB=$(df -Pk "${STAGING}" | awk 'NR==2 {print $4}')
+if [ -n "${STAGING_AVAIL_KB}" ] && [ "${STAGING_AVAIL_KB}" -lt "$((SNAPSHOT_KB + SNAPSHOT_KB / 10))" ]; then
+  rm -rf influxdb/backups/*
+  die "Staging area ${STAGING} cannot hold the snapshot.
+  Snapshot size: $((SNAPSHOT_KB / 1024)) MB
+  Available:     $((STAGING_AVAIL_KB / 1024)) MB
+If /tmp is a RAM-backed tmpfs, staging there can exhaust memory.
+Re-run with staging on a disk that has space: sudo TMPDIR=/path/with/space $0"
 fi
 
-# Copy the snapshot into staging (the backup files are the consistent copy)
 mkdir -p "${STAGING}/influxdb"
-cp -a "${DASHBOARD}/influxdb/backups/." "${STAGING}/influxdb/"
+cp -a influxdb/backups/. "${STAGING}/influxdb/"
+rm -rf influxdb/backups/*
 
-# Clean up snapshots from the live directory
-rm -rf "${DASHBOARD}/influxdb/backups"/*
-
-# Export continuous queries as a safety net.
-# influxd backup captures CQs in the .meta file, but influxd restore
-# does not reliably restore them (known InfluxDB 1.x limitation).
-# This export captures the live CQ state, including any user customizations.
-# The raw SHOW CONTINUOUS QUERIES output is a tab-separated table
-# (name/query_id/query columns); extract just the CREATE statements so
-# restore.sh can replay them directly.
+# Export live continuous queries (including user customizations) as clean
+# CREATE statements. influxd restore -portable does not reliably restore
+# CQs (known InfluxDB 1.x limitation) - restore.sh replays these.
 docker exec influxdb influx -database powerwall \
   -execute "SHOW CONTINUOUS QUERIES" 2>/dev/null \
   | sed -n 's/.*\(CREATE CONTINUOUS QUERY.*\)/\1/p' \
   > "${STAGING}/influxdb/continuous_queries.txt"
+echo "  ✓ InfluxDB snapshot captured ($((SNAPSHOT_KB / 1024)) MB)"
 
-echo "  ✓ InfluxDB snapshot captured"
-
-# ── 2. Grafana Database ───────────────────────────────────────────────
-# Use sqlite3 .backup for a consistent copy of grafana.db instead of
-# copying the live file which may be mid-write. Uses the host sqlite3
-# (the Grafana container does not include it).
+# ── 2. Grafana database ───────────────────────────────────────────────
+# sqlite3 .backup (SQLite's online backup API) gives a consistent copy of
+# a live grafana.db. Falls back to a direct copy if sqlite3 is missing.
 echo ""
-echo "[2/3] Backing up Grafana database..."
+echo "[2/5] Backing up Grafana database..."
 mkdir -p "${STAGING}/grafana"
 
 GRAFANA_DB="${DASHBOARD}/grafana/grafana.db"
 if [ -f "${GRAFANA_DB}" ]; then
-  # Try a consistent sqlite backup using the host sqlite3 (if available)
   if command -v sqlite3 >/dev/null 2>&1; then
     sqlite3 "${GRAFANA_DB}" ".backup '${STAGING}/grafana/grafana.db'"
     echo "  ✓ Grafana DB backed up (consistent copy via sqlite3)"
   else
-    # Fall back to direct copy (best effort) if sqlite3 is not on host
     cp -a "${GRAFANA_DB}" "${STAGING}/grafana/grafana.db"
-    echo "  ⚠ Grafana DB copied directly (sqlite3 not installed on host)"
-    echo "    For consistent backups: sudo apt install sqlite3"
+    echo "  ⚠ Grafana DB copied directly (for consistent backups: sudo apt install sqlite3)"
   fi
 else
   echo "  - No grafana.db found (skipping)"
 fi
 
-# Also copy Grafana provisioning files if present
 if [ -d "${DASHBOARD}/grafana/provisions" ]; then
   cp -a "${DASHBOARD}/grafana/provisions" "${STAGING}/grafana/"
 fi
 
-# ── 3. Configuration Files ────────────────────────────────────────────
-# Back up all configuration files needed to restore the dashboard.
+# ── 3. Configuration files ────────────────────────────────────────────
 echo ""
-echo "[3/3] Backing up configuration files..."
+echo "[3/5] Backing up configuration files..."
 mkdir -p "${STAGING}/config"
 
+# Essentials always captured; globs below catch anything additional.
 CONFIG_FILES=(
   "compose.env"
   "pypowerwall.env"
@@ -158,32 +166,57 @@ for FILE in "${CONFIG_FILES[@]}"; do
   fi
 done
 
-# Also back up any additional .env, .conf, and .yml/.yaml files
+# Any additional .env, .conf, and .yml/.yaml files at the dashboard root.
 for EXTRA in "${DASHBOARD}"/.*.env "${DASHBOARD}"/*.env "${DASHBOARD}"/*.conf "${DASHBOARD}"/*.yml "${DASHBOARD}"/*.yaml; do
   if [ -f "${EXTRA}" ]; then
-    # Don't double-copy files already in CONFIG_FILES
     BASENAME=$(basename "${EXTRA}")
-    if [[ ! " ${CONFIG_FILES[*]} " =~ " ${BASENAME} " ]]; then
+    if [[ " ${CONFIG_FILES[*]} " != *" ${BASENAME} "* ]]; then
       cp -a "${EXTRA}" "${STAGING}/config/"
       FOUND=$((FOUND + 1))
     fi
   fi
 done 2>/dev/null
-
 echo "  ✓ ${FOUND} config file(s) backed up"
 
-# ── Create Archive ────────────────────────────────────────────────────
+# ── 4. Weather service config ─────────────────────────────────────────
+echo ""
+echo "[4/5] Backing up weather411 config..."
+if [ -f "${DASHBOARD}/weather/weather411.conf" ]; then
+  mkdir -p "${STAGING}/weather"
+  cp -a "${DASHBOARD}/weather/weather411.conf" "${STAGING}/weather/"
+  echo "  ✓ weather411.conf backed up"
+else
+  echo "  - No weather411.conf found (skipping)"
+fi
+
+# ── 5. Tesla cloud auth tokens ────────────────────────────────────────
+echo ""
+echo "[5/5] Backing up .auth (Tesla cloud tokens)..."
+if [ -d "${DASHBOARD}/.auth" ] && [ -n "$(ls -A "${DASHBOARD}/.auth" 2>/dev/null)" ]; then
+  mkdir -p "${STAGING}/auth"
+  cp -a "${DASHBOARD}/.auth/." "${STAGING}/auth/"
+  echo "  ✓ .auth backed up"
+else
+  echo "  - No .auth directory found (skipping)"
+fi
+
+# ── Create archive ────────────────────────────────────────────────────
 echo ""
 echo "Creating backup archive..."
-cd "${STAGING}"
-tar -Jcvf "${BACKUP_FOLDER}/Powerwall-Dashboard.${STAMP}.tar.xz" .
+cd "${STAGING}" || die "Cannot cd to ${STAGING}"
+tar -Jcf "${ARCHIVE}" . || die "Archive creation failed."
+chmod 600 "${ARCHIVE}"    # contains credentials - restrict access
 
-# Cleanup Old Backups
-echo ""
-echo "Cleaning up old backups..."
-find "${BACKUP_FOLDER}" -name "Powerwall-Dashboard.*.tar.xz" -mtime +${KEEP} -type f -delete
+# Verify the archive is readable before trusting it.
+tar -tJf "${ARCHIVE}" > /dev/null || die "Archive verification failed: ${ARCHIVE}"
+
+# ── Prune old backups ─────────────────────────────────────────────────
+echo "Cleaning up backups older than ${KEEP} days..."
+find "${BACKUP_FOLDER}" -name "Powerwall-Dashboard.*.tar.xz" -mtime +"${KEEP}" -type f -delete
+
+ARCHIVE_KB=$(du -k "${ARCHIVE}" | cut -f1)
 echo ""
 echo "========================================="
 echo " Backup complete!"
-echo " File: ${BACKUP_FOLDER}/Powerwall-Dashboard.${STAMP}.tar.xz"
+echo " File: ${ARCHIVE} ($((ARCHIVE_KB / 1024)) MB)"
 echo "========================================="

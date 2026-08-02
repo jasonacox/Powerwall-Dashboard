@@ -35,15 +35,21 @@ Backup the Powerwall-Dashboard folder. In that folder are two important folders:
 * grafana - This is the folder for the dashboard which holds your setup and customization.
 
 The backup script creates a consistent snapshot of:
-1. **InfluxDB** — uses `influxd backup` to create a proper snapshot (not a copy of live data files)
-2. **Grafana** — uses `sqlite3 .backup` for a consistent copy of `grafana.db` (falls back to direct copy if sqlite3 is not installed on the host: `sudo apt install sqlite3`)
+1. **InfluxDB** — uses `influxd backup -portable` to create a proper online snapshot (not a copy of live data files), plus an export of the live continuous queries
+2. **Grafana** — uses `sqlite3 .backup` for a consistent copy of `grafana.db` (falls back to direct copy if sqlite3 is not installed on the host: `sudo apt install sqlite3`), plus provisioning files
 3. **Configuration files** — all `.env`, `.conf`, and `.yml` files needed to restore your setup
+4. **Weather service** — `weather/weather411.conf` (if present)
+5. **Tesla cloud tokens** — the `.auth/` directory (if present), so cloud-mode installs migrate without re-authenticating
+
+> **Security note:** backup archives contain credentials (`.env` files, Tesla tokens). The script creates them with mode 600 — keep them protected, especially if you copy them off-machine.
 
 The following shows an example of how to set up automated backups (see backup.sh):
 
 1. Copy backup.sh.sample to backup.sh (cp backup.sh.sample backup.sh)
 2. Make the script executable with `chmod +x backup.sh` (the script auto-detects the dashboard location by finding `compose-dash.sh`)
 3. Add to crontab for daily backups: `0 2 * * * /home/user/Powerwall-Dashboard/backups/backup.sh`
+
+The `influxdb` container must be running when the backup runs — the snapshot is taken online with no downtime.
 
 > **Large datasets:** both `backup.sh` and `restore.sh` stage data in a temporary directory (`mktemp -d`, usually under `/tmp`). If your InfluxDB history is large (multi-GB) and `/tmp` is a RAM-backed tmpfs, staging there can exhaust memory. Both scripts check available space first — backup aborts and restore warns — and you can point staging at a disk with more room: `sudo TMPDIR=/path/with/space ./backup.sh`
 
@@ -64,10 +70,11 @@ KEEP="5"                                      # Days to keep backup
 
 # ... (see backup.sh.sample for full script)
 
-# The improved backup script:
-# 1. Creates an InfluxDB snapshot via influxd backup (avoids "file changed" errors)
+# The backup script:
+# 1. Creates an InfluxDB snapshot via influxd backup (online, no downtime)
 # 2. Creates a consistent Grafana DB copy via sqlite3 .backup
 # 3. Backs up all config files (compose.env, pypowerwall.env, telegraf.local, etc.)
+# 4. Backs up weather411.conf and .auth Tesla tokens (if present)
 ```
 
 ## Restore Backup
@@ -96,16 +103,19 @@ The restore script will:
 4. **Restore InfluxDB** from the `influxd backup -portable` snapshot, moving existing data aside first (not deleted — you get a rollback path), then re-create continuous queries from the archive (with `influxdb.sql` as fallback)
 5. **Restore Grafana** database and provisioning files with correct ownership
 6. **Restore configuration files**, rewriting `PWD_USER` in `compose.env` to match this host's actual user and primary group (same `uid:gid` convention as `setup.sh`). Project files managed by git (`powerwall.yml`, `telegraf.conf`, `influxdb.conf`, `VERSION`) are kept in the archive for reference but are NOT restored over the current checkout — this prevents an older backup from downgrading the stack or breaking future upgrades.
-7. **Recreate the stack** (`compose-dash.sh up -d`, so restored settings take effect) and print a list of pre-restore backup paths to clean up once confirmed
+7. **Restore weather411.conf and .auth tokens** (when present in the archive — older archives without them restore fine)
+8. **Recreate the stack** (`compose-dash.sh up -d`, so restored settings take effect) and print a list of pre-restore backup paths to clean up once confirmed
 
 ### Manual restore from a backup script archive
 
 The backup script creates an archive with this structure:
 
 ```
-influxdb/          # InfluxDB snapshot files (from influxd backup)
+influxdb/          # InfluxDB portable snapshot + continuous_queries.txt
 grafana/           # grafana.db (consistent copy) + provisions
 config/            # configuration files (.env, .conf, .yml)
+weather/           # weather411.conf (if present)
+auth/              # .auth Tesla cloud tokens (if present)
 ```
 
 To restore manually from a backup script archive:
@@ -149,6 +159,10 @@ To restore manually from a backup script archive:
       esac
       [ -f "$f" ] && sudo cp -a "$f" "${DASHBOARD}/"
     done
+
+    # Restore weather411 config and Tesla cloud tokens (newer archives)
+    [ -f /tmp/pwd-restore/weather/weather411.conf ] && sudo cp -a /tmp/pwd-restore/weather/weather411.conf "${DASHBOARD}/weather/"
+    [ -d /tmp/pwd-restore/auth ] && sudo mkdir -p "${DASHBOARD}/.auth" && sudo cp -a /tmp/pwd-restore/auth/. "${DASHBOARD}/.auth/"
 
     # Clean up
     sudo rm -rf /tmp/pwd-restore
