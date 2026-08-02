@@ -1,6 +1,6 @@
 # RELEASE NOTES
 
-## v5.3.0 - Restore Script: Companion restore.sh for backup.sh
+## v5.2.1 - Restore Script: Companion restore.sh for backup.sh
 
 ### Upgrading
 
