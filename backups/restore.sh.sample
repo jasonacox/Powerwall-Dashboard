@@ -37,10 +37,10 @@ if [ ! -d "${BACKUP_FOLDER}" ]; then
 fi
 
 # ── Determine this host's correct owner:group for container files ─────
-# Under sudo, SUDO_UID gives the invoking user (not root). Pair that with
-# the docker GID so container files are owned by the real user + docker group.
-# Falls back to id -u/id -g when not under sudo.
-DOCKER_GID=$(getent group docker 2>/dev/null | cut -d: -f3)
+# Under sudo, SUDO_UID/SUDO_GID give the invoking user (not root).
+# This matches setup.sh, which derives PWD_USER as "$(id -u):$(id -g)" of
+# the installing user — keeping the same uid:primary-gid convention means a
+# restore never changes how the install is owned.
 HOST_UID="${SUDO_UID:-$(id -u)}"
 HOST_GID="${SUDO_GID:-$(id -g)}"
 
@@ -54,7 +54,7 @@ if [ "${HOST_UID}" -eq 0 ] 2>/dev/null; then
   exit 1
 fi
 
-PWD_USER="${HOST_UID}:${DOCKER_GID:-${HOST_GID}}"
+PWD_USER="${HOST_UID}:${HOST_GID}"
 echo "Detected owner:group for this host: ${PWD_USER}"
 
 # ── Determine which archive to restore ────────────────────────────────
@@ -81,6 +81,31 @@ cleanup() {
   rm -rf "${STAGING}"
 }
 trap cleanup EXIT
+
+# ── Check staging disk space ─────────────────────────────────────────────
+# The full archive is extracted into ${STAGING} (usually under /tmp). On
+# systems where /tmp is a RAM-backed tmpfs, a multi-GB archive can exhaust
+# memory. xz compresses time-series data heavily, so require 6x the archive
+# size as a conservative uncompressed estimate. Override the staging
+# location with: sudo TMPDIR=/path/with/space ./restore.sh
+ARCHIVE_KB=$(du -k "${ARCHIVE}" | cut -f1)
+NEEDED_KB=$((ARCHIVE_KB * 6))
+AVAIL_KB=$(df -Pk "${STAGING}" | awk 'NR==2 {print $4}')
+if [ -n "${AVAIL_KB}" ] && [ "${AVAIL_KB}" -lt "${NEEDED_KB}" ]; then
+  echo "WARNING: Staging area ${STAGING} may not have enough free space."
+  echo "  Archive size:     $((ARCHIVE_KB / 1024)) MB (compressed)"
+  echo "  Estimated needed: $((NEEDED_KB / 1024)) MB (uncompressed estimate)"
+  echo "  Available:        $((AVAIL_KB / 1024)) MB"
+  echo "If /tmp is a RAM-backed tmpfs, extraction can exhaust memory."
+  echo "Point staging at a disk with more space and re-run:"
+  echo "  sudo TMPDIR=/path/with/space $0 ${1:-}"
+  echo ""
+  read -r -p "Continue anyway? [y/N] " SPACE_CONFIRM
+  if [[ ! "${SPACE_CONFIRM}" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+    echo "Restore cancelled."
+    exit 1
+  fi
+fi
 
 echo "========================================="
 echo " Powerwall-Dashboard Restore - ${STAMP}"
@@ -169,22 +194,41 @@ if [ -d "${STAGING}/influxdb" ] && [ -n "$(ls -A "${STAGING}/influxdb" 2>/dev/nu
   # SHOW CONTINUOUS QUERIES table output (older versions). Handle both.
   # Each statement must be terminated with ';' so the influx CLI can parse
   # multiple CREATE CONTINUOUS QUERY lines piped via stdin.
+  #
+  # NOTE: the influx 1.x CLI prints statement errors to STDOUT and still
+  # exits 0, so exit-code checks alone would report success even when every
+  # statement failed. replay_cqs captures the output and greps it for ERR
+  # instead. "already exists" responses are harmless and ignored.
+  replay_cqs() {
+    # stdin: CREATE CONTINUOUS QUERY statements, ';'-terminated
+    local OUT
+    OUT=$(docker exec -i influxdb influx -database powerwall 2>&1)
+    if echo "${OUT}" | grep -vi 'already exists' | grep -qiE '(^|\s)ERR'; then
+      echo "${OUT}" | grep -iE '(^|\s)ERR' | head -5 | sed 's/^/    /'
+      return 1
+    fi
+    return 0
+  }
+
   CQ_RESTORED=0
   if [ -f "${STAGING}/influxdb/continuous_queries.txt" ] && grep -q 'CREATE CONTINUOUS QUERY' "${STAGING}/influxdb/continuous_queries.txt"; then
     # Extract just the CREATE statement from each line (handles both
     # clean format and raw table output with query_id prefix), append ';'.
-    sed -n 's/.*\(CREATE CONTINUOUS QUERY.*\)/\1/p' "${STAGING}/influxdb/continuous_queries.txt" \
-      | sed 's/$/;/' \
-      | docker exec -i influxdb influx -database powerwall > /dev/null \
-      && { echo "  ✓ Continuous queries re-created from backup (continuous_queries.txt)"; CQ_RESTORED=1; } \
-      || echo "  ⚠ Failed to re-create continuous queries from continuous_queries.txt"
+    if sed -n 's/.*\(CREATE CONTINUOUS QUERY.*\)/\1/p' "${STAGING}/influxdb/continuous_queries.txt" \
+      | sed 's/$/;/' | replay_cqs; then
+      echo "  ✓ Continuous queries re-created from backup (continuous_queries.txt)"
+      CQ_RESTORED=1
+    else
+      echo "  ⚠ Errors re-creating continuous queries from continuous_queries.txt (see above)"
+    fi
   fi
   if [ "${CQ_RESTORED}" -eq 0 ] && [ -f "${DASHBOARD}/influxdb/influxdb.sql" ]; then
-    grep '^CREATE CONTINUOUS QUERY' "${DASHBOARD}/influxdb/influxdb.sql" \
-      | sed 's/$/;/' \
-      | docker exec -i influxdb influx -database powerwall > /dev/null \
-      && echo "  ✓ Continuous queries re-created from influxdb.sql (repo defaults)" \
-      || echo "  ⚠ Failed to re-create continuous queries — see influxdb/influxdb.sql"
+    if grep '^CREATE CONTINUOUS QUERY' "${DASHBOARD}/influxdb/influxdb.sql" \
+      | sed 's/$/;/' | replay_cqs; then
+      echo "  ✓ Continuous queries re-created from influxdb.sql (repo defaults)"
+    else
+      echo "  ⚠ Errors re-creating continuous queries — see influxdb/influxdb.sql and output above"
+    fi
   fi
 
   rm -rf influxdb/backups/*

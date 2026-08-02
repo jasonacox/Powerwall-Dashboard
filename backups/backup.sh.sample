@@ -62,6 +62,26 @@ mkdir -p influxdb/backups
 chmod g+w influxdb/backups
 docker exec influxdb influxd backup -portable -database powerwall /var/lib/influxdb/backups
 
+# ── Check staging disk space ──────────────────────────────────────────
+# The snapshot is copied into ${STAGING} (usually under /tmp) before being
+# archived. On systems where /tmp is a RAM-backed tmpfs, a multi-GB
+# snapshot can exhaust memory. Abort (rather than risk OOM) if the staging
+# filesystem can't hold the snapshot plus 10% headroom. Override the
+# staging location with: sudo TMPDIR=/path/with/space ./backup.sh
+SNAPSHOT_KB=$(du -sk "${DASHBOARD}/influxdb/backups" | cut -f1)
+NEEDED_KB=$((SNAPSHOT_KB + SNAPSHOT_KB / 10))
+AVAIL_KB=$(df -Pk "${STAGING}" | awk 'NR==2 {print $4}')
+if [ -n "${AVAIL_KB}" ] && [ "${AVAIL_KB}" -lt "${NEEDED_KB}" ]; then
+  echo "ERROR: Staging area ${STAGING} does not have enough free space."
+  echo "  Snapshot size: $((SNAPSHOT_KB / 1024)) MB"
+  echo "  Available:     $((AVAIL_KB / 1024)) MB"
+  echo "If /tmp is a RAM-backed tmpfs, staging there can exhaust memory."
+  echo "Point staging at a disk with more space and re-run:"
+  echo "  sudo TMPDIR=/path/with/space $0"
+  rm -rf "${DASHBOARD}/influxdb/backups"/*
+  exit 1
+fi
+
 # Copy the snapshot into staging (the backup files are the consistent copy)
 mkdir -p "${STAGING}/influxdb"
 cp -a "${DASHBOARD}/influxdb/backups/." "${STAGING}/influxdb/"

@@ -9,13 +9,14 @@
 ### New Features
 
 * **Restore script** — new `backups/restore.sh.sample`, an automated companion to `backup.sh.sample`, based on `restore_v16a.sh` by **@JonMurphy** ([#836](https://github.com/jasonacox/Powerwall-Dashboard/issues/836)). One command restores a backup archive on the same machine or migrates to a new one:
-  - Auto-detects the Powerwall-Dashboard directory by locating `compose-dash.sh`
+  - Auto-detects the Powerwall-Dashboard directory from the script's own location
+  - Checks staging disk space before extracting (warns and offers `TMPDIR` override — protects RAM-backed `/tmp` from multi-GB archives)
   - Non-destructive — moves existing InfluxDB `data`/`meta`/`wal` and `grafana.db` aside as `.pre-restore.<timestamp>` copies (rollback path) instead of deleting
-  - Restores InfluxDB from the `influxd backup -portable` snapshot into a clean instance, then re-creates continuous queries from `influxdb.sql` (`influxd restore -portable` does not reliably restore CQs — a known InfluxDB 1.x limitation)
-  - Restores Grafana database and provisioning files with correct ownership, deriving `PWD_USER` from live filesystem state (`compose-dash.sh` owner + docker group GID)
+  - Restores InfluxDB from the `influxd backup -portable` snapshot into a clean instance, then re-creates continuous queries from the archive's `continuous_queries.txt` (live CQ state, including customizations) with `influxdb.sql` as fallback — `influxd restore -portable` does not reliably restore CQs (known InfluxDB 1.x limitation). CQ replay output is checked for errors (the influx CLI exits 0 even on failed statements).
+  - Restores Grafana database and provisioning files with correct ownership, deriving `PWD_USER` as the invoking user's `uid:gid` (`SUDO_UID:SUDO_GID`) — the same convention `setup.sh` uses — with a guard against running from a root shell
   - Restores user configuration files (`*.env`, `telegraf.local`, etc.) while **skipping git-managed project files** (`powerwall.yml`, `telegraf.conf`, `influxdb.conf`, `VERSION`) so an older backup can never downgrade the stack or break future `git pull`/upgrades
   - Finishes with `compose-dash.sh up -d` so containers are **recreated** and restored settings (including the rewritten `PWD_USER`) actually take effect
-* **Backup script** — `backup.sh.sample` now auto-detects the dashboard directory (no more editing `DASHBOARD=` by hand) and exports `SHOW CONTINUOUS QUERIES` output into the archive as a safety net.
+* **Backup script** — `backup.sh.sample` now auto-detects the dashboard directory (no more editing `DASHBOARD=` by hand), exports live continuous queries into the archive as a safety net, and aborts with a clear message if the staging area can't hold the snapshot (with `TMPDIR` override).
 
 ### Documentation
 

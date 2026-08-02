@@ -45,6 +45,8 @@ The following shows an example of how to set up automated backups (see backup.sh
 2. Make the script executable with `chmod +x backup.sh` (the script auto-detects the dashboard location by finding `compose-dash.sh`)
 3. Add to crontab for daily backups: `0 2 * * * /home/user/Powerwall-Dashboard/backups/backup.sh`
 
+> **Large datasets:** both `backup.sh` and `restore.sh` stage data in a temporary directory (`mktemp -d`, usually under `/tmp`). If your InfluxDB history is large (multi-GB) and `/tmp` is a RAM-backed tmpfs, staging there can exhaust memory. Both scripts check available space first — backup aborts and restore warns — and you can point staging at a disk with more room: `sudo TMPDIR=/path/with/space ./backup.sh`
+
 ## Backup Script Example
 
 ```bash
@@ -55,8 +57,8 @@ if [ "$EUID" -ne 0 ]
   exit
 fi
 
-# Dashboard location is auto-detected (script-relative, with a fallback
-# search for compose-dash.sh) - see backup.sh.sample
+# Dashboard location is auto-detected from the script's own location
+# (must live in Powerwall-Dashboard/backups/) - see backup.sh.sample
 BACKUP_FOLDER="${DASHBOARD}/backups"          # Destination folder for backups
 KEEP="5"                                      # Days to keep backup
 
@@ -89,11 +91,12 @@ A companion `restore.sh.sample` is provided to automate the restore process. It 
 
 The restore script will:
 1. **Auto-detect** the Powerwall-Dashboard directory by locating `compose-dash.sh`
-2. **Stop all containers** before touching data
-3. **Restore InfluxDB** from the `influxd backup -portable` snapshot, moving existing data aside first (not deleted — you get a rollback path)
-4. **Restore Grafana** database and provisioning files with correct ownership
-5. **Restore configuration files**, rewriting `PWD_USER` in `compose.env` to match this host's actual user and docker group. Project files managed by git (`powerwall.yml`, `telegraf.conf`, `influxdb.conf`, `VERSION`) are kept in the archive for reference but are NOT restored over the current checkout — this prevents an older backup from downgrading the stack or breaking future upgrades.
-6. **Recreate the stack** (`compose-dash.sh up -d`, so restored settings take effect) and print a list of pre-restore backup paths to clean up once confirmed
+2. **Check staging disk space** and warn before extracting a large archive into a location that can't hold it (use `sudo TMPDIR=/path/with/space ./restore.sh` to relocate staging)
+3. **Stop all containers** before touching data
+4. **Restore InfluxDB** from the `influxd backup -portable` snapshot, moving existing data aside first (not deleted — you get a rollback path), then re-create continuous queries from the archive (with `influxdb.sql` as fallback)
+5. **Restore Grafana** database and provisioning files with correct ownership
+6. **Restore configuration files**, rewriting `PWD_USER` in `compose.env` to match this host's actual user and primary group (same `uid:gid` convention as `setup.sh`). Project files managed by git (`powerwall.yml`, `telegraf.conf`, `influxdb.conf`, `VERSION`) are kept in the archive for reference but are NOT restored over the current checkout — this prevents an older backup from downgrading the stack or breaking future upgrades.
+7. **Recreate the stack** (`compose-dash.sh up -d`, so restored settings take effect) and print a list of pre-restore backup paths to clean up once confirmed
 
 ### Manual restore from a backup script archive
 
