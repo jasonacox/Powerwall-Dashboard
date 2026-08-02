@@ -1,5 +1,11 @@
 # RELEASE NOTES
 
+## Unreleased
+
+### Upgrading
+
+* **Grafana datasource UID change** — auto-provisioned InfluxDB and Sun/Moon datasources now have explicit, stable UIDs (`pwd-influxdb-auto` and `pwd-sunandmoon-auto`) instead of Grafana-generated ones. This prevents UID collisions and drift across reprovisioning. **Existing installs:** after upgrading, Grafana will create new datasource entries with the pinned UIDs. If dashboards show "datasource not found" on affected panels, either re-import the dashboard or re-link the panel datasource to the same-named entry in the Grafana UI. ([PR #840](https://github.com/jasonacox/Powerwall-Dashboard/pull/840) by **@youzer-name**)
+
 ## v5.2.0 - Backup Overhaul, Outage Export, verify.sh Fixes & More
 
 ### Backup Script Improvements
