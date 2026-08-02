@@ -44,6 +44,16 @@ DOCKER_GID=$(getent group docker 2>/dev/null | cut -d: -f3)
 HOST_UID="${SUDO_UID:-$(id -u)}"
 HOST_GID="${SUDO_GID:-$(id -g)}"
 
+# Guard: if we ended up with UID 0 (root shell via sudo -i / su -),
+# container files would be owned by root instead of the real user.
+# This breaks permission-sensitive containers (e.g. pypowerwall).
+if [ "${HOST_UID}" -eq 0 ] 2>/dev/null; then
+  echo "ERROR: Detected root as the owning user (UID 0)."
+  echo "Run this script with 'sudo ./restore.sh' from your regular user account,"
+  echo "not from a root shell ('sudo -i' or 'su -')."
+  exit 1
+fi
+
 PWD_USER="${HOST_UID}:${DOCKER_GID:-${HOST_GID}}"
 echo "Detected owner:group for this host: ${PWD_USER}"
 
