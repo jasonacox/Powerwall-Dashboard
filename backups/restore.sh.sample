@@ -15,25 +15,15 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 # ── Locate the Powerwall-Dashboard directory ──────────────────────────
-# Try script-relative path first (common case: run from backups/ dir),
-# then fall back to a system-wide search for compose-dash.sh.
+# Resolve relative to this script's location (normally in backups/).
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PARENT_DIR="$(dirname "${SCRIPT_DIR}")"
 
-DASHBOARD=""
 if [ -f "${PARENT_DIR}/compose-dash.sh" ]; then
   DASHBOARD="${PARENT_DIR}"
 else
-  echo "Searching for compose-dash.sh..."
-  MATCH=$(find / -type f -iname "compose-dash.sh" 2>/dev/null | head -n 1)
-  if [ -n "${MATCH}" ]; then
-    DASHBOARD="$(dirname "${MATCH}")"
-  fi
-fi
-
-if [ -z "${DASHBOARD}" ]; then
-  echo "ERROR: Could not locate the Powerwall-Dashboard directory (no compose-dash.sh found)."
-  echo "Place this script in your Powerwall-Dashboard/backups directory and re-run it."
+  echo "ERROR: Could not locate Powerwall-Dashboard (no compose-dash.sh in ${PARENT_DIR})."
+  echo "Run this script from your Powerwall-Dashboard/backups/ directory."
   exit 1
 fi
 
@@ -47,13 +37,15 @@ if [ ! -d "${BACKUP_FOLDER}" ]; then
 fi
 
 # ── Determine this host's correct owner:group for container files ─────
-# Derive PWD_USER from compose-dash.sh ownership + the host's docker GID
-# instead of trusting compose.env (which can get overwritten during restore).
+# Under sudo, SUDO_UID gives the invoking user (not root). Pair that with
+# the docker GID so container files are owned by the real user + docker group.
+# Falls back to id -u/id -g when not under sudo.
 DOCKER_GID=$(getent group docker 2>/dev/null | cut -d: -f3)
-HOST_UID=$(stat -c '%u' "${DASHBOARD}/compose-dash.sh" 2>/dev/null)
+HOST_UID="${SUDO_UID:-$(id -u)}"
+HOST_GID="${SUDO_GID:-$(id -g)}"
 
-PWD_USER="${HOST_UID:-1000}:${DOCKER_GID:-1000}"
-echo "Detected owner:group for this host: ${PWD_USER} (from compose-dash.sh ownership + docker group)"
+PWD_USER="${HOST_UID}:${DOCKER_GID:-${HOST_GID}}"
+echo "Detected owner:group for this host: ${PWD_USER}"
 
 # ── Determine which archive to restore ────────────────────────────────
 # Usage: restore.sh [path-to-archive.tar.xz]

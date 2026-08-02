@@ -14,25 +14,15 @@ if [ "$EUID" -ne 0 ]
 fi
 
 # ── Locate the Powerwall-Dashboard directory ──────────────────────────
-# Try script-relative path first (common case: run from backups/ dir),
-# then fall back to a system-wide search for compose-dash.sh.
+# Resolve relative to this script's location (normally in backups/).
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PARENT_DIR="$(dirname "${SCRIPT_DIR}")"
 
-DASHBOARD=""
 if [ -f "${PARENT_DIR}/compose-dash.sh" ]; then
   DASHBOARD="${PARENT_DIR}"
 else
-  echo "Searching for compose-dash.sh..."
-  MATCH=$(find / -type f -iname "compose-dash.sh" 2>/dev/null | head -n 1)
-  if [ -n "${MATCH}" ]; then
-    DASHBOARD="$(dirname "${MATCH}")"
-  fi
-fi
-
-if [ -z "${DASHBOARD}" ]; then
-  echo "ERROR: Could not locate the Powerwall-Dashboard directory (no compose-dash.sh found)."
-  echo "Place this script in your Powerwall-Dashboard/backups directory and re-run it."
+  echo "ERROR: Could not locate Powerwall-Dashboard (no compose-dash.sh in ${PARENT_DIR})."
+  echo "Run this script from your Powerwall-Dashboard/backups/ directory."
   exit 1
 fi
 
