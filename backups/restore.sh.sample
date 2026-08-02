@@ -110,9 +110,16 @@ read -r -p "This will OVERWRITE existing data. Continue? [y/N] " CONFIRM
 [[ "${CONFIRM}" =~ ^([yY][eE][sS]|[yY])$ ]] || { echo "Restore cancelled."; exit 0; }
 
 # ── Extract archive to staging ────────────────────────────────────────
-# Reject archive members with path traversal entries before extracting.
-if tar -tf "${ARCHIVE}" | grep -qE '(^|/)\.\.(/|$)'; then
-  die "Archive contains path traversal entries. Aborting."
+# Reject unsafe archive members before extraction. backup.sh never creates
+# any of these, so their presence means a corrupted or tampered archive:
+#   - path traversal entries (..) that could write outside staging
+#   - absolute path members (-P lists names unstripped so we can see them)
+#   - symlink/hardlink members that could redirect later writes elsewhere
+if tar -tPf "${ARCHIVE}" | grep -qE '^/|(^|/)\.\.(/|$)'; then
+  die "Archive contains absolute or path-traversal member names. Aborting."
+fi
+if tar -tvf "${ARCHIVE}" | grep -qE '^[lh]'; then
+  die "Archive contains symlink/hardlink members. Aborting."
 fi
 echo ""
 echo "Extracting archive..."
