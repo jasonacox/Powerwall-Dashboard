@@ -1741,7 +1741,13 @@ def write_timescaledb():
         with conn.cursor() as cur:
             if pgpowerdata:
                 cols = ['home', 'solar', 'from_pw', 'to_pw', 'from_grid', 'to_grid', 'percentage']
-                rows = [(d['time'],) + tuple(d.get(c) for c in cols) + ('cloud',) for d in pgpowerdata]
+                # 'power' (5min) and 'soe' (15min) samples are appended as separate dicts and can
+                # share a timestamp -- merge by time so execute_values never sees the same
+                # conflict key twice in one batch (Postgres errors on that under ON CONFLICT DO UPDATE).
+                merged = {}
+                for d in pgpowerdata:
+                    merged.setdefault(d['time'], {}).update(d)
+                rows = [(t,) + tuple(v.get(c) for c in cols) + ('cloud',) for t, v in merged.items()]
                 set_clause = ", ".join(f"{c} = COALESCE(pw_autogen_1m.{c}, EXCLUDED.{c})" for c in cols)
                 psycopg2.extras.execute_values(
                     cur,

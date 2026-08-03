@@ -11,7 +11,7 @@ WITH agg_rows AS (
     time_bucket('1 minute', time) AS bucket_naive
   FROM http
   WHERE load_instant_power IS NOT NULL
-    AND time >= (now() - interval '15 minutes') AT TIME ZONE 'UTC'
+    AND time >= date_trunc('minute', (now() - interval '15 minutes') AT TIME ZONE 'UTC')
 ),
 weighted AS (
   SELECT
@@ -33,7 +33,7 @@ pct AS (
          last(percentage, time) AS percentage
   FROM http
   WHERE percentage IS NOT NULL
-    AND time >= (now() - interval '15 minutes') AT TIME ZONE 'UTC'
+    AND time >= date_trunc('minute', (now() - interval '15 minutes') AT TIME ZONE 'UTC')
   GROUP BY 1
 )
 INSERT INTO pw_autogen_1m (

@@ -59,3 +59,4 @@ tools/export/export.xz
 issues/*
 sync.sh
 *.pyc
+.claude/

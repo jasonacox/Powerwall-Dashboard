@@ -10,7 +10,7 @@ FROM alerts a
 CROSS JOIN LATERAL jsonb_each(
   to_jsonb(a) - 'time' - 'host' - 'month' - 'year' - 'url'
 ) AS kv(key, value)
-WHERE a.time >= (now() - interval '15 minutes') AT TIME ZONE 'UTC'
+WHERE a.time >= date_trunc('minute', (now() - interval '15 minutes') AT TIME ZONE 'UTC')
   AND jsonb_typeof(kv.value) <> 'null'
 GROUP BY bucket, kv.key
 ON CONFLICT (time, alert_name) DO UPDATE SET value = EXCLUDED.value;

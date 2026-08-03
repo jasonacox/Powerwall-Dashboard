@@ -11,7 +11,7 @@
 WITH src AS (
   SELECT time, to_jsonb(t) - 'time' - 'host' - 'month' - 'year' - 'url' AS row_json
   FROM http t
-  WHERE time >= (now() - interval '15 minutes') AT TIME ZONE 'UTC'
+  WHERE time >= date_trunc('minute', (now() - interval '15 minutes') AT TIME ZONE 'UTC')
 ),
 unpivoted AS (
   SELECT time_bucket('1 minute', src.time) AT TIME ZONE 'UTC' AS bucket,
