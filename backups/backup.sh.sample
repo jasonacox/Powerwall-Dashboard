@@ -197,7 +197,7 @@ fi
 echo ""
 echo "Creating backup archive (xz compression — this may take several minutes)..."
 cd "${STAGING}" || die "Cannot cd to ${STAGING}"
-tar -Jcf "${ARCHIVE}" . || die "Archive creation failed."
+tar -Jcf "${ARCHIVE}" . || { rm -f "${ARCHIVE}"; die "Archive creation failed."; }
 chmod 600 "${ARCHIVE}"    # contains credentials - restrict access
 
 # Verify the archive is readable before trusting it.

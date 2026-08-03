@@ -55,27 +55,12 @@ The `influxdb` container must be running when the backup runs — the snapshot i
 
 ## Backup Script Example
 
-```bash
-#!/bin/bash
-# Daily Backup for Powerwall-Dashboard Data
-if [ "$EUID" -ne 0 ]
-  then echo "Must run as root"
-  exit
-fi
+The full script is in `backup.sh.sample`. To set up automated daily backups:
 
-# Dashboard location is auto-detected from the script's own location
-# (must live in Powerwall-Dashboard/backups/) - see backup.sh.sample
-BACKUP_FOLDER="${DASHBOARD}/backups"          # Destination folder for backups
-KEEP="5"                                      # Days to keep backup
+1. `cp backup.sh.sample backup.sh && chmod +x backup.sh`
+2. Add to crontab: `0 2 * * * /home/user/Powerwall-Dashboard/backups/backup.sh`
 
-# ... (see backup.sh.sample for full script)
-
-# The backup script:
-# 1. Creates an InfluxDB snapshot via influxd backup (online, no downtime)
-# 2. Creates a consistent Grafana DB copy via sqlite3 .backup
-# 3. Backs up all config files (compose.env, pypowerwall.env, telegraf.local, etc.)
-# 4. Backs up weather411.conf and .auth Tesla tokens (if present)
-```
+The script auto-detects the dashboard location from its own path (must live in `Powerwall-Dashboard/backups/`). It creates an InfluxDB snapshot, backs up Grafana, captures config files, weather/Alexa settings, and Tesla cloud tokens, then prunes archives older than 5 days. Archives are mode 600 (they contain credentials).
 
 ## Restore Backup
 
