@@ -79,7 +79,7 @@ fi
 
 # Bundled container vs. an existing server
 CURRENT_TSDB_MODE="bundled"
-grep -q "^# EXTMODE-BUNDLED-ONLY-START$" "${EXTEND_FILE}" 2>/dev/null || CURRENT_TSDB_MODE="external"
+grep -q "EXTMODE-BUNDLED-ONLY-START" "${EXTEND_FILE}" 2>/dev/null || CURRENT_TSDB_MODE="external"
 
 echo ""
 echo "Select TimescaleDB server:"
@@ -166,7 +166,7 @@ if [ "${TSDB_MODE}" == "external" ]; then
     # Remove the bundled-only timescaledb service + its depends_on entries
     # from the extend file -- an external server means this stack shouldn't
     # run its own local TimescaleDB container at all.
-    if grep -q "^# EXTMODE-BUNDLED-ONLY-START$" "${EXTEND_FILE}"; then
+    if grep -q "EXTMODE-BUNDLED-ONLY-START" "${EXTEND_FILE}"; then
         sed -i.bak '/# EXTMODE-BUNDLED-ONLY-START/,/# EXTMODE-BUNDLED-ONLY-END/d' "${EXTEND_FILE}"
         echo "Removed the bundled timescaledb service from ${EXTEND_FILE} (external mode)."
     fi
@@ -182,7 +182,7 @@ else
     # stitching them back in place (service block + 3 separate depends_on
     # sub-blocks) isn't safely reversible by text surgery once the
     # surrounding content may have been hand-edited. Ask instead.
-    if ! grep -q "^# EXTMODE-BUNDLED-ONLY-START$" "${EXTEND_FILE}"; then
+    if ! grep -q "EXTMODE-BUNDLED-ONLY-START" "${EXTEND_FILE}"; then
         echo ""
         echo "Switching from external back to bundled mode requires the TimescaleDB"
         echo "services to be re-added to ${EXTEND_FILE}."
