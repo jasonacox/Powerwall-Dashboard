@@ -72,6 +72,7 @@ STAMP=$(date '+%Y-%m-%d_%H%M%S')
 STAGING=$(mktemp -d)
 PRERESTORE_PATHS=()
 trap 'rm -rf "${STAGING}"' EXIT
+trap 'rm -rf "${STAGING}"; die "Interrupted."' INT TERM
 
 # Save a copy of anything we are about to overwrite and remember it for
 # the cleanup list printed at the end.
@@ -115,10 +116,10 @@ read -r -p "This will OVERWRITE existing data. Continue? [y/N] " CONFIRM
 #   - path traversal entries (..) that could write outside staging
 #   - absolute path members (-P lists names unstripped so we can see them)
 #   - symlink/hardlink members that could redirect later writes elsewhere
-if tar -tPf "${ARCHIVE}" | grep -qE '^/|(^|/)\.\.(/|$)'; then
+if tar -tPJf "${ARCHIVE}" | grep -qE '^/|(^|/)\.\.(/|$)'; then
   die "Archive contains absolute or path-traversal member names. Aborting."
 fi
-if tar -tvf "${ARCHIVE}" | grep -qE '^[lh]'; then
+if tar -tJvf "${ARCHIVE}" | grep -qE '^[lh]'; then
   die "Archive contains symlink/hardlink members. Aborting."
 fi
 echo ""

@@ -72,6 +72,7 @@ fi
 STAMP=$(date '+%Y-%m-%d_%H')
 STAGING=$(mktemp -d)
 trap 'rm -rf "${STAGING}"' EXIT
+trap 'rm -rf "${STAGING}"; die "Interrupted."' INT TERM
 
 ARCHIVE="${BACKUP_FOLDER}/Powerwall-Dashboard.${STAMP}.tar.xz"
 
