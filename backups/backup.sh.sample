@@ -149,7 +149,7 @@ echo ""
 echo "[3/5] Backing up configuration files..."
 mkdir -p "${STAGING}/config"
 
-# Essentials always captured; globs below catch anything additional.
+# Known config files — add your own here if you have customizations.
 CONFIG_FILES=(
   "compose.env"
   "pypowerwall.env"
@@ -169,17 +169,6 @@ for FILE in "${CONFIG_FILES[@]}"; do
     FOUND=$((FOUND + 1))
   fi
 done
-
-# Any additional .env, .conf, and .yml/.yaml files at the dashboard root.
-for EXTRA in "${DASHBOARD}"/.*.env "${DASHBOARD}"/*.env "${DASHBOARD}"/*.conf "${DASHBOARD}"/*.yml "${DASHBOARD}"/*.yaml; do
-  if [ -f "${EXTRA}" ]; then
-    BASENAME=$(basename "${EXTRA}")
-    if [[ " ${CONFIG_FILES[*]} " != *" ${BASENAME} "* ]]; then
-      cp -a "${EXTRA}" "${STAGING}/config/"
-      FOUND=$((FOUND + 1))
-    fi
-  fi
-done 2>/dev/null
 echo "  ✓ ${FOUND} config file(s) backed up"
 
 # ── 4. Weather service config ─────────────────────────────────────────
