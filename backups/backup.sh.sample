@@ -26,6 +26,9 @@
 #       sudo TMPDIR=/path/with/space ./backup.sh
 #   - Cron example (daily at 2am):
 #       0 2 * * * /home/user/Powerwall-Dashboard/backups/backup.sh
+#     The default stamp includes the hour so multiple runs per day
+#     don't overwrite each other. For finer granularity, add minutes:
+#       STAMP=$(date '+%Y-%m-%d_%H-%M')
 
 set -o pipefail
 
@@ -66,7 +69,7 @@ Free up space before backing up."
 fi
 
 # ── Staging ───────────────────────────────────────────────────────────
-STAMP=$(date '+%Y-%m-%d')
+STAMP=$(date '+%Y-%m-%d_%H')
 STAGING=$(mktemp -d)
 trap 'rm -rf "${STAGING}"' EXIT
 
@@ -202,7 +205,7 @@ fi
 
 # ── Create archive ────────────────────────────────────────────────────
 echo ""
-echo "Creating backup archive..."
+echo "Creating backup archive (xz compression — this may take several minutes)..."
 cd "${STAGING}" || die "Cannot cd to ${STAGING}"
 tar -Jcf "${ARCHIVE}" . || die "Archive creation failed."
 chmod 600 "${ARCHIVE}"    # contains credentials - restrict access

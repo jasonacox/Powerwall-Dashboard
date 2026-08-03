@@ -268,10 +268,10 @@ if [ -d "${STAGING}/config" ]; then
     # Rewrite PWD_USER to match this host's actual user:group - the
     # archived value may be from a different machine.
     if [ "${BASENAME}" == "compose.env" ]; then
-      grep -vE '^PWD_USER=' "${DASHBOARD}/${BASENAME}" > "${DASHBOARD}/${BASENAME}.tmp"
-      echo "PWD_USER=\"${PWD_USER}\"" >> "${DASHBOARD}/${BASENAME}.tmp"
-      mv "${DASHBOARD}/${BASENAME}.tmp" "${DASHBOARD}/${BASENAME}"
-      chown "${PWD_USER}" "${DASHBOARD}/${BASENAME}"
+      grep -vE '^PWD_USER=' "${DASHBOARD}/compose.env" > "${DASHBOARD}/compose.env.tmp"
+      echo "PWD_USER=\"${PWD_USER}\"" >> "${DASHBOARD}/compose.env.tmp"
+      mv "${DASHBOARD}/compose.env.tmp" "${DASHBOARD}/compose.env"
+      chown "${PWD_USER}" "${DASHBOARD}/compose.env"
       echo "  - Set PWD_USER=\"${PWD_USER}\" in compose.env (matches this host)"
     fi
     FOUND=$((FOUND + 1))
