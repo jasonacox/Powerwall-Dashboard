@@ -102,7 +102,7 @@ services:
         env_file:
             - timescaledb.env
         healthcheck:
-            test: pg_isready -h "${TIMESCALEDB_HOST:-timescaledb}" -p "${TIMESCALEDB_PORT:-5432}" -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}" || exit 1
+            test: pg_isready -h "$${TIMESCALEDB_HOST:-timescaledb}" -p "$${TIMESCALEDB_PORT:-5432}" -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}" || exit 1
             interval: 30s
             timeout: 10s
             retries: 3
