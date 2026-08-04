@@ -1,5 +1,36 @@
 # RELEASE NOTES
 
+## v5.2.1 - Restore Script: Companion restore.sh for backup.sh
+
+### Upgrading
+
+* **Grafana datasource UID change** — auto-provisioned InfluxDB and Sun/Moon datasources now have explicit, stable UIDs (`pwd-influxdb-auto` and `pwd-sunandmoon-auto`) instead of Grafana-generated ones. This prevents UID collisions and drift across reprovisioning. **Existing installs:** after upgrading, Grafana will create new datasource entries with the pinned UIDs. If dashboards show "datasource not found" on affected panels, either re-import the dashboard or re-link the panel datasource to the same-named entry in the Grafana UI. ([PR #840](https://github.com/jasonacox/Powerwall-Dashboard/pull/840) by **@youzer-name**)
+
+### New Features
+
+* **Restore script** — new `backups/restore.sh.sample`, an automated companion to `backup.sh.sample`, based on `restore_v16a.sh` by **@JonMurphy** ([#836](https://github.com/jasonacox/Powerwall-Dashboard/issues/836)). One command restores a backup archive on the same machine or migrates to a new one:
+  - Auto-detects the Powerwall-Dashboard directory from the script's own location
+  - Checks staging disk space before extracting (warns and offers `TMPDIR` override — protects RAM-backed `/tmp` from multi-GB archives)
+  - Non-destructive — moves existing InfluxDB `data`/`meta`/`wal` and `grafana.db` aside as `.pre-restore.<timestamp>` copies (rollback path) instead of deleting
+  - Restores InfluxDB from the `influxd backup -portable` snapshot into a clean instance, then re-creates continuous queries from the archive's `continuous_queries.txt` (live CQ state, including customizations) with `influxdb.sql` as fallback — `influxd restore -portable` does not reliably restore CQs (known InfluxDB 1.x limitation). CQ replay output is checked for errors (the influx CLI exits 0 even on failed statements).
+  - Restores Grafana database and provisioning files with correct ownership, deriving `PWD_USER` as the invoking user's `uid:gid` (`SUDO_UID:SUDO_GID`) — the same convention `setup.sh` uses — with a guard against running from a root shell
+  - Restores user configuration files (`*.env`, `telegraf.local`, etc.) while **skipping git-managed project files** (`powerwall.yml`, `telegraf.conf`, `influxdb.conf`, `VERSION`) so an older backup can never downgrade the stack or break future `git pull`/upgrades
+  - Restores `weather/weather411.conf` and `.auth/` Tesla cloud tokens (when present in the archive), so cross-machine migrations keep weather and cloud-mode credentials without re-authenticating
+  - Finishes with `compose-dash.sh up -d` so containers are **recreated** and restored settings (including the rewritten `PWD_USER`) actually take effect
+* **Backup script** — `backup.sh.sample` now auto-detects the dashboard directory (no more editing `DASHBOARD=` by hand), verifies the influxdb container is running and checks dashboard-disk free space *before* taking the snapshot, exports live continuous queries into the archive as a safety net, captures `weather/weather411.conf` and `.auth/` tokens, checks the exit code of `influxd backup` (no more silently archiving a failed snapshot), verifies archive integrity after creation, creates archives with mode 600 (they contain credentials), and aborts with a clear message if the staging area can't hold the snapshot (with `TMPDIR` override).
+
+### Documentation
+
+* `backups/README.md` — documents the restore script as the recommended method; manual restore steps retained as a fallback and corrected to exclude git-managed files and use `compose-dash.sh up -d`.
+
+### Contributors
+
+Thanks to **@JonMurphy** for the original `restore_v16a.sh` script, testing, and the detailed restore-procedure feedback in [#836](https://github.com/jasonacox/Powerwall-Dashboard/issues/836).
+
+### Links
+
+* Reported in [#836](https://github.com/jasonacox/Powerwall-Dashboard/issues/836)
+* Added in [PR #838](https://github.com/jasonacox/Powerwall-Dashboard/pull/838)
 ## v5.2.0 - Backup Overhaul, Outage Export, verify.sh Fixes & More
 
 ### Backup Script Improvements
