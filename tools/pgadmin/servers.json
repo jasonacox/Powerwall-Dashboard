@@ -1,0 +1,15 @@
+{
+    "Servers": {
+        "1": {
+            "Name": "TimescaleDB (Powerwall Dashboard)",
+            "Group": "Powerwall Dashboard",
+            "Host": "timescaledb",
+            "Port": 5432,
+            "MaintenanceDB": "powerwall",
+            "Username": "telegraf_powerwall",
+            "ConnectionParameters": {
+                "sslmode": "disable"
+            }
+        }
+    }
+}
