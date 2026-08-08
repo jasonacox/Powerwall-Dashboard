@@ -77,6 +77,7 @@ try:
 except:
     sys.exit("ERROR: Missing python influxdb module. Run 'pip install influxdb'.")
 
+BUILD = "0.1.3"
 SCRIPTPATH = Path(sys.argv[0]).resolve().parent
 SCRIPTNAME = os.path.basename(sys.argv[0]).split('.')[0]
 CONFIGNAME = CONFIGFILE = f"{SCRIPTNAME}.conf"
@@ -94,12 +95,17 @@ group.add_argument('--w411conf', help='specify Weather411 config file to set def
 group.add_argument('--non-interactive', action='store_true', help='do not display interactive prompts (write data and exit on errors)')
 group.add_argument('--force', action='store_true', help='force import for date/time range (skip search for data gaps)')
 group.add_argument('--remove', action='store_true', help='remove imported data from InfluxDB for date/time range')
+group.add_argument('--version', action="store_true", help=argparse.SUPPRESS)
 group = parser.add_argument_group('date/time range options')
 group.add_argument('--start', help='start date and time ("YYYY-MM-DD hh:mm:ss")')
 group.add_argument('--end', help='end date and time ("YYYY-MM-DD hh:mm:ss")')
 group.add_argument('--today', action='store_true', help='set start/end range to "today"')
 group.add_argument('--yesterday', action='store_true', help='set start/end range to "yesterday"')
 args = parser.parse_args()
+
+if args.version:
+    print(f"{BUILD}")
+    sys.exit()
 
 # Check for invalid argument combinations
 if len(sys.argv) == 1:
