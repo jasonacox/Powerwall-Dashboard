@@ -868,13 +868,11 @@ if args.dry_run:
             curr += interval
         total_calls += period_calls
 
-    # The stdcall (current weather) is also made once per run
-    total_calls += 1
-
-    print(f"API calls required: {total_calls} (including 1 for current weather data)")
+    print("Standard API calls required: 1")
+    print(f"One Call API calls required: {total_calls}")
     print(f"Data gaps found: {len(weathergaps)}")
     if total_calls > 1000:
-        print(f"Note: This exceeds the free tier limit of 1,000 API calls/day. "
+        print(f"Note: This exceeds the free 'One Call API' tier limit of 1,000 calls/day. "
               f"See https://home.openweathermap.org/subscriptions to manage your limits.")
     print("\nDone.")
     sys.exit()
