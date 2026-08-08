@@ -118,7 +118,7 @@ services:
             start_period: 60s
 
     weather411:
-        image: jasonacox/weather411:0.2.3
+        image: jasonacox/weather411:0.2.4
         container_name: weather411
         hostname: weather411
         restart: unless-stopped
