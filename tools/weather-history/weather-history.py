@@ -104,7 +104,7 @@ group.add_argument('--yesterday', action='store_true', help='set start/end range
 args = parser.parse_args()
 
 if args.version:
-    print(f"{BUILD}")
+    print(BUILD)
     sys.exit()
 
 # Check for invalid argument combinations

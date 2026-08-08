@@ -69,7 +69,7 @@ try:
 except:
     sys.exit("ERROR: Missing python influxdb module. Run 'pip install influxdb'.")
 
-BUILD = "0.1.9"
+BUILD = "0.1.10"
 VERBOSE = True
 SCRIPTPATH = Path(sys.argv[0]).resolve().parent
 SCRIPTNAME = os.path.basename(sys.argv[0]).split('.')[0]
@@ -103,7 +103,7 @@ group.add_argument('--yesterday', action="store_true", help='set start/end range
 args = parser.parse_args()
 
 if args.version:
-    print(f"{BUILD}")
+    print(BUILD)
     sys.exit()
 
 def sys_exit(error=None, halt=True):
