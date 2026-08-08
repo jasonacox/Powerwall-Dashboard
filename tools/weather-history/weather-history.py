@@ -77,7 +77,7 @@ try:
 except:
     sys.exit("ERROR: Missing python influxdb module. Run 'pip install influxdb'.")
 
-BUILD = "0.1.3"
+BUILD = "0.1.4"
 SCRIPTPATH = Path(sys.argv[0]).resolve().parent
 SCRIPTNAME = os.path.basename(sys.argv[0]).split('.')[0]
 CONFIGNAME = CONFIGFILE = f"{SCRIPTNAME}.conf"
