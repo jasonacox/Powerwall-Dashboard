@@ -76,7 +76,7 @@ import logging
 import json
 import requests
 import resource
-from datetime import datetime
+from datetime import datetime, timezone
 import signal
 import sys
 import os
@@ -86,7 +86,7 @@ import configparser
 from influxdb_client import InfluxDBClient
 from influxdb_client.client.write_api import SYNCHRONOUS
 
-BUILD = "0.2.3"
+BUILD = "0.2.4"
 CLI = False
 LOADED = False
 CONFIG_LOADED = False
@@ -292,7 +292,9 @@ def fetchWeather():
                                     org=IORG)
                             output = [{}]
                             output[0]["measurement"] = IFIELD
-                            output[0]["time"] = datetime.utcfromtimestamp(weather["dt"])
+                            # datetime.utcfromtimestamp() is deprecated since Python 3.12;
+                            # this is its documented naive-UTC-equivalent replacement.
+                            output[0]["time"] = datetime.fromtimestamp(weather["dt"], tz=timezone.utc).replace(tzinfo=None)
                             output[0]["fields"] = {}
                             for i in weather:
                                 output[0]["fields"][i] = weather[i]
@@ -373,7 +375,7 @@ class handler(BaseHTTPRequestHandler):
             ts = time.time()
             result["local_time"] = str(datetime.fromtimestamp(ts))
             result["ts"] = ts
-            result["utc"] = str(datetime.utcfromtimestamp(ts)) 
+            result["utc"] = str(datetime.fromtimestamp(ts, tz=timezone.utc).replace(tzinfo=None))
             result["tz"] = weather["tz"]
             message = json.dumps(result)
         elif self.path == '/temp':
