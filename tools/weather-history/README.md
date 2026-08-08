@@ -206,7 +206,7 @@ python3 weather-history.py --help
 ```
 
 ```
-usage: weather-history.py [-h] [-s] [-t] [-d] [--config CONFIG] [--w411conf W411CONF] [--force] [--remove] [--start START] [--end END] [--today] [--yesterday]
+usage: weather-history.py [-h] [-s] [-t] [-d] [--dry-run] [--config CONFIG] [--w411conf W411CONF] [--non-interactive] [--force] [--remove] [--start START] [--end END] [--today] [--yesterday]
 
 Import weather history data from OpenWeatherMap One Call API 3.0 into InfluxDB
 
@@ -219,6 +219,8 @@ options:
 advanced options:
   --config CONFIG      specify an alternate config file (default: weather-history.conf)
   --w411conf W411CONF  specify Weather411 config file to set defaults from during setup
+  --non-interactive    do not display interactive prompts (write data and exit on errors)
+  --dry-run            identify data gaps and show number of API calls required without making any API calls
   --force              force import for date/time range (skip search for data gaps)
   --remove             remove imported data from InfluxDB for date/time range
 
@@ -232,6 +234,7 @@ date/time range options:
 ### Advanced option notes
 
 * `--debug` can be used to enable debug output. This will print the raw responses from OpenWeatherMap which might be helpful in some circumstances.
+* `--dry-run` can be used to identify data gaps and show how many API calls would be required to fill them, without making any API calls to OpenWeatherMap. This is useful for checking how many of your free daily API calls (1,000/day limit) would be consumed before running the actual import.
 * `--force` option can be used to import data regardless of existing data (i.e. the search for data gaps is skipped). This should not be required normally, but could be useful for testing purposes.
 * `--remove` will remove any previously imported data from InfluxDB for the date/time range, without affecting data logged to Powerwall-Dashboard by Weather411.
 
