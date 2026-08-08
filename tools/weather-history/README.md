@@ -215,12 +215,12 @@ options:
   -s, --setup          run setup to create or update configuration only (do not get history)
   -t, --test           enable test mode (do not import into InfluxDB)
   -d, --debug          enable debug output (print raw responses from OpenWeatherMap)
-  --dry-run            identify data gaps and show number of API calls required without making any API calls
 
 advanced options:
   --config CONFIG      specify an alternate config file (default: weather-history.conf)
   --w411conf W411CONF  specify Weather411 config file to set defaults from during setup
   --non-interactive    do not display interactive prompts (write data and exit on errors)
+  --dry-run            identify data gaps and show number of API calls required without making any API calls
   --force              force import for date/time range (skip search for data gaps)
   --remove             remove imported data from InfluxDB for date/time range
 
