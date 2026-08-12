@@ -1,5 +1,15 @@
 # RELEASE NOTES
 
+## v5.2.2 - pypowerwall ulimits
+
+### Bug Fixes
+
+* **pypowerwall `nofile` ulimits** — the `pypowerwall` container in `powerwall.yml` now has explicit `nofile` soft/hard ulimits set to `65536`, matching the existing `influxdb` and `grafana` services. This prevents `[Errno 24] Too many open files` errors in the pypowerwall logs under heavy load. ([PR #846](https://github.com/jasonacox/Powerwall-Dashboard/pull/846) by **@johncuthbertuk**)
+
+### Contributors
+
+Thanks to **@johncuthbertuk** for reporting and fixing the missing ulimits ([pypowerwall#369](https://github.com/jasonacox/pypowerwall/issues/369), [PR #846](https://github.com/jasonacox/Powerwall-Dashboard/pull/846)).
+
 ## v5.2.1 - Restore Script: Companion restore.sh for backup.sh
 
 ### Upgrading
