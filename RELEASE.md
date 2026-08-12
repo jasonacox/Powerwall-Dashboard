@@ -1,10 +1,14 @@
 # RELEASE NOTES
 
-## v5.2.2 - pypowerwall ulimits
+## v5.2.2 - pypowerwall ulimits & weather411 0.2.4
 
 ### Bug Fixes
 
 * **pypowerwall `nofile` ulimits** — the `pypowerwall` container in `powerwall.yml` now has explicit `nofile` soft/hard ulimits set to `65536`, matching the existing `influxdb` and `grafana` services. This prevents `[Errno 24] Too many open files` errors in the pypowerwall logs under heavy load. ([PR #846](https://github.com/jasonacox/Powerwall-Dashboard/pull/846) by **@johncuthbertuk**)
+
+### Updates
+
+* **weather411 v0.2.4** — bumped the `weather411` container image to `0.2.4`.
 
 ### Contributors
 
