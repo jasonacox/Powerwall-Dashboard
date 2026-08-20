@@ -33,8 +33,10 @@ without editing code:
                   Authorization: Bearer <token>
 """
 
+import hmac
 import json
 import os
+import re
 from typing import Optional
 
 from mcp.server.fastmcp import FastMCP
@@ -62,6 +64,15 @@ _KNOWN_MEASUREMENTS = {
 
 # Cache for the expensive all-RP scan so repeated overview calls are instant.
 _OVERVIEW_CACHE = None
+
+# Identifiers we will interpolate into InfluxQL: bare word characters, dots
+# and hyphens. Anything else (quotes, semicolons, spaces, parens...) is
+# rejected so tool arguments can never break out of the quoted identifier.
+_IDENT_RE = re.compile(r"^[A-Za-z0-9_][A-Za-z0-9_.\-]*$")
+
+
+def _safe_ident(name: str) -> bool:
+    return bool(name) and bool(_IDENT_RE.match(name))
 
 
 def _measurement_pool():
@@ -173,6 +184,11 @@ def get_field_keys(measurement: str, retention_policy: str = "autogen") -> str:
     to inspect those RPs. Returns [] if that RP has no data for the measurement.
     Useful fields: raw.http has the full 80-field Powerwall status; kwh.http and
     daily.http have solar/home/to_grid/to_pw/from_grid/from_pw energy totals."""
+    if not (_safe_ident(measurement) and _safe_ident(retention_policy)):
+        return (
+            "Error: Security exception. retention_policy and measurement must be "
+            "plain identifiers (letters, digits, '_', '-', '.')."
+        )
     try:
         result = client.query(f'SHOW FIELD KEYS FROM "{retention_policy}"."{measurement}"')
         return json.dumps(list(result.get_points()), indent=2, default=str)
@@ -195,10 +211,18 @@ def query_powerwall(query: str) -> str:
     Available RPs: autogen, raw, vitals, kwh, daily, grid, pod, alerts
     (strings, pwtemps, monthly, fans are empty).
     Only SELECT statements are allowed."""
-    if not query.strip().upper().startswith("SELECT"):
+    q = query.strip()
+    # Allow (and strip) trailing statement terminators, as agents often emit
+    # them; any remaining semicolon means multiple statements.
+    q = q.rstrip(";").rstrip()
+    if not q.upper().startswith("SELECT"):
         return "Error: Security exception. Only SELECT queries are allowed."
+    if ";" in q:
+        return "Error: Security exception. Multiple statements are not allowed."
+    if re.search(r"\bINTO\b", q, re.IGNORECASE):
+        return "Error: Security exception. SELECT ... INTO writes are not allowed."
     try:
-        result = client.query(query)
+        result = client.query(q)
         data = list(result.get_points())
         return json.dumps(data, indent=2, default=str)
     except Exception as e:
@@ -217,14 +241,15 @@ def _run():
     # open to anyone who can reach the port. Required whenever this container
     # is exposed beyond your own trusted LAN.
     import uvicorn
-    from starlette.applications import Starlette
     from starlette.responses import JSONResponse
     from starlette.middleware.base import BaseHTTPMiddleware
 
     class BearerAuthMiddleware(BaseHTTPMiddleware):
         async def dispatch(self, request, call_next):
             auth = request.headers.get("authorization", "")
-            if auth != f"Bearer {MCP_AUTH_TOKEN}":
+            expected = f"Bearer {MCP_AUTH_TOKEN}"
+            # Constant-time compare to avoid leaking the token via timing.
+            if not hmac.compare_digest(auth.encode(), expected.encode()):
                 return JSONResponse({"error": "unauthorized"}, status_code=401)
             return await call_next(request)
 
