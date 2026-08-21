@@ -26,7 +26,7 @@ The server exposes tools to:
 cd tools/powerwall-mcp
 ```
 
-Edit `docker-compose.yml` and set `INFLUX_HOST` to the host running your Powerwall-Dashboard InfluxDB (e.g. your dashboard host's LAN IP). Leave `INFLUX_PORT` (8086) and `INFLUX_DB` (powerwall) at their defaults unless you've changed them.
+Edit `docker-compose.yml` and set `INFLUX_HOST` to the host running your Powerwall-Dashboard InfluxDB. The compose file defaults to `INFLUX_HOST=127.0.0.1` with `network_mode: host`, which works out of the box on **Linux** when the MCP server runs on the same host as InfluxDB. Use your dashboard host's **LAN IP** instead if InfluxDB runs on a different machine, or if you're on **Docker Desktop** (macOS/Windows), which doesn't support host networking — there, point `INFLUX_HOST` at the LAN IP of the machine running the dashboard. Leave `INFLUX_PORT` (8086) and `INFLUX_DB` (powerwall) at their defaults unless you've changed them.
 
 If the port is reachable beyond your own trusted LAN, set `MCP_AUTH_TOKEN` to a strong secret — clients must then send it as a bearer token.
 

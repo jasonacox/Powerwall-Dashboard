@@ -27,6 +27,10 @@ def load_server():
     mcp_module = types.ModuleType("mcp")
     mcp_server_module = types.ModuleType("mcp.server")
     mcp_fastmcp_module = types.ModuleType("mcp.server.fastmcp")
+    # Mark stubs as packages so `from mcp.server.fastmcp import FastMCP` works
+    # on all Python versions (packages need a __path__ attribute).
+    mcp_module.__path__ = []
+    mcp_server_module.__path__ = []
     mcp_fastmcp_module.FastMCP = FakeFastMCP
     influxdb_module = types.ModuleType("influxdb")
     influxdb_module.InfluxDBClient = FakeInfluxDBClient
