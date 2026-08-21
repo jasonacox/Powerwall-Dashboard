@@ -13,7 +13,10 @@ data:
   grid     (7d)           http (grid_status)
   pod      (7d)           http (battery: nominal_energy_remaining, backup_reserve_percent)
   alerts   (7d)           alerts (Powerwall alert events)
-  strings / pwtemps / monthly / fans  (created, currently empty)
+  strings  (unlimited)    solar string voltage/current/power
+  pwtemps  (unlimited)    Powerwall temperatures
+  monthly  (unlimited)    monthly energy totals
+  fans     (unlimited)    Powerwall fan target/actual speeds
 
 CRITICAL: InfluxQL `SHOW MEASUREMENTS` and unqualified `SELECT`/`SHOW FIELD KEYS`
 only ever address the DEFAULT retention policy (autogen). To read data from any
@@ -37,6 +40,7 @@ import hmac
 import json
 import os
 import re
+import time
 from typing import Optional
 
 from mcp.server.fastmcp import FastMCP
@@ -45,15 +49,23 @@ from influxdb import InfluxDBClient
 INFLUX_HOST = os.environ.get("INFLUX_HOST", "127.0.0.1")
 INFLUX_PORT = int(os.environ.get("INFLUX_PORT", "8086"))
 INFLUX_DB = os.environ.get("INFLUX_DB", "powerwall")
+INFLUX_TIMEOUT = int(os.environ.get("INFLUX_TIMEOUT", "30"))
 
 MCP_HOST = os.environ.get("MCP_HOST", "0.0.0.0")
 MCP_PORT = int(os.environ.get("MCP_PORT", "8000"))
 MCP_AUTH_TOKEN = os.environ.get("MCP_AUTH_TOKEN")  # optional bearer token
+MAX_QUERY_ROWS = int(os.environ.get("MAX_QUERY_ROWS", "1000"))
+OVERVIEW_CACHE_TTL = int(os.environ.get("OVERVIEW_CACHE_TTL", "300"))
 
 # Initialize the MCP Server, bound for HTTP hosting.
 mcp = FastMCP("Powerwall_Dashboard", host=MCP_HOST, port=MCP_PORT)
 
-client = InfluxDBClient(host=INFLUX_HOST, port=INFLUX_PORT, database=INFLUX_DB)
+client = InfluxDBClient(
+    host=INFLUX_HOST,
+    port=INFLUX_PORT,
+    database=INFLUX_DB,
+    timeout=INFLUX_TIMEOUT,
+)
 
 # Measurement names written by the Powerwall-Dashboard Telegraf config. Used to
 # probe each RP, because InfluxQL has no "SHOW MEASUREMENTS FROM <rp>".
@@ -64,11 +76,20 @@ _KNOWN_MEASUREMENTS = {
 
 # Cache for the expensive all-RP scan so repeated overview calls are instant.
 _OVERVIEW_CACHE = None
+_OVERVIEW_CACHE_TIME = 0.0
 
 # Identifiers we will interpolate into InfluxQL: bare word characters, dots
 # and hyphens. Anything else (quotes, semicolons, spaces, parens...) is
 # rejected so tool arguments can never break out of the quoted identifier.
 _IDENT_RE = re.compile(r"^[A-Za-z0-9_][A-Za-z0-9_.\-]*$")
+_LIMIT_RE = re.compile(
+    r"\bLIMIT\s+(\d+)"
+    r"(?:\s+OFFSET\s+\d+)?"
+    r"(?:\s+SLIMIT\s+\d+)?"
+    r"(?:\s+SOFFSET\s+\d+)?"
+    r"(?:\s+TZ\s*\(\s*'[^']+'\s*\))?\s*$",
+    re.IGNORECASE,
+)
 
 
 def _safe_ident(name: str) -> bool:
@@ -114,28 +135,37 @@ def _build_overview():
             if not pts:
                 continue  # no data in this RP for this measurement
             latest = pts[0]
-            fields = [k for k in latest.keys() if k != "time" and not k.startswith("tags")]
+            field_points = client.query(
+                f'SHOW FIELD KEYS FROM "{rp}"."{m}"'
+            ).get_points()
+            fields = sorted(
+                p["fieldKey"] for p in field_points if p.get("fieldKey")
+            )
             rp_map[m] = {"latest_time": latest.get("time"), "fields": fields}
         overview[rp] = rp_map
     return overview
 
 
 def _get_overview(force=False):
-    global _OVERVIEW_CACHE
-    if _OVERVIEW_CACHE is None or force:
+    global _OVERVIEW_CACHE, _OVERVIEW_CACHE_TIME
+    now = time.monotonic()
+    cache_expired = now - _OVERVIEW_CACHE_TIME >= OVERVIEW_CACHE_TTL
+    if _OVERVIEW_CACHE is None or force or cache_expired:
         _OVERVIEW_CACHE = _build_overview()
+        _OVERVIEW_CACHE_TIME = now
     return _OVERVIEW_CACHE
 
 
 @mcp.tool()
-def get_database_overview() -> str:
+def get_database_overview(refresh: bool = False) -> str:
     """Map the WHOLE database: every retention policy and, for each, the
     measurements that actually contain data, with their latest point time and
     field names. Use this FIRST to discover what is available before querying.
+    Set refresh=true to bypass the short-lived overview cache.
     (The old get_measurements only saw the default 'autogen' RP and missed the
     real Powerwall data in raw/vitals/kwh/daily/grid/pod/alerts.)"""
     try:
-        return json.dumps(_get_overview(), indent=2, default=str)
+        return json.dumps(_get_overview(force=refresh), indent=2, default=str)
     except Exception as e:
         return f"Error: {str(e)}"
 
@@ -206,11 +236,11 @@ def query_powerwall(query: str) -> str:
       SELECT * FROM "kwh".http ORDER BY time DESC LIMIT 10
       SELECT mean("solar") FROM "autogen".http WHERE time >= now() - 1h GROUP BY time(5m)
       SELECT "solar","home","to_grid","to_pw" FROM "daily".http ORDER BY time DESC LIMIT 7
-      SELECT * FROM "pod".http ORDER BY time DESC LIMIT 1   -- battery state
-      SELECT * FROM "vitals".http ORDER BY time DESC LIMIT 1  -- inverter vitals
+      SELECT * FROM "pod".http ORDER BY time DESC LIMIT 1
+      SELECT * FROM "vitals".http ORDER BY time DESC LIMIT 1
     Available RPs: autogen, raw, vitals, kwh, daily, grid, pod, alerts
-    (strings, pwtemps, monthly, fans are empty).
-    Only SELECT statements are allowed."""
+    plus strings, pwtemps, monthly, and fans when supported by the installation.
+    Only SELECT statements with LIMIT <= MAX_QUERY_ROWS are allowed."""
     q = query.strip()
     # Allow (and strip) trailing statement terminators, as agents often emit
     # them; any remaining semicolon means multiple statements.
@@ -221,6 +251,17 @@ def query_powerwall(query: str) -> str:
         return "Error: Security exception. Multiple statements are not allowed."
     if re.search(r"\bINTO\b", q, re.IGNORECASE):
         return "Error: Security exception. SELECT ... INTO writes are not allowed."
+    if "--" in q or "/*" in q or "*/" in q:
+        return "Error: SQL comments are not allowed."
+    limit_match = _LIMIT_RE.search(q)
+    if not limit_match:
+        return (
+            "Error: Query must end with a LIMIT clause to prevent unbounded results "
+            f"(maximum {MAX_QUERY_ROWS}; OFFSET/SLIMIT/SOFFSET/TZ may follow)."
+        )
+    limit = int(limit_match.group(1))
+    if limit < 1 or limit > MAX_QUERY_ROWS:
+        return f"Error: LIMIT must be between 1 and {MAX_QUERY_ROWS}."
     try:
         result = client.query(q)
         data = list(result.get_points())

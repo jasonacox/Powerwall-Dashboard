@@ -6,6 +6,7 @@ WORKDIR /app
 # harmless if MCP_AUTH_TOKEN is unset.
 RUN pip install --no-cache-dir \
     "mcp>=1.0,<2" \
+    "pydantic-settings<2.15" \
     influxdb \
     uvicorn \
     starlette

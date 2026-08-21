@@ -30,6 +30,12 @@ Edit `docker-compose.yml` and set `INFLUX_HOST` to the host running your Powerwa
 
 If the port is reachable beyond your own trusted LAN, set `MCP_AUTH_TOKEN` to a strong secret — clients must then send it as a bearer token.
 
+Queries must include a `LIMIT` no greater than `MAX_QUERY_ROWS` (default 1000)
+to prevent an agent from accidentally loading the full history into memory.
+`INFLUX_TIMEOUT` controls the database request timeout in seconds (default 30).
+The database overview is cached for `OVERVIEW_CACHE_TTL` seconds (default 300);
+clients can request an immediate refresh with `get_database_overview(refresh=true)`.
+
 Build and run:
 
 ```bash
@@ -39,6 +45,19 @@ docker compose up -d --build
 The MCP server is available at `http://<host-ip>:8765/mcp` (streamable HTTP transport). Add that URL to your MCP-capable agent/client.
 
 > Note: this runs its own compose stack, separate from the dashboard — don't use `compose-dash.sh` here.
+
+## Mock agent client
+
+`mock_client.py` is a dependency-free smoke client that initializes an MCP
+session, discovers the available tools and schema, runs bounded queries, and
+prints current power, battery, grid, and previous-day energy summaries:
+
+Set `--url` to the MCP server URL created by the Docker setup above. When the
+client runs on the same computer as the server, use:
+
+```bash
+python3 mock_client.py --url http://127.0.0.1:8765/mcp
+```
 
 ## Credit
 
