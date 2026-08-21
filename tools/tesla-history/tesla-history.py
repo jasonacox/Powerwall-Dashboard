@@ -2,14 +2,14 @@
 # -*- coding: utf-8 -*-
 """
  Command line tool to retrieve Powerwall or Solar history data by date/time period from
- Tesla Owner API (Tesla cloud) and import into InfluxDB of Powerwall-Dashboard.
+ Tesla Owner API (Tesla cloud) and import into InfluxDB and/or TimescaleDB of Powerwall-Dashboard.
 
  Author: Michael Birse (for Powerwall-Dashboard by Jason A. Cox)
  For more information see https://github.com/jasonacox/Powerwall-Dashboard
 
  Usage:
     * Install the required python modules (not required if run from docker):
-        pip install "pypowerwall>=0.15.12" python-dateutil influxdb httpx h2
+        pip install "pypowerwall>=0.15.12" python-dateutil influxdb psycopg2-binary httpx h2
 
     * Or, if running as a docker container, replace below examples with:
         docker exec -it tesla-history python3 tesla-history.py [arguments]
@@ -21,7 +21,7 @@
             python3 tesla-history.py --login
 
     - Import history data from Tesla cloud for start/end date range:
-        (by default, searches InfluxDB for data gaps and fills gaps only)
+        (by default, searches the configured datastore(s) for data gaps and fills gaps only)
             python3 tesla-history.py --start "YYYY-MM-DD hh:mm:ss" --end "YYYY-MM-DD hh:mm:ss"
 
     - Or, to run in test mode first (will not import data), use --test option:
@@ -43,6 +43,9 @@
         (data logged by Powerwall-Dashboard will not be affected)
             python3 tesla-history.py --start "YYYY-MM-DD hh:mm:ss" --end "YYYY-MM-DD hh:mm:ss" --remove
 
+    - Select which datastore(s) to update with --target (default: from config file):
+            python3 tesla-history.py --start "YYYY-MM-DD hh:mm:ss" --end "YYYY-MM-DD hh:mm:ss" --target timescaledb
+
     - For more usage options, run without arguments or --help:
         python3 tesla-history.py --help
 """
@@ -51,6 +54,7 @@ import os
 import signal
 import argparse
 import configparser
+import subprocess
 import time
 from pathlib import Path
 from datetime import datetime, timedelta
@@ -67,7 +71,12 @@ except:
 try:
     from influxdb import InfluxDBClient
 except:
-    sys.exit("ERROR: Missing python influxdb module. Run 'pip install influxdb'.")
+    InfluxDBClient = None
+try:
+    import psycopg2
+    import psycopg2.extras
+except:
+    psycopg2 = None
 
 BUILD = "0.1.10"
 VERBOSE = True
@@ -75,11 +84,17 @@ SCRIPTPATH = Path(sys.argv[0]).resolve().parent
 SCRIPTNAME = os.path.basename(sys.argv[0]).split('.')[0]
 CONFIGNAME = CONFIGFILE = f"{SCRIPTNAME}.conf"
 AUTHFILE = f"{SCRIPTNAME}.auth"
+# Used by update_timescaledb() to backfill pw_kwh_1h after writing pw_autogen_1m.
+# Defaults to the path this repo mounts into the container; falls back to a
+# path relative to this script for standalone (non-docker) runs.
+KWH_BACKFILL_SQL = os.getenv('KWH_BACKFILL_SQL', '/timescaledb/aggregate/kwh_backfill.sql')
+if not os.path.exists(KWH_BACKFILL_SQL):
+    KWH_BACKFILL_SQL = str(SCRIPTPATH / '..' / '..' / 'timescaledb' / 'aggregate' / 'kwh_backfill.sql')
 
 # Parse command line arguments
-parser = argparse.ArgumentParser(description='Import Powerwall or Solar history data from Tesla Owner API (Tesla cloud) into InfluxDB')
+parser = argparse.ArgumentParser(description='Import Powerwall or Solar history data from Tesla Owner API (Tesla cloud) into InfluxDB and/or TimescaleDB')
 parser.add_argument('-l', '--login', action="store_true", help='login to Tesla account only and save auth token (do not get history)')
-parser.add_argument('-t', '--test', action="store_true", help='enable test mode (do not import into InfluxDB)')
+parser.add_argument('-t', '--test', action="store_true", help='enable test mode (do not import into datastore(s))')
 parser.add_argument('-d', '--debug', action="store_true", help='enable debug output (print raw responses from Tesla cloud)')
 parser.add_argument('--dry-run', action="store_true", help='identify data gaps and show number of API calls required without making any API calls')
 group = parser.add_argument_group('login options')
@@ -87,10 +102,11 @@ group.add_argument('--region', default="us", choices=["us", "cn"], help='specify
 group.add_argument('--headless', action="store_true", help='headless mode (show auth token prompt instead of opening browser)')
 group = parser.add_argument_group('advanced options')
 group.add_argument('--config', help=f'specify an alternate config file (default: {CONFIGNAME})')
+group.add_argument('--target', choices=["influxdb", "timescaledb", "both"], help='select datastore(s) to update (default: from config file)')
 group.add_argument('--site', type=int, help='site id (required for Tesla accounts with multiple energy sites)')
 group.add_argument('--reserve', type=int, help='also search for backup reserve percent data gaps and set to value')
 group.add_argument('--force', action="store_true", help='force import for date/time range (skip search for data gaps)')
-group.add_argument('--remove', action="store_true", help='remove imported data from InfluxDB for date/time range')
+group.add_argument('--remove', action="store_true", help='remove imported data from datastore(s) for date/time range')
 group.add_argument('--daemon', action="store_true", help='run as a daemon service (continually poll for history data)')
 group.add_argument('--setup', action="store_true", help=argparse.SUPPRESS)
 group.add_argument('--timezone', help=argparse.SUPPRESS)
@@ -216,12 +232,40 @@ if os.path.exists(CONFIGFILE):
             TAUTH = str(SCRIPTPATH / TAUTH)
 
         # Get InfluxDB Settings
-        IHOST = os.getenv('INFLUX_HOST', config.get('InfluxDB', 'HOST'))
-        IPORT = int(os.getenv('INFLUX_PORT', config.getint('InfluxDB', 'PORT')))
+        INFLUX_ENABLED = config.getboolean('InfluxDB', 'ENABLE', fallback=True)
+        IHOST = os.getenv('INFLUX_HOST', config.get('InfluxDB', 'HOST', fallback='localhost'))
+        IPORT = int(os.getenv('INFLUX_PORT', config.getint('InfluxDB', 'PORT', fallback=8086)))
         IUSER = config.get('InfluxDB', 'USER', fallback='')
         IPASS = config.get('InfluxDB', 'PASS', fallback='')
-        IDB = config.get('InfluxDB', 'DB')
+        IDB = config.get('InfluxDB', 'DB', fallback='powerwall')
         ITZ = config.get('InfluxDB', 'TZ')
+
+        # Get TimescaleDB Settings (optional section - absent means disabled)
+        if config.has_section('TimescaleDB'):
+            TSDB_ENABLED = config.getboolean('TimescaleDB', 'ENABLE', fallback=False)
+        else:
+            TSDB_ENABLED = False
+        PGHOST = os.getenv('PGHOST', config.get('TimescaleDB', 'HOST', fallback='timescaledb') if config.has_section('TimescaleDB') else 'timescaledb')
+        PGPORT = int(os.getenv('PGPORT', config.get('TimescaleDB', 'PORT', fallback='5432') if config.has_section('TimescaleDB') else '5432'))
+        PGDB = os.getenv('POSTGRES_DB', config.get('TimescaleDB', 'DB', fallback='powerwall') if config.has_section('TimescaleDB') else 'powerwall')
+        PGUSER = os.getenv('POSTGRES_USER', config.get('TimescaleDB', 'USER', fallback='telegraf_powerwall') if config.has_section('TimescaleDB') else 'telegraf_powerwall')
+        PGPASS = os.getenv('POSTGRES_PASSWORD', config.get('TimescaleDB', 'PASS', fallback='') if config.has_section('TimescaleDB') else '')
+        PGSSLMODE = os.getenv('PGSSLMODE', config.get('TimescaleDB', 'SSLMODE', fallback='disable') if config.has_section('TimescaleDB') else 'disable')
+
+        # --target overrides config file datastore selection
+        if args.target == 'influxdb':
+            INFLUX_ENABLED, TSDB_ENABLED = True, False
+        elif args.target == 'timescaledb':
+            INFLUX_ENABLED, TSDB_ENABLED = False, True
+        elif args.target == 'both':
+            INFLUX_ENABLED, TSDB_ENABLED = True, True
+
+        if not INFLUX_ENABLED and not TSDB_ENABLED:
+            sys_exit("ERROR: No datastore enabled - enable InfluxDB and/or TimescaleDB in config, or use --target")
+        if INFLUX_ENABLED and InfluxDBClient is None:
+            sys_exit("ERROR: Missing python influxdb module. Run 'pip install influxdb'.")
+        if TSDB_ENABLED and psycopg2 is None:
+            sys_exit("ERROR: Missing python psycopg2 module. Run 'pip install psycopg2-binary'.")
 
         # Get settings when running as a daemon
         if args.daemon:
@@ -284,6 +328,34 @@ else:
             break
 
     if not args.setup:
+        # Select datastore(s) to use
+        print("\nSelect datastore(s) to use:")
+        print(" 1 - InfluxDB     (default)")
+        print(" 2 - TimescaleDB")
+        print(" 3 - Both")
+        while True:
+            response = input("Select datastore [1/2/3]: [1] ").strip()
+            if response in ("", "1"):
+                TARGET_INFLUX, TARGET_TSDB = True, False
+                break
+            elif response == "2":
+                TARGET_INFLUX, TARGET_TSDB = False, True
+                break
+            elif response == "3":
+                TARGET_INFLUX, TARGET_TSDB = True, True
+                break
+            else:
+                print("Invalid selection\n")
+    else:
+        # Setup mode - use --target if given, otherwise default to InfluxDB only
+        if args.target == 'timescaledb':
+            TARGET_INFLUX, TARGET_TSDB = False, True
+        elif args.target == 'both':
+            TARGET_INFLUX, TARGET_TSDB = True, True
+        else:
+            TARGET_INFLUX, TARGET_TSDB = True, False
+
+    if not args.setup:
         # Prompt user for all other configuration settings when running interactively
         response = input(f"Save auth token to: [{AUTHFILE}] ").strip()
         if response == "":
@@ -291,38 +363,74 @@ else:
         else:
             TAUTH = response
 
-        print("\nInfluxDB Setup")
-        print("-" * 14)
+        if TARGET_INFLUX:
+            print("\nInfluxDB Setup")
+            print("-" * 14)
 
-        response = input("Host: [localhost] ").strip().lower()
-        if response == "":
-            IHOST = "localhost"
-        else:
-            IHOST = response
-
-        while True:
-            response = input("Port: [8086] ").strip()
+            response = input("Host: [localhost] ").strip().lower()
             if response == "":
-                IPORT = 8086
+                IHOST = "localhost"
             else:
-                try:
-                    IPORT = int(response)
-                except:
-                    print("\nERROR: Invalid number\n")
-                    continue
-            break
+                IHOST = response
 
-        response = input("User (leave blank if not used): [blank] ").strip()
-        IUSER = response
+            while True:
+                response = input("Port: [8086] ").strip()
+                if response == "":
+                    IPORT = 8086
+                else:
+                    try:
+                        IPORT = int(response)
+                    except:
+                        print("\nERROR: Invalid number\n")
+                        continue
+                break
 
-        response = input("Pass (leave blank if not used): [blank] ").strip()
-        IPASS = response
+            response = input("User (leave blank if not used): [blank] ").strip()
+            IUSER = response
 
-        response = input("Database: [powerwall] ").strip()
-        if response == "":
-            IDB = "powerwall"
+            response = input("Pass (leave blank if not used): [blank] ").strip()
+            IPASS = response
+
+            response = input("Database: [powerwall] ").strip()
+            if response == "":
+                IDB = "powerwall"
+            else:
+                IDB = response
         else:
-            IDB = response
+            IHOST, IPORT, IUSER, IPASS, IDB = "localhost", 8086, "", "", "powerwall"
+
+        if TARGET_TSDB:
+            print("\nTimescaleDB Setup")
+            print("-" * 17)
+
+            response = input("Host: [timescaledb] ").strip().lower()
+            PGHOST = response or "timescaledb"
+
+            while True:
+                response = input("Port: [5432] ").strip()
+                if response == "":
+                    PGPORT = 5432
+                else:
+                    try:
+                        PGPORT = int(response)
+                    except:
+                        print("\nERROR: Invalid number\n")
+                        continue
+                break
+
+            response = input("Database: [powerwall] ").strip()
+            PGDB = response or "powerwall"
+
+            response = input("User: [telegraf_powerwall] ").strip()
+            PGUSER = response or "telegraf_powerwall"
+
+            response = input("Pass (leave blank if not used): [blank] ").strip()
+            PGPASS = response
+
+            PGSSLMODE = os.getenv('PGSSLMODE', 'disable')
+        else:
+            PGHOST, PGPORT, PGDB, PGUSER, PGPASS = "timescaledb", 5432, "powerwall", "telegraf_powerwall", ""
+            PGSSLMODE = "disable"
 
     if args.setup and args.timezone not in (None, "") and tz.gettz(args.timezone) is not None:
         # Get timezone if passed when running setup
@@ -345,6 +453,15 @@ else:
         IUSER = ""
         IPASS = ""
         IDB = "powerwall"
+        PGHOST = "timescaledb"
+        PGPORT = 5432
+        PGDB = "powerwall"
+        PGUSER = "telegraf_powerwall"
+        PGPASS = ""
+        PGSSLMODE = "disable"
+
+    INFLUX_ENABLED = TARGET_INFLUX
+    TSDB_ENABLED = TARGET_TSDB
 
     # Resolve relative auth path to script directory so first-run and
     # subsequent runs write/read the cache from the same location regardless
@@ -368,6 +485,7 @@ else:
     config['Tesla']['DELAY'] = str(TDELAY)
     config['InfluxDB'] = {}
     config['InfluxDB']['# InfluxDB server settings'] = None
+    config['InfluxDB']['ENABLE'] = "yes" if TARGET_INFLUX else "no"
     config['InfluxDB']['HOST'] = IHOST
     config['InfluxDB']['PORT'] = str(IPORT)
     config['InfluxDB']['# Auth (leave blank if not used)'] = None
@@ -376,6 +494,17 @@ else:
     config['InfluxDB']['# Database name and timezone'] = None
     config['InfluxDB']['DB'] = IDB
     config['InfluxDB']['TZ'] = ITZ
+    config['TimescaleDB'] = {}
+    config['TimescaleDB']['# TimescaleDB (PostgreSQL) server settings'] = None
+    config['TimescaleDB']['ENABLE'] = "yes" if TARGET_TSDB else "no"
+    config['TimescaleDB']['HOST'] = PGHOST
+    config['TimescaleDB']['PORT'] = str(PGPORT)
+    config['TimescaleDB']['DB'] = PGDB
+    config['TimescaleDB']['# Auth (leave blank if not used)'] = None
+    config['TimescaleDB']['USER'] = PGUSER
+    config['TimescaleDB']['PASS'] = PGPASS
+    config['TimescaleDB']['# SSL mode (disable, allow, prefer, require, verify-ca, verify-full)'] = None
+    config['TimescaleDB']['SSLMODE'] = PGSSLMODE
     config['daemon'] = {}
     config['daemon']['; Config options when running as a daemon (i.e. docker container)'] = None
     config['daemon']['# Minutes to wait between poll requests'] = None
@@ -411,6 +540,9 @@ powerdata = []
 backupdata = []
 eventdata = []
 reservedata = []
+pgpowerdata = []
+pgeventdata = []
+pgreservedata = []
 powergaps = None
 gridgaps = None
 reservegaps = None
@@ -443,9 +575,14 @@ if args.daemon:
         sys.stderr.write(f", Reserve: {RESERVE}")
     if SITE is not None:
         sys.stderr.write(f", Site: {SITE}")
-    sys.stderr.write(f"\n + InfluxDB - Host: {IHOST}, Port: {IPORT}, DB: {IDB}, Timezone: {ITZ}")
-    if IUSER != "":
-        sys.stderr.write(f", User: {IUSER}, Pass: {IPASS}")
+    sys.stderr.write(f"\n + InfluxDB - Enabled: {INFLUX_ENABLED}")
+    if INFLUX_ENABLED:
+        sys.stderr.write(f", Host: {IHOST}, Port: {IPORT}, DB: {IDB}, Timezone: {ITZ}")
+        if IUSER != "":
+            sys.stderr.write(f", User: {IUSER}, Pass: {IPASS}")
+    sys.stderr.write(f"\n + TimescaleDB - Enabled: {TSDB_ENABLED}")
+    if TSDB_ENABLED:
+        sys.stderr.write(f", Host: {PGHOST}, Port: {PGPORT}, DB: {PGDB}, User: {PGUSER}, SSLMode: {PGSSLMODE}")
     sys.stderr.write("\n")
     sys.stderr.flush()
 
@@ -823,6 +960,7 @@ def get_power_history(start, end):
                     point = f"http,source=cloud,month={timestamp.astimezone(influxtz).strftime('%b')},year={timestamp.astimezone(influxtz).year} home={home},solar={solar},from_pw={from_pw},to_pw={to_pw},from_grid={from_grid},to_grid={to_grid} "
                     point += str(int(timestamp.timestamp()))
                     powerdata.append(point)
+                    pgpowerdata.append({'time': timestamp, 'home': home, 'solar': solar, 'from_pw': from_pw, 'to_pw': to_pw, 'from_grid': from_grid, 'to_grid': to_grid})
 
         if soe:
             for d in soe['time_series']:
@@ -836,6 +974,7 @@ def get_power_history(start, end):
                     point = f"http,source=cloud,month={timestamp.astimezone(influxtz).strftime('%b')},year={timestamp.astimezone(influxtz).year} percentage={percentage} "
                     point += str(int(timestamp.timestamp()))
                     powerdata.append(point)
+                    pgpowerdata.append({'time': timestamp, 'percentage': percentage})
 
         # Increment to next day
         day += timedelta(days=1)
@@ -937,6 +1076,7 @@ def get_backup_history(start, end):
         point = f"http,source=cloud,month={timestamp.astimezone(influxtz).strftime('%b')},year={timestamp.astimezone(influxtz).year} grid_status={grid_status} "
         point += str(int(timestamp.timestamp()))
         eventdata.append(point)
+        pgeventdata.append({'time': timestamp, 'grid_status': grid_status})
 
 def set_reserve_history(start, end):
     """
@@ -973,6 +1113,7 @@ def set_reserve_history(start, end):
         point = f"http,source=cloud,month={timestamp.astimezone(influxtz).strftime('%b')},year={timestamp.astimezone(influxtz).year} backup_reserve_percent={backup_reserve_percent} "
         point += str(int(timestamp.timestamp()))
         reservedata.append(point)
+        pgreservedata.append({'time': timestamp, 'backup_reserve_percent': backup_reserve_percent})
 
 # InfluxDB Functions
 def search_influx(start, end, datatype):
@@ -1377,18 +1518,348 @@ def update_influx(start=None, end=None, periods=None):
             sys.stderr.write(f" ! InfluxDB query failed, retrying in {RETRY} seconds\n")
             sys.stderr.flush()
 
+# TimescaleDB Functions
+def pg_connect():
+    """
+    Create a new psycopg2 connection to TimescaleDB
+    """
+    return psycopg2.connect(host=PGHOST, port=PGPORT, dbname=PGDB, user=PGUSER, password=PGPASS, sslmode=PGSSLMODE)
+
+def search_timescaledb(start, end, datatype):
+    """
+    Search TimescaleDB for missing data points between start and end date/time
+
+    Returns a list of start/end datetime ranges for the 'datatype' ('power' or 'grid' or 'reserve')
+    """
+    global queryerr
+
+    if VERBOSE:
+        print(f"Searching TimescaleDB for data gaps ({datatype})")
+
+    if 'power' in datatype:
+        query = "SELECT time FROM pw_autogen_1m WHERE home IS NOT NULL AND time >= %s AND time <= %s ORDER BY time"
+        mingap = timedelta(minutes=5)
+    elif 'grid' in datatype:
+        query = "SELECT time FROM pw_grid_1m WHERE grid_status IS NOT NULL AND time >= %s AND time <= %s ORDER BY time"
+        mingap = timedelta(minutes=1)
+    elif 'reserve' in datatype:
+        query = "SELECT time FROM pw_pod_log WHERE metric_name = 'backup_reserve_percent' AND time >= %s AND time <= %s ORDER BY time"
+        mingap = timedelta(minutes=1)
+
+    try:
+        conn = pg_connect()
+        with conn.cursor() as cur:
+            cur.execute(query, (start, end))
+            rows = cur.fetchall()
+        conn.close()
+
+        if args.daemon and queryerr:
+            queryerr = False
+            sys.stdout.flush()
+            sys.stderr.write(" + TimescaleDB query succeeded\n")
+            sys.stderr.flush()
+    except Exception as err:
+        sys_exit(f"ERROR: Failed to execute TimescaleDB query: {repr(err)}", halt=False)
+        if args.daemon:
+            queryerr = True
+            sys.stderr.write(f" ! TimescaleDB query failed, retrying in {RETRY} seconds\n")
+            sys.stderr.flush()
+        return None
+
+    datagap = []
+    startpoint = start
+    startfound = False
+
+    if rows:
+        # Measure time difference between each data point
+        for row in rows:
+            timestamp = row[0].astimezone(utctz)
+
+            if timestamp == start:
+                startfound = True
+
+            # Check if time since previous point exceeds minimum gap
+            duration = timestamp - startpoint
+            if duration > mingap:
+                endpoint = timestamp
+                if VERBOSE:
+                    print(f"* Found data gap: [{startpoint.astimezone(influxtz)}] - [{endpoint.astimezone(influxtz)}] ({str(duration)}s)")
+
+                # Ensure period falls between existing data points
+                if (startfound and startpoint == start) or startpoint > start:
+                    startpoint += timedelta(minutes=1)
+
+                # Add missing data period to list
+                period = {}
+                period['start'] = startpoint
+                period['end'] = endpoint - timedelta(seconds=1)
+                datagap.append(period)
+
+            # Move start point time to current point
+            startpoint = timestamp
+        else:
+            # Check last data point to end date/time
+            duration = end - startpoint
+            if duration > mingap:
+                endpoint = end
+                if VERBOSE:
+                    print(f"* Found data gap: [{startpoint.astimezone(influxtz)}] - [{endpoint.astimezone(influxtz)}] ({str(duration)}s)")
+
+                # Add missing data period to list
+                period = {}
+                period['start'] = startpoint + timedelta(minutes=1)
+                period['end'] = endpoint
+                datagap.append(period)
+    else:
+        # No points found - entire start/end range is a data gap
+        duration = end - start
+        if duration > mingap:
+            if VERBOSE:
+                print(f"* Found data gap: [{start.astimezone(influxtz)}] - [{end.astimezone(influxtz)}] ({str(duration)}s)")
+
+            # Add missing data period to list
+            period = {}
+            period['start'] = start
+            period['end'] = end
+            datagap.append(period)
+
+    return datagap
+
+def merge_periods(list_a, list_b):
+    """
+    Merge two lists of start/end datetime period dicts into a minimal covering set (union)
+        * Used when target is 'both' so a single Tesla cloud fetch covers gaps found in either datastore
+    """
+    periods = list(list_a or []) + list(list_b or [])
+    if not periods:
+        return None
+
+    periods.sort(key=lambda p: p['start'])
+    merged = [dict(periods[0])]
+    for p in periods[1:]:
+        last = merged[-1]
+        if p['start'] <= last['end'] + timedelta(minutes=1):
+            if p['end'] > last['end']:
+                last['end'] = p['end']
+        else:
+            merged.append(dict(p))
+    return merged
+
+def search_databases(start, end, datatype):
+    """
+    Search the enabled datastore(s) for missing data points, returning the union of gaps found
+    """
+    influx_gaps = search_influx(start, end, datatype) if INFLUX_ENABLED else None
+    tsdb_gaps = search_timescaledb(start, end, datatype) if TSDB_ENABLED else None
+    if INFLUX_ENABLED and TSDB_ENABLED:
+        return merge_periods(influx_gaps, tsdb_gaps)
+    return influx_gaps if INFLUX_ENABLED else tsdb_gaps
+
+def remove_timescaledb(start, end):
+    """
+    Remove imported data from TimescaleDB (removes rows tagged source='cloud')
+    """
+    global queryerr
+
+    if not args.daemon:
+        print("Removing imported data from TimescaleDB")
+
+    try:
+        conn = pg_connect()
+        with conn.cursor() as cur:
+            cur.execute("SELECT count(*) FROM pw_autogen_1m WHERE source = 'cloud' AND time >= %s AND time <= %s", (start, end))
+            ptspower = cur.fetchone()[0]
+            cur.execute("SELECT count(*) FROM pw_grid_1m WHERE source = 'cloud' AND time >= %s AND time <= %s", (start, end))
+            ptsgrid = cur.fetchone()[0]
+            cur.execute("SELECT count(*) FROM pw_pod_log WHERE source = 'cloud' AND time >= %s AND time <= %s", (start, end))
+            ptsreserve = cur.fetchone()[0]
+            ptstotal = ptspower + ptsgrid + ptsreserve
+
+            if ptstotal == 0:
+                if not args.daemon:
+                    print("* No data points found")
+                conn.close()
+                return
+
+            if args.test:
+                if not args.daemon:
+                    print(f"* {ptstotal} data points to be removed (*** skipped - test mode enabled ***)")
+                conn.close()
+                return
+
+            cur.execute("DELETE FROM pw_autogen_1m WHERE source = 'cloud' AND time >= %s AND time <= %s", (start, end))
+            cur.execute("DELETE FROM pw_grid_1m WHERE source = 'cloud' AND time >= %s AND time <= %s", (start, end))
+            cur.execute("DELETE FROM pw_pod_log WHERE source = 'cloud' AND time >= %s AND time <= %s", (start, end))
+        conn.commit()
+        conn.close()
+
+        if not args.daemon:
+            print(f"* {ptstotal} data points removed")
+            # Repair pw_kwh_1h now that pw_autogen_1m rows were removed
+            update_timescaledb(start, end)
+
+        if args.daemon and queryerr:
+            queryerr = False
+            sys.stdout.flush()
+            sys.stderr.write(" + TimescaleDB query succeeded\n")
+            sys.stderr.flush()
+    except Exception as err:
+        sys_exit(f"ERROR: Failed to remove data from TimescaleDB: {repr(err)}", halt=False)
+        if args.daemon:
+            queryerr = True
+            sys.stderr.write(f" ! TimescaleDB query failed, retrying in {RETRY} seconds\n")
+            sys.stderr.flush()
+
+def remove_databases(start, end):
+    """
+    Remove imported data from the enabled datastore(s)
+    """
+    if INFLUX_ENABLED:
+        remove_influx(start, end)
+    if TSDB_ENABLED:
+        remove_timescaledb(start, end)
+
+def write_timescaledb():
+    """
+    Write 'pgpowerdata', 'pgeventdata' and 'pgreservedata' data points to TimescaleDB
+        * Existing values are never overwritten (COALESCE keeps the existing value on conflict)
+        * 'source' is deliberately excluded from every ON CONFLICT SET clause below -- including
+          it would flip an existing live-ingested row's source to 'cloud' the moment any other
+          column on that row gets a cloud-fill, since COALESCE treats an existing NULL as "unset".
+          That would make --remove delete live gateway data, violating this tool's core promise
+          that it will never affect data logged by Powerwall-Dashboard itself.
+    """
+    global writeerr
+
+    if args.test:
+        if VERBOSE:
+            print("Writing to TimescaleDB (*** skipped - test mode enabled ***)")
+        return
+
+    if VERBOSE:
+        print("Writing to TimescaleDB")
+
+    try:
+        conn = pg_connect()
+        with conn.cursor() as cur:
+            if pgpowerdata:
+                cols = ['home', 'solar', 'from_pw', 'to_pw', 'from_grid', 'to_grid', 'percentage']
+                # 'power' (5min) and 'soe' (15min) samples are appended as separate dicts and can
+                # share a timestamp -- merge by time so execute_values never sees the same
+                # conflict key twice in one batch (Postgres errors on that under ON CONFLICT DO UPDATE).
+                merged = {}
+                for d in pgpowerdata:
+                    merged.setdefault(d['time'], {}).update(d)
+                rows = [(t,) + tuple(v.get(c) for c in cols) + ('cloud',) for t, v in merged.items()]
+                set_clause = ", ".join(f"{c} = COALESCE(pw_autogen_1m.{c}, EXCLUDED.{c})" for c in cols)
+                psycopg2.extras.execute_values(
+                    cur,
+                    f"INSERT INTO pw_autogen_1m (time, {', '.join(cols)}, source) VALUES %s "
+                    f"ON CONFLICT (time) DO UPDATE SET {set_clause}",
+                    rows,
+                )
+
+            if pgeventdata:
+                rows = [(d['time'], d['grid_status'], 'cloud') for d in pgeventdata]
+                psycopg2.extras.execute_values(
+                    cur,
+                    "INSERT INTO pw_grid_1m (time, grid_status, source) VALUES %s "
+                    "ON CONFLICT (time) DO UPDATE SET grid_status = COALESCE(pw_grid_1m.grid_status, EXCLUDED.grid_status)",
+                    rows,
+                )
+
+            if pgreservedata:
+                rows = [(d['time'], 'backup_reserve_percent', d['backup_reserve_percent'], 'cloud') for d in pgreservedata]
+                psycopg2.extras.execute_values(
+                    cur,
+                    "INSERT INTO pw_pod_log (time, metric_name, value, source) VALUES %s "
+                    "ON CONFLICT (time, metric_name) DO UPDATE SET value = COALESCE(pw_pod_log.value, EXCLUDED.value)",
+                    rows,
+                )
+        conn.commit()
+        conn.close()
+
+        if args.daemon and writeerr:
+            writeerr = False
+            sys.stdout.flush()
+            sys.stderr.write(" + TimescaleDB write succeeded\n")
+            sys.stderr.flush()
+    except Exception as err:
+        sys_exit(f"ERROR: Failed to write to TimescaleDB: {repr(err)}", halt=False)
+        if args.daemon:
+            writeerr = True
+            sys.stderr.write(f" ! TimescaleDB write failed, retrying in {RETRY} seconds\n")
+            sys.stderr.flush()
+
+def write_databases():
+    """
+    Write data points to the enabled datastore(s)
+    """
+    if INFLUX_ENABLED:
+        write_influx()
+    if TSDB_ENABLED:
+        write_timescaledb()
+
+def update_timescaledb(start, end):
+    """
+    Backfill pw_kwh_1h from pw_autogen_1m for the given date/time range
+    """
+    if args.test:
+        if VERBOSE:
+            print("Updating TimescaleDB (*** skipped - test mode enabled ***)")
+        return
+
+    if VERBOSE:
+        print("Updating TimescaleDB")
+
+    dsn = f"host={PGHOST} port={PGPORT} dbname={PGDB} user={PGUSER} password={PGPASS} sslmode={PGSSLMODE}"
+    try:
+        subprocess.run(
+            [
+                "psql", dsn,
+                "-v", f"tz={ITZ}",
+                "-v", f"start_date={start.astimezone(utctz).strftime('%Y-%m-%d %H:%M:%S+00')}",
+                "-v", f"end_date={end.astimezone(utctz).strftime('%Y-%m-%d %H:%M:%S+00')}",
+                "-v", "ON_ERROR_STOP=1",
+                "-f", KWH_BACKFILL_SQL,
+            ],
+            check=True,
+            capture_output=not VERBOSE,
+        )
+    except FileNotFoundError:
+        sys.stderr.write(" ! Failed to backfill pw_kwh_1h: 'psql' command not found.\n")
+        sys.stderr.write("   Install the PostgreSQL client (e.g. 'apt install postgresql-client') "
+                          "and re-run for this date range to backfill it.\n")
+        sys.stderr.write("   (pw_autogen_1m/pw_grid_1m/pw_pod_log were still written successfully.)\n")
+    except Exception as err:
+        sys.stderr.write(f" ! Failed to backfill pw_kwh_1h: {repr(err)}\n")
+
+def update_databases(start=None, end=None, periods=None):
+    """
+    Update analysis data in the enabled datastore(s) from newly imported data
+    """
+    if INFLUX_ENABLED:
+        update_influx(start, end, periods)
+    if TSDB_ENABLED:
+        if periods is not None:
+            s = periods[0]['start']
+            e = periods[-1]['end']
+        else:
+            s, e = start, end
+        update_timescaledb(s, e)
+
 # MAIN
 
-# Create InfluxDB client instance
-client = InfluxDBClient(host=IHOST, port=IPORT, username=IUSER, password=IPASS, database=IDB)
+# Create InfluxDB client instance (TimescaleDB connections are opened per-call via pg_connect())
+client = InfluxDBClient(host=IHOST, port=IPORT, username=IUSER, password=IPASS, database=IDB) if INFLUX_ENABLED else None
 
 if args.remove and not (args.login or args.setup):
     # Get start/end datetimes from command line arguments
     start, end = get_start_end()
     print(f"Removing imported data for period: [{start.astimezone(influxtz)}] - [{end.astimezone(influxtz)}] ({str(end - start)}s)\n")
 
-    # Remove imported data from InfluxDB between start and end date/time
-    remove_influx(start, end)
+    # Remove imported data from the enabled datastore(s) between start and end date/time
+    remove_databases(start, end)
     print("\nDone.")
     sys_exit()
 
@@ -1583,6 +2054,9 @@ elif args.daemon:
             backupdata.clear()
             eventdata.clear()
             reservedata.clear()
+            pgpowerdata.clear()
+            pgeventdata.clear()
+            pgreservedata.clear()
             dayloaded = None
             eventsloaded = False
             reserveloaded = False
@@ -1602,15 +2076,15 @@ elif args.daemon:
                 if powerdata:
                     # Remove previously written data points
                     if VERBOSE:
-                        print("Clearing InfluxDB data")
-                    remove_influx(start, end)
+                        print("Clearing existing data")
+                    remove_databases(start, end)
 
-                # Write new data points to InfluxDB
-                write_influx()
+                # Write new data points to the enabled datastore(s)
+                write_databases()
 
                 if powerdata:
-                    # Update InfluxDB analysis data
-                    update_influx(start, end)
+                    # Update analysis data in the enabled datastore(s)
+                    update_databases(start, end)
 
             if fetcherr or queryerr or writeerr:
                 # If an error occurred, reset the end time to wait for the configured retry delay
@@ -1620,18 +2094,18 @@ elif args.daemon:
     except (KeyboardInterrupt, SystemExit):
         server_exit()
 else:
-    # Search InfluxDB for power usage data gaps
-    powergaps = search_influx(start, end, 'power usage')
+    # Search enabled datastore(s) for power usage data gaps
+    powergaps = search_databases(start, end, 'power usage')
     print() if powergaps else print("* None found\n")
 
     if isinstance(site, Battery):
-        # Search InfluxDB for grid status data gaps
-        gridgaps = search_influx(start, end, 'grid status')
+        # Search enabled datastore(s) for grid status data gaps
+        gridgaps = search_databases(start, end, 'grid status')
         print() if gridgaps else print("* None found\n")
 
         if args.reserve is not None:
-            # Search InfluxDB for backup reserve percent data gaps
-            reservegaps = search_influx(start, end, 'backup reserve percent')
+            # Search enabled datastore(s) for backup reserve percent data gaps
+            reservegaps = search_databases(start, end, 'backup reserve percent')
             print() if reservegaps else print("* None found\n")
 
     if not (powergaps or gridgaps or reservegaps):
@@ -1659,11 +2133,11 @@ else:
 if not (powerdata or eventdata or reservedata):
     sys_exit("ERROR: No data returned for this date/time range")
 
-# Write data points to InfluxDB
-write_influx()
+# Write data points to the enabled datastore(s)
+write_databases()
 
 if powerdata:
-    # Update InfluxDB analysis data
-    update_influx(start, end, powergaps)
+    # Update analysis data in the enabled datastore(s)
+    update_databases(start, end, powergaps)
 
 print("Done.")
