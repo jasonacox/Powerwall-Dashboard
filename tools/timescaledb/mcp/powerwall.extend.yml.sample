@@ -40,12 +40,19 @@ services:
             # need remote access, and set MCP_AUTH_TOKEN in mcp.env if you
             # do.
             - "${MCP_PORTS:-127.0.0.1:8765:8000}"
-        # EXTMODE-BUNDLED-ONLY-START
-        depends_on:
-            timescaledb:
-                condition: service_healthy
-                required: false
-        # EXTMODE-BUNDLED-ONLY-END
+        # Deliberately no depends_on: timescaledb here. Unlike
+        # aggregate-cron (which needs the DB immediately to run schema.sql
+        # once at startup), this server opens a connection per tool call --
+        # it just errors gracefully until the DB is reachable, so strict
+        # startup ordering isn't needed. That also sidesteps a real trap:
+        # the EXTMODE-BUNDLED-ONLY marker convention used elsewhere in this
+        # extension only has effect when tools/timescaledb/setup.sh
+        # processes a file and strips the bundled-only block in external
+        # mode -- this file is merged BY HAND (see the instructions above),
+        # so those markers would never actually get stripped, and
+        # depends_on: timescaledb would break `docker compose up` outright
+        # for anyone on an external TimescaleDB server ("depends on
+        # undefined service").
         healthcheck:
             # Just confirms the process is up and listening -- a real
             # request needs a full MCP protocol handshake, not something

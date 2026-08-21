@@ -112,7 +112,8 @@ Three layers, in order of how much you should actually trust them:
 
 - `server.py` -- the MCP server
 - `Dockerfile` -- container definition
-- `readonly_role.sql` -- creates the `mcp_readonly` role (run once, by hand)
+- `readonly_role.sql` -- creates the `mcp_readonly` role (run by hand; safe
+  to re-run, including to rotate the password)
 - `mcp.env.sample` -- config template
 - `powerwall.extend.yml.sample` -- the service snippet to merge in
 

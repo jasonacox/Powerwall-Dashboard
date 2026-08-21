@@ -30,21 +30,34 @@
 -- env either way, bundled or external, so routing the connection through
 -- it sidesteps this whole class of mistake.)
 --
--- Then set MCP_ROLE_PASSWORD below to something real, or just edit the
--- CREATE ROLE line's PASSWORD before running this, and put the same value
--- in mcp.env as MCP_DB_PASSWORD.
+-- Before running this, edit the `ALTER ROLE ... PASSWORD 'CHANGE_ME'` line
+-- below to something real, and put the same value in mcp.env as
+-- MCP_DB_PASSWORD.
 --
--- Safe to re-run: CREATE ROLE ... IF NOT EXISTS isn't a thing in Postgres,
--- so this uses a DO block to make role creation idempotent; the GRANTs
--- themselves are already idempotent.
+-- Safe to re-run, including to rotate the password: CREATE ROLE ...
+-- IF NOT EXISTS isn't a thing in Postgres, so this uses a DO block to make
+-- role creation idempotent -- but that means a naive
+-- `CREATE ROLE ... PASSWORD 'x'` inside the IF NOT EXISTS guard would only
+-- ever set the password the FIRST time, and silently do nothing on every
+-- later re-run (e.g. if you edit CHANGE_ME below to a new value later and
+-- re-run this expecting it to rotate the password -- it wouldn't, with no
+-- error, and mcp.env and the role's actual password would quietly drift
+-- out of sync). So role creation and password-setting are two separate
+-- statements below: the DO block only ensures the role exists, and the
+-- ALTER ROLE ... PASSWORD line after it always runs, every time.
 
 DO $$
 BEGIN
     IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'mcp_readonly') THEN
-        CREATE ROLE mcp_readonly WITH LOGIN PASSWORD 'CHANGE_ME';
+        CREATE ROLE mcp_readonly WITH LOGIN;
     END IF;
 END
 $$;
+
+-- Always (re-)sets the password, whether the role above was just created
+-- or already existed -- this is what makes re-running this script safe for
+-- password rotation, not just first-time setup.
+ALTER ROLE mcp_readonly PASSWORD 'CHANGE_ME';
 
 -- Pin this role's search_path to `public` only. This database has a second,
 -- unrelated `energy` schema with same-named empty decoy tables for every
@@ -57,7 +70,16 @@ $$;
 ALTER ROLE mcp_readonly SET search_path = public;
 
 -- No write/DDL privileges of any kind -- only CONNECT + SELECT.
-GRANT CONNECT ON DATABASE powerwall TO mcp_readonly;
+--
+-- Uses current_database() rather than a literal database name -- POSTGRES_DB
+-- is a user-customizable value (setup.sh prompts for it in external-server
+-- mode), not guaranteed to be "powerwall", and this script is already
+-- documented to run while connected to the right one.
+DO $$
+BEGIN
+    EXECUTE format('GRANT CONNECT ON DATABASE %I TO mcp_readonly', current_database());
+END
+$$;
 GRANT USAGE ON SCHEMA public TO mcp_readonly;
 GRANT SELECT ON ALL TABLES IN SCHEMA public TO mcp_readonly;
 
