@@ -17,6 +17,10 @@ stack's existing `powerwall.extend.yml` mechanism (the same one
 [`tools/tesla-history`](../tesla-history/) and [`tools/pgadmin`](../pgadmin/)
 use).
 
+Once this is set up, [`mcp/`](mcp/) adds an optional MCP server on top,
+letting an AI agent query this database conversationally. Also experimental,
+also opt-in.
+
 ## Setup
 
 1. Run the base stack setup first if you haven't already: `./setup.sh`.

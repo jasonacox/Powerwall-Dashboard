@@ -17,6 +17,7 @@
 compose.env
 grafana.env
 influxdb.env
+mcp.env
 powerwall.extend.yml
 pypowerwall.env
 telegraf.local
