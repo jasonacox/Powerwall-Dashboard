@@ -1,0 +1,15 @@
+services:
+  powerwall-mcp:
+    build: .
+    container_name: powerwall-mcp
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      INFLUX_HOST: "127.0.0.1"
+      INFLUX_PORT: "8086"
+      INFLUX_DB: "powerwall"
+      INFLUX_TIMEOUT: "30"
+      MCP_PORT: "8765"
+      MCP_AUTH_TOKEN: ""
+      MAX_QUERY_ROWS: "1000"
+      OVERVIEW_CACHE_TTL: "300"

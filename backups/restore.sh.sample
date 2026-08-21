@@ -1,0 +1,335 @@
+#!/bin/bash
+#
+# Restore Script for Powerwall Dashboard Data
+#   https://github.com/jasonacox/Powerwall-Dashboard
+#   by JonMurphy & Sam Cox
+#
+# Companion to backup.sh - restores an archive it created:
+#   influxdb/   InfluxDB portable snapshot
+#   grafana/    grafana.db + provisions/
+#   config/     configuration files
+#   weather/    weather411.conf         (newer archives)
+#   auth/       .auth Tesla cloud tokens (newer archives)
+# Older archives without weather/ or auth/ restore fine - missing
+# sections are skipped.
+#
+# Usage:
+#   sudo ./restore.sh                     # most recent archive in backups/
+#   sudo ./restore.sh /path/to/archive.tar.xz
+#
+# Notes:
+#   - Keep this script in Powerwall-Dashboard/backups/ (location is
+#     auto-detected from the script's own path).
+#   - Safe for same-machine restores and migrations to a new machine.
+#   - Non-destructive: everything overwritten is saved aside first as
+#     *.pre-restore.<timestamp> (a cleanup list is printed at the end).
+#   - The archive is extracted under mktemp -d (usually /tmp). For large
+#     archives: sudo TMPDIR=/path/with/space ./restore.sh
+
+set -o pipefail
+
+die() { echo "ERROR: $*" >&2; exit 1; }
+
+# ── Preflight checks ──────────────────────────────────────────────────
+[ "$EUID" -eq 0 ] || die "Must run as root (sudo ./restore.sh)"
+
+# Locate the Powerwall-Dashboard directory relative to this script.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DASHBOARD="$(dirname "${SCRIPT_DIR}")"
+[ -f "${DASHBOARD}/compose-dash.sh" ] \
+  || die "Could not locate Powerwall-Dashboard (no compose-dash.sh in ${DASHBOARD}).
+Place this script in your Powerwall-Dashboard/backups/ directory."
+
+BACKUP_FOLDER="${DASHBOARD}/backups"
+echo "Using Powerwall-Dashboard directory: ${DASHBOARD}"
+
+# Owner for restored files: the invoking user's uid:primary-gid - the same
+# "id -u:id -g" convention setup.sh writes into compose.env as PWD_USER.
+# Under sudo, SUDO_UID/SUDO_GID identify the invoking user (not root).
+HOST_UID="${SUDO_UID:-$(id -u)}"
+HOST_GID="${SUDO_GID:-$(id -g)}"
+if [ "${HOST_UID}" -eq 0 ] 2>/dev/null; then
+  die "Detected root as the owning user (UID 0).
+Run 'sudo ./restore.sh' from your regular user account, not from a
+root shell ('sudo -i' or 'su -'). Container files owned by root break
+permission-sensitive containers."
+fi
+PWD_USER="${HOST_UID}:${HOST_GID}"
+echo "Detected owner:group for this host: ${PWD_USER}"
+
+# ── Select the archive ────────────────────────────────────────────────
+if [ -n "$1" ]; then
+  ARCHIVE="$1"
+else
+  ARCHIVE=$(ls -1t "${BACKUP_FOLDER}"/Powerwall-Dashboard.*.tar.xz 2>/dev/null | head -n 1)
+fi
+[ -n "${ARCHIVE}" ] && [ -f "${ARCHIVE}" ] \
+  || die "No backup archive found.
+Usage: $0 [path-to-Powerwall-Dashboard.YYYY-MM-DD.tar.xz]"
+
+# ── Staging ───────────────────────────────────────────────────────────
+STAMP=$(date '+%Y-%m-%d_%H%M%S')
+STAGING=$(mktemp -d)
+PRERESTORE_PATHS=()
+trap 'rm -rf "${STAGING}"' EXIT
+trap 'rm -rf "${STAGING}"; die "Interrupted."' INT TERM
+
+# Save a copy of anything we are about to overwrite and remember it for
+# the cleanup list printed at the end.
+save_aside() {
+  local TARGET="$1"
+  [ -e "${TARGET}" ] || return 0
+  cp -a "${TARGET}" "${TARGET}.pre-restore.${STAMP}"
+  PRERESTORE_PATHS+=("${TARGET}.pre-restore.${STAMP}")
+}
+
+# Staging disk space: the full archive is extracted into ${STAGING}. xz
+# compresses time-series data heavily, so require 6x the archive size as
+# a conservative uncompressed estimate. Warn (interactive) rather than
+# abort - the user can relocate staging via TMPDIR and re-run.
+ARCHIVE_KB=$(du -k "${ARCHIVE}" | cut -f1)
+NEEDED_KB=$((ARCHIVE_KB * 6))
+AVAIL_KB=$(df -Pk "${STAGING}" | awk 'NR==2 {print $4}')
+if [ -n "${AVAIL_KB}" ] && [ "${AVAIL_KB}" -lt "${NEEDED_KB}" ]; then
+  echo "WARNING: Staging area ${STAGING} may not have enough free space."
+  echo "  Archive size:     $((ARCHIVE_KB / 1024)) MB (compressed)"
+  echo "  Estimated needed: $((NEEDED_KB / 1024)) MB (uncompressed estimate)"
+  echo "  Available:        $((AVAIL_KB / 1024)) MB"
+  echo "If /tmp is a RAM-backed tmpfs, extraction can exhaust memory."
+  echo "Relocate staging and re-run: sudo TMPDIR=/path/with/space $0 ${1:-}"
+  echo ""
+  read -r -p "Continue anyway? [y/N] " SPACE_CONFIRM
+  [[ "${SPACE_CONFIRM}" =~ ^([yY][eE][sS]|[yY])$ ]] || { echo "Restore cancelled."; exit 1; }
+fi
+
+echo "========================================="
+echo " Powerwall-Dashboard Restore - ${STAMP}"
+echo "========================================="
+echo "Archive: ${ARCHIVE}"
+echo ""
+read -r -p "This will OVERWRITE existing data. Continue? [y/N] " CONFIRM
+[[ "${CONFIRM}" =~ ^([yY][eE][sS]|[yY])$ ]] || { echo "Restore cancelled."; exit 0; }
+
+# ── Extract archive to staging ────────────────────────────────────────
+# Reject unsafe archive members before extraction. backup.sh never creates
+# any of these, so their presence means a corrupted or tampered archive:
+#   - path traversal entries (..) that could write outside staging
+#   - absolute path members (-P lists names unstripped so we can see them)
+#   - symlink/hardlink members that could redirect later writes elsewhere
+if tar -tPJf "${ARCHIVE}" | grep -qE '^/|(^|/)\.\.(/|$)'; then
+  die "Archive contains absolute or path-traversal member names. Aborting."
+fi
+if tar -tJvf "${ARCHIVE}" | grep -qE '^[lh]'; then
+  die "Archive contains symlink/hardlink members. Aborting."
+fi
+echo ""
+echo "Extracting archive..."
+tar --no-same-owner -Jxf "${ARCHIVE}" -C "${STAGING}" || die "Archive extraction failed."
+
+# ── Stop the stack before touching data ───────────────────────────────
+echo ""
+echo "Stopping Powerwall-Dashboard containers..."
+cd "${DASHBOARD}" || die "Cannot cd to ${DASHBOARD}"
+./compose-dash.sh stop || die "Failed to stop containers - aborting to prevent data corruption."
+
+# ── 1. InfluxDB snapshot ──────────────────────────────────────────────
+echo ""
+echo "[1/5] Restoring InfluxDB snapshot..."
+if [ -d "${STAGING}/influxdb" ] && [ -n "$(ls -A "${STAGING}/influxdb" 2>/dev/null)" ]; then
+  mkdir -p influxdb/backups
+  chmod g+w influxdb/backups
+  rm -rf influxdb/backups/*
+  cp -a "${STAGING}/influxdb/." influxdb/backups/
+
+  # Move existing data aside (not deleted) so influxd restore has a clean
+  # target - and the pre-restore copies provide a rollback path.
+  for SUBDIR in data meta wal; do
+    if [ -d "influxdb/${SUBDIR}" ]; then
+      mv "influxdb/${SUBDIR}" "influxdb/${SUBDIR}.pre-restore.${STAMP}"
+      PRERESTORE_PATHS+=("${DASHBOARD}/influxdb/${SUBDIR}.pre-restore.${STAMP}")
+      echo "  - Existing influxdb/${SUBDIR} saved aside"
+    fi
+  done
+
+  # Start only influxdb so influxd restore has a running server.
+  ./compose-dash.sh up -d influxdb
+
+  echo "  Waiting for InfluxDB to be ready (up to 60s)..."
+  for _ in $(seq 1 30); do
+    HEALTH=$(docker inspect --format='{{.State.Health.Status}}' influxdb 2>/dev/null)
+    [ "${HEALTH}" = "healthy" ] && break
+    sleep 2
+  done
+  [ "${HEALTH}" = "healthy" ] || echo "  ⚠ InfluxDB not reporting healthy after 60s - attempting restore anyway..."
+
+  if docker exec influxdb influxd restore -portable -db powerwall /var/lib/influxdb/backups; then
+    echo "  ✓ InfluxDB snapshot restored"
+  else
+    echo "  ✗ InfluxDB restore command failed - check output above"
+  fi
+
+  # Re-create continuous queries. influxd restore -portable does not
+  # reliably restore CQs (known InfluxDB 1.x limitation). Prefer the
+  # archive's continuous_queries.txt (live CQ state, including user
+  # customizations); fall back to influxdb.sql (repo defaults).
+  #
+  # The influx 1.x CLI prints statement errors to STDOUT and exits 0
+  # regardless, so replay_cqs greps the output for ERR instead of
+  # trusting the exit code. Harmless "already exists" responses are
+  # ignored. Statements are normalized to end with a single ';' so the
+  # CLI can parse multiple statements from stdin.
+  replay_cqs() {
+    local SOURCE="$1" OUT
+    OUT=$(sed -n 's/.*\(CREATE CONTINUOUS QUERY.*\)/\1/p' "${SOURCE}" \
+      | sed 's/[;[:space:]]*$/;/' \
+      | docker exec -i influxdb influx -database powerwall 2>&1)
+    if echo "${OUT}" | grep -vi 'already exists' | grep -qiE '(^|[[:space:]])ERR'; then
+      echo "${OUT}" | grep -iE '(^|[[:space:]])ERR' | head -5 | sed 's/^/    /'
+      return 1
+    fi
+    return 0
+  }
+
+  CQ_FILE="${STAGING}/influxdb/continuous_queries.txt"
+  CQ_DONE=0
+  if [ -f "${CQ_FILE}" ] && grep -q 'CREATE CONTINUOUS QUERY' "${CQ_FILE}"; then
+    if replay_cqs "${CQ_FILE}"; then
+      echo "  ✓ Continuous queries re-created from backup"
+      CQ_DONE=1
+    else
+      echo "  ⚠ Errors re-creating continuous queries from backup - trying repo defaults..."
+    fi
+  fi
+  if [ "${CQ_DONE}" -eq 0 ] && [ -f "${DASHBOARD}/influxdb/influxdb.sql" ]; then
+    if replay_cqs "${DASHBOARD}/influxdb/influxdb.sql"; then
+      echo "  ✓ Continuous queries re-created from influxdb.sql (repo defaults)"
+    else
+      echo "  ⚠ Errors re-creating continuous queries (see above)"
+    fi
+  fi
+
+  rm -rf influxdb/backups/*
+else
+  echo "  - No InfluxDB snapshot found in archive (skipping)"
+fi
+
+# ── 2. Grafana database ───────────────────────────────────────────────
+echo ""
+echo "[2/5] Restoring Grafana database..."
+GRAFANA_DB="${DASHBOARD}/grafana/grafana.db"
+if [ -f "${STAGING}/grafana/grafana.db" ]; then
+  mkdir -p "${DASHBOARD}/grafana"
+  save_aside "${GRAFANA_DB}"
+  cp -a "${STAGING}/grafana/grafana.db" "${GRAFANA_DB}"
+  chown "${PWD_USER}" "${GRAFANA_DB}"
+  echo "  ✓ Grafana DB restored"
+else
+  echo "  - No grafana.db found in archive (skipping)"
+fi
+
+if [ -d "${STAGING}/grafana/provisions" ]; then
+  save_aside "${DASHBOARD}/grafana/provisions"
+  cp -a "${STAGING}/grafana/provisions" "${DASHBOARD}/grafana/"
+  chown -R "${PWD_USER}" "${DASHBOARD}/grafana/provisions"
+  echo "  ✓ Grafana provisioning files restored"
+fi
+
+# ── 3. Configuration files ────────────────────────────────────────────
+echo ""
+echo "[3/5] Restoring configuration files..."
+
+# Git-managed project files are archived for reference but must NOT be
+# restored over the current checkout: an older backup would silently
+# downgrade powerwall.yml (container image tags), confuse upgrade.sh via
+# a stale VERSION, and dirty the git tree. Only user-owned config is
+# restored.
+GIT_TRACKED_SKIP=(
+  "powerwall.yml"
+  "telegraf.conf"
+  "influxdb.conf"
+  "VERSION"
+  "_config.yml"
+)
+
+FOUND=0
+SKIPPED=0
+if [ -d "${STAGING}/config" ]; then
+  shopt -s nullglob dotglob    # include hidden files (.*.env)
+  for FILE in "${STAGING}"/config/*; do
+    [ -f "${FILE}" ] || continue
+    BASENAME=$(basename "${FILE}")
+    if [[ " ${GIT_TRACKED_SKIP[*]} " == *" ${BASENAME} "* ]]; then
+      SKIPPED=$((SKIPPED + 1))
+      continue
+    fi
+    save_aside "${DASHBOARD}/${BASENAME}"
+    cp -a "${FILE}" "${DASHBOARD}/${BASENAME}"
+    chown "${PWD_USER}" "${DASHBOARD}/${BASENAME}"
+
+    # Rewrite PWD_USER to match this host's actual user:group - the
+    # archived value may be from a different machine.
+    if [ "${BASENAME}" == "compose.env" ]; then
+      grep -vE '^PWD_USER=' "${DASHBOARD}/compose.env" > "${DASHBOARD}/compose.env.tmp"
+      echo "PWD_USER=\"${PWD_USER}\"" >> "${DASHBOARD}/compose.env.tmp"
+      mv "${DASHBOARD}/compose.env.tmp" "${DASHBOARD}/compose.env"
+      chown "${PWD_USER}" "${DASHBOARD}/compose.env"
+      echo "  - Set PWD_USER=\"${PWD_USER}\" in compose.env (matches this host)"
+    fi
+    FOUND=$((FOUND + 1))
+  done
+  shopt -u nullglob dotglob
+fi
+echo "  ✓ ${FOUND} config file(s) restored"
+[ "${SKIPPED}" -gt 0 ] && echo "  - ${SKIPPED} git-managed project file(s) skipped (already provided by this checkout)"
+
+# ── 4. Weather service config ─────────────────────────────────────────
+echo ""
+echo "[4/5] Restoring weather411 config..."
+if [ -f "${STAGING}/weather/weather411.conf" ]; then
+  mkdir -p "${DASHBOARD}/weather"
+  save_aside "${DASHBOARD}/weather/weather411.conf"
+  cp -a "${STAGING}/weather/weather411.conf" "${DASHBOARD}/weather/"
+  chown "${PWD_USER}" "${DASHBOARD}/weather/weather411.conf"
+  echo "  ✓ weather411.conf restored"
+else
+  echo "  - No weather411.conf in archive (skipping)"
+fi
+
+# ── 5. Tesla cloud auth tokens ────────────────────────────────────────
+echo ""
+echo "[5/5] Restoring .auth (Tesla cloud tokens)..."
+if [ -d "${STAGING}/auth" ] && [ -n "$(ls -A "${STAGING}/auth" 2>/dev/null)" ]; then
+  save_aside "${DASHBOARD}/.auth"
+  mkdir -p "${DASHBOARD}/.auth"
+  cp -a "${STAGING}/auth/." "${DASHBOARD}/.auth/"
+  chown -R "${PWD_USER}" "${DASHBOARD}/.auth"
+  chmod 700 "${DASHBOARD}/.auth"
+  echo "  ✓ .auth restored"
+else
+  echo "  - No auth tokens in archive (skipping)"
+fi
+
+# ── Restart the stack ─────────────────────────────────────────────────
+# 'up -d' (not 'start') so containers are RECREATED and pick up the
+# restored env files. 'docker compose start' would resume old containers
+# with stale configuration baked in - and fails on a fresh machine where
+# containers were never created.
+echo ""
+echo "Starting Powerwall-Dashboard containers..."
+cd "${DASHBOARD}" || die "Cannot cd to ${DASHBOARD}"
+./compose-dash.sh up -d
+
+echo ""
+echo "========================================="
+echo " Restore complete!"
+echo " Restored from: ${ARCHIVE}"
+if [ "${#PRERESTORE_PATHS[@]}" -gt 0 ]; then
+  echo ""
+  echo " Anything overwritten was saved first. Once you've confirmed"
+  echo " the restore looks good, remove the pre-restore copies with:"
+  echo ""
+  for PATHNAME in "${PRERESTORE_PATHS[@]}"; do
+    echo "   sudo rm -rf \"${PATHNAME}\""
+  done
+fi
+echo "========================================="

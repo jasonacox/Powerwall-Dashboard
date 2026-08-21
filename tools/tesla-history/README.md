@@ -298,8 +298,8 @@ For more usage options, run without arguments or with the `--help` option:
 python3 tesla-history.py --help
 ```
 ```
-usage: tesla-history.py [-h] [-l] [-t] [-d] [--region {us,cn}] [--headless]
-                        [--config CONFIG]
+usage: tesla-history.py [-h] [-l] [-t] [-d] [--dry-run] [--region {us,cn}]
+                        [--headless] [--config CONFIG]
                         [--target {influxdb,timescaledb,both}] [--site SITE]
                         [--reserve RESERVE] [--force] [--remove] [--daemon]
                         [--start START] [--end END] [--today] [--yesterday]
@@ -314,6 +314,8 @@ options:
   -t, --test            enable test mode (do not import into datastore(s))
   -d, --debug           enable debug output (print raw responses from Tesla
                         cloud)
+  --dry-run             identify data gaps and show number of API calls
+                        required without making any API calls
 
 login options:
   --region {us,cn}      specify Tesla account region (default: us)
