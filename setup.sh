@@ -635,6 +635,14 @@ if [ ! -f ${GF_ENV_FILE} ]; then
     cp "${GF_ENV_FILE}.sample" "${GF_ENV_FILE}"
 fi
 
+# Create pypowerwall time series data directory if missing (required in 5.2.3)
+# and chown it to PWD_USER (the uid:gid the container actually runs as, per
+# powerwall.yml) rather than the invoking user, since they may differ - the
+# bind mount would otherwise be created by Docker (as root) on first start.
+mkdir -p .pypowerwall_data
+DATA_DIR_OWNER=$(grep -E "^PWD_USER=" "${COMPOSE_ENV_FILE}" 2>/dev/null | cut -d= -f2 | tr -d '"')
+chown -R "${DATA_DIR_OWNER:-1000:1000}" .pypowerwall_data 2>/dev/null || true
+
 # Ask about anonymous access
 echo ""
 ./anonymous-access.sh

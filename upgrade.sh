@@ -6,7 +6,7 @@
 set -e
 
 # Set Globals
-VERSION="5.2.2"
+VERSION="5.2.3"
 CURRENT="Unknown"
 COMPOSE_ENV_FILE="compose.env"
 INFLUXDB_ENV_FILE="influxdb.env"
@@ -283,6 +283,14 @@ else
         sed -i.bak "s@^PWD_USER=\"1000:1000\"@#PWD_USER=\"1000:1000\"@g" "${COMPOSE_ENV_FILE}"
     fi
 fi
+
+# Create pypowerwall time series data directory if missing (required in 5.2.3)
+# and chown it to PWD_USER (the uid:gid the container actually runs as, per
+# powerwall.yml) rather than the invoking user, since they may differ - the
+# bind mount would otherwise be created by Docker (as root) on first start.
+mkdir -p .pypowerwall_data
+DATA_DIR_OWNER=$(grep -E "^PWD_USER=" "${COMPOSE_ENV_FILE}" 2>/dev/null | cut -d= -f2 | tr -d '"')
+chown -R "${DATA_DIR_OWNER:-1000:1000}" .pypowerwall_data 2>/dev/null || true
 
 # Create default telegraf local file if needed.
 if [ ! -f ${TELEGRAF_LOCAL} ]; then
