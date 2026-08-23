@@ -6,7 +6,7 @@
 set -e
 
 # Set Globals
-VERSION="5.2.2"
+VERSION="5.2.3"
 CURRENT="Unknown"
 COMPOSE_ENV_FILE="compose.env"
 INFLUXDB_ENV_FILE="influxdb.env"
@@ -283,6 +283,22 @@ else
         sed -i.bak "s@^PWD_USER=\"1000:1000\"@#PWD_USER=\"1000:1000\"@g" "${COMPOSE_ENV_FILE}"
     fi
 fi
+
+# Create pypowerwall time series data directory if missing (required in 5.2.3)
+# and chown it to PWD_USER (the uid:gid the container actually runs as, per
+# powerwall.yml) rather than the invoking user, since they may differ - the
+# bind mount would otherwise be created by Docker (as root) on first start.
+mkdir -p .pypowerwall_data
+# Take the last PWD_USER assignment, strip quotes/inline comments/whitespace,
+# and validate it looks like uid:gid before using it (else fall back to default).
+DATA_DIR_OWNER=$(grep -E "^PWD_USER=" "${COMPOSE_ENV_FILE}" 2>/dev/null | tail -1 | cut -d= -f2 | cut -d'#' -f1 | tr -d '"[:space:]')
+case "${DATA_DIR_OWNER}" in
+    [0-9]*:[0-9]*) ;;
+    *) DATA_DIR_OWNER="1000:1000" ;;
+esac
+# Non-recursive: the container only needs the top-level directory writable, and
+# a recursive chown over a large time series data dir on every run would be slow.
+chown "${DATA_DIR_OWNER}" .pypowerwall_data || true
 
 # Create default telegraf local file if needed.
 if [ ! -f ${TELEGRAF_LOCAL} ]; then

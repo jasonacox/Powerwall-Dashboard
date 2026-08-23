@@ -317,11 +317,19 @@ PWVER=$UKN
 PWSTATE="${alert}ERROR: Not Connected${dim}"
 ENV_FILE="pypowerwall.env"
 AUTH_FILE=".auth/.pypowerwall.auth"
+PW_DATA_DIR=".pypowerwall_data"
 PORT="8675"
 if [ "$HOST" = "localhost" ]; then
     echo -e -n "${dim} - Config File ${ENV_FILE}: "
     if [ ! -f ${ENV_FILE} ]; then
         echo -e "${alert}ERROR: Missing${normal}"
+        ALLGOOD=0
+    else
+        echo -e $GOOD
+    fi
+    echo -e -n "${dim} - Data Directory ${PW_DATA_DIR}: "
+    if [ ! -d "${PW_DATA_DIR}" ]; then
+        echo -e "${alert}ERROR: Missing (run setup.sh or upgrade.sh)${normal}"
         ALLGOOD=0
     else
         echo -e $GOOD
@@ -338,6 +346,18 @@ if [ "$HOST" = "localhost" ]; then
     else
         echo -e "${alert}ERROR: Missing${normal}"
         ALLGOOD=0
+    fi
+    if [ "$RUNNING" = "true" ] && [ -d "${PW_DATA_DIR}" ]; then
+        echo -e -n "${dim} - Filesystem (./$PW_DATA_DIR): "
+        rm -f "./${PW_DATA_DIR}/WRITE"
+        ERR=`docker exec -it $CONTAINER sh -c "touch /data/WRITE 2>/dev/null"` || true
+        if [ -e "./${PW_DATA_DIR}/WRITE" ]; then
+            echo -e $GOOD
+            rm -f "./${PW_DATA_DIR}/WRITE"
+        else
+            echo -e "${alert}ERROR: Unable to write to filesystem - check permissions${normal}"
+            ALLGOOD=0
+        fi
     fi
 else
     echo -e "${dim} - Testing remote host: ${subbold}$HOST${dim}"

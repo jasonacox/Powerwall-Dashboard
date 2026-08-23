@@ -24,6 +24,9 @@ telegraf.local
 # Auth files
 .auth/
 
+# pypowerwall time series data
+.pypowerwall_data/
+
 # Local Dev files
 *.bak
 backups/*.tgz

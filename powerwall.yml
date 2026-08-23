@@ -40,6 +40,9 @@ services:
             - type: bind
               source: .auth
               target: /app/.auth
+            - type: bind
+              source: .pypowerwall_data
+              target: /data
         user: "${PWD_USER:-1000:1000}"
         ports:
             - "${PYPOWERWALL_PORTS:-8675:8675}"

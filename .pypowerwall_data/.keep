@@ -1,0 +1,2 @@
+This directory stores pypowerwall-server time series data (bind-mounted
+to /data in the pypowerwall container).

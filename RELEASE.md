@@ -1,5 +1,16 @@
 # RELEASE NOTES
 
+## v5.2.3 - Powerwall MCP server & pypowerwall time series data directory
+
+### New Features
+
+* **`tools/powerwall-mcp/`** — a new optional, self-contained MCP (Model Context Protocol) server that lets AI agents (Claude, Open WebUI, Hermes, etc.) query the dashboard's InfluxDB 1.8 data in plain language. It understands that the Telegraf exporter writes the same measurement names into multiple retention policies (`autogen`, `raw`, `vitals`, `kwh`, `daily`, `grid`, `pod`, `alerts`), so it can generate correct queries against the right data. Includes a standalone `Dockerfile`/`docker-compose.yml` (separate from the main dashboard stack), SELECT-only query validation, optional bearer-token auth, bounded query results, and a mock client with regression tests. Based on [ampersandru/powerwall-dashboard-mcp](https://github.com/ampersandru/powerwall-dashboard-mcp) (MIT-licensed, contributed by the original author). ([PR #850](https://github.com/jasonacox/Powerwall-Dashboard/pull/850) by **@jasonacox-sam**, closes [#848](https://github.com/jasonacox/Powerwall-Dashboard/issues/848))
+* **pypowerwall time series data directory** — laying groundwork for an upcoming `pypowerwall-server` time series feature (which will eventually replace the current proxy), `powerwall.yml` now bind-mounts a new `.pypowerwall_data/` directory to `/data` in the `pypowerwall` container. `setup.sh` and `upgrade.sh` create this directory automatically and chown it to `PWD_USER` (the uid:gid the container actually runs as, per `powerwall.yml`) so Docker doesn't auto-create it as `root` on first container start — which would otherwise cause permission errors, including for installs where the configured `PWD_USER` differs from the invoking host user. `verify.sh` now also checks that `.pypowerwall_data/` exists and is writable by the `pypowerwall` container.
+
+### Contributors
+
+Thanks to **@jasonacox-sam** (Sam Cox) for contributing the Powerwall MCP server ([PR #850](https://github.com/jasonacox/Powerwall-Dashboard/pull/850)), and to **@ampersandru** for the original [powerwall-dashboard-mcp](https://github.com/ampersandru/powerwall-dashboard-mcp) implementation it's based on.
+
 ## v5.2.2 - pypowerwall ulimits & weather411 0.2.4
 
 ### Bug Fixes
