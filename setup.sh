@@ -640,8 +640,16 @@ fi
 # powerwall.yml) rather than the invoking user, since they may differ - the
 # bind mount would otherwise be created by Docker (as root) on first start.
 mkdir -p .pypowerwall_data
-DATA_DIR_OWNER=$(grep -E "^PWD_USER=" "${COMPOSE_ENV_FILE}" 2>/dev/null | cut -d= -f2 | tr -d '"')
-chown -R "${DATA_DIR_OWNER:-1000:1000}" .pypowerwall_data 2>/dev/null || true
+# Take the last PWD_USER assignment, strip quotes/inline comments/whitespace,
+# and validate it looks like uid:gid before using it (else fall back to default).
+DATA_DIR_OWNER=$(grep -E "^PWD_USER=" "${COMPOSE_ENV_FILE}" 2>/dev/null | tail -1 | cut -d= -f2 | cut -d'#' -f1 | tr -d '"[:space:]')
+case "${DATA_DIR_OWNER}" in
+    [0-9]*:[0-9]*) ;;
+    *) DATA_DIR_OWNER="1000:1000" ;;
+esac
+# Non-recursive: the container only needs the top-level directory writable, and
+# a recursive chown over a large time series data dir on every run would be slow.
+chown "${DATA_DIR_OWNER}" .pypowerwall_data || true
 
 # Ask about anonymous access
 echo ""
