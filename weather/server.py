@@ -209,10 +209,13 @@ def http_error_detail(response, limit=200):
         pass
     if not detail:
         try:
-            detail = response.text.strip()[:limit]
+            detail = response.text.strip()
         except Exception:
             pass
-    return detail
+    # collapse to a single line and enforce the length limit so log
+    # lines stay scannable even when the message is empty or verbose
+    detail = " ".join(detail.split())[:limit]
+    return detail or "no detail"
 
 # Clear weather data
 clearweather()
@@ -322,7 +325,9 @@ def fetchWeather():
                             client.close()
                         except Exception as e:
                             log.debug("Error writing to InfluxDB: %r" % e)
-                            sys.stderr.write("! Error writing to InfluxDB (%s)\n" % e)
+                            detail = " ".join(str(e).split())
+                            sys.stderr.write("! Error writing to InfluxDB (%s: %s)\n"
+                                % (type(e).__name__, detail or "unknown error"))
                             serverstats['influxdberrors'] += 1
                             pass
                 else:
