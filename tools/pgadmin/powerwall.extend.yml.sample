@@ -1,0 +1,55 @@
+# Optional pgAdmin service for Powerwall-Dashboard's TimescaleDB datastore.
+#
+# pgAdmin is a full-featured web UI for browsing/querying PostgreSQL (and
+# TimescaleDB) databases -- useful for advanced users who want to inspect
+# tables, run ad hoc SQL, or manage the database beyond what Grafana's
+# datasource browser offers. This is not part of setup.sh; it's entirely
+# opt-in -- copy this file to the repo root only if you want it.
+#
+# To use:
+#   1. cp tools/pgadmin/powerwall.extend.yml.sample powerwall.extend.yml
+#   2. Edit PGADMIN_DEFAULT_EMAIL / PGADMIN_DEFAULT_PASSWORD below -- these
+#      are pgAdmin's own login, unrelated to the database password.
+#   3. ./compose-dash.sh up -d
+#   4. Browse to http://<this host>:8433 and log in with the email/password
+#      from step 2. A "TimescaleDB (Powerwall Dashboard)" server is
+#      pre-populated (see tools/pgadmin/servers.json) -- connecting to it
+#      will prompt you once for its password, which is POSTGRES_PASSWORD
+#      from timescaledb.env at the repo root.
+#
+# powerwall.extend.yml is gitignored, so your local copy (and any edits you
+# make to it) survives `git pull` / setup.sh re-runs.
+#
+# See tools/pgadmin/README.md for more detail, including how to change the
+# published port or open it up beyond localhost.
+
+services:
+    pgadmin:
+        image: dpage/pgadmin4:9.16
+        container_name: pgadmin
+        hostname: pgadmin
+        restart: unless-stopped
+        # No depends_on on `timescaledb` here: `required: false` only makes a
+        # dependency optional to be *running*, not optional to be *defined* --
+        # if TimescaleDB is set up in "external server" mode (see
+        # tools/timescaledb/README.md), there's no bundled `timescaledb`
+        # service in powerwall.extend.yml at all, and a depends_on referencing
+        # it would fail `docker compose config`/`up` outright regardless of
+        # required: false. pgAdmin tolerates connecting before its target is
+        # ready the same way Grafana/weather411 do (retry in the UI).
+        environment:
+            - PGADMIN_DEFAULT_EMAIL=admin@example.com
+            - PGADMIN_DEFAULT_PASSWORD=changeme
+        volumes:
+            - type: bind
+              source: ./tools/pgadmin/servers.json
+              target: /pgadmin4/servers.json
+              read_only: true
+            - type: volume
+              source: pgadmin-data
+              target: /var/lib/pgadmin
+        ports:
+            - "127.0.0.1:8433:80"
+
+volumes:
+    pgadmin-data:

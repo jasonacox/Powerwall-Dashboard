@@ -85,6 +85,8 @@ from socketserver import ThreadingMixIn
 import configparser
 from influxdb_client import InfluxDBClient
 from influxdb_client.client.write_api import SYNCHRONOUS
+import psycopg2
+import psycopg2.extras
 
 BUILD = "0.2.5"
 CLI = False
@@ -131,6 +133,22 @@ if os.path.exists(CONFIGFILE):
 
     if ITOKEN != "" and IURL == "":
         IURL = "http://%s:%s" % (IHOST, IPORT)
+
+    # TimescaleDB (optional section - absent/disabled means skip entirely)
+    if config.has_section("TimescaleDB"):
+        TSDB = config.get("TimescaleDB", "ENABLE", fallback="no").lower() == "yes"
+        TSHOST = config.get("TimescaleDB", "HOST", fallback="")
+        TSPORT = int(config.get("TimescaleDB", "PORT", fallback="0"))
+        TSNAME = config.get("TimescaleDB", "DB", fallback="")
+        TSUSER = config.get("TimescaleDB", "USER", fallback="")
+        TSPASS = config.get("TimescaleDB", "PASSWORD", fallback="")
+        # Older configs predate this setting -- fall back to "disable" (the
+        # bundled container's mode) rather than psycopg2's own "prefer".
+        TSSSLMODE = config.get("TimescaleDB", "SSLMODE", fallback="disable")
+    else:
+        TSDB = False
+        TSHOST = TSNAME = TSUSER = TSPASS = TSSSLMODE = ""
+        TSPORT = 0
 else:
     # No config file - Display Error
     sys.stderr.write("Weather411 Server %s\nERROR: No config file. Fix and restart.\n" % BUILD)
@@ -160,6 +178,8 @@ serverstats['start'] = int(time.time())      # Timestamp for Start
 serverstats['clear'] = int(time.time())      # Timestamp of lLast Stats Clear
 serverstats['influxdb'] = 0
 serverstats['influxdberrors'] = 0
+serverstats['timescaledb'] = 0
+serverstats['timescaledberrors'] = 0
 
 # Global Variables
 running = True
@@ -330,6 +350,46 @@ def fetchWeather():
                                 % (type(e).__name__, detail or "unknown error"))
                             serverstats['influxdberrors'] += 1
                             pass
+
+                    if TSDB:
+                        log.debug("Writing to TimescaleDB")
+                        conn = None
+                        try:
+                            # tz-aware, unlike datetime.utcfromtimestamp() --
+                            # psycopg2 sends naive datetimes to Postgres with
+                            # no offset, so they get interpreted in the
+                            # session's TimeZone (e.g. America/New_York)
+                            # instead of UTC, silently shifting every row by
+                            # the local UTC offset.
+                            ts = datetime.fromtimestamp(weather["dt"], tz=timezone.utc)
+                            rows = []
+                            for key, val in weather.items():
+                                if val is None:
+                                    continue
+                                if isinstance(val, str):
+                                    rows.append((ts, key, None, val))
+                                else:
+                                    rows.append((ts, key, val, None))
+                            conn = psycopg2.connect(host=TSHOST, port=TSPORT,
+                                dbname=TSNAME, user=TSUSER, password=TSPASS,
+                                sslmode=TSSSLMODE)
+                            with conn.cursor() as cur:
+                                psycopg2.extras.execute_values(
+                                    cur,
+                                    "INSERT INTO pw_weather_log (time, metric_name, value, text_value) "
+                                    "VALUES %s ON CONFLICT (time, metric_name) DO UPDATE SET "
+                                    "value = EXCLUDED.value, text_value = EXCLUDED.text_value",
+                                    rows,
+                                )
+                            conn.commit()
+                            serverstats['timescaledb'] += 1
+                        except Exception:
+                            log.exception("Error writing to TimescaleDB")
+                            sys.stderr.write("! Error writing to TimescaleDB\n")
+                            serverstats['timescaledberrors'] += 1
+                        finally:
+                            if conn is not None:
+                                conn.close()
                 else:
                     # showing the error message
                     detail = http_error_detail(response)
@@ -484,7 +544,9 @@ if __name__ == "__main__":
     if ITOKEN != "" or IORG != "":
         sys.stderr.write(" + InfluxDB - URL: %s, Org: %s, Token: %s\n"
             % (IURL, IORG, ITOKEN))
-    
+    sys.stderr.write(" + TimescaleDB - Enable: %s, Host: %s, Port: %s, DB: %s, User: %s\n"
+        % (TSDB, TSHOST, TSPORT, TSNAME, TSUSER))
+
     # Start threads
     sys.stderr.write("* Starting threads\n")
     thread_fetchWeather.start()
