@@ -1,6 +1,6 @@
 # RELEASE NOTES
 
-## v5.2.4 - Upgrade pypowerwall proxy to v0.17.0 (SolarOnly recovery fix)
+## v5.2.4 - Upgrade pypowerwall proxy to v0.17.0t100 (SolarOnly recovery fix)
 
 ### Updates
 
