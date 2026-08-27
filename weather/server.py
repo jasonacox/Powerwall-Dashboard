@@ -86,7 +86,7 @@ import configparser
 from influxdb_client import InfluxDBClient
 from influxdb_client.client.write_api import SYNCHRONOUS
 
-BUILD = "0.2.4"
+BUILD = "0.2.5"
 CLI = False
 LOADED = False
 CONFIG_LOADED = False
@@ -197,6 +197,26 @@ def lookup(source, index, valtype='string'):
         return str(source[index])
     return None
 
+def http_error_detail(response, limit=200):
+    # extract a short human-readable error detail from an HTTP error
+    # response - prefers the JSON "message" field used by OpenWeatherMap
+    detail = ""
+    try:
+        message = response.json().get("message")
+        if message:
+            detail = str(message)
+    except Exception:
+        pass
+    if not detail:
+        try:
+            detail = response.text.strip()
+        except Exception:
+            pass
+    # collapse to a single line and enforce the length limit so log
+    # lines stay scannable even when the message is empty or verbose
+    detail = " ".join(detail.split())[:limit]
+    return detail or "no detail"
+
 # Clear weather data
 clearweather()
 
@@ -221,7 +241,7 @@ def fetchWeather():
             if CLI:
                 print("\n")
             try:
-                response = requests.get(URL)
+                response = requests.get(URL, timeout=TIMEOUT)
                 if response.status_code == 200:
                     raw = response.json()
                     clearweather()
@@ -265,8 +285,8 @@ def fetchWeather():
                         if "snow" in raw:
                             weather["snow_1h"] = lookup(raw['snow'], '1h', 'float')
                             weather["snow_3h"] = lookup(raw['snow'], '3h', 'float')
-                    except:
-                        log.debug("Data error in payload from OpenWeatherMap")
+                    except Exception as e:
+                        log.debug("Data error in payload from OpenWeatherMap: %r" % e)
                         pass
 
                     log.debug("Weather data loaded")
@@ -303,19 +323,28 @@ def fetchWeather():
                             write_api.write(IDB,IORG,output)
                             serverstats['influxdb'] += 1
                             client.close()
-                        except:
-                            log.debug("Error writing to InfluxDB")
-                            sys.stderr.write("! Error writing to InfluxDB\n")
+                        except Exception as e:
+                            log.debug("Error writing to InfluxDB: %r" % e)
+                            detail = " ".join(str(e).split())
+                            sys.stderr.write("! Error writing to InfluxDB (%s: %s)\n"
+                                % (type(e).__name__, detail or "unknown error"))
                             serverstats['influxdberrors'] += 1
                             pass
                 else:
                     # showing the error message
-                    log.debug("Bad response from OpenWeatherMap")
-                    sys.stderr.write("! Bad response from OpenWeatherMap\n")
-            except:
-                log.debug("Error fetching OpenWeatherMap")
-                sys.stderr.write("! Error fetching OpenWeatherMap\n")
-                pass
+                    detail = http_error_detail(response)
+                    log.debug("Bad response from OpenWeatherMap: HTTP %s - %s"
+                        % (response.status_code, detail))
+                    sys.stderr.write("! Bad response from OpenWeatherMap (HTTP %s - %s)\n"
+                        % (response.status_code, detail))
+            except requests.exceptions.Timeout as e:
+                log.debug("Timeout fetching OpenWeatherMap: %r" % e)
+                sys.stderr.write("! Error fetching OpenWeatherMap (timed out after %ss)\n" % TIMEOUT)
+                serverstats['timeout'] += 1
+            except Exception as e:
+                log.debug("Error fetching OpenWeatherMap: %r" % e)
+                sys.stderr.write("! Error fetching OpenWeatherMap (%s: %s)\n"
+                    % (type(e).__name__, e))
         time.sleep(5)
     sys.stderr.write('\r ! fetchWeather Exit\n')
 
