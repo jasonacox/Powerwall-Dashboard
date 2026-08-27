@@ -1,5 +1,21 @@
 # RELEASE NOTES
 
+## v5.2.4 - Upgrade pypowerwall proxy to v0.17.0t100 (SolarOnly recovery fix)
+
+### Updates
+
+* **pypowerwall proxy `0.17.0t100`** — bumps the pinned proxy image from `0.16.2t97`. Notable changes since 0.16.2:
+    * **fix: TEDAPI auto-recovery wedge** — after a fully-failed reconnect attempt, the SolarOnly fallback recovery thread could stall permanently, leaving the proxy serving solar-only data until the container was restarted. Recovery now retries reliably (initial 60s interval, capped at 300s). Reported by @dthorndyke ([pypowerwall#366](https://github.com/jasonacox/pypowerwall/issues/366), fixed in [pypowerwall#367](https://github.com/jasonacox/pypowerwall/pull/367), shipped in pypowerwall v0.16.4). This is the "no longer recovers from SolarOnly mode after upgrading to v5.2.3" symptom reported in [#855](https://github.com/jasonacox/Powerwall-Dashboard/discussions/855) — the underlying network drops to the TEDAPI gateway path are unchanged, but the proxy now recovers from them again.
+    * **feat(tedapi):** lifetime energy accumulators merged into `/api/meters/aggregates` ([pypowerwall#372](https://github.com/jasonacox/pypowerwall/pull/372), pypowerwall v0.16.5)
+    * **feat(proxy):** optional bearer-token auth mode for the proxy API ([pypowerwall#359](https://github.com/jasonacox/pypowerwall/pull/359) by **@Nexarian**, pypowerwall v0.17.0)
+    * **fix(tedapi):** `TEDAPIApiVersion` is now comparable, and a `Content-Type` typo (`octet-string` → `octet-stream`) was corrected ([pypowerwall#363](https://github.com/jasonacox/pypowerwall/pull/363), [pypowerwall#364](https://github.com/jasonacox/pypowerwall/pull/364) by **@Nexarian**)
+
+No dashboard re-import is needed — run `./upgrade.sh` and the stack is recreated with the new image. `PW_TEDAPI_RECOVERY` remains on by default (`yes`).
+
+### Contributors
+
+Thanks to **@ViktorJp** for reporting the SolarOnly recovery failure on v5.2.3 ([#855](https://github.com/jasonacox/Powerwall-Dashboard/discussions/855)), to **@dthorndyke** for the precise upstream report of the recovery wedge ([pypowerwall#366](https://github.com/jasonacox/pypowerwall/issues/366)), and to **@Nexarian** for the bearer auth mode and TEDAPI fixes carried in this image.
+
 ## v5.2.3 - Powerwall MCP server & pypowerwall time series data directory
 
 ### New Features
