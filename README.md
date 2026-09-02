@@ -139,6 +139,7 @@ Next, you will then be asked for your Local *timezone*, and your Powerwall detai
   * _If you get docker errors during the setup, see the [Docker Errors](#docker-errors) section below._
   * _For Windows 11 users, see the [Windows 11 Instructions](#windows-11-instructions) below._
   * _Powerwall 3 Owners - The password you will use for local TEDAPI setup is the one on the sticker on the PW3 itself, not the one on the Gateway._
+  * _Powerwall 3 / TEDAPI local access not working or data stops after hours? Run `./verify.sh --tedapi` for a detailed Gateway diagnostic (see [Powerwall 3](#powerwall-3) section)._
 
 ### Grafana Setup
 
@@ -354,6 +355,14 @@ If required, see [WINDOWS.md](WINDOWS.md) for notes on how to upgrade your WSL i
 The new Powerwall 3 does not have the local APIs that were found on the Powerwall 2/+ systems. However, it does provide APIs available via its internal Gateway WiFI access point at 192.168.91.1. If you add your Powerwall 3 to your local network (e.g. ethernet hardwire) or create a WiFi bridge to this access point, you are able to get the extended metrics from the /tedapi API. Additionally, users can use the "Tesla Cloud" mode to generate the basic graph data. It is more limited than the local APIs but does provide the core data  points. See details in the Powerwall 3 Support issue: https://github.com/jasonacox/Powerwall-Dashboard/issues/387
 
 Some have reported issues setting up their Powerwall 3 and the local 192.168.91.1 access point. Make sure that this IP address is reachable from the host running the Dashboard (e.g. `ping` or `curl` commands).
+
+If the Gateway is unreachable or data collection is flaky, you can run a detailed step-by-step diagnostic of the local WiFi/TEDAPI path:
+
+```
+./verify.sh --tedapi
+```
+
+It checks your WiFi connection and lease, layer-2 reachability, the local API on port 443 and the TEDAPI endpoint, then classifies the failure (not connected / local API wedged or filtering / service down / healthy but not authenticated) and prints suggested next steps. Note: newer Powerwall 3 firmware can block `ping` (ICMP) even when everything is working, so a failing ping alone is not a diagnosis - see [issue #854](https://github.com/jasonacox/Powerwall-Dashboard/issues/854) for the pattern where the local API stops answering while the Tesla app (cloud) stays healthy.
 
 Since the Powerwall 3 does not have previous generation APIs, you will need to use the `full` TEDAPI mode. This requires that the PW_EMAIL and PW_PASSWORD environmental variables are empty and that PW_GW_PWD is set to the Powerwall 3 Gateway WiFi password (usually found on the QR code either located [inside the glass cover](https://github.com/jasonacox/Powerwall-Dashboard/discussions/694#discussioncomment-14589042) or on the outside of the unit, left side).
 
