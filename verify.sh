@@ -279,6 +279,13 @@ esac
 # ----------------------------------------------------------------------------
 tedapi_diagnostics() {
     local GW="${TEDAPI_HOST:-192.168.91.1}"
+    local GW_PORT="443"
+    if [[ "$GW" == *:* ]]; then
+        GW_PORT="${GW##*:}"
+        GW="${GW%:*}"
+    fi
+    local PROBE_TARGET="$GW"
+    [ "$GW_PORT" != "443" ] && PROBE_TARGET="${GW}:${GW_PORT}"
     local OSNAME="unknown"
     case "$OSTYPE" in
         linux*)           OSNAME="Linux" ;;
@@ -299,7 +306,7 @@ tedapi_diagnostics() {
     if [ -f pypowerwall.env ]; then
         local cfg_host
         cfg_host=$(grep -E '^PW_HOST=' pypowerwall.env | head -1 | cut -d= -f2-)
-        echo -e "${dim} - pypowerwall.env: ${subbold}present${dim} (PW_HOST='${cfg_host:-<empty - cloud mode>}')"
+        echo -e "${dim} - pypowerwall.env: ${subbold}present${dim} (PW_HOST '${cfg_host:+set - value hidden}${cfg_host:-<empty - cloud mode>}')"
         if grep -qE '^PW_GW_PWD=..*' pypowerwall.env; then
             echo -e "${dim} - Gateway WiFi password (PW_GW_PWD): ${subbold}set"
         else
@@ -394,15 +401,15 @@ tedapi_diagnostics() {
     echo -e ""
 
     # ---- [3/4] Gateway local API probes ------------------------------------
-    echo -e "${bold}[3/4] Gateway local API (HTTPS on port 443)${dim}"
+    echo -e "${bold}[3/4] Gateway local API (HTTPS on port ${GW_PORT})${dim}"
     echo -e "----------------------------------------------------------------------------"
     local soe_code="000" soe_rc=0 din_code="000" din_rc=0
-    if soe_code=$(curl -sk -o /dev/null -w '%{http_code}' --connect-timeout 5 --max-time 12 "https://${GW}/api/system_status/soe" 2>/dev/null); then
+    if soe_code=$(curl -sk -o /dev/null -w '%{http_code}' --connect-timeout 5 --max-time 12 "https://${PROBE_TARGET}/api/system_status/soe" 2>/dev/null); then
         soe_rc=0
     else
         soe_rc=$?
     fi
-    if din_code=$(curl -sk -o /dev/null -w '%{http_code}' --connect-timeout 5 --max-time 12 "https://${GW}/tedapi/din" 2>/dev/null); then
+    if din_code=$(curl -sk -o /dev/null -w '%{http_code}' --connect-timeout 5 --max-time 12 "https://${PROBE_TARGET}/tedapi/din" 2>/dev/null); then
         din_rc=0
     else
         din_rc=$?
@@ -439,6 +446,12 @@ tedapi_diagnostics() {
         echo -e "   on the dashboard side: re-run ./setup.sh (mode 4 for PW3 extended metrics)"
         echo -e "   and check the gateway WiFi password (PW_GW_PWD, on the PW3 QR sticker),"
         echo -e "   then check 'docker logs pypowerwall' for auth errors.${normal}"
+        if [ "$din_rc" != "0" ] || { [ "$din_code" != "401" ] && [ "$din_code" != "403" ]; }; then
+            echo -e " - ${alert}Note: the /tedapi/din probe did not answer normally (exit ${din_rc}, HTTP ${din_code}).${normal}"
+            echo -e "${dim}   Since TEDAPI is the focus of this diagnostic, treat the 'healthy' verdict above"
+            echo -e "   as applying to the general local API only - if extended metrics (strings,"
+            echo -e "   vitals) are missing, the TEDAPI path may still be blocked or wedged.${normal}"
+        fi
     elif [ "$soe_rc" = "7" ]; then
         echo -e " - ${alert}The Gateway is reachable but nothing is listening on port 443.${normal}"
         echo -e "${dim}   The local web service appears to be down. Power cycle all Powerwall units"
@@ -469,7 +482,7 @@ tedapi_diagnostics() {
         echo -e "   LAN v1r mode (setup.sh mode 5) or Tesla Cloud mode (mode 2).${normal}"
     else
         echo -e " - ${alert}Unexpected probe result (curl exit ${soe_rc}).${normal}"
-        echo -e "${dim}   Re-run with 'curl -skv https://${GW}/api/system_status/soe' for details."
+        echo -e "${dim}   Re-run with 'curl -skv https://${PROBE_TARGET}/api/system_status/soe' for details."
         echo -e "   A TLS error usually means something other than the Gateway holds that IP.${normal}"
     fi
     # Visible Powerwall APs (masked)
