@@ -118,6 +118,7 @@ FORCE_BACKGROUND=""
 NO_COLOR=false
 SHOW_LOGS_OPTION="ask"
 HOST="localhost"
+TEDAPI_MODE=false
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -139,6 +140,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         --logs)
             SHOW_LOGS_OPTION="yes"
+            shift
+            ;;
+        --tedapi)
+            TEDAPI_MODE=true
             shift
             ;;
         --no-logs)
@@ -165,6 +170,7 @@ while [[ $# -gt 0 ]]; do
             echo "  --logs            Show logs automatically at end"
             echo "  --no-logs         Do not show logs automatically at end"
             echo "  --host HOSTNAME   Specify hostname (default: localhost)"
+            echo "  --tedapi          Run detailed Gateway WiFi/TEDAPI connectivity diagnostics"
             echo "  -h, --help        Show this help message"
             echo ""
             echo "This script verifies the Powerwall Dashboard installation and services."
@@ -263,8 +269,245 @@ case "$OSTYPE" in
     *)          OS="$OSTYPE" ;;
 esac
 
+# ----------------------------------------------------------------------------
+# TEDAPI / Gateway WiFi Diagnostics (--tedapi)
+# Detailed local-access troubleshooting for the Powerwall Gateway (192.168.91.1).
+# Classifies the failure: not on Gateway network / local API wedged or filtered /
+# service down / healthy but auth not completed. Output is safe to paste into an
+# issue: no passwords or device identifiers are printed.
+# See: https://github.com/jasonacox/Powerwall-Dashboard/issues/854
+# ----------------------------------------------------------------------------
+tedapi_diagnostics() {
+    local GW="${TEDAPI_HOST:-192.168.91.1}"
+    local GW_PORT="443"
+    if [[ "$GW" == *:* ]]; then
+        GW_PORT="${GW##*:}"
+        GW="${GW%:*}"
+    fi
+    local PROBE_TARGET="$GW"
+    [ "$GW_PORT" != "443" ] && PROBE_TARGET="${GW}:${GW_PORT}"
+    local OSNAME="unknown"
+    case "$OSTYPE" in
+        linux*)           OSNAME="Linux" ;;
+        darwin*)          OSNAME="macOS" ;;
+        msys*|cygwin*)    OSNAME="Windows (Git Bash)" ;;
+    esac
+
+    echo -e "${bold}Powerwall-Dashboard - Gateway WiFi / TEDAPI Diagnostics${normal}"
+    echo -e "----------------------------------------------------------------------------"
+    echo -e "${dim}Target Gateway: ${subbold}${GW}${dim} - OS: ${subbold}${OSNAME}${dim} - Version: ${subbold}${CURRENT}${dim}"
+    echo -e "${dim}This output is safe to paste into an issue: it contains no passwords or"
+    echo -e "device identifiers (WiFi names are partially masked).${normal}"
+    echo -e ""
+
+    # ---- [1/4] Local configuration (masked) --------------------------------
+    echo -e "${bold}[1/4] Dashboard configuration${dim}"
+    echo -e "----------------------------------------------------------------------------"
+    if [ -f pypowerwall.env ]; then
+        local cfg_host
+        cfg_host=$(grep -E '^PW_HOST=' pypowerwall.env | head -1 | cut -d= -f2-)
+        echo -e "${dim} - pypowerwall.env: ${subbold}present${dim} (PW_HOST '${cfg_host:+set - value hidden}${cfg_host:-<empty - cloud mode>}')"
+        if grep -qE '^PW_GW_PWD=..*' pypowerwall.env; then
+            echo -e "${dim} - Gateway WiFi password (PW_GW_PWD): ${subbold}set"
+        else
+            echo -e "${dim} - Gateway WiFi password (PW_GW_PWD): ${normal}not set ${dim}(required for PW3 Extended Metrics/TEDAPI mode)"
+        fi
+        if grep -qE '^PW_RSA_KEY_PATH=..*' pypowerwall.env; then
+            echo -e "${dim} - RSA key for wired v1r mode: ${subbold}set"
+        else
+            echo -e "${dim} - RSA key for wired v1r mode: ${normal}not set"
+        fi
+        if grep -qE '^PW_EMAIL=..*' pypowerwall.env; then
+            echo -e "${dim} - Tesla account login (PW_EMAIL): ${subbold}set"
+        else
+            echo -e "${dim} - Tesla account login (PW_EMAIL): ${normal}not set"
+        fi
+    else
+        echo -e "${dim} - pypowerwall.env: ${alert}missing${dim} - run ./setup.sh first"
+    fi
+    # pypowerwall proxy status (if running locally)
+    local proxy_stats=""
+    proxy_stats=$(curl --silent --connect-timeout 3 http://localhost:8675/stats 2>/dev/null) || true
+    if [ -n "$proxy_stats" ]; then
+        local cloudmode tedapi tedapimode firmware
+        cloudmode=$(echo "$proxy_stats" | grep -o '"cloudmode":[^,}]*' | cut -d: -f2 | tr -d ' ')
+        tedapi=$(echo "$proxy_stats" | grep -o '"tedapi":[^,}]*' | cut -d: -f2 | tr -d ' ')
+        tedapimode=$(echo "$proxy_stats" | grep -o '"tedapi_mode":"[^"]*"' | cut -d\" -f4)
+        firmware=$(curl --silent --connect-timeout 3 http://localhost:8675/version 2>/dev/null | sed 's/.*"version"[: ]*"\([^"]*\)".*/\1/') || true
+        echo -e "${dim} - pypowerwall proxy: ${subbold}running${dim} - cloudmode: ${subbold}${cloudmode:-unknown}${dim}, tedapi: ${subbold}${tedapi:-unknown}${dim}, tedapi_mode: ${subbold}${tedapimode:-unknown}"
+        if [ -n "$firmware" ]; then
+            echo -e "${dim} - Gateway firmware (via proxy): ${subbold}${firmware}"
+        fi
+    else
+        echo -e "${dim} - pypowerwall proxy: ${normal}not reachable on localhost:8675${dim} (stack not running or on another host)"
+    fi
+    echo -e ""
+
+    # ---- [2/4] Network path to the Gateway ---------------------------------
+    echo -e "${bold}[2/4] Network path to ${GW}${dim}"
+    echo -e "----------------------------------------------------------------------------"
+    local addr_line=""
+    if command -v ip >/dev/null 2>&1; then
+        addr_line=$(ip -4 -o addr show 2>/dev/null | awk '$4 ~ /^192\.168\.91\./ {print $2, $4; exit}') || true
+    elif command -v ifconfig >/dev/null 2>&1; then
+        addr_line=$(ifconfig -a 2>/dev/null | awk '/^[A-Za-z0-9]/{iface=$1} /inet 192\.168\.91\./ {print iface, $2; exit}') || true
+    else
+        echo -e "${dim} - Interface check: ${normal}skipped ${dim}(no 'ip' or 'ifconfig' available - check manually)"
+    fi
+    local lease="" lease_if=""
+    if [ -n "$addr_line" ]; then
+        lease_if=$(echo "$addr_line" | awk '{print $1}')
+        lease=$(echo "$addr_line" | awk '{print $2}')
+        echo -e "${dim} - Interface address: ${subbold}${lease} on ${lease_if} ${dim}- ${subbold}connected to the Gateway WiFi network"
+    else
+        echo -e "${dim} - Interface address: ${alert}no 192.168.91.x address${dim} - this host is not on the Gateway WiFi network"
+    fi
+    # Route
+    local route_line=""
+    if command -v ip >/dev/null 2>&1; then
+        route_line=$(ip route show 2>/dev/null | grep '192\.168\.91' | head -1) || true
+    elif command -v netstat >/dev/null 2>&1; then
+        route_line=$(netstat -rn 2>/dev/null | grep '192\.168\.91' | head -1) || true
+    fi
+    if [ -n "$route_line" ]; then
+        echo -e "${dim} - Route to 192.168.91.0/24: ${subbold}present"
+    else
+        echo -e "${dim} - Route to 192.168.91.0/24: ${normal}not found ${dim}(expected when not on the Gateway WiFi network)"
+    fi
+    # ARP / layer 2
+    local arp_state=""
+    if command -v ip >/dev/null 2>&1; then
+        arp_state=$(ip neigh show 2>/dev/null | awk -v g="$GW" '$1==g {print $NF}' | head -1) || true
+    elif command -v arp >/dev/null 2>&1; then
+        arp_state=$(arp -a 2>/dev/null | awk -v g="($GW)" '$2==g {print "FOUND"}' | head -1) || true
+    fi
+    if [ -n "$arp_state" ]; then
+        echo -e "${dim} - Layer 2 (ARP entry for ${GW}): ${subbold}present (${arp_state})"
+    else
+        echo -e "${dim} - Layer 2 (ARP entry for ${GW}): ${normal}none"
+    fi
+    # ICMP (informational only)
+    local ping_out=""
+    case "$OSNAME" in
+        Linux)              ping_out=$(ping -c 3 -W 3 "$GW" 2>&1) || true ;;
+        macOS)              ping_out=$(ping -c 3 -t 4 "$GW" 2>&1) || true ;;
+        "Windows (Git Bash)") ping_out=$(ping -n 3 "$GW" 2>&1) || true ;;
+    esac
+    if echo "$ping_out" | grep -qiE '[0-9]+ (received|packets.*received)|ttl='; then
+        echo -e "${dim} - Ping (ICMP): ${subbold}replies received"
+    else
+        echo -e "${dim} - Ping (ICMP): ${normal}no replies ${dim}- informational only: newer PW3 firmware blocks ping even when healthy"
+    fi
+    echo -e ""
+
+    # ---- [3/4] Gateway local API probes ------------------------------------
+    echo -e "${bold}[3/4] Gateway local API (HTTPS on port ${GW_PORT})${dim}"
+    echo -e "----------------------------------------------------------------------------"
+    local soe_code="000" soe_rc=0 din_code="000" din_rc=0
+    if soe_code=$(curl -sk -o /dev/null -w '%{http_code}' --connect-timeout 5 --max-time 12 "https://${PROBE_TARGET}/api/system_status/soe" 2>/dev/null); then
+        soe_rc=0
+    else
+        soe_rc=$?
+    fi
+    if din_code=$(curl -sk -o /dev/null -w '%{http_code}' --connect-timeout 5 --max-time 12 "https://${PROBE_TARGET}/tedapi/din" 2>/dev/null); then
+        din_rc=0
+    else
+        din_rc=$?
+    fi
+    probe_result() {
+        # $1 = curl exit code, $2 = http code
+        if [ "$1" = "0" ]; then
+            if [ "$2" = "403" ] || [ "$2" = "401" ]; then
+                echo -e "${subbold}ANSWERED (HTTP $2 - auth required - service is healthy)"
+            else
+                echo -e "${subbold}ANSWERED (HTTP $2)"
+            fi
+        elif [ "$1" = "7" ]; then
+            echo -e "${alert}REFUSED (connection rejected - nothing listening)"
+        elif [ "$1" = "28" ]; then
+            echo -e "${alert}TIMEOUT (no response at all - packets silently dropped)"
+        elif [ "$1" = "35" ]; then
+            echo -e "${alert}TLS ERROR (port open but handshake failed)"
+        else
+            echo -e "${alert}FAILED (curl exit $1)"
+        fi
+    }
+    echo -e "${dim} - /api/system_status/soe: $(probe_result "$soe_rc" "$soe_code")"
+    echo -e "${dim} - /tedapi/din (TEDAPI):   $(probe_result "$din_rc" "$din_code")"
+    echo -e ""
+
+    # ---- [4/4] Interpretation ----------------------------------------------
+    echo -e "${bold}[4/4] What this means${dim}"
+    echo -e "----------------------------------------------------------------------------"
+    if [ "$soe_rc" = "0" ]; then
+        echo -e " - ${subbold}The Gateway local API is healthy and answering.${normal}"
+        echo -e "${dim}   A 401/403 is the expected response for unauthenticated requests - it proves"
+        echo -e "   the service is alive. If the dashboard is still missing data, the problem is"
+        echo -e "   on the dashboard side: re-run ./setup.sh (mode 4 for PW3 extended metrics)"
+        echo -e "   and check the gateway WiFi password (PW_GW_PWD, on the PW3 QR sticker),"
+        echo -e "   then check 'docker logs pypowerwall' for auth errors.${normal}"
+        if [ "$din_rc" != "0" ] || { [ "$din_code" != "401" ] && [ "$din_code" != "403" ]; }; then
+            echo -e " - ${alert}Note: the /tedapi/din probe did not answer normally (exit ${din_rc}, HTTP ${din_code}).${normal}"
+            echo -e "${dim}   Since TEDAPI is the focus of this diagnostic, treat the 'healthy' verdict above"
+            echo -e "   as applying to the general local API only - if extended metrics (strings,"
+            echo -e "   vitals) are missing, the TEDAPI path may still be blocked or wedged.${normal}"
+        fi
+    elif [ "$soe_rc" = "7" ]; then
+        echo -e " - ${alert}The Gateway is reachable but nothing is listening on port 443.${normal}"
+        echo -e "${dim}   The local web service appears to be down. Power cycle all Powerwall units"
+        echo -e "   (breaker or side switch, wait 2+ minutes, re-energize) and re-run this tool.${normal}"
+    elif [ "$soe_rc" = "28" ] && { [ -n "$lease" ] || [ -n "$arp_state" ]; }; then
+        echo -e " - ${alert}Layer 2 to the Gateway is fine, but the local API silently drops all"
+        echo -e "   connections (timeout, no refusal).${normal}"
+        echo -e "${dim}   This is the pattern seen with recent PW3 firmware (see issue #854): the"
+        echo -e "   local API stops answering after hours of uptime while the Tesla app (cloud"
+        echo -e "   path) stays healthy, and/or the gateway filters traffic that is not on the"
+        echo -e "   TEG network. Suggested steps:"
+        echo -e "     1. Confirm the Tesla app still works - that isolates local vs cloud."
+        echo -e "     2. Try each TeslaPW_* WiFi network in turn - in multi-unit installs only"
+        echo -e "        the primary Gateway serves ${GW}, and it is not always the obvious unit."
+        echo -e "     3. Full power cycle of ALL units - if local access returns then dies again"
+        echo -e "        after hours, that is a firmware issue: report it to Tesla support and"
+        echo -e "        note the firmware version when opening an issue here."
+        echo -e "     4. Stopgaps: run the dashboard in Tesla Cloud mode (setup.sh mode 2), or"
+        echo -e "        move the collector onto the TEG network via Wired LAN v1r (mode 5) -"
+        echo -e "        several users report TEG-side access keeps working when WiFi-side"
+        echo -e "        access is dropped.${normal}"
+    elif [ "$soe_rc" = "28" ]; then
+        echo -e " - ${alert}Connections to ${GW} time out, and this host is not on the Gateway"
+        echo -e "   WiFi network.${normal}"
+        echo -e "${dim}   Connect the dashboard host to the Powerwall's WiFi access point (or a"
+        echo -e "   bridge/router into it). In multi-unit installs, try each TeslaPW_* network"
+        echo -e "   in turn - only the primary Gateway serves ${GW}. Alternatively use Wired"
+        echo -e "   LAN v1r mode (setup.sh mode 5) or Tesla Cloud mode (mode 2).${normal}"
+    else
+        echo -e " - ${alert}Unexpected probe result (curl exit ${soe_rc}).${normal}"
+        echo -e "${dim}   Re-run with 'curl -skv https://${PROBE_TARGET}/api/system_status/soe' for details."
+        echo -e "   A TLS error usually means something other than the Gateway holds that IP.${normal}"
+    fi
+    # Visible Powerwall APs (masked)
+    if command -v nmcli >/dev/null 2>&1; then
+        local ap_list
+        ap_list=$(nmcli -t -f SSID device wifi list 2>/dev/null | grep -i '^TeslaPW_' | sort -u | sed -E 's/^(TeslaPW_.{0,4}).*/\1**/' | tr '\n' ' ') || true
+        if [ -n "$ap_list" ]; then
+            echo -e "${dim} - Visible Powerwall WiFi networks (masked): ${subbold}${ap_list}"
+        else
+            echo -e "${dim} - Visible Powerwall WiFi networks: ${normal}none found ${dim}(out of range or scanning unavailable)"
+        fi
+    fi
+    echo -e ""
+    echo -e "${dim}Safe to paste this output when opening an issue. See also:"
+    echo -e "https://github.com/jasonacox/Powerwall-Dashboard/issues/854${normal}"
+    exit 0
+}
+
 # Clear any terminal artifacts from background detection
 printf '\033[2K\r' 2>/dev/null
+
+# Run TEDAPI diagnostics mode if requested (--tedapi)
+if [ "$TEDAPI_MODE" = "true" ]; then
+    tedapi_diagnostics
+fi
 
 echo -e "${bold}Verify Powerwall-Dashboard ${subbold}${CURRENT}${normal} on ${OS} - Timezone: ${subbold}${TZ}${dim}"
 echo -e "----------------------------------------------------------------------------"
