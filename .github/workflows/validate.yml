@@ -52,7 +52,8 @@ jobs:
           # command output, SC1090 dynamic env-file sourcing, SC2034 documented
           # placeholder vars, SC2063 cron glob-like regex.
           for file in add_route.sh anonymous-access.sh compose-dash.sh setup.sh \
-                      tz.sh upgrade.sh ver.sh verify.sh watchdog.sh weather.sh; do
+                      tz.sh upgrade.sh ver.sh verify.sh watchdog.sh weather.sh \
+                      backups/backup.sh.sample backups/restore.sh.sample; do
             shellcheck --shell=bash --severity=warning \
               --exclude=SC2068,SC2145,SC2046,SC1090,SC2034,SC2063 "$file"
           done
