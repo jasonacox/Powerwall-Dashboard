@@ -252,13 +252,12 @@ fi
 running() {
     local url=${1:-http://localhost:80}
     local code=${2:-200}
+    local -a head_args=()
     if [[ $3 == 1 ]]; then
-        head="--head"
-    else
-        head=""
+        head_args=(--head)
     fi
     local status
-    status=$(curl "${head}" -k --location --connect-timeout 5 --write-out '%{http_code}' --silent --output /dev/null "${url}")
+    status=$(curl "${head_args[@]}" -k --location --connect-timeout 5 --write-out '%{http_code}' --silent --output /dev/null "${url}")
     [[ $status == "${code}" ]]
 }
 

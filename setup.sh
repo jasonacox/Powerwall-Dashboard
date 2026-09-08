@@ -768,7 +768,7 @@ if [ "${config}" == "Tesla Cloud" ]; then
     echo ""
     echo "Once you have the token, paste it when prompted by the setup below."
     echo "-----------------------------------------"
-    docker exec -it pypowerwall python3 -m pypowerwall setup "-email=$(grep -E "^PW_EMAIL=.+" "${PW_ENV_FILE}" | cut -d= -f2)"
+    docker exec -it pypowerwall python3 -m pypowerwall setup "-email=$(grep -E '^PW_EMAIL=.+' "${PW_ENV_FILE}" | cut -d= -f2)"
     echo "Restarting..."
     docker restart pypowerwall
     echo "-----------------------------------------"
