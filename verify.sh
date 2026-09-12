@@ -332,7 +332,7 @@ tedapi_diagnostics() {
         local cloudmode tedapi tedapimode firmware
         cloudmode=$(echo "$proxy_stats" | grep -o '"cloudmode":[^,}]*' | cut -d: -f2 | tr -d ' ')
         tedapi=$(echo "$proxy_stats" | grep -o '"tedapi":[^,}]*' | cut -d: -f2 | tr -d ' ')
-        tedapimode=$(echo "$proxy_stats" | grep -o '"tedapi_mode":"[^"]*"' | cut -d\" -f4)
+        tedapimode=$(echo "$proxy_stats" | grep -o '"tedapi_mode"[: ]*"[^"]*"' | cut -d\" -f4)
         firmware=$(curl --silent --connect-timeout 3 http://localhost:8675/version 2>/dev/null | sed 's/.*"version"[: ]*"\([^"]*\)".*/\1/') || true
         echo -e "${dim} - pypowerwall proxy: ${subbold}running${dim} - cloudmode: ${subbold}${cloudmode:-unknown}${dim}, tedapi: ${subbold}${tedapi:-unknown}${dim}, tedapi_mode: ${subbold}${tedapimode:-unknown}"
         if [ -n "$firmware" ]; then
@@ -621,7 +621,7 @@ if [ "$HOST" != "localhost" ] || [ "$RUNNING" = "true" ]; then
         # Extract tedapi
         TEDAPI=`echo "$STATS_JSON" | grep -o '"tedapi":[^,}]*' | cut -d: -f 2 | tr -d ' ' 2>/dev/null`
         # Extract tedapi_mode
-        TEDAPIMODE=`echo "$STATS_JSON" | grep -o '"tedapi_mode":"[^"]*"' | cut -d\" -f 4 2>/dev/null`
+        TEDAPIMODE=`echo "$STATS_JSON" | grep -o '"tedapi_mode"[: ]*"[^"]*"' | cut -d\" -f 4 2>/dev/null`
         # check connection with powerwall
         if running http://$HOST:$PORT/version 200 0 2>/dev/null; then
             PWSTATE="CONNECTED"
