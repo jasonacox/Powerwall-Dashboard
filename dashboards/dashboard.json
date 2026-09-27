@@ -36,6 +36,20 @@
       "label": "Timezone",
       "value": "America/Los_Angeles",
       "description": ""
+    },
+    {
+      "name": "VAR_LAT",
+      "type": "constant",
+      "label": "Latitude",
+      "value": "",
+      "description": "Your latitude in decimal degrees (e.g. 37.7749), used by the Sun and Moon panel"
+    },
+    {
+      "name": "VAR_LON",
+      "type": "constant",
+      "label": "Longitude",
+      "value": "",
+      "description": "Your longitude in decimal degrees, negative west of Greenwich (e.g. -122.4194)"
     }
   ],
   "__elements": {},
@@ -17819,7 +17833,7 @@
       },
       "gridPos": {
         "h": 6,
-        "w": 24,
+        "w": 16,
         "x": 0,
         "y": 102
       },
@@ -18012,6 +18026,29 @@
       "title": "Temperature, Humidity and Clouds",
       "transparent": true,
       "type": "timeseries"
+    },
+    {
+      "description": "Sun and moon position today, computed in the browser from the lat/lon dashboard variables.",
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 16,
+        "y": 102
+      },
+      "id": 94,
+      "options": {
+        "code": {
+          "language": "html",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "<div class=\"pwd-sun-moon\" data-lat=\"$lat\" data-lon=\"$lon\" data-tz=\"$tz\"></div>\n<script>\n// Sun and Moon arc card for the Grafana \"text\" panel (HTML mode).\n// Plugin-free and query-free: sun and moon positions are computed in the browser\n// with a compact port of SunCalc (https://github.com/mourner/suncalc, BSD-2-Clause),\n// from the dashboard's lat/lon/tz constants. Redraws every minute and on resize.\n(function () {\n  var PI = Math.PI, RAD = PI / 180, DAY = 864e5, J1970 = 2440588, J2000 = 2451545, E = RAD * 23.4397;\n  var sin = Math.sin, cos = Math.cos, tan = Math.tan, asin = Math.asin, acos = Math.acos, atan = Math.atan2;\n\n  // ---- SunCalc (sun + moon) ----\n  function toDays(d) { return d.valueOf() / DAY - 0.5 + J1970 - J2000; }\n  function fromJulian(j) { return new Date((j + 0.5 - J1970) * DAY); }\n  function ra(l, b) { return atan(sin(l) * cos(E) - tan(b) * sin(E), cos(l)); }\n  function dec(l, b) { return asin(sin(b) * cos(E) + cos(b) * sin(E) * sin(l)); }\n  function alt(H, phi, d) { return asin(sin(phi) * sin(d) + cos(phi) * cos(d) * cos(H)); }\n  function sidereal(d, lw) { return RAD * (280.16 + 360.9856235 * d) - lw; }\n  function sunM(d) { return RAD * (357.5291 + 0.98560028 * d); }\n  function eclLng(M) { return M + RAD * (1.9148 * sin(M) + 0.02 * sin(2 * M) + 0.0003 * sin(3 * M)) + RAD * 102.9372 + PI; }\n  function sunCoords(d) { var L = eclLng(sunM(d)); return { dec: dec(L, 0), ra: ra(L, 0) }; }\n  function moonCoords(d) {\n    var L = RAD * (218.316 + 13.176396 * d), M = RAD * (134.963 + 13.064993 * d), F = RAD * (93.272 + 13.229350 * d);\n    var l = L + RAD * 6.289 * sin(M), b = RAD * 5.128 * sin(F);\n    return { ra: ra(l, b), dec: dec(l, b), dist: 385001 - 20905 * cos(M) };\n  }\n  function sunAlt(t, lat, lng) { var d = toDays(t), c = sunCoords(d); return alt(sidereal(d, RAD * -lng) - c.ra, RAD * lat, c.dec); }\n  function moonAlt(t, lat, lng) { var d = toDays(t), c = moonCoords(d); return alt(sidereal(d, RAD * -lng) - c.ra, RAD * lat, c.dec); }\n  function sunTimes(t, lat, lng) {\n    var lw = RAD * -lng, phi = RAD * lat, J0 = 0.0009;\n    var n = Math.round(toDays(t) - J0 - lw / (2 * PI)), ds = J0 + lw / (2 * PI) + n;\n    var M = sunM(ds), L = eclLng(M), dc = dec(L, 0);\n    function transit(j) { return J2000 + j + 0.0053 * sin(M) - 0.0069 * sin(2 * L); }\n    var noon = transit(ds);\n    function pair(h) {\n      var w = acos((sin(h * RAD) - sin(phi) * sin(dc)) / (cos(phi) * cos(dc)));\n      if (isNaN(w)) return null; // polar day/night\n      var set = transit(J0 + (w + lw) / (2 * PI) + n);\n      return [fromJulian(noon - (set - noon)), fromJulian(set)];\n    }\n    return { noon: fromJulian(noon), rise: pair(-0.833), civil: pair(-6) };\n  }\n  function moonPhase(t) {\n    var d = toDays(t), s = sunCoords(d), m = moonCoords(d), SD = 149598000;\n    var g = acos(sin(s.dec) * sin(m.dec) + cos(s.dec) * cos(m.dec) * cos(s.ra - m.ra));\n    var inc = atan(SD * sin(g), m.dist - SD * cos(g));\n    var ang = atan(cos(s.dec) * sin(s.ra - m.ra), sin(s.dec) * cos(m.dec) - cos(s.dec) * sin(m.dec) * cos(s.ra - m.ra));\n    return { frac: (1 + cos(inc)) / 2, phase: 0.5 + 0.5 * inc * (ang < 0 ? -1 : 1) / PI };\n  }\n\n  // ---- time zone helpers (dashboard tz, falling back to the browser's) ----\n  function tzParts(t, tz) {\n    try {\n      var p = {}, f = new Intl.DateTimeFormat('en-US', { timeZone: tz, hourCycle: 'h23', year: 'numeric', month: 'numeric',\n        day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' });\n      f.formatToParts(t).forEach(function (x) { p[x.type] = +x.value; });\n      return p;\n    } catch (e) {\n      return { year: t.getFullYear(), month: t.getMonth() + 1, day: t.getDate(), hour: t.getHours(), minute: t.getMinutes(), second: t.getSeconds() };\n    }\n  }\n  function hrs(t, tz) { var p = tzParts(t, tz); return p.hour + p.minute / 60 + p.second / 3600; }\n  function fmt(t, tz) { var p = tzParts(t, tz), m = p.minute; return ((p.hour % 12) || 12) + ':' + (m < 10 ? '0' + m : m) + ' ' + (p.hour < 12 ? 'AM' : 'PM'); }\n  function midnight(t, tz) { // start of today in tz\n    var p = tzParts(t, tz), guess = Date.UTC(p.year, p.month - 1, p.day);\n    var q = tzParts(new Date(guess), tz), off = Date.UTC(q.year, q.month - 1, q.day, q.hour, q.minute, q.second) - guess;\n    return new Date(guess - off);\n  }\n\n  // the panel's scrollable content box (fixed size); our own parents grow with the content\n  function container(el) {\n    for (var n = el.parentElement; n && n !== document.body; n = n.parentElement) {\n      var ov = getComputedStyle(n).overflowY;\n      if (n.clientHeight > 40 && (ov === 'auto' || ov === 'scroll' || ov === 'hidden')) return n;\n    }\n    return el.parentElement || el;\n  }\n\n  function draw(el) {\n    var lat = parseFloat(el.getAttribute('data-lat')), lng = parseFloat(el.getAttribute('data-lon')), tz = el.getAttribute('data-tz');\n    if (!tz || tz.charAt(0) === '$' || tz === 'browser') tz = undefined;\n    if (!isFinite(lat) || !isFinite(lng)) {\n      el.innerHTML = \"<div style='padding:8px;color:#9aa0a8;font-size:13px'>Set the <b>lat</b> and <b>lon</b> dashboard variables to your location.</div>\";\n      return;\n    }\n    var box = container(el), ph = box.clientHeight || 180, pw = box.clientWidth || 600;\n    var light = !!(window.grafanaBootData && grafanaBootData.user && grafanaBootData.user.lightTheme);\n    var C = light\n      ? { ln: '#9aa1ab', ni: '#c9cdf0', tw: '#dbe6fa', tk: '#d5d8dd', su: '#f0b429', lb: '#6e7580', va: '#24292e', mo: '#6d7fa8', md: '#c8ccd3', ml: '#f1e6b8', ms: '#8b929c' }\n      : { ln: '#5c636e', ni: '#3a3c85', tw: '#9bb4e6', tk: '#3a4048', su: '#f2d14e', lb: '#9aa0a8', va: '#e8e9eb', mo: '#8fa1c9', md: '#31363f', ml: '#e3e7ee', ms: '#646c78' };\n\n    var now = new Date(), mid = midnight(now, tz), nowH = hrs(now, tz);\n    var st = sunTimes(new Date(mid.getTime() + 12 * 36e5), lat, lng);\n    var W = 920, H = 255, HOR = 190, X0 = 40, X1 = 880, AMP = 140, TOP = 16, BOT = 250;\n    function at(h) { return new Date(mid.getTime() + h * 36e5); }\n    function tx(h) { return X0 + (h / 24) * (X1 - X0); }\n    function ay(a) { return Math.max(TOP, Math.min(BOT, HOR - AMP * sin(a) * (a < 0 ? 0.5 : 1))); } // night half-scale\n    function T(x, y, c, z, s, an) { return \"<text x='\" + x.toFixed(1) + \"' y='\" + y + \"' fill='\" + c + \"' font-size='\" + z + \"' text-anchor='\" + (an || 'middle') + \"'>\" + s + \"</text>\"; }\n    // label + time; an = side of x to put it on so it clears tick lines and shading\n    function mark(t, y, lb, an) { var h = hrs(t, tz), x = tx(h) + (an === 'start' ? 8 : an === 'end' ? -8 : 0); return T(x, y, C.lb, 20, lb, an) + T(x, y + 27, C.va, 24, fmt(t, tz), an); }\n\n    // sun curve (true altitude) and twilight shading between the curve and the horizon\n    var sun = [], shade = '';\n    for (var k = 0; k <= 96; k++) sun.push(tx(k / 4).toFixed(1) + ',' + ay(sunAlt(at(k / 4), lat, lng)).toFixed(1));\n    function region(a, b, fill) {\n      if (!(b > a)) return '';\n      var q = [tx(a).toFixed(1) + ',' + HOR];\n      for (var s = 0; s <= 24; s++) { var h = a + (b - a) * s / 24; q.push(tx(h).toFixed(1) + ',' + Math.max(HOR, ay(sunAlt(at(h), lat, lng))).toFixed(1)); }\n      q.push(tx(b).toFixed(1) + ',' + HOR);\n      return \"<polygon points='\" + q.join(' ') + \"' fill='\" + fill + \"'/>\";\n    }\n    var labels = '', ticks = '';\n    if (st.rise && st.civil) {\n      var dawn = hrs(st.civil[0], tz), rise = hrs(st.rise[0], tz), set = hrs(st.rise[1], tz), dusk = hrs(st.civil[1], tz);\n      shade = region(0, dawn, C.ni) + region(dawn, rise, C.tw) + region(set, dusk, C.tw) + region(dusk, 24, C.ni);\n      [rise, set].forEach(function (h) { ticks += \"<line x1='\" + tx(h).toFixed(1) + \"' y1='70' x2='\" + tx(h).toFixed(1) + \"' y2='\" + HOR + \"' stroke='\" + C.tk + \"' stroke-width='2'/>\"; });\n      labels = mark(st.rise[0], 108, 'Sunrise', 'end') + mark(st.rise[1], 108, 'Sunset', 'start');\n    }\n    // solar noon sits inside the arc, under its peak; below the horizon when the sun stays low (high-latitude winter)\n    var peak = ay(sunAlt(st.noon, lat, lng)), inside = peak < HOR - 62;\n    labels += mark(st.noon, inside ? HOR - 38 : HOR + 30, 'Solar noon');\n    if (!inside) H = 285;\n\n    // moon: dashed track while above the horizon, phase-shaped icon at the current time\n    var mp = moonPhase(now), seg = [], track = '';\n    function flush() { if (seg.length > 1) track += \"<polyline points='\" + seg.join(' ') + \"' fill='none' stroke='\" + C.mo + \"' stroke-width='1.5' stroke-dasharray='5,7' opacity='0.75'/>\"; seg = []; }\n    for (var j = 0; j <= 96; j++) { var ma = moonAlt(at(j / 4), lat, lng); if (ma > 0) seg.push(tx(j / 4).toFixed(1) + ',' + ay(ma).toFixed(1)); else flush(); }\n    flush();\n    function moonIcon(cx, cy, r) {\n      var co = cos(2 * PI * mp.phase), rt = (Math.abs(co) * r).toFixed(2), wax = mp.phase < 0.5;\n      var limb = wax ? 1 : 0, term = wax ? (co > 0 ? 0 : 1) : (co > 0 ? 1 : 0);\n      var d = 'M ' + cx.toFixed(1) + ' ' + (cy - r).toFixed(1) + ' A ' + r + ' ' + r + ' 0 0 ' + limb + ' ' + cx.toFixed(1) + ' ' + (cy + r).toFixed(1) +\n        ' A ' + rt + ' ' + r + ' 0 0 ' + term + ' ' + cx.toFixed(1) + ' ' + (cy - r).toFixed(1) + ' Z';\n      return \"<circle cx='\" + cx.toFixed(1) + \"' cy='\" + cy.toFixed(1) + \"' r='\" + r + \"' fill='\" + C.md + \"' stroke='\" + C.ms + \"' stroke-width='1.2'/>\" +\n        (mp.frac > 0.02 ? \"<path d='\" + d + \"' fill='\" + C.ml + \"'/>\" : '');\n    }\n    var mAlt = moonAlt(now, lat, lng), mUp = mAlt > 0, sAlt = sunAlt(now, lat, lng);\n    var moon = \"<g opacity='\" + (mUp ? 1 : 0.55) + \"'>\" + moonIcon(tx(nowH), Math.min(HOR + 28, ay(mAlt)), 13) + '</g>';\n\n    var svg = \"<svg viewBox='0 0 \" + W + ' ' + H + \"' width='100%' height='100%' preserveAspectRatio='xMidYMid meet' style='display:block'>\" +\n      shade + \"<line x1='20' y1='\" + HOR + \"' x2='892' y2='\" + HOR + \"' stroke='\" + C.ln + \"' stroke-width='2'/>\" +\n      \"<polygon points='892,\" + (HOR - 6) + ' 904,' + HOR + ' 892,' + (HOR + 6) + \"' fill='\" + C.ln + \"'/>\" +\n      \"<polyline points='\" + sun.join(' ') + \"' fill='none' stroke='\" + C.ln + \"' stroke-width='2.5'/>\" +\n      track + ticks + moon + \"<circle cx='\" + tx(nowH).toFixed(1) + \"' cy='\" + ay(sAlt).toFixed(1) + \"' r='19' fill='\" + C.su + \"'/>\" + labels + '</svg>';\n\n    // readouts: beside the arc on wide panels, underneath on narrow ones\n    var wide = pw / ph > 2.4;\n    function cl(v, a, b) { return Math.max(a, Math.min(b, v)); }\n    var vs = Math.round(wide ? cl(ph * 0.155, 15, 32) : cl(pw * 0.045, 14, 26)), ls = Math.round(vs * 0.58), ip = Math.round(vs * 0.82);\n    function readout(lb, v) { return \"<div style='text-align:\" + (wide ? 'right' : 'center') + \"'><div style='color:\" + C.lb + ';font-size:' + ls + \"px;line-height:1.2;white-space:nowrap'>\" + lb +\n      \"</div><div style='color:\" + C.va + ';font-size:' + vs + \"px;font-weight:600;line-height:1.1;white-space:nowrap'>\" + v + '</div></div>'; }\n    var names = ['New moon', 'Waxing crescent', 'First quarter', 'Waxing gibbous', 'Full moon', 'Waning gibbous', 'Last quarter', 'Waning crescent'];\n    var icon = \"<svg width='\" + ip + \"' height='\" + ip + \"' viewBox='0 0 30 30' style='display:inline-block;vertical-align:-\" + Math.round(ip * 0.12) + \"px;margin-right:6px'>\" + moonIcon(15, 15, 13) + '</svg>';\n    var info = readout('Sun altitude', Math.round(sAlt / RAD) + '&#176;') +\n      readout(names[Math.round(mp.phase * 8) % 8] + (mUp ? '' : ' &#183; below horizon'), icon + Math.round(mp.frac * 100) + '% lit');\n\n    el.innerHTML = wide\n      ? \"<div style='display:flex;width:100%;height:\" + ph + \"px'><div style='flex:1 1 auto;min-width:0;line-height:0'>\" + svg +\n        \"</div><div style='flex:0 0 auto;display:flex;flex-direction:column;justify-content:center;gap:\" + Math.round(ph * 0.07) + \"px;padding:0 12px 0 8px'>\" + info + '</div></div>'\n      : \"<div style='display:flex;flex-direction:column;justify-content:center;gap:\" + Math.round(ph * 0.04) + \"px;width:100%;height:\" + ph + \"px'>\" +\n        \"<div style='flex:0 1 auto;min-height:0;max-height:75%;line-height:0;aspect-ratio:\" + W + '/' + H + \"'>\" + svg +\n        \"</div><div style='flex:0 0 auto;display:flex;justify-content:space-around'>\" + info + '</div></div>';\n  }\n\n  function drawAll() {\n    var els = document.querySelectorAll('.pwd-sun-moon');\n    for (var i = 0; i < els.length; i++) {\n      var el = els[i];\n      try { draw(el); } catch (err) { el.textContent = 'Sun and Moon error: ' + (err && err.message ? err.message : err); }\n      if (!el.pwdObserved && window.ResizeObserver) {\n        el.pwdObserved = true;\n        (function (e) { new ResizeObserver(function () { try { draw(e); } catch (x) {} }).observe(container(e)); })(el);\n      }\n    }\n  }\n  clearInterval(window.pwdSunMoonTimer);\n  window.pwdSunMoonTimer = setInterval(drawAll, 60000);\n  setTimeout(drawAll, 0);\n})();\n</script>\n",
+        "mode": "html"
+      },
+      "pluginVersion": "12.3.1",
+      "title": "Sun and Moon",
+      "transparent": true,
+      "type": "text"
     },
     {
       "datasource": {
@@ -18616,6 +18653,48 @@
           {
             "value": "${VAR_TZ}",
             "text": "${VAR_TZ}",
+            "selected": false
+          }
+        ]
+      },
+      {
+        "description": "Latitude",
+        "hide": 2,
+        "label": "Latitude",
+        "name": "lat",
+        "query": "${VAR_LAT}",
+        "skipUrlSync": true,
+        "type": "constant",
+        "current": {
+          "value": "${VAR_LAT}",
+          "text": "${VAR_LAT}",
+          "selected": false
+        },
+        "options": [
+          {
+            "value": "${VAR_LAT}",
+            "text": "${VAR_LAT}",
+            "selected": false
+          }
+        ]
+      },
+      {
+        "description": "Longitude",
+        "hide": 2,
+        "label": "Longitude",
+        "name": "lon",
+        "query": "${VAR_LON}",
+        "skipUrlSync": true,
+        "type": "constant",
+        "current": {
+          "value": "${VAR_LON}",
+          "text": "${VAR_LON}",
+          "selected": false
+        },
+        "options": [
+          {
+            "value": "${VAR_LON}",
+            "text": "${VAR_LON}",
             "selected": false
           }
         ]
