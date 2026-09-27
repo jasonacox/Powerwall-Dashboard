@@ -30,7 +30,8 @@ detect_light_background() {
         # Method 1: Try to query terminal background color (non-macOS only)
         if [[ -t 1 ]]; then
             # Save current terminal settings
-            local oldstty=$(stty -g 2>/dev/null) || return 1
+            local oldstty
+            oldstty=$(stty -g 2>/dev/null) || return 1
 
             # Set up a trap to ensure terminal settings are restored
             trap 'stty "$oldstty" 2>/dev/null || true; trap - RETURN' RETURN
@@ -251,13 +252,13 @@ fi
 running() {
     local url=${1:-http://localhost:80}
     local code=${2:-200}
+    local -a head_args=()
     if [[ $3 == 1 ]]; then
-        head="--head"
-    else
-        head=""
+        head_args=(--head)
     fi
-    local status=$(curl ${head} -k --location --connect-timeout 5 --write-out %{http_code} --silent --output /dev/null ${url})
-    [[ $status == ${code} ]]
+    local status
+    status=$(curl "${head_args[@]}" -k --location --connect-timeout 5 --write-out '%{http_code}' --silent --output /dev/null "${url}")
+    [[ $status == "${code}" ]]
 }
 
 # Operating system details
