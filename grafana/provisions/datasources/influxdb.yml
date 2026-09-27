@@ -3,6 +3,7 @@ apiVersion: 1
 datasources:
   - name: InfluxDB (auto provisioned)
     type: influxdb
+    uid: pwd-influxdb-auto
     access: proxy
     url: http://influxdb:8086
     database: powerwall
