@@ -1,5 +1,31 @@
 # RELEASE NOTES
 
+## v5.3.0 - Powerwall 3 temperatures and fans
+
+### New Features
+
+* **Powerwall 3 temperatures and fan speeds are back in the dashboard** — the pinned pypowerwall proxy moves from `0.17.0t100` to `0.18.2t104`, which reports Powerwall 3 data the proxy used to return as empty (`{}`). The existing **Powerwall Temps and Fans** panel in `dashboard.json` (and the temperature panels in the alt, min-mean-max and no-animation dashboards) fill in automatically. Run `./upgrade.sh`; no dashboard re-import or InfluxDB change is needed for this.
+    * **Temperatures** (proxy t102, pypowerwall 0.17.4, [pypowerwall#390](https://github.com/jasonacox/pypowerwall/pull/390)): `/temps/pw` reports each Powerwall 3's (and expansion pack's) hottest battery-pack temperature as `PWn_temp`, numbered like `/pod`.
+    * **Fans** (proxy t104, pypowerwall 0.18.2, [pypowerwall#398](https://github.com/jasonacox/pypowerwall/pull/398)): each Powerwall 3 inverter has two fans, reported by `/fans/pw` as `FANn_actual` (measured RPM) after any Powerwall 2 fans, leader first. Powerwall 3 has no target-RPM signal, so the dashed "Target" lines stay empty for Powerwall 3 fans. The panel shows fans 1-6, which covers up to three Powerwall 3s. The proxy also reports each fan's drive duty cycle (`FANn_duty`, %), which is stored in the raw data but not charted.
+    * PW3 temperatures and fans come from the gateway's TEDAPI interface, so they need a TEDAPI (full, v1r or hybrid) setup, as the rest of the vitals do.
+    * This applies to the standard Docker Compose install. The community Kubernetes manifests in `tools/k3s` pin their own proxy version (`0.11.1t64`) and dashboards, and aren't changed by this release.
+
+### Updates
+
+* **pypowerwall proxy `0.18.2t104`** — also includes, since `0.17.0t100`:
+    * **v1r LAN-down failover to the Gateway WiFi host**, race-free failover recovery and several TEDAPI hardening fixes ([pypowerwall#394](https://github.com/jasonacox/pypowerwall/pull/394), [pypowerwall#395](https://github.com/jasonacox/pypowerwall/pull/395)); `/health` reports the failover state
+    * **Tesla Remote Meter** (`trm_mb`) support: `/vitals` gains `TRM--<din>` blocks, and `/aggregates` falls back to the remote meter for site and solar readings (pypowerwall 0.17.4)
+    * Firmware change tracking in the proxy log (`PW_FIRMWARE_CHECK_INTERVAL`, [#854](https://github.com/jasonacox/Powerwall-Dashboard/discussions/854))
+    * Powerwall 3 `get_battery_block()` fix in WiFi/TEDAPI mode ([pypowerwall#396](https://github.com/jasonacox/pypowerwall/pull/396)), cloud-mode recovery when Tesla re-provisions a site, and per-gateway TEDAPI API locks
+
+### Bug Fixes
+
+* **Powerwall Temps and Fans panel: PW7-PW12 were off by one** — in `dashboard.json`, the series labeled PW7 through PW12 each charted the previous Powerwall's temperature (PW7 showed PW6, and so on), and PW12 appeared twice. Each label now charts its own Powerwall. This only affects systems with 7 or more Powerwalls; to pick it up, re-import `dashboards/dashboard.json`.
+
+### Contributors
+
+Thanks to everyone who reported missing Powerwall 3 temperatures and fan data, and to **@jasonacox-sam** for independent testing of the Powerwall 3 temperature and fan signals on hardware.
+
 ## v5.2.5 - TEDAPI diagnostics & upgrade.sh env file check
 
 ### New Features

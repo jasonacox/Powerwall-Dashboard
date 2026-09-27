@@ -13383,15 +13383,13 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pwtemps",
-          "query": "SELECT mean(\"PW7_POD_nom_full_pack_energy\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "G",
           "resultFormat": "time_series",
           "select": [
             [
               {
                 "params": [
-                  "PW6_temp"
+                  "PW7_temp"
                 ],
                 "type": "field"
               },
@@ -13427,15 +13425,13 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pwtemps",
-          "query": "SELECT mean(\"PW8_POD_nom_full_pack_energy\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "H",
           "resultFormat": "time_series",
           "select": [
             [
               {
                 "params": [
-                  "PW7_temp"
+                  "PW8_temp"
                 ],
                 "type": "field"
               },
@@ -13471,15 +13467,13 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pwtemps",
-          "query": "SELECT mean(\"PW9_POD_nom_full_pack_energy\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "I",
           "resultFormat": "time_series",
           "select": [
             [
               {
                 "params": [
-                  "PW8_temp"
+                  "PW9_temp"
                 ],
                 "type": "field"
               },
@@ -13515,15 +13509,13 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pwtemps",
-          "query": "SELECT mean(\"PW10_POD_nom_full_pack_energy\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "J",
           "resultFormat": "time_series",
           "select": [
             [
               {
                 "params": [
-                  "PW9_temp"
+                  "PW10_temp"
                 ],
                 "type": "field"
               },
@@ -13559,53 +13551,7 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pwtemps",
-          "query": "SELECT mean(\"PW11_POD_nom_full_pack_energy\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "K",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "PW10_temp"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        },
-        {
-          "alias": "PW12",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "measurement": "http",
-          "orderByTime": "ASC",
-          "policy": "pwtemps",
-          "query": "SELECT mean(\"PW12_POD_nom_full_pack_energy\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
-          "refId": "L",
           "resultFormat": "time_series",
           "select": [
             [
@@ -13647,9 +13593,7 @@
           "measurement": "http",
           "orderByTime": "ASC",
           "policy": "pwtemps",
-          "query": "SELECT mean(\"PW12_POD_nom_full_pack_energy\") FROM \"pod\".\"http\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
-          "refId": "M",
+          "refId": "L",
           "resultFormat": "time_series",
           "select": [
             [
