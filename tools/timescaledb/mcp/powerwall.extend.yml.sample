@@ -1,0 +1,64 @@
+# EXPERIMENTAL: MCP server for the TimescaleDB datastore extension.
+#
+# Adds an MCP (Model Context Protocol) server that lets an AI agent (Claude,
+# etc.) explore the schema and run read-only SQL against your Powerwall
+# TimescaleDB history. Requires the TimescaleDB extension itself to already
+# be set up -- see ../../../timescaledb (tools/timescaledb/) -- this is an
+# extension of an extension, and entirely optional on top of that.
+#
+# This is NOT wired into tools/timescaledb/setup.sh. To use it:
+#
+#   1. Set up tools/timescaledb first if you haven't already.
+#   2. Create the read-only DB role (once) -- see readonly_role.sql's header
+#      comment for the exact command and why it matters which connection
+#      you run it through.
+#   3. cp tools/timescaledb/mcp/mcp.env.sample mcp.env, fill in MCP_DB_PASSWORD
+#      to match.
+#   4. Merge the `powerwall-mcp` service below into your existing
+#      powerwall.extend.yml by hand (docker compose only reads a single
+#      powerwall.extend.yml -- same reason tools/pgadmin and
+#      tools/tesla-history document a manual merge when you already have
+#      one for another add-on).
+#   5. docker compose -f powerwall.yml -f powerwall.extend.yml up -d --build powerwall-mcp
+#
+# See tools/timescaledb/mcp/README.md for details, connecting Claude, and
+# removal steps.
+
+services:
+    powerwall-mcp:
+        build: ./tools/timescaledb/mcp
+        image: powerwall-mcp-timescaledb:local
+        pull_policy: build
+        container_name: powerwall-mcp
+        hostname: powerwall-mcp
+        restart: unless-stopped
+        env_file:
+            - mcp.env
+        ports:
+            # Bound to localhost by default -- this tool executes SQL
+            # against your real historical data. Widen only if you know you
+            # need remote access, and set MCP_AUTH_TOKEN in mcp.env if you
+            # do.
+            - "${MCP_PORTS:-127.0.0.1:8765:8000}"
+        # Deliberately no depends_on: timescaledb here. Unlike
+        # aggregate-cron (which needs the DB immediately to run schema.sql
+        # once at startup), this server opens a connection per tool call --
+        # it just errors gracefully until the DB is reachable, so strict
+        # startup ordering isn't needed. That also sidesteps a real trap:
+        # the EXTMODE-BUNDLED-ONLY marker convention used elsewhere in this
+        # extension only has effect when tools/timescaledb/setup.sh
+        # processes a file and strips the bundled-only block in external
+        # mode -- this file is merged BY HAND (see the instructions above),
+        # so those markers would never actually get stripped, and
+        # depends_on: timescaledb would break `docker compose up` outright
+        # for anyone on an external TimescaleDB server ("depends on
+        # undefined service").
+        healthcheck:
+            # Just confirms the process is up and listening -- a real
+            # request needs a full MCP protocol handshake, not something
+            # worth reimplementing in a shell healthcheck.
+            test: python -c "import socket; socket.create_connection(('127.0.0.1', 8000), timeout=5)"
+            interval: 30s
+            timeout: 10s
+            retries: 3
+            start_period: 20s

@@ -1,0 +1,20 @@
+apiVersion: 1
+
+datasources:
+  - name: TimescaleDB (auto provisioned)
+    type: postgres
+    access: proxy
+    url: $__env{TIMESCALEDB_HOST}:$__env{TIMESCALEDB_PORT}
+    database: $__env{POSTGRES_DB}
+    user: $__env{POSTGRES_USER}
+    secureJsonData:
+      password: $__env{POSTGRES_PASSWORD}
+    jsonData:
+      database: $__env{POSTGRES_DB}
+      sslmode: $__env{TIMESCALEDB_SSLMODE}
+      postgresVersion: 1600
+      timescaledb: true
+      maxOpenConns: 10
+      maxIdleConns: 5
+      connMaxLifetime: 14400
+    editable: true
