@@ -248,6 +248,7 @@ Note: It can take a while for InfluxDB to start.  Also the influxdb.sql file is 
 ### Notes
 
 * The database queries are set to use `America/Los_Angeles` as the timezone. Remember to edit the database commands [influxdb.sql](influxdb/influxdb.sql) with your own timezone. During import of dashboards into Grafana you'll be prompted to enter your timezone for queries.
+* The "Sun and Moon" panel in the Weather row draws today's sun and moon path in the browser. It uses the latitude and longitude that `setup.sh` saves in the Sun and Moon datasource (`grafana/provisions/datasources/sunandmoon.yml`), so there is nothing to enter on import. Re-run `setup.sh` or edit that file to change the location.
 
 ### Upgrading
 
