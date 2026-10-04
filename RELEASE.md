@@ -1,6 +1,6 @@
 # RELEASE NOTES
 
-## v5.3.1 - Sun and Moon arc card
+## v5.3.1 - Sun and Moon arc card & timezone validation fix
 
 ### New Features
 
@@ -10,9 +10,13 @@
 
 **Existing installs:** run `./upgrade.sh`, then re-import `dashboards/dashboard.json` to pick up the new panel. No datasource, InfluxDB or container changes are needed.
 
+### Bug Fixes
+
+* **`setup.sh` no longer accepts misspelled timezones** — entering a typo such as `American/Denver` (for `America/Denver`) used to pass validation because the last-resort check treated any value that `date` could parse as a POSIX TZ string, which glibc does for almost any alphabetic text. Setup then failed later in InfluxDB with `unable to find time zone American/Denver`. The timezone is written into the InfluxDB `tz('...')` clauses, which only resolve IANA names, so POSIX strings such as `GMT+5` could not work either. The POSIX fallback has been removed: valid IANA names (including `UTC`, `EST5EDT` and multi-level names like `America/Argentina/Buenos_Aires`) are still accepted, and anything else shows a warning with an example and a note that InfluxDB will fail, before the existing explicit `y/N` override. ([PR #873](https://github.com/jasonacox/Powerwall-Dashboard/pull/873) by **@jasonacox-sam**, closes [#872](https://github.com/jasonacox/Powerwall-Dashboard/issues/872) reported by **@hulkster**)
+
 ### Contributors
 
-Thanks to **@holstein13** for the Sun and Moon arc card — a fully self-contained panel that matches the dashboard's palette and typography — and for iterating on the layout, horizon smoothing and DST handling.
+Thanks to **@holstein13** for the Sun and Moon arc card — a fully self-contained panel that matches the dashboard's palette and typography — and for iterating on the layout, horizon smoothing and DST handling. The `setup.sh` timezone validation fix came from **@jasonacox-sam**, prompted by a report from **@hulkster**.
 
 ## v5.3.0 - Powerwall 3 temperatures and fans
 
