@@ -314,7 +314,7 @@ PW_TIMEZONE=America/Los_Angeles
 TZ=America/Los_Angeles
 PW_DEBUG=no
 PW_STYLE=grafana-dark
-PW_GW_PWD=<YOUR_PW3_PASSWORD> 
+PW_GW_PWD=<YOUR_PW3_PASSWORD>
 ```
 
 Note, for Powerwall 3 systems, the PW_GW_PWD will be the password you find on the Powerwall 3 itself, not the gateway password. This password is printed on the label under the Powerwall 3 glass cover, visible during installation. If you have multiple Powerwalls, use the one from the primary Powerwall 3.
