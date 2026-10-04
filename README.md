@@ -447,7 +447,7 @@ InfluxDB is configured to use an infinite retention policy (see [influxdb.sql](i
 
 There are several ways you can support this project.
 
-* Submit ideas, issues, discussions and code! Thanks to our active community, the project continues to grow and improve. Your engagement and help is needed and appreciated.
+* Submit ideas, issues, discussions and code! Thanks to our active community, the project continues to grow and improve. Your engagement and help is needed and appreciated. Before opening a pull request, see [AGENTS.md](AGENTS.md) for the project's design principles and release process (it applies to people as well as AI agents). For design or UX changes, please open an issue first.
 * Tell others. If you find this useful, please share with others to help build our community.
 * Help test the installation and upgrades. We need help testing the project on different platforms and versions of Powerwalls. Report your finding and any suggestions to make it easier to setup and use.
 * Some of you have asked how you can contribute to help fund the project. This is work of love and a hobby. I'm not looking for financial help. However, if you are considering purchasing a Tesla Solar and/or Powerwall system, please take advantage of this code for a discount and I'll get a referral credit as well: https://www.tesla.com/referral/jason50054

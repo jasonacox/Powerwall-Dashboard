@@ -21,10 +21,35 @@ Users install by cloning this repo, and `upgrade.sh` updates them with `git stas
 Any PR that changes code, dashboards, configs or behavior should also:
 
 1. Bump `VERSION` and the `VERSION="x.y.z"` line in `upgrade.sh` (they must match; CI checks it).
-2. Add a `RELEASE.md` entry at the top: what changed, why, and what existing installs need to do (for example, "re-import `dashboards/dashboard.json`").
+2. Add a `RELEASE.md` entry at the top (format below).
 3. If an image changes, update the pinned tag in `powerwall.yml`. State the scope in the notes; `tools/k3s` pins its own versions.
 
-Docs-only changes (README, RELEASE notes for already-merged work) don't need a bump. If a change must land without a bump, say why in the PR.
+Docs-only changes (README, AGENTS.md, notes for already-merged work) don't need a bump. If a change must land without a bump, say why in the PR.
+
+**Choosing the bump:**
+
+* **Patch** (`5.3.0` to `5.3.1`): bug fixes, image/proxy upgrades, small improvements.
+* **Minor** (`5.2.x` to `5.3.0`): notable new features, scripts or dashboard panels.
+* **Major**: avoid. `upgrade.sh` treats upgrades from below `5.0.0` as a major upgrade and shows extra warnings. Only the maintainers decide on a major bump.
+
+**`RELEASE.md` entry format** (newest first, see existing entries):
+
+```markdown
+## v5.3.1 - Short title
+
+### New Features
+* **Name of the change** - what it does and why it helps users. ([PR #123](https://github.com/jasonacox/Powerwall-Dashboard/pull/123) by **@author**, closes [#122](https://github.com/jasonacox/Powerwall-Dashboard/issues/122))
+
+### Updates
+### Bug Fixes
+
+**Existing installs:** what users need to do (for example, run `./upgrade.sh`, then re-import `dashboards/dashboard.json`).
+
+### Contributors
+Thanks to ...
+```
+
+Use only the sections that apply. Always say what existing installs must do, and credit the author and the reporter. Tags and GitHub releases are created by the maintainers.
 
 ## Scripts must run on every platform
 
@@ -38,15 +63,23 @@ Users run these scripts on Linux, macOS, Windows WSL, Synology (BusyBox), Raspbe
 * Shell files use LF endings (`.gitattributes`); keep them that way.
 * Be conservative with user data: never overwrite `*.env`, `telegraf.local` or `.auth/`, and back up before rewriting a user's file.
 
-Before pushing, run the same checks as CI (`.github/workflows/validate.yml`):
+## Testing
 
-```bash
-for f in $(git ls-files '*.sh' '*.sh.sample'); do bash -n "$f"; done
-shellcheck --shell=bash --severity=error --exclude=SC2068,SC2145 $(git ls-files '*.sh' '*.sh.sample')
-git diff --check origin/main...HEAD
-```
+There is no automated test suite, so verify changes yourself and say how in the PR.
 
-CI also validates every tracked `*.json` and `*.yml` file.
+* Run the CI checks (`.github/workflows/validate.yml`) locally:
+
+  ```bash
+  for f in $(git ls-files '*.sh' '*.sh.sample'); do bash -n "$f"; done
+  shellcheck --shell=bash --severity=error --exclude=SC2068,SC2145 $(git ls-files '*.sh' '*.sh.sample')
+  git diff --check origin/main...HEAD
+  ```
+
+  CI also validates every tracked `*.json` and `*.yml` file.
+* Check syntax on the oldest Bash: `docker run --rm -v "$PWD":/w -w /w bash:3.2 bash -n setup.sh`.
+* For prompts and validation loops, drive the code with scripted input (`printf 'a\nb\n' | bash script.sh`) and try bad input as well as good.
+* For changes to `upgrade.sh` or tracked config, test an upgrade from an older release tag, not only from the latest.
+* Never test against a real user's Powerwall credentials or commit test output that contains them.
 
 ## Timezone handling
 
@@ -59,8 +92,25 @@ The timezone is substituted by `tz.sh` into `telegraf.conf`, `influxdb/influxdb.
 * New dashboard panels must follow the existing look (fonts, colors, fill, labels) and work for the supported system types, or be left out of the variants where they don't apply.
 * Don't commit secrets or local files: `*.env` (only `*.env.sample`), `telegraf.local`, `.auth/`, `.pypowerwall_data/`.
 
+## Secrets and privacy
+
+Never print, log or commit passwords, tokens, RSA keys, emails or `PW_HOST` values. Users paste script output into public issues, so diagnostics must mask sensitive values (see how `verify.sh --tedapi` masks `PW_HOST`).
+
+## Upstream projects
+
+The pypowerwall proxy lives in [jasonacox/pypowerwall](https://github.com/jasonacox/pypowerwall) and weather411 is a separate image. Fix their behavior there. This repo only pins their image tags (never `latest`) and adapts dashboards and scripts to them. Ignore `sandbox/` and `tools/` for stack changes unless the task is specifically about them.
+
+## Working as an agent
+
+* Work on a branch and open a PR; never push to `main`, and don't create tags or releases.
+* Don't post comments or reviews as a maintainer unless asked.
+* Ask before anything that could break existing installs, change dashboard or CLI design, or alter what `upgrade.sh` does. Suggest an issue first.
+* If a request conflicts with these principles, say so rather than working around them.
+
 ## Documentation
 
 * `README.md` is linked to from other docs by section anchors (`#docker-errors`, `#windows-11-instructions`, `#grafana-setup`, `#option-1---quick-start`, `#setup`, `#powerwall-3`). Check for inbound links (`grep -rn "README.md#"`) before renaming a heading.
+* Organize `README.md` by task: setup and install steps stay separate from troubleshooting, so add content under the heading where a reader would look for it.
+* Use plain language and copy-pasteable commands; explain jargon the first time. Keep it short enough for a novice and complete enough for an expert.
 * Follow `.editorconfig` (LF, 4-space indent, no final newline in JSON).
 * Keep changes surgical and describe the "why" in commit messages and PRs.
