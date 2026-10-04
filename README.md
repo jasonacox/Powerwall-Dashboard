@@ -10,7 +10,7 @@ Monitoring Dashboard for Tesla Solar and Powerwall systems using Grafana, Influx
 ![Powerwall+](https://user-images.githubusercontent.com/836718/214475810-bc5748fd-5a6f-4fd7-869b-88ba3f06346c.png)
 ![FreqVoltage](https://user-images.githubusercontent.com/836718/214475204-d049c0c8-1b2c-4fb7-b015-0a638a33adde.png)
 ![Alerts](https://user-images.githubusercontent.com/836718/214474307-9c85de97-3730-4e2c-a4a1-0173be3e0ea1.png)
-![Weather](https://user-images.githubusercontent.com/836718/214474825-75686470-03a9-41cc-b827-f54dc323f93e.png)
+![Weather](https://github.com/user-attachments/assets/43871f82-b8e7-4875-b093-84d08e68e65b)
 
 ## Dashboards
 
