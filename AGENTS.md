@@ -6,6 +6,14 @@ Guidance for AI coding agents (and humans) working in Powerwall-Dashboard.
 
 A Docker Compose stack (InfluxDB 1.8, Telegraf, Grafana, the pypowerwall proxy, weather411) for monitoring Tesla Powerwall and solar systems. The bash scripts in the repo root (`setup.sh`, `upgrade.sh`, `tz.sh`, `verify.sh`, `compose-dash.sh`, `watchdog.sh`, ...) are the product. `tools/` holds optional add-ons and `sandbox/` is experimental; neither ships as part of the stack.
 
+## Design principles
+
+* **Keep it simple.** Complex changes are hard to maintain and can break the install base. Prefer the smallest change that solves the problem, and remove code rather than add layers.
+* **Stay backward compatible.** Community members run many different versions and setups. Upgrades must work from older versions, and existing configs must keep working. No breaking changes without a serious discussion with the maintainers first (open an issue).
+* **Preserve local configuration.** Users upgrade with `git pull`, so tracked files get overwritten. Never ask users to edit tracked core files. Put user-specific or mutable settings in untracked local files created from a `.sample` file (`pypowerwall.env`, `compose.env`, `grafana.env`, `influxdb.env`, `telegraf.local`, `powerwall.extend.yml`, `weather/weather411.conf`), and make new options optional with safe defaults. The timezone substitution done by `tz.sh` in tracked files is a legacy exception; don't add more like it.
+* **Keep the UX consistent.** For dashboards, match the existing fonts, colors, fill modes, labels and infographic style; for the CLI (`setup.sh`, `upgrade.sh`, `verify.sh`, ...), match the existing prompts, wording and output layout. The goal is simple, intuitive, clean and consistent. Design changes need maintainer review, so discuss them in an issue before opening a PR.
+* **Document clearly and concisely.** The community ranges from novices to expert enthusiasts. Write for the novice without burying the expert: plain steps, copy-pasteable commands, and no unexplained jargon.
+
 ## Merging to `main` is releasing
 
 Users install by cloning this repo, and `upgrade.sh` updates them with `git stash` + `git pull --rebase`. It also downloads the latest `upgrade.sh` from `main` and runs that. So **anything merged to `main` is live for every user the next time they upgrade**. Do not push directly to `main`; use a branch and a PR.
@@ -48,6 +56,7 @@ The timezone is substituted by `tz.sh` into `telegraf.conf`, `influxdb/influxdb.
 
 * Dashboards in `dashboards/` are exported Grafana JSON. Keep them valid, and apply changes consistently to the variants (`dashboard.json`, `-no-animation`, `-no-sunmoon`, `-simple`, `-alt`, `-min-mean-max`, `-solar-only`) when the change is relevant to them.
 * Tracked files like `influxdb.sql` and `telegraf.conf` get rewritten on users' machines by `tz.sh`. Keep the default timezone string in the repo so `tz.sh` can find and replace it.
+* New dashboard panels must follow the existing look (fonts, colors, fill, labels) and work for the supported system types, or be left out of the variants where they don't apply.
 * Don't commit secrets or local files: `*.env` (only `*.env.sample`), `telegraf.local`, `.auth/`, `.pypowerwall_data/`.
 
 ## Documentation
