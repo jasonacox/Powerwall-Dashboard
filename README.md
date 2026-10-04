@@ -424,6 +424,7 @@ There are several ways you can support this project.
 * Telegraf at https://github.com/influxdata/telegraf
 * InfluxDB at https://github.com/influxdata/influxdb
 * pyPowerwall at https://github.com/jasonacox/pypowerwall
+* SunCalc by Volodymyr Agafonkin at https://github.com/mourner/suncalc - the Sun and Moon panel uses a compact port of SunCalc's sun/moon position calculations, used under the BSD-2-Clause license (see [THIRD_PARTY_LICENSES](dashboards/THIRD_PARTY_LICENSES)).
 * Special thanks to the entire Powerwall-Dashboard community for the great engagement, contributions and encouragement! See [RELEASE notes](RELEASE.md#release-notes) for the ever growing list of improvements, tools and cast members making this project possible.
 
 ## Contributors
