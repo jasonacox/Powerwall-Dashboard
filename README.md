@@ -1,8 +1,6 @@
 # Powerwall-Dashboard
 
-Monitoring Dashboard for Tesla Solar and Powerwall systems using Grafana, InfluxDB, Telegraf and pyPowerwall.
-
-> ⚠️ **NOTICE:** As of Powerwall Firmware version 25.10.0, network routing to the TEDAPI endpoint (`192.168.91.1`) is no longer supported by Tesla. You must connect directly to the Powerwall's WiFi access point to use TEDAPI features. If you previously set up a static route for TEDAPI, you can remove it using `./add_route.sh -disable`.
+Monitoring Dashboard for Tesla Solar and Powerwall systems using Grafana, InfluxDB, Telegraf and pyPowerwall. Includes live power flow animation, trending data, detailed weather and sun/moon tracking, and extended metrics like system alerts, string data, battery capacity, temperatures, fan speeds, and other internal telemetry via TEDAPI for compatible Powerwall systems.
 
 ![Animation](https://user-images.githubusercontent.com/13752647/198901193-6f5d3f34-3ef6-4d6d-95ff-892a3763541b.png)
 ![Monthly](https://user-images.githubusercontent.com/836718/214475577-2a633228-4db0-41b8-8738-51642222f462.png)
@@ -273,6 +271,7 @@ Check the logs of the services using:
 * Powerwall 3 system owners: For systems with a PW3 and GW2 wanting to use an ethernet cable rather than WiFi to collect data, be sure to run the cable to the PW3 and not the GW2.
 * Synology upgrade failure: Your system may have two git versions installed: /usr/bin/git and /opt/bin/git. Update PATH to use /usr/bin/git first, and then run upgrade script ([discussion](https://github.com/jasonacox/Powerwall-Dashboard/discussions/385#discussioncomment-11923607))
 * Metrics stop working after upgrade: If, in Tesla One, the system is showing as "Stopped" TEDAPI queries will fail as well. Possible fix: power cycle the systems.
+* As of Powerwall Firmware version 25.10.0, network routing to the TEDAPI endpoint (`192.168.91.1`) is no longer supported by Tesla. You must connect directly to the Powerwall's WiFi access point to use TEDAPI features. If you previously set up a static route for TEDAPI, you can remove it using `./add_route.sh -disable`.
 
 #### Missing Powerwalls or String data?
 
