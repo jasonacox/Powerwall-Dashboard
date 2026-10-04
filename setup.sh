@@ -365,12 +365,14 @@ while true; do
 
     # 4) POSIX / RFC style TZ strings (e.g. GMT, UTC, GMT+5, EST5EDT, etc.)
     # Only accept if it contains at least one alphabetic character to avoid numeric garbage like '1'.
-    # NOTE: POSIX TZ strings never contain '/'. By this point any slashed value is
-    # an unrecognized IANA zone name - almost certainly a typo like 'American/Denver'.
-    # glibc happily parses any leading alphabetic run as a zone abbreviation and
-    # returns success, so without the slash guard these bogus values slip through
-    # here and later break InfluxDB ("unable to find time zone ...").
-    if [[ "$TZ" != */* ]] && [[ "$TZ" =~ [A-Za-z] ]]; then
+    # NOTE: In a POSIX TZ string, '/' only appears in the optional DST rule section after
+    # the first comma (e.g. EST5EDT,M3.2.0/2,M11.1.0/2). A '/' in the zone part before it
+    # means an unrecognized IANA name - almost certainly a typo like 'American/Denver'.
+    # glibc parses any leading alphabetic run as a zone abbreviation and returns success,
+    # so without this guard such values slip through and later break InfluxDB
+    # ("unable to find time zone ...").
+    TZ_ZONE_PART="${TZ%%,*}"
+    if [[ "$TZ_ZONE_PART" != */* ]] && [[ "$TZ" =~ [A-Za-z] ]]; then
         if TZ="$TZ" date +%Z >/dev/null 2>&1; then
             echo "Note: '$TZ' accepted as POSIX TZ string (not an Olson zone identifier)."
             break
@@ -379,7 +381,7 @@ while true; do
 
     echo ""
     echo "WARNING: '$TZ' is not a recognized timezone."
-    if [[ "$TZ" == */* ]]; then
+    if [[ "$TZ_ZONE_PART" == */* ]]; then
         echo "Hint: '$TZ' looks like a misspelled timezone name - check the spelling"
         echo "      (e.g. America/Denver), or enter '?' to browse valid timezones."
     fi
