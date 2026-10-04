@@ -10,11 +10,29 @@ Monitoring Dashboard for Tesla Solar and Powerwall systems using Grafana, Influx
 ![Alerts](https://user-images.githubusercontent.com/836718/214474307-9c85de97-3730-4e2c-a4a1-0173be3e0ea1.png)
 ![Weather](https://github.com/user-attachments/assets/43871f82-b8e7-4875-b093-84d08e68e65b)
 
+## Contents
+
+* [Dashboards](#dashboards)
+* [Requirements](#requirements)
+* [Setup](#setup)
+    * [Option 1 - Quick Start](#option-1---quick-start) - run `./setup.sh`
+    * [Option 2 - Manual Install](#option-2---manual-install)
+    * [Grafana Setup](#grafana-setup) - datasources and importing dashboards
+* [Platform Notes](#platform-notes) - Windows 11, Synology and rootless Docker
+* [Upgrading](#upgrading)
+* [Powerwall 3](#powerwall-3)
+* [Troubleshooting](#troubleshooting)
+* [Tips and Tricks](#tips-and-tricks) - raw data API, data retention and backups
+* [Other Tools and Related Projects](#other-tools-and-related-projects)
+* [Support](#support)
+* [Acknowledgements](#acknowledgements)
+* [Contributors](#contributors)
+
 ## Dashboards
 
 The default [dashboard.json](dashboards/dashboard.json) shown above, pulls in live power data from the local Tesla Energy Gateway or the Tesla Cloud and displays that on the Grafana dashboard. A power flow animation is rendered by the pyPowerwall container using that live data.
 
-A non-animated version of the dashboard is also available using [dashboard-no-animation.json](dashboards/dashboard-no-animation.json)
+Alternative dashboards are also available, including a non-animated version ([dashboard-no-animation.json](dashboards/dashboard-no-animation.json)) and one without the Sun and Moon card ([dashboard-no-sunmoon.json](dashboards/dashboard-no-sunmoon.json)). See the [dashboards folder](dashboards/) for the full list.
 
 ![Dashboard](https://user-images.githubusercontent.com/13752647/155657200-4309306d-84c1-40b7-8f4c-32ef0e8d2efe.png)
 
@@ -24,7 +42,7 @@ The host system will require:
 
 * docker ([install help](tools/DOCKER.md))
 * docker-compose (works with docker compose (v2) as well)
-* You should not need to run `sudo` to install this tool. See [Docker Errors](#docker-errors) below for help.
+* You should not need to run `sudo` to install this tool. See [Docker Errors](#docker-errors) for help.
 * TCP ports: 8086 (InfluxDB), 8675 (pyPowerwall), and 9000 (Grafana)
 
 ## Setup
@@ -35,7 +53,9 @@ Clone this repo on the host that will run the dashboard:
     git clone https://github.com/jasonacox/Powerwall-Dashboard.git
 ```
 
-## Option 1 - Quick Start
+Then choose **one** of the two install methods below: the interactive setup script (recommended) or a manual install. Both finish with [Grafana Setup](#grafana-setup).
+
+### Option 1 - Quick Start
 
 Run the interactive setup script that will ask you for your setup details.
 
@@ -53,16 +73,16 @@ The dashboard can be installed in five different configurations.
 
     1 - Local Access     (Powerwall 1, 2, or + using the Tesla Gateway on LAN) - Default
     2 - Tesla Cloud      (Solar-only systems or Powerwalls without LAN access)
-    3 - FleetAPI Cloud   (Powerwall systems using Official Telsa API)
+    3 - FleetAPI Cloud   (Powerwall systems using Official Tesla API)
     4 - Extended Metrics (Powerwall 2, +, or 3 using TEDAPI and local WiFi access)
     5 - Wired LAN (v1r)  (Powerwall 3 over ethernet with RSA key authentication)
   ```
 
-### Local Mode
+#### Local Mode
 
-For Powerwall 1, 2 or + owners with a Tesla Energy Gateway accessible on their LAN, select `option 1` (Local Access). Powerwall 3 owners will need to select one of the cloud options or `option 4`.
+For Powerwall 1, 2 or + owners with a Tesla Energy Gateway accessible on their LAN, select `option 1` (Local Access). Powerwall 3 owners will need to select one of the cloud options (`option 2` or `3`), `option 4` (Extended Metrics) or `option 5` (Wired LAN).
 
-### Extended Metrics Mode
+#### Extended Metrics Mode
 
 The Powerwall Dashboard can access additional metrics through the TEDAPI interface on the Powerwall/Gateway. To use this feature:
 
@@ -95,24 +115,18 @@ Using the pypowerwall python library you can test to see if you have access to T
   python -m pypowerwall.tedapi
 ```
 
-If you get a positive result, you can proceed with setup (`./setup.sh`) and selection option 1 or 4.
+If you get a positive result, you can proceed with setup (`./setup.sh`) and select option 1 or 4. Powerwall 3 owners, see also the [Powerwall 3](#powerwall-3) section.
 
-#### Powerwall 3 Owners (Requires TEDAPI)
-
-If you have access to the Powerwall 192.168.91.1 endpoint (see local mode Extended Device Vitals Metrics note above), you can select option 4 to activate Extended Metrics mode. All data will be pulled from the local Gateway TEDAPI endpoint (requires connecting to Powerwall's WiFi access point). The password will be located on the QR sticker on the Powerwall 3 itself. If you have problems with your setup for the Powerwall 3, see troubleshooting section below.
-
-_Note: This mode also works for Powerwall 2/+ systems. Unlike TEDAPI hybrid mode which uses some existing local APIs, this full mode provides calculated values for extended metrics missing in the TEDAPI payload._
-
-### Wired LAN (v1r) Mode
+#### Wired LAN (v1r) Mode
 
 For Powerwall 3 owners who have their dashboard host connected to the same wired network as the Powerwall 3 leader's ethernet port, select `option 5` (Wired LAN / v1r). This mode uses RSA-4096 key authentication over ethernet and does not require WiFi connectivity to `192.168.91.1`.
 
 * The Powerwall 3 leader's ethernet port must be on a routable subnet (typically `10.42.1.x/24`).
-* Setup will prompt for the full 10-character password from the QR sticker on your Powerwall 3 unit (not the shorter 5-character local API password). This is the same password used for TEDAPI mode — see [Powerwall 3](#powerwall-3) notes below.
+* Setup will prompt for the full 10-character password from the QR sticker on your Powerwall 3 unit (not the shorter 5-character local API password). This is the same password used for TEDAPI mode — see the [Powerwall 3](#powerwall-3) section.
 * Setup will run `pypowerwall setup -v1r` inside the container to generate and register an RSA key pair with the Powerwall via the Tesla Owner API.
 * Optionally, if your host can also reach `192.168.91.1` via WiFi, provide that as the `PW_WIFI_HOST` to enable hybrid fallback mode for follower Powerwall data and improved data completeness.
 
-### Cloud and FleetAPI Mode
+#### Cloud and FleetAPI Mode
 
 For Tesla Solar or Powerwall 3 owners without TEDAPI access, select `option 2` (Tesla Owners unofficial Cloud API) or `option 3` (Tesla official FleetAPI) and the dashboard will be installed to pull data from the Tesla Cloud API. This mode should work for ALL systems but will have slightly less details and fidelity than the "Local Access" mode.
 
@@ -127,23 +141,13 @@ python3 -m pypowerwall authtoken
 
 This will open a browser window for Tesla account login and display both tokens to copy. Alternative: use the [tesla_auth](https://github.com/adriankumpf/tesla_auth) desktop app (Windows/macOS/Linux) to generate tokens.
 
-### Timezone
+#### Timezone
 
-Next, you will then be asked for your Local *timezone*, and your Powerwall details or Tesla Cloud login details. To find your timezone, see the second column in this table: [https://en.wikipedia.org/wiki/List_of_tz_database_time_zones](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List)
+Setup will ask for your local *timezone*, followed by your Powerwall details or Tesla Cloud login details. Enter an IANA timezone name such as `America/Los_Angeles` (use `?` at the prompt to browse the list). To find yours, see the second column in this table: [https://en.wikipedia.org/wiki/List_of_tz_database_time_zones](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List)
 
-### Troubleshooting
+InfluxDB only understands IANA names, so `setup.sh` warns if the name is not recognized (for example, a misspelling like `American/Denver`). Setting up with an unrecognized timezone will cause InfluxDB setup to fail.
 
-  * _If you experience issues with your Powerwall or Tesla Cloud login details, re-run `setup.sh` to try again._
-  * _If you get docker errors during the setup, see the [Docker Errors](#docker-errors) section below._
-  * _For Windows 11 users, see the [Windows 11 Instructions](#windows-11-instructions) below._
-  * _Powerwall 3 Owners - The password you will use for local TEDAPI setup is the one on the sticker on the PW3 itself, not the one on the Gateway._
-  * _Powerwall 3 / TEDAPI local access not working or data stops after hours? Run `./verify.sh --tedapi` for a detailed Gateway diagnostic (see [Powerwall 3](#powerwall-3) section)._
-
-### Grafana Setup
-
-Follow the **[Grafana Setup](#grafana-setup-1)** instructions (see below) to complete the setup.
-
-### Enable Watchdog (Optional)
+#### Enable Watchdog (Optional)
 
 You can use the watchdog.sh script to monitor the health of the pypowerwall container and restart it if it becomes unhealthy. Running the command below will install it in your crontab to run every 5 minutes.
 
@@ -152,7 +156,11 @@ You can use the watchdog.sh script to monitor the health of the pypowerwall cont
 ./watchdog.sh -enable
 ```
 
-## Option 2 - Manual Install
+#### Next Steps
+
+When setup completes, continue with [Grafana Setup](#grafana-setup). If you run into problems, see [Troubleshooting](#troubleshooting).
+
+### Option 2 - Manual Install
 
 If you prefer, you can perform the same steps that `setup.sh` performs.
 
@@ -165,7 +173,7 @@ You will want to set your local timezone by editing `pypowerwall.env`, `telegraf
     bash tz.sh "America/Los_Angeles"
   ```
 
-### Docker Containers
+#### Docker Containers
 
 * Copy `pypowerwall.env.sample` to `pypowerwall.env` and update the following details for your Powerwall:
 
@@ -204,7 +212,7 @@ You will want to set your local timezone by editing `pypowerwall.env`, `telegraf
     ./compose-dash.sh up -d
   ```
 
-### InfluxDB
+#### InfluxDB
 
 * Connect to the Influx database to import setup commands:
 
@@ -242,17 +250,97 @@ Note: It can take a while for InfluxDB to start.  Also the influxdb.sql file is 
   2. `dashboard-no-animation.json` - Similar to above but without the animated power flow diagram.
   3. `dashboard-simple.json` - Similar to above but without the Powerwall+ metrics.
   4. `dashboard-solar-only.json` - For Tesla [Solar Only](tools/solar-only/) users, similar to above but without the animated power flow diagram or the Powerwall+ metrics.
+  5. `dashboard-no-sunmoon.json` - Same as `dashboard.json` but without the Sun and Moon arc card.
 
-### Notes
+See the [dashboards folder](dashboards/) for these and other alternative dashboards.
+
+#### Dashboard Notes
 
 * The database queries are set to use `America/Los_Angeles` as the timezone. Remember to edit the database commands [influxdb.sql](influxdb/influxdb.sql) with your own timezone. During import of dashboards into Grafana you'll be prompted to enter your timezone for queries.
 * The "Sun and Moon" panel in the Weather row draws today's sun and moon path in the browser. It uses the latitude and longitude that `setup.sh` saves in the Sun and Moon datasource (`grafana/provisions/datasources/sunandmoon.yml`), so there is nothing to enter on import. Re-run `setup.sh` or edit that file to change the location.
 
-### Upgrading
+## Platform Notes
+
+Extra setup help for specific platforms.
+
+### Windows 11 Instructions
+
+Installing Powerwall-Dashboard on a Windows 11 host requires some additional setup. Install and Setup using **administrator** PowerShell or Windows Command Prompt:
+
+If required, see [WINDOWS.md](WINDOWS.md) for notes on how to upgrade your WSL installation from WSL1 to WSL2, or for an installation *without Docker Desktop* - only recommended for very advanced users.
+
+* (optional) install *Windows Terminal* [Windows Terminal](https://aka.ms/terminal)
+* Install WSL `wsl --install` with a Linux distro (recommend Ubuntu - this is the default WSL Linux distro if you install with wsl --install)
+* Install *Docker Desktop* for Windows [Docker Desktop](https://www.docker.com/products/docker-desktop/) (after install, note sign in is optional, and to ensure the docker engine starts automatically go to Settings and select _Start Docker Desktop when you log in_)
+* Start your WSL from the shortcut for Ubuntu (or your chosen distro) that will have been set up when you installed WSL or from Windows Terminal
+* Make sure you are in your home directory `cd ~`
+* Clone repo (`git clone https://github.com/jasonacox/Powerwall-Dashboard.git`)
+* Run `cd Powerwall-Dashboard`
+* Run `./setup.sh`
+
+### Synology NAS and Rootless Docker
+
+* If you are having trouble getting this to work on a Synology NAS, view the resolution discovered in [Issue #22](https://github.com/jasonacox/Powerwall-Dashboard/issues/22) thanks to @jaydkay.
+* If you are running docker as a non-privileged (rootless) user, please see some setup help [here](https://github.com/jasonacox/Powerwall-Dashboard/issues/22#issuecomment-1254699603) thanks to @BuongiornoTexas.
+* Most of the issues running the Dashboard on Synology NAS are related to user or file permission issues. Ensure that the `conf`, `env` and `sql` files are readable by the docker services (most can be set `chmod 644`).
+
+## Upgrading
 
 * The included `upgrade.sh` script will attempt to upgrade your installation to the latest Powerwall-Dashboard version without removing existing data. A backup is still recommended.
 
-### Troubleshooting Tips and Tricks
+## Powerwall 3
+
+The new Powerwall 3 does not have the local APIs that were found on the Powerwall 2/+ systems. However, it does provide APIs available via its internal Gateway WiFi access point at 192.168.91.1. If you add your Powerwall 3 to your local network (e.g. ethernet hardwire) or create a WiFi bridge to this access point, you are able to get the extended metrics from the /tedapi API. Additionally, users can use the "Tesla Cloud" mode to generate the basic graph data. It is more limited than the local APIs but does provide the core data  points. See details in the Powerwall 3 Support issue: https://github.com/jasonacox/Powerwall-Dashboard/issues/387
+
+### Setup Options
+
+If you have access to the Powerwall 192.168.91.1 endpoint (see [Extended Metrics Mode](#extended-metrics-mode)), you can select option 4 to activate Extended Metrics mode. All data will be pulled from the local Gateway TEDAPI endpoint (requires connecting to Powerwall's WiFi access point). The password will be located on the QR sticker on the Powerwall 3 itself. If you have problems with your setup, see [Diagnosing Connection Problems](#diagnosing-connection-problems) below.
+
+_Note: This mode also works for Powerwall 2/+ systems. Unlike TEDAPI hybrid mode which uses some existing local APIs, this full mode provides calculated values for extended metrics missing in the TEDAPI payload._
+
+Other options: if the dashboard host is on the same wired network as the Powerwall 3, see [Wired LAN (v1r) Mode](#wired-lan-v1r-mode). For basic data without TEDAPI access, see [Cloud and FleetAPI Mode](#cloud-and-fleetapi-mode).
+
+### Configuration
+
+Since the Powerwall 3 does not have previous generation APIs, you will need to use the `full` TEDAPI mode. This requires that the PW_EMAIL and PW_PASSWORD environmental variables are empty and that PW_GW_PWD is set to the Powerwall 3 Gateway WiFi password (usually found on the QR code either located [inside the glass cover](https://github.com/jasonacox/Powerwall-Dashboard/discussions/694#discussioncomment-14589042) or on the outside of the unit, left side).
+
+Example of a working `pypowerwall.env` file for Powerwall 3:
+
+```
+PW_EMAIL=
+PW_PASSWORD=
+PW_HOST=192.168.91.1
+PW_TIMEZONE=America/Los_Angeles
+TZ=America/Los_Angeles
+PW_DEBUG=no
+PW_STYLE=grafana-dark
+PW_GW_PWD=<YOUR_PW3_PASSWORD> 
+```
+
+Note, for Powerwall 3 systems, the PW_GW_PWD will be the password you find on the Powerwall 3 itself, not the gateway password. This password is printed on the label under the Powerwall 3 glass cover, visible during installation. If you have multiple Powerwalls, use the one from the primary Powerwall 3.
+
+### Diagnosing Connection Problems
+
+Some have reported issues setting up their Powerwall 3 and the local 192.168.91.1 access point. Make sure that this IP address is reachable from the host running the Dashboard (e.g. `ping` or `curl` commands).
+
+If the Gateway is unreachable or data collection is flaky, you can run a detailed step-by-step diagnostic of the local WiFi/TEDAPI path:
+
+```
+./verify.sh --tedapi
+```
+
+It checks your WiFi connection and lease, layer-2 reachability, the local API on port 443 and the TEDAPI endpoint, then classifies the failure (not connected / local API wedged or filtering / service down / healthy but not authenticated) and prints suggested next steps. Note: newer Powerwall 3 firmware can block `ping` (ICMP) even when everything is working, so a failing ping alone is not a diagnosis - see [issue #854](https://github.com/jasonacox/Powerwall-Dashboard/issues/854) for the pattern where the local API stops answering while the Tesla app (cloud) stays healthy.
+
+## Troubleshooting
+
+### Setup Problems
+
+  * _If you experience issues with your Powerwall or Tesla Cloud login details, re-run `setup.sh` to try again._
+  * _If you get docker errors during the setup, see the [Docker Errors](#docker-errors) section below._
+  * _For Windows 11 users, see the [Windows 11 Instructions](#windows-11-instructions)._
+  * _Powerwall 3 / TEDAPI local access not working or data stops after hours? Run `./verify.sh --tedapi` for a detailed Gateway diagnostic (see [Diagnosing Connection Problems](#diagnosing-connection-problems))._ The password for Powerwall 3 TEDAPI setup is the one on the sticker on the Powerwall 3 itself, not the Gateway (see [Powerwall 3](#powerwall-3)).
+
+### Logs and Common Issues
 
 Check the logs of the services using:
 
@@ -273,12 +361,12 @@ Check the logs of the services using:
 * Metrics stop working after upgrade: If, in Tesla One, the system is showing as "Stopped" TEDAPI queries will fail as well. Possible fix: power cycle the systems.
 * As of Powerwall Firmware version 25.10.0, network routing to the TEDAPI endpoint (`192.168.91.1`) is no longer supported by Tesla. You must connect directly to the Powerwall's WiFi access point to use TEDAPI features. If you previously set up a static route for TEDAPI, you can remove it using `./add_route.sh -disable`.
 
-#### Missing Powerwalls or String data?
+### Missing Powerwalls or String data?
 
 * String data only shows up for Tesla inverters as part of Powerwall+ systems.  Unfortunately, non-Tesla inverter data is not available via the Tesla API. If you find a way to pull this data, please submit an Issue or Pull Request to get it added.
 * The default dashboard and InfluxDB setup supports up to 12 Tesla Powerwalls. Support for more can be added by editing the [dashboard.json](dashboards/dashboard.json) and [influxdb.sql](influxdb/influxdb.sql) files. Open an Issue and we can help (see [#2](https://github.com/jasonacox/Powerwall-Dashboard/issues/2)).
 
-#### Docker Errors
+### Docker Errors
 
 If you are getting permission errors running docker, or an error that it isn't installed:
 * Ensure docker is installed for your OS (run `docker version` to test)
@@ -314,7 +402,7 @@ If you are getting permission errors running docker, or an error that it isn't i
   docker compose version
   ```
 
-#### Savings Errors
+### Savings Errors
 
 The savings estimates are based on a $0.19/kWh (by default) utility cost and net metering credit. You likely have a different value for this and during importing dashboards indicate your average cost per kWh to reflect your actual costs and credits. As of now there's one variable to set both cost and credit per kWh. To help, here are the variables used to calculate the savings:
 
@@ -329,59 +417,7 @@ The equations that are used to compute the estimated savings:
 * `solar>home` = (`s` - `tp` - `tg`) * `$/kWh`  [assumes all solar not going to PW or grid is going to the home = savings]
 * `solar>grid` = `tg` * `$/kWh`  [assumes all power going to grid = savings]
 
-#### Synology NAS and Rootless Docker
-
-* If you are having trouble getting this to work on a Synology NAS, view the resolution discovered in [Issue #22](https://github.com/jasonacox/Powerwall-Dashboard/issues/22) thanks to @jaydkay.
-* If you are running docker as a non-privileged (rootless) user, please some setup help [here](https://github.com/jasonacox/Powerwall-Dashboard/issues/22#issuecomment-1254699603) thanks to @BuongiornoTexas.
-* Most of the issues running the Dashboard on Synology NAS are related to user or file permission issues. Ensure that the `conf`, `env` and `sql` files are readable by the docker services (most can be set `chmod 644`).
-
-#### Windows 11 Instructions
-
-Installing Powerwall-Dashboard on a Windows 11 host requires some additional setup. Install and Setup using **administrator** PowerShell or Windows Command Prompt:
-
-If required, see [WINDOWS.md](WINDOWS.md) for notes on how to upgrade your WSL installation from WSL1 to WSL2, or for an installation *without Docker Desktop* - only recommended for very advanced users.
-
-* (optional) install *Windows Terminal* [Windows Terminal](https://aka.ms/terminal)
-* Install WSL `wsl --install` with a Linux distro (recommend Ubuntu - this is the default WSL Linux distro if you install with wsl --install)
-* Install *Docker Desktop* for Windows [Docker Desktop](https://www.docker.com/products/docker-desktop/) (after install, note sign in is optional, and to ensure the docker engine starts automatically go to Settings and select _Start Docker Desktop when you log in_)
-* Start your WSL from the shortcut for Ubuntu (or your chosen distro) that will have been set up when you installed WSL or from Windows Terminal
-* Make sure you are in your home directory `cd ~`
-* Clone repo (`git clone https://github.com/jasonacox/Powerwall-Dashboard.git`)
-* Run `cd Powerwall-Dashboard`
-* Run `./setup.sh`
-
-#### Powerwall 3
-
-The new Powerwall 3 does not have the local APIs that were found on the Powerwall 2/+ systems. However, it does provide APIs available via its internal Gateway WiFI access point at 192.168.91.1. If you add your Powerwall 3 to your local network (e.g. ethernet hardwire) or create a WiFi bridge to this access point, you are able to get the extended metrics from the /tedapi API. Additionally, users can use the "Tesla Cloud" mode to generate the basic graph data. It is more limited than the local APIs but does provide the core data  points. See details in the Powerwall 3 Support issue: https://github.com/jasonacox/Powerwall-Dashboard/issues/387
-
-Some have reported issues setting up their Powerwall 3 and the local 192.168.91.1 access point. Make sure that this IP address is reachable from the host running the Dashboard (e.g. `ping` or `curl` commands).
-
-If the Gateway is unreachable or data collection is flaky, you can run a detailed step-by-step diagnostic of the local WiFi/TEDAPI path:
-
-```
-./verify.sh --tedapi
-```
-
-It checks your WiFi connection and lease, layer-2 reachability, the local API on port 443 and the TEDAPI endpoint, then classifies the failure (not connected / local API wedged or filtering / service down / healthy but not authenticated) and prints suggested next steps. Note: newer Powerwall 3 firmware can block `ping` (ICMP) even when everything is working, so a failing ping alone is not a diagnosis - see [issue #854](https://github.com/jasonacox/Powerwall-Dashboard/issues/854) for the pattern where the local API stops answering while the Tesla app (cloud) stays healthy.
-
-Since the Powerwall 3 does not have previous generation APIs, you will need to use the `full` TEDAPI mode. This requires that the PW_EMAIL and PW_PASSWORD environmental variables are empty and that PW_GW_PWD is set to the Powerwall 3 Gateway WiFi password (usually found on the QR code either located [inside the glass cover](https://github.com/jasonacox/Powerwall-Dashboard/discussions/694#discussioncomment-14589042) or on the outside of the unit, left side).
-
-Example of a working `pypowerwall.env` file for Powerwall 3:
-
-```
-PW_EMAIL=
-PW_PASSWORD=
-PW_HOST=192.168.91.1
-PW_TIMEZONE=America/Los_Angeles
-TZ=America/Los_Angeles
-PW_DEBUG=no
-PW_STYLE=grafana-dark
-PW_GW_PWD=<YOUR_PW3_PASSWORD> 
-```
-
-Note, for Powerwall 3 systems, the PW_GW_PWD will be the password you find on the Powerwall 3 itself, not the gateway password. This password is printed on the label under the Powerwall 3 glass cover, visible during installation. If you have multiple Powerwalls, use the one from the primary Powerwall 3.
-
-#### Tips and Tricks
+## Tips and Tricks
 
 Since [pyPowerwall proxy](https://github.com/jasonacox/pypowerwall/tree/main/proxy) is part of this dashboard stack, you can query it to get raw data (read only) from the Powerwall API.  This includes some aggregate functions you might find useful for other projects.  I use this for [ESP32 driven display](https://github.com/jasonacox/Powerwall-Display) for example. Replace localhost with the address of the system running the dashboard:
 
@@ -399,14 +435,15 @@ Since [weather411](https://hub.docker.com/r/jasonacox/weather411) is part of thi
 * Current conditions: http://localhost:8676/
 * Current conditions in JSON: http://localhost:8676/json
 
-**Data Retention and Backups**
+### Data Retention and Backups
+
 InfluxDB is configured to use an infinite retention policy (see [influxdb.sql](influxdb/influxdb.sql)).  It uses continuous queries to downsample Powerwall data and preserve disk space.  However, this does not safeguard the data from accidental deletion or corruption.  It is recommended that you set up a backup plan to snapshot the data for disaster recovery. See [backups](backups/) for some suggestions.
 
-### Other Tools and Related Projects
+## Other Tools and Related Projects
 
 * NetZero app - iOS and Android App for monitoring your System - https://www.netzeroapp.io/
 
-### Support
+## Support
 
 There are several ways you can support this project.
 
@@ -415,7 +452,7 @@ There are several ways you can support this project.
 * Help test the installation and upgrades. We need help testing the project on different platforms and versions of Powerwalls. Report your finding and any suggestions to make it easier to setup and use.
 * Some of you have asked how you can contribute to help fund the project. This is work of love and a hobby. I'm not looking for financial help. However, if you are considering purchasing a Tesla Solar and/or Powerwall system, please take advantage of this code for a discount and I'll get a referral credit as well: https://www.tesla.com/referral/jason50054
 
-### Acknowledgements 
+## Acknowledgements
 
 * [Tesla Energy](https://www.tesla.com/energy/design?referral=jason50054&redirect=no) - Tesla is not affiliated with this project but we want to thank the brilliant minds at Tesla for creating such a great system for solar home energy generation. Tesla and Powerwall are trademarks of Tesla, Inc.
 * This project was based on the great work by mihailescu2m at [https://github.com/mihailescu2m/powerwall_monitor](https://github.com/mihailescu2m/powerwall_monitor) and has been modified to use pypowerwall as a proxy to the Powerwall and includes solar String, Inverter and Powerwall Temperature graphs for Powerwall+ and Powerwall 3 systems.
