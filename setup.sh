@@ -363,28 +363,13 @@ while true; do
         fi
     fi
 
-    # 4) POSIX / RFC style TZ strings (e.g. GMT, UTC, GMT+5, EST5EDT, etc.)
-    # Only accept if it contains at least one alphabetic character to avoid numeric garbage like '1'.
-    # NOTE: In a POSIX TZ string, '/' only appears in the optional DST rule section after
-    # the first comma (e.g. EST5EDT,M3.2.0/2,M11.1.0/2). A '/' in the zone part before it
-    # means an unrecognized IANA name - almost certainly a typo like 'American/Denver'.
-    # glibc parses any leading alphabetic run as a zone abbreviation and returns success,
-    # so without this guard such values slip through and later break InfluxDB
-    # ("unable to find time zone ...").
-    TZ_ZONE_PART="${TZ%%,*}"
-    if [[ "$TZ_ZONE_PART" != */* ]] && [[ "$TZ" =~ [A-Za-z] ]]; then
-        if TZ="$TZ" date +%Z >/dev/null 2>&1; then
-            echo "Note: '$TZ' accepted as POSIX TZ string (not an Olson zone identifier)."
-            break
-        fi
-    fi
-
+    # No POSIX TZ string fallback: the value is used in InfluxDB tz('...') clauses, which
+    # only resolve IANA names (Go time.LoadLocation). glibc's `date` accepts almost any
+    # alphabetic string (e.g. 'American/Denver'), so it is not a usable validity check.
     echo ""
     echo "WARNING: '$TZ' is not a recognized timezone."
-    if [[ "$TZ_ZONE_PART" == */* ]]; then
-        echo "Hint: '$TZ' looks like a misspelled timezone name - check the spelling"
-        echo "      (e.g. America/Denver), or enter '?' to browse valid timezones."
-    fi
+    echo "         Use an IANA name such as America/Denver (enter '?' to browse)."
+    echo "         InfluxDB will fail to set up with an unrecognized timezone."
     echo -n "Do you wish to use this timezone anyway? [y/N] "
     read -r response
     if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
