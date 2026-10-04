@@ -94,7 +94,7 @@ The timezone is substituted by `tz.sh` into `telegraf.conf`, `influxdb/influxdb.
 
 ## Secrets and privacy
 
-Never print, log or commit passwords, tokens, RSA keys, emails or `PW_HOST` values. Users paste script output into public issues, so diagnostics must mask sensitive values (see how `verify.sh --tedapi` masks `PW_HOST`).
+Never print, log or commit passwords, tokens, RSA keys, emails or `PW_HOST` values. Users paste script output into public issues, so diagnostics must mask sensitive values (see how `verify.sh` masks values from `pypowerwall.env` and `compose.env`).
 
 ## Upstream projects
 
