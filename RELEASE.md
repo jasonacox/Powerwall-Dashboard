@@ -1,5 +1,17 @@
 # RELEASE NOTES
 
+## v5.3.1 - Sun and Moon arc card
+
+### New Features
+
+* **Sun and Moon arc card in the Weather row** — a browser-rendered panel showing today's sun path with sunrise, sunset and solar noon; twilight and night shading; the sun at its current altitude; and the moon's track with a phase-shaped icon and % lit readout. It is a stock Grafana text panel rendering inline SVG — no plugin, no datasource, no queries. Positions are computed in the browser by a compact port of [SunCalc](https://github.com/mourner/suncalc), used under its BSD-2-Clause license and documented in `dashboards/THIRD_PARTY_LICENSES`. Location comes from the latitude and longitude that `setup.sh` already writes to the Sun and Moon datasource, so there is nothing new to enter on import; with no location set, the panel points you at `setup.sh` rather than drawing the wrong place. Handles polar day/night and the southern hemisphere, follows the Grafana light/dark theme, and redraws every minute and on resize. The two weather graphs are stacked so their time axes align, with the Sun and Moon card beside them. ([PR #868](https://github.com/jasonacox/Powerwall-Dashboard/pull/868) by **@holstein13**, follow-up to the Sun and Moon row exploration in [#805](https://github.com/jasonacox/Powerwall-Dashboard/pull/805))
+
+**Existing installs:** run `./upgrade.sh`, then re-import `dashboards/dashboard.json` to pick up the new panel. No datasource, InfluxDB or container changes are needed.
+
+### Contributors
+
+Thanks to **@holstein13** for the Sun and Moon arc card — a fully self-contained panel that matches the dashboard's palette and typography — and for iterating on the layout, horizon smoothing and DST handling.
+
 ## v5.3.0 - Powerwall 3 temperatures and fans
 
 ### New Features
