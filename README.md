@@ -248,6 +248,7 @@ Note: It can take a while for InfluxDB to start.  Also the influxdb.sql file is 
 ### Notes
 
 * The database queries are set to use `America/Los_Angeles` as the timezone. Remember to edit the database commands [influxdb.sql](influxdb/influxdb.sql) with your own timezone. During import of dashboards into Grafana you'll be prompted to enter your timezone for queries.
+* The "Sun and Moon" panel in the Weather row draws today's sun and moon path in the browser. It uses the latitude and longitude that `setup.sh` saves in the Sun and Moon datasource (`grafana/provisions/datasources/sunandmoon.yml`), so there is nothing to enter on import. Re-run `setup.sh` or edit that file to change the location.
 
 ### Upgrading
 
@@ -423,6 +424,7 @@ There are several ways you can support this project.
 * Telegraf at https://github.com/influxdata/telegraf
 * InfluxDB at https://github.com/influxdata/influxdb
 * pyPowerwall at https://github.com/jasonacox/pypowerwall
+* SunCalc by Volodymyr Agafonkin at https://github.com/mourner/suncalc - the Sun and Moon panel uses a compact port of SunCalc's sun/moon position calculations, used under the BSD-2-Clause license (see [THIRD_PARTY_LICENSES](dashboards/THIRD_PARTY_LICENSES)).
 * Special thanks to the entire Powerwall-Dashboard community for the great engagement, contributions and encouragement! See [RELEASE notes](RELEASE.md#release-notes) for the ever growing list of improvements, tools and cast members making this project possible.
 
 ## Contributors
