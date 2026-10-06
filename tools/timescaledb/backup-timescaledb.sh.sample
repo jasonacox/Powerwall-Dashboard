@@ -1,0 +1,54 @@
+#!/bin/bash
+#
+# Backup Script for Powerwall Dashboard TimescaleDB Data
+#   https://github.com/jasonacox/Powerwall-Dashboard
+#   modeled after backup.sh.sample (InfluxDB)
+
+# Daily Backup for Powerwall-Dashboard TimescaleDB Data
+if [ "$EUID" -ne 0 ]
+  then echo "Must run as root"
+  exit
+fi
+
+# Set values for your environment
+DASHBOARD="/home/user/Powerwall-Dashboard"    # Location of Dashboard to backup
+BACKUP_FOLDER="${DASHBOARD}/backups"          # Destination folder for backups
+KEEP="5"                                      # Days to keep backup
+
+# TimescaleDB connection settings -- must match timescaledb.env
+PG_USER="telegraf_powerwall"                  # POSTGRES_USER in timescaledb.env
+PG_DB="powerwall"                             # POSTGRES_DB in timescaledb.env
+
+# Check to see if directory exists
+if [ ! -d "${DASHBOARD}" ]; then
+  echo "Dashboard directory ${DASHBOARD} does not exist."
+  exit
+fi
+if [ ! -d "${BACKUP_FOLDER}" ]; then
+  echo "Backup directory ${BACKUP_FOLDER} does not exist."
+  exit
+fi
+
+# Timestamp for Backup Filename
+STAMP=$(date '+%Y-%m-%d')
+
+# Ask TimescaleDB to create a consistent logical backup (pg_dump custom
+# format). This is safe to run against a live database -- unlike copying
+# the timescaledb-data/ directory directly while the container is running,
+# which can capture a torn/inconsistent snapshot mid-write. Custom format
+# (-Fc) is compressed already, no need to pipe through gzip/xz.
+#
+# NOTE: pg_dump may print a warning about circular foreign keys on
+# TimescaleDB's internal "continuous_agg" catalog table. That's expected
+# (this project doesn't use continuous aggregates) and does not affect the
+# backup -- verified against a real restore.
+echo "Creating TimescaleDB Backup"
+cd ${DASHBOARD}
+docker exec -u postgres timescaledb pg_dump -U "${PG_USER}" -d "${PG_DB}" -Fc -f /tmp/powerwall.dump
+docker cp timescaledb:/tmp/powerwall.dump ${BACKUP_FOLDER}/timescaledb.$STAMP.dump
+docker exec -u postgres timescaledb rm -f /tmp/powerwall.dump
+
+# Cleanup Old Backups
+echo "Cleaning up old backups"
+find ${BACKUP_FOLDER}/timescaledb.*.dump -mtime +${KEEP} -type f -delete
+echo "Done"

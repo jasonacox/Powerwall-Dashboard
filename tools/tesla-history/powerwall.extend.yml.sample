@@ -2,7 +2,9 @@ version: "3.5"
 
 services:
     tesla-history:
-        image: jasonacox/tesla-history:0.1.9
+        build: ./tools/tesla-history
+        image: tesla-history-timescaledb:local
+        pull_policy: build
         container_name: tesla-history
         hostname: tesla-history
         restart: unless-stopped
@@ -11,10 +13,17 @@ services:
             - type: bind
               source: ./tools/tesla-history
               target: /var/lib/tesla-history
+            - type: bind
+              source: ./timescaledb
+              target: /timescaledb
+              read_only: true
         environment:
             - INFLUX_HOST=influxdb
             - INFLUX_PORT=8086
+            - PGHOST=timescaledb
+            - PGPORT=5432
+            - PGSSLMODE=disable
             - TESLA_CONF=/var/lib/tesla-history/tesla-history.conf
             - TESLA_AUTH=/var/lib/tesla-history/tesla-history.auth
-        depends_on:
-            - influxdb
+        env_file:
+            - timescaledb.env

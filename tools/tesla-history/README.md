@@ -1,6 +1,6 @@
 # Tesla History Import Tool
 
-This is a command line tool to retrieve Powerwall history data from the Tesla Owner API (Tesla cloud) and import into InfluxDB of Powerwall-Dashboard. This tool was submitted by @mcbirse and can be discussed further in issue [#12](https://github.com/jasonacox/Powerwall-Dashboard/issues/12) if you have any questions or find problems.
+This is a command line tool to retrieve Powerwall history data from the Tesla Owner API (Tesla cloud) and import into InfluxDB and/or TimescaleDB of Powerwall-Dashboard. This tool was submitted by @mcbirse and can be discussed further in issue [#12](https://github.com/jasonacox/Powerwall-Dashboard/issues/12) if you have any questions or find problems.
 
 ## Features
 
@@ -16,9 +16,11 @@ This could be useful for instance to import data from before you started using P
 To use the script:
 - Install the required python modules (requires **pypowerwall v0.15.12 or later**):
   ```bash
-  pip install "pypowerwall>=0.15.12" python-dateutil influxdb httpx h2
+  pip install "pypowerwall>=0.15.12" python-dateutil influxdb psycopg2-binary httpx h2
   ```
 - Follow the steps below
+
+This tool can import into InfluxDB, TimescaleDB, or both -- selectable during setup, via the config file's `[InfluxDB]`/`[TimescaleDB]` `ENABLE` settings, or on the command line with `--target {influxdb,timescaledb,both}`.
 
 ### Setup and logging in to Tesla account
 
@@ -39,6 +41,12 @@ Do you want to create the config now? [Y/n] Y
 Tesla Account Setup
 -------------------
 Email address: your@email.address
+
+Select datastore(s) to use:
+ 1 - InfluxDB     (default)
+ 2 - TimescaleDB
+ 3 - Both
+Select datastore [1/2/3]: [1]
 Save auth token to: [tesla-history.auth]
 
 InfluxDB Setup
@@ -52,6 +60,11 @@ Timezone (e.g. America/Los_Angeles): Australia/Sydney
 
 Config saved to 'tesla-history.conf'
 ```
+
+If you select TimescaleDB (options 2 or 3), you'll also be prompted for the TimescaleDB (PostgreSQL) connection details -- host/port/database/user can be accepted as-is (`timescaledb`/`5432`/`powerwall`/`telegraf_powerwall`), but the **password prompt has no default to fall back on during this interactive setup** -- you need to supply it yourself.
+
+- **Running inside the docker container** (`docker exec -it tesla-history python3 tesla-history.py --login`): it's fine to leave the password prompt blank here -- the container already gets `POSTGRES_PASSWORD` from `timescaledb.env` via `env_file` (see `powerwall.extend.yml.sample`), and that environment variable overrides whatever's in the config file on every subsequent run, so a blank value in the config itself doesn't matter.
+- **Running directly on the host** (bare `python3 tesla-history.py --login`, no docker): there's no environment variable to fall back on, so you must enter the real password at the prompt. It's the auto-generated value in `timescaledb.env` at the repo root (`../../timescaledb.env` relative to this `tools/tesla-history/` directory) -- look for `POSTGRES_PASSWORD=` in that file. This is the same random password `setup.sh` generated when TimescaleDB was first set up, not a fixed default.
 
 In most cases, the `[default]` values will be correct and can be accepted by pressing Enter, however these can be changed if you have a custom setup.
 
@@ -260,6 +273,24 @@ Finally, if something goes wrong, the imported data can be removed from InfluxDB
 python3 tesla-history.py --start "YYYY-MM-DD hh:mm:ss" --end "YYYY-MM-DD hh:mm:ss" --remove
 ```
 
+### TimescaleDB support
+
+This tool can write imported history to InfluxDB, TimescaleDB, or both. The datastore(s) used are determined by (in order of precedence):
+
+1. The `--target {influxdb,timescaledb,both}` command line option
+2. The `ENABLE` setting under `[InfluxDB]` / `[TimescaleDB]` in the config file
+
+```bash
+# Force this run to update TimescaleDB only, regardless of the config file
+python3 tesla-history.py --start "YYYY-MM-DD hh:mm:ss" --end "YYYY-MM-DD hh:mm:ss" --target timescaledb
+```
+
+When writing to TimescaleDB, imported rows are tagged the same way as InfluxDB's `source='cloud'` tag (a `source` column on `pw_autogen_1m`, `pw_grid_1m`, and `pw_pod_log`), so `--remove` and gap detection work identically across both datastores. When `--target both` is used, a data gap found in *either* datastore is filled (a single Tesla cloud fetch, written to both) so the two datastores can't silently drift apart.
+
+TimescaleDB connection settings default to this stack's own `timescaledb` service (host `timescaledb`, port `5432`, SSL mode `disable`), and pick up credentials from `timescaledb.env` when running inside the Powerwall-Dashboard docker network -- see `powerwall.extend.yml.sample` for the environment variables used (`PGHOST`, `PGPORT`, `PGSSLMODE`, and `POSTGRES_USER`/`POSTGRES_PASSWORD`/`POSTGRES_DB` via `env_file`). These can be overridden per-run with the `PGHOST`/`PGPORT`/`PGSSLMODE`/`POSTGRES_USER`/`POSTGRES_PASSWORD`/`POSTGRES_DB` environment variables, same as `INFLUX_HOST`/`INFLUX_PORT` already work for InfluxDB. If you're pointing at an existing PostgreSQL/TimescaleDB server that requires TLS, set `PGSSLMODE` to `require` (or `verify-ca`/`verify-full`) accordingly.
+
+If you run this script directly on the host (rather than via the Docker image) with a TimescaleDB target, you also need the `psql` command line client available on `PATH`, in addition to `psycopg2-binary` -- it's used to backfill `pw_kwh_1h` after every write. If it's missing you'll see `Failed to backfill pw_kwh_1h: 'psql' command not found`; the main write already succeeded by that point, so re-running for the same date range once `psql` is installed (e.g. `apt install postgresql-client`) will backfill the gap.
+
 For more usage options, run without arguments or with the `--help` option:
 
 ```bash
@@ -267,34 +298,52 @@ For more usage options, run without arguments or with the `--help` option:
 python3 tesla-history.py --help
 ```
 ```
-usage: tesla-history.py [-h] [-l] [-t] [-d] [--dry-run] [--region {us,cn}] [--headless] [--config CONFIG] [--site SITE] [--reserve RESERVE] [--force] [--remove] [--daemon] [--start START] [--end END] [--today] [--yesterday]
+usage: tesla-history.py [-h] [-l] [-t] [-d] [--dry-run] [--region {us,cn}]
+                        [--headless] [--config CONFIG]
+                        [--target {influxdb,timescaledb,both}] [--site SITE]
+                        [--reserve RESERVE] [--force] [--remove] [--daemon]
+                        [--start START] [--end END] [--today] [--yesterday]
 
-Import Powerwall or Solar history data from Tesla Owner API (Tesla cloud) into InfluxDB
+Import Powerwall or Solar history data from Tesla Owner API (Tesla cloud) into
+InfluxDB and/or TimescaleDB
 
 options:
-  -h, --help         show this help message and exit
-  -l, --login        login to Tesla account only and save auth token (do not get history)
-  -t, --test         enable test mode (do not import into InfluxDB)
-  -d, --debug        enable debug output (print raw responses from Tesla cloud)
-  --dry-run          identify data gaps and show number of API calls required without making any API calls
+  -h, --help            show this help message and exit
+  -l, --login           login to Tesla account only and save auth token (do
+                        not get history)
+  -t, --test            enable test mode (do not import into datastore(s))
+  -d, --debug           enable debug output (print raw responses from Tesla
+                        cloud)
+  --dry-run             identify data gaps and show number of API calls
+                        required without making any API calls
 
 login options:
-  --region {us,cn}   specify Tesla account region (default: us)
-  --headless         headless mode (show auth token prompt instead of opening browser)
+  --region {us,cn}      specify Tesla account region (default: us)
+  --headless            headless mode (show auth token prompt instead of
+                        opening browser)
 
 advanced options:
-  --config CONFIG    specify an alternate config file (default: tesla-history.conf)
-  --site SITE        site id (required for Tesla accounts with multiple energy sites)
-  --reserve RESERVE  also search for backup reserve percent data gaps and set to value
-  --force            force import for date/time range (skip search for data gaps)
-  --remove           remove imported data from InfluxDB for date/time range
-  --daemon           run as a daemon service (continually poll for history data)
+  --config CONFIG       specify an alternate config file (default: tesla-
+                        history.conf)
+  --target {influxdb,timescaledb,both}
+                        select datastore(s) to update (default: from config
+                        file)
+  --site SITE           site id (required for Tesla accounts with multiple
+                        energy sites)
+  --reserve RESERVE     also search for backup reserve percent data gaps and
+                        set to value
+  --force               force import for date/time range (skip search for data
+                        gaps)
+  --remove              remove imported data from datastore(s) for date/time
+                        range
+  --daemon              run as a daemon service (continually poll for history
+                        data)
 
 date/time range options:
-  --start START      start date and time ("YYYY-MM-DD hh:mm:ss")
-  --end END          end date and time ("YYYY-MM-DD hh:mm:ss")
-  --today            set start/end range to "today"
-  --yesterday        set start/end range to "yesterday"
+  --start START         start date and time ("YYYY-MM-DD hh:mm:ss")
+  --end END             end date and time ("YYYY-MM-DD hh:mm:ss")
+  --today               set start/end range to "today"
+  --yesterday           set start/end range to "yesterday"
 ```
 
 Please refer to issue [#12](https://github.com/jasonacox/Powerwall-Dashboard/issues/12) for further discussion on the other advanced options, or you have questions or find a problem with this script.

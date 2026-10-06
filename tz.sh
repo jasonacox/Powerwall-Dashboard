@@ -21,6 +21,9 @@ updatetz() {
     if [ -f "pypowerwall.env" ]; then
         sed -i.bak "s@${from}@${to}@g" pypowerwall.env
     fi
+    if [ -f "timescaledb.env" ]; then
+        sed -i.bak "s@${from}@${to}@g" timescaledb.env
+    fi
     if [ -d "dashboards" ]; then
         for i in dashboards/*.json; do
             sed -i.bak "s@${from}@${to}@g" $i
