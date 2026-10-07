@@ -6,7 +6,7 @@
 set -e
 
 # Set Globals
-VERSION="5.3.1"
+VERSION="5.3.2"
 CURRENT="Unknown"
 COMPOSE_ENV_FILE="compose.env"
 INFLUXDB_ENV_FILE="influxdb.env"
@@ -405,6 +405,11 @@ echo "Setting Timezone back to ${TZ}..."
 # Update Powerwall-Dashboard stack
 echo ""
 echo "Updating Powerwall-Dashboard stack..."
+# `up` does not refresh an image that is already cached, including :latest.
+# compose-dash.sh includes powerwall.extend.yml when that file exists.
+# Ignore pull failures so a local-only or private extend image does not abort.
+echo "Pulling container images..."
+./compose-dash.sh pull --ignore-pull-failures
 ./compose-dash.sh up -d
 
 # Update InfluxDB
