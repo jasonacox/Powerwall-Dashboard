@@ -1,5 +1,13 @@
 # RELEASE NOTES
 
+## v5.3.2 - Pull images on upgrade, including powerwall.extend.yml
+
+### Bug Fixes
+
+* **`upgrade.sh` pulls images before recreating the stack** — `./upgrade.sh` only ran `compose-dash.sh up -d`. Compose `up` does not refresh an image that is already cached, including a `:latest` tag. Pinned tags in `powerwall.yml` still updated, because each release changes the tag string and the new tag was missing locally, so `up` pulled it. A service in `powerwall.extend.yml` left on a moving tag such as `jasonacox/pypowerwall-server:latest` never changed its image string, so upgrade kept running the old image. `compose-dash.sh` already passes `-f powerwall.extend.yml` when that file exists; upgrade never asked Compose to pull. It now runs `./compose-dash.sh pull --ignore-pull-failures` before the first `up -d`, which refreshes every image in the merged project and continues if one image cannot be pulled (local-only or private). The following `up -d` recreates containers whose image digest changed. Deleting the stock containers by name is not enough: that recreates them from the local tag and does not cover extend-only services. by **@cwagz**
+
+**Existing installs:** run `./upgrade.sh`; no other action is required.
+
 ## v5.3.1 - Sun and Moon arc card & timezone validation fix
 
 ### New Features
