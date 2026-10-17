@@ -1,0 +1,208 @@
+<div class="pwd-sun-moon" data-tz="$tz"></div>
+<script>
+// Sun and Moon arc card for the Grafana "text" panel (HTML mode).
+// Plugin-free and query-free: sun and moon positions are computed in the browser
+// with a compact port of SunCalc (https://github.com/mourner/suncalc),
+// Copyright (c) Volodymyr Agafonkin, used under the BSD-2-Clause license
+// (see THIRD_PARTY_LICENSES alongside this file in the dashboards folder),
+// for the location setup.sh stores in the Sun and Moon datasource (data-lat/data-lon on the
+// div override it) and the dashboard's tz constant. Redraws every minute and on resize.
+(function () {
+  var PI = Math.PI, RAD = PI / 180, DAY = 864e5, J1970 = 2440588, J2000 = 2451545, E = RAD * 23.4397;
+  var sin = Math.sin, cos = Math.cos, tan = Math.tan, asin = Math.asin, acos = Math.acos, atan = Math.atan2;
+
+  // ---- SunCalc (sun + moon) ----
+  function toDays(d) { return d.valueOf() / DAY - 0.5 + J1970 - J2000; }
+  function fromJulian(j) { return new Date((j + 0.5 - J1970) * DAY); }
+  function ra(l, b) { return atan(sin(l) * cos(E) - tan(b) * sin(E), cos(l)); }
+  function dec(l, b) { return asin(sin(b) * cos(E) + cos(b) * sin(E) * sin(l)); }
+  function alt(H, phi, d) { return asin(sin(phi) * sin(d) + cos(phi) * cos(d) * cos(H)); }
+  function sidereal(d, lw) { return RAD * (280.16 + 360.9856235 * d) - lw; }
+  function sunM(d) { return RAD * (357.5291 + 0.98560028 * d); }
+  function eclLng(M) { return M + RAD * (1.9148 * sin(M) + 0.02 * sin(2 * M) + 0.0003 * sin(3 * M)) + RAD * 102.9372 + PI; }
+  function sunCoords(d) { var L = eclLng(sunM(d)); return { dec: dec(L, 0), ra: ra(L, 0) }; }
+  function moonCoords(d) {
+    var L = RAD * (218.316 + 13.176396 * d), M = RAD * (134.963 + 13.064993 * d), F = RAD * (93.272 + 13.229350 * d);
+    var l = L + RAD * 6.289 * sin(M), b = RAD * 5.128 * sin(F);
+    return { ra: ra(l, b), dec: dec(l, b), dist: 385001 - 20905 * cos(M) };
+  }
+  function sunAlt(t, lat, lng) { var d = toDays(t), c = sunCoords(d); return alt(sidereal(d, RAD * -lng) - c.ra, RAD * lat, c.dec); }
+  function moonAlt(t, lat, lng) { var d = toDays(t), c = moonCoords(d); return alt(sidereal(d, RAD * -lng) - c.ra, RAD * lat, c.dec); }
+  function sunTimes(t, lat, lng) {
+    var lw = RAD * -lng, phi = RAD * lat, J0 = 0.0009;
+    var n = Math.round(toDays(t) - J0 - lw / (2 * PI)), ds = J0 + lw / (2 * PI) + n;
+    var M = sunM(ds), L = eclLng(M), dc = dec(L, 0);
+    function transit(j) { return J2000 + j + 0.0053 * sin(M) - 0.0069 * sin(2 * L); }
+    var noon = transit(ds);
+    function pair(h) {
+      var w = acos((sin(h * RAD) - sin(phi) * sin(dc)) / (cos(phi) * cos(dc)));
+      if (isNaN(w)) return null; // polar day/night
+      var set = transit(J0 + (w + lw) / (2 * PI) + n);
+      return [fromJulian(noon - (set - noon)), fromJulian(set)];
+    }
+    return { noon: fromJulian(noon), rise: pair(-0.833), civil: pair(-6) };
+  }
+  function moonPhase(t) {
+    var d = toDays(t), s = sunCoords(d), m = moonCoords(d), SD = 149598000;
+    var g = acos(sin(s.dec) * sin(m.dec) + cos(s.dec) * cos(m.dec) * cos(s.ra - m.ra));
+    var inc = atan(SD * sin(g), m.dist - SD * cos(g));
+    var ang = atan(cos(s.dec) * sin(s.ra - m.ra), sin(s.dec) * cos(m.dec) - cos(s.dec) * sin(m.dec) * cos(s.ra - m.ra));
+    return { frac: (1 + cos(inc)) / 2, phase: 0.5 + 0.5 * inc * (ang < 0 ? -1 : 1) / PI };
+  }
+
+  // ---- time zone helpers (dashboard tz, falling back to the browser's) ----
+  function tzParts(t, tz) {
+    try {
+      var p = {}, f = new Intl.DateTimeFormat('en-US', { timeZone: tz, hourCycle: 'h23', year: 'numeric', month: 'numeric',
+        day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' });
+      f.formatToParts(t).forEach(function (x) { p[x.type] = +x.value; });
+      return p;
+    } catch (e) {
+      return { year: t.getFullYear(), month: t.getMonth() + 1, day: t.getDate(), hour: t.getHours(), minute: t.getMinutes(), second: t.getSeconds() };
+    }
+  }
+  function fmt(t, tz) { var p = tzParts(t, tz), m = p.minute; return ((p.hour % 12) || 12) + ':' + (m < 10 ? '0' + m : m) + ' ' + (p.hour < 12 ? 'AM' : 'PM'); }
+  function midnight(t, tz) { // start of t's day in tz
+    var p = tzParts(t, tz), guess = Date.UTC(p.year, p.month - 1, p.day);
+    function off(u) { var q = tzParts(new Date(u), tz); return Date.UTC(q.year, q.month - 1, q.day, q.hour, q.minute, q.second) - u; }
+    return new Date(guess - off(guess - off(guess)));
+  }
+
+  // location: data-lat/data-lon if set, else the Sun and Moon datasource that setup.sh provisions
+  function location(el) {
+    var lat = parseFloat(el.getAttribute('data-lat')), lng = parseFloat(el.getAttribute('data-lon')), best = null;
+    if (isFinite(lat) && isFinite(lng)) return [lat, lng];
+    var ds = (window.grafanaBootData && grafanaBootData.settings && grafanaBootData.settings.datasources) || {};
+    Object.keys(ds).forEach(function (k) {
+      var j = ds[k].jsonData || {}, a = parseFloat(j.latitude), b = parseFloat(j.longitude);
+      if (ds[k].type !== 'fetzerch-sunandmoon-datasource' || !isFinite(a) || !isFinite(b) || (a === 0 && b === 0)) return;
+      if (!best || /auto provisioned/i.test(k)) best = [a, b];
+    });
+    return best;
+  }
+
+  // the panel's scrollable content box (fixed size); our own parents grow with the content
+  function container(el) {
+    for (var n = el.parentElement; n && n !== document.body; n = n.parentElement) {
+      var ov = getComputedStyle(n).overflowY;
+      if (n.clientHeight > 40 && (ov === 'auto' || ov === 'scroll' || ov === 'hidden')) return n;
+    }
+    return el.parentElement || el;
+  }
+
+  function draw(el) {
+    var tz = el.getAttribute('data-tz'), loc = location(el);
+    if (!tz || tz.charAt(0) === '$' || tz === 'browser') tz = undefined;
+    var box = container(el), ph = box.clientHeight || 180, pw = box.clientWidth || 600;
+    // Grafana theme: text colour from the panel, series colours from the classic palette
+    var light = !!(window.grafanaBootData && grafanaBootData.user && grafanaBootData.user.lightTheme);
+    var rgb = ((getComputedStyle(box).color || '').match(/[\d.]+/g) || (light ? [36, 41, 46] : [204, 204, 220])).slice(0, 3).join(',');
+    function tc(o) { return 'rgba(' + rgb + ',' + o + ')'; }
+    var C = { va: tc(1), lb: tc(0.65), ln: tc(0.35), tk: tc(0.15), mo: tc(0.5), md: tc(0.12), ms: tc(0.4),
+      ml: light ? '#ffffff' : 'rgb(' + rgb + ')', su: light ? '#F2CC0C' : '#FADE2A', tw: '#8AB8FF', ni: light ? '#1F60C4' : '#5794F2' };
+    if (!loc) {
+      el.innerHTML = "<div style='padding:8px;color:" + C.lb + "'>Location not set. Run <b>setup.sh</b> to enter your latitude and longitude " +
+        "(see <a href='https://jasonacox.github.io/Powerwall-Dashboard/location.html' target='_blank'>location help</a>).</div>";
+      return;
+    }
+    var lat = loc[0], lng = loc[1];
+
+    // x axis = elapsed share of today, so 23/25-hour DST days still span the full width
+    var now = new Date(), mid = midnight(now, tz), end = midnight(new Date(mid.getTime() + 36 * 36e5), tz), span = end - mid;
+    function pos(t) { return (t - mid) / span * 24; }
+    var nowH = pos(now), st = sunTimes(new Date(mid.getTime() + span / 2), lat, lng);
+    var W = 920, H = 280, HOR = 190, X0 = 40, X1 = 880, AMP = 140, TOP = 16, BOT = 276;
+    function at(h) { return new Date(mid.getTime() + h / 24 * span); }
+    function tx(h) { return X0 + (h / 24) * (X1 - X0); }
+    // true altitude above the horizon; below it, a tanh squeeze with the same slope at 0, so the curve stays smooth and the dip stays bounded
+    function ay(a) { var v = sin(a); return Math.max(TOP, Math.min(BOT, HOR - AMP * (v < 0 ? 0.6 * Math.tanh(v / 0.6) : v))); }
+    function T(x, y, c, z, s, an, wt) { return "<text x='" + x.toFixed(1) + "' y='" + y + "' fill='" + c + "' font-size='" + z + "' text-anchor='" + (an || 'middle') + "'" + (wt ? " font-weight='" + wt + "'" : '') + '>' + s + '</text>'; }
+    // label + time; an = side of x to put it on so it clears tick lines and shading
+    function mark(t, y, lb, an) { var x = tx(pos(t)) + (an === 'start' ? 8 : an === 'end' ? -8 : 0); return T(x, y, C.lb, 20, lb, an) + T(x, y + 27, C.va, 24, fmt(t, tz), an, 500); }
+
+    // sun curve (true altitude), a light fill under the daytime arc, and twilight/night shading below the horizon
+    var sun = [], shade = '';
+    for (var k = 0; k <= 96; k++) sun.push(tx(k / 4).toFixed(1) + ',' + ay(sunAlt(at(k / 4), lat, lng)).toFixed(1));
+    function region(a, b, fill, op, up) {
+      a = Math.max(0, a); b = Math.min(24, b);
+      if (!(b > a)) return '';
+      var q = [tx(a).toFixed(1) + ',' + HOR];
+      for (var s = 0; s <= 48; s++) { var h = a + (b - a) * s / 48, y = ay(sunAlt(at(h), lat, lng)); q.push(tx(h).toFixed(1) + ',' + (up ? Math.min(HOR, y) : Math.max(HOR, y)).toFixed(1)); }
+      q.push(tx(b).toFixed(1) + ',' + HOR);
+      return "<polygon points='" + q.join(' ') + "' fill='" + fill + "' fill-opacity='" + op + "'/>";
+    }
+    function night(a, b) { return region(a, b, C.ni, 0.1); }
+    function twi(a, b) { return region(a, b, C.tw, 0.1); }
+    var labels = '', ticks = '', noonAlt = sunAlt(st.noon, lat, lng) / RAD;
+    var rise = st.rise && [pos(st.rise[0]), pos(st.rise[1])], civ = st.civil && [pos(st.civil[0]), pos(st.civil[1])];
+    if (civ) shade = night(0, civ[0]) + night(civ[1], 24) + (rise ? twi(civ[0], rise[0]) + twi(rise[1], civ[1]) : twi(civ[0], civ[1]));
+    else if (rise) shade = twi(0, rise[0]) + twi(rise[1], 24); // white night: the sun never gets 6 degrees down
+    else if (noonAlt < -6) shade = night(0, 24);                // polar night, no twilight
+    else if (noonAlt < 0) shade = twi(0, 24);                   // polar night, twilight all day
+    shade += region(0, 24, C.su, 0.1, true);
+    if (rise) {
+      rise.forEach(function (h) { ticks += "<line x1='" + tx(h).toFixed(1) + "' y1='70' x2='" + tx(h).toFixed(1) + "' y2='" + HOR + "' stroke='" + C.tk + "' stroke-width='2'/>"; });
+      labels = mark(st.rise[0], 108, 'Sunrise', 'end') + mark(st.rise[1], 108, 'Sunset', 'start');
+    }
+    // solar noon sits inside the arc, under its peak; below the horizon when the sun stays low (high-latitude winter)
+    var peak = ay(sunAlt(st.noon, lat, lng)), inside = peak < HOR - 62;
+    labels += mark(st.noon, inside ? HOR - 38 : HOR + 30, 'Solar noon');
+    if (!inside) H = 290;
+
+    // moon: dashed track while above the horizon, phase-shaped icon at the current time
+    var mp = moonPhase(now), seg = [], track = '';
+    function flush() { if (seg.length > 1) track += "<polyline points='" + seg.join(' ') + "' fill='none' stroke='" + C.mo + "' stroke-width='1.5' stroke-dasharray='9,10'/>"; seg = []; }
+    for (var j = 0; j <= 96; j++) { var ma = moonAlt(at(j / 4), lat, lng); if (ma > 0) seg.push(tx(j / 4).toFixed(1) + ',' + ay(ma).toFixed(1)); else flush(); }
+    flush();
+    function moonIcon(cx, cy, r) {
+      var co = cos(2 * PI * mp.phase), rt = (Math.abs(co) * r).toFixed(2), wax = mp.phase < 0.5;
+      var limb = wax ? 1 : 0, term = wax ? (co > 0 ? 0 : 1) : (co > 0 ? 1 : 0);
+      var d = 'M ' + cx.toFixed(1) + ' ' + (cy - r).toFixed(1) + ' A ' + r + ' ' + r + ' 0 0 ' + limb + ' ' + cx.toFixed(1) + ' ' + (cy + r).toFixed(1) +
+        ' A ' + rt + ' ' + r + ' 0 0 ' + term + ' ' + cx.toFixed(1) + ' ' + (cy - r).toFixed(1) + ' Z';
+      return "<circle cx='" + cx.toFixed(1) + "' cy='" + cy.toFixed(1) + "' r='" + r + "' fill='" + C.md + "' stroke='" + C.ms + "' stroke-width='1.2'/>" +
+        (mp.frac > 0.02 ? "<path d='" + d + "' fill='" + C.ml + "'/>" : '');
+    }
+    var mAlt = moonAlt(now, lat, lng), mUp = mAlt > 0, sAlt = sunAlt(now, lat, lng);
+    var moon = "<g opacity='" + (mUp ? 1 : 0.55) + "'>" + moonIcon(tx(nowH), Math.min(HOR + 28, ay(mAlt)), 13) + '</g>';
+
+    var svg = "<svg viewBox='0 0 " + W + ' ' + H + "' width='100%' height='100%' preserveAspectRatio='xMidYMid meet' style='display:block'>" +
+      shade + "<line x1='20' y1='" + HOR + "' x2='892' y2='" + HOR + "' stroke='" + C.ln + "' stroke-width='2'/>" +
+      "<polygon points='892," + (HOR - 6) + ' 904,' + HOR + ' 892,' + (HOR + 6) + "' fill='" + C.ln + "'/>" +
+      "<polyline points='" + sun.join(' ') + "' fill='none' stroke='" + C.su + "' stroke-width='2'/>" +
+      track + ticks + moon + "<circle cx='" + tx(nowH).toFixed(1) + "' cy='" + ay(sAlt).toFixed(1) + "' r='16' fill='" + C.su + "'/>" + labels + '</svg>';
+
+    // readouts: beside the arc on wide panels, underneath on narrow ones
+    var wide = pw / ph > 2.4;
+    function cl(v, a, b) { return Math.max(a, Math.min(b, v)); }
+    var vs = Math.round(wide ? cl(ph * 0.155, 15, 32) : cl(pw * 0.045, 14, 26)), ls = Math.round(vs * 0.58), ip = Math.round(vs * 0.82);
+    function readout(lb, v, c) { return "<div style='text-align:" + (wide ? 'right' : 'center') + "'><div style='color:" + C.lb + ';font-size:' + ls + "px;line-height:1.2;white-space:nowrap'>" + lb +
+      "</div><div style='color:" + (c || C.va) + ';font-size:' + vs + "px;font-weight:500;line-height:1.1;white-space:nowrap'>" + v + '</div></div>'; }
+    var names = ['New moon', 'Waxing crescent', 'First quarter', 'Waxing gibbous', 'Full moon', 'Waning gibbous', 'Last quarter', 'Waning crescent'];
+    var icon = "<svg width='" + ip + "' height='" + ip + "' viewBox='0 0 30 30' style='display:inline-block;vertical-align:-" + Math.round(ip * 0.12) + "px;margin-right:6px'>" + moonIcon(15, 15, 13) + '</svg>';
+    var info = readout('Sun altitude', Math.round(sAlt / RAD) + '&#176;', light ? '' : C.su) +
+      readout(names[Math.round(mp.phase * 8) % 8] + (mUp ? '' : ' &#183; below horizon'), icon + Math.round(mp.frac * 100) + '% lit');
+
+    el.innerHTML = wide
+      ? "<div style='display:flex;width:100%;height:" + ph + "px'><div style='flex:1 1 auto;min-width:0;line-height:0'>" + svg +
+        "</div><div style='flex:0 0 auto;display:flex;flex-direction:column;justify-content:center;gap:" + Math.round(ph * 0.07) + "px;padding:0 12px 0 8px'>" + info + '</div></div>'
+      : "<div style='display:flex;flex-direction:column;justify-content:center;gap:" + Math.round(ph * 0.04) + "px;width:100%;height:" + ph + "px'>" +
+        "<div style='flex:0 1 auto;min-height:0;max-height:75%;line-height:0;aspect-ratio:" + W + '/' + H + "'>" + svg +
+        "</div><div style='flex:0 0 auto;display:flex;justify-content:space-around'>" + info + '</div></div>';
+  }
+
+  function drawAll() {
+    var els = document.querySelectorAll('.pwd-sun-moon');
+    for (var i = 0; i < els.length; i++) {
+      var el = els[i];
+      try { draw(el); } catch (err) { el.textContent = 'Sun and Moon error: ' + (err && err.message ? err.message : err); }
+      if (!el.pwdObserved && window.ResizeObserver) {
+        el.pwdObserved = true;
+        (function (e) { new ResizeObserver(function () { try { draw(e); } catch (x) {} }).observe(container(e)); })(el);
+      }
+    }
+  }
+  clearInterval(window.pwdSunMoonTimer);
+  window.pwdSunMoonTimer = setInterval(drawAll, 60000);
+  setTimeout(drawAll, 0);
+})();
+</script>

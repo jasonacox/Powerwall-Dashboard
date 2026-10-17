@@ -10,20 +10,23 @@ If you want to create a backup of your Powerwall Dashboard and move it to a new 
 # Step 1 - Stop Dashboard on old computer
 ./compose-dash.sh stop
 
-# Step 2- Create a backup
+# Step 2 - Create a backup
 sudo tar -zvcf ../Powerwall-Dashboard.tgz *
 cd ..
 
-# Step 3 - Copy the Powerwall-Dashboard.tgz to the new computer
+# Step 3 - Restart the dashboard on the old computer (if you're keeping it running)
+cd Powerwall-Dashboard && ./compose-dash.sh start
 
-# Stop 4 - Clone Project on new computer
+# Step 4 - Copy the Powerwall-Dashboard.tgz to the new computer
+
+# Step 5 - Clone Project on new computer
 git clone https://github.com/jasonacox/Powerwall-Dashboard.git
 cd Powerwall-Dashboard
 
-# Step 5 - Restore backup
+# Step 6 - Restore backup
 sudo tar --no-same-owner -zxvf ../Powerwall-Dashboard.tgz
 
-# Step 6 - Setup
+# Step 7 - Setup
 ./setup.sh
 ```
 

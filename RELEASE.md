@@ -1,5 +1,94 @@
 # RELEASE NOTES
 
+## v5.3.1 - Sun and Moon arc card & timezone validation fix
+
+### New Features
+
+* **Sun and Moon arc card in the Weather row** — a browser-rendered panel showing today's sun path with sunrise, sunset and solar noon; twilight and night shading; the sun at its current altitude; and the moon's track with a phase-shaped icon and % lit readout. It is a stock Grafana text panel rendering inline SVG — no plugin, no datasource, no queries. Positions are computed in the browser by a compact port of [SunCalc](https://github.com/mourner/suncalc), used under its BSD-2-Clause license and documented in `dashboards/THIRD_PARTY_LICENSES`. Location comes from the latitude and longitude that `setup.sh` already writes to the Sun and Moon datasource, so there is nothing new to enter on import; with no location set, the panel points you at `setup.sh` rather than drawing the wrong place. Handles polar day/night and the southern hemisphere, follows the Grafana light/dark theme, and redraws every minute and on resize. The two weather graphs are stacked so their time axes align, with the Sun and Moon card beside them. ([PR #868](https://github.com/jasonacox/Powerwall-Dashboard/pull/868) by **@holstein13**, follow-up to the Sun and Moon row exploration in [#805](https://github.com/jasonacox/Powerwall-Dashboard/pull/805))
+
+* **Opt-out dashboard for anyone not wanting the card** — `dashboards/dashboard-no-sunmoon.json` is identical to the default `dashboard.json` but without the Sun and Moon arc card. Import it instead of (or over) the default dashboard to skip the panel; see the [dashboards README](dashboards/README.md) for details.
+
+**Existing installs:** run `./upgrade.sh`, then re-import `dashboards/dashboard.json` to pick up the new panel. No datasource, InfluxDB or container changes are needed.
+
+### Bug Fixes
+
+* **`setup.sh` no longer accepts misspelled timezones** — entering a typo such as `American/Denver` (for `America/Denver`) used to pass validation because the last-resort check treated any value that `date` could parse as a POSIX TZ string, which glibc does for almost any alphabetic text. Setup then failed later in InfluxDB with `unable to find time zone American/Denver`. The timezone is written into the InfluxDB `tz('...')` clauses, which only resolve IANA names, so POSIX strings such as `GMT+5` could not work either. The POSIX fallback has been removed: valid IANA names (including `UTC`, `EST5EDT` and multi-level names like `America/Argentina/Buenos_Aires`) are still accepted, and anything else shows a warning with an example and a note that InfluxDB will fail, before the existing explicit `y/N` override. ([PR #873](https://github.com/jasonacox/Powerwall-Dashboard/pull/873) by **@jasonacox-sam**, closes [#872](https://github.com/jasonacox/Powerwall-Dashboard/issues/872) reported by **@hulkster**)
+
+### Contributors
+
+Thanks to **@holstein13** for the Sun and Moon arc card — a fully self-contained panel that matches the dashboard's palette and typography — and for iterating on the layout, horizon smoothing and DST handling. The `setup.sh` timezone validation fix came from **@jasonacox-sam**, prompted by a report from **@hulkster**.
+
+## v5.3.0 - Powerwall 3 temperatures and fans
+
+### New Features
+
+* **Powerwall 3 temperatures and fan speeds are back in the dashboard** — the pinned pypowerwall proxy moves from `0.17.0t100` to `0.18.2t104`, which reports Powerwall 3 data the proxy used to return as empty (`{}`). The existing **Powerwall Temps and Fans** panel in `dashboard.json` (and the temperature panels in the alt, min-mean-max and no-animation dashboards) fill in automatically. Run `./upgrade.sh`; no dashboard re-import or InfluxDB change is needed for this.
+    * **Temperatures** (proxy t102, pypowerwall 0.17.4, [pypowerwall#390](https://github.com/jasonacox/pypowerwall/pull/390)): `/temps/pw` reports each Powerwall 3's (and expansion pack's) hottest battery-pack temperature as `PWn_temp`, numbered like `/pod`.
+    * **Fans** (proxy t104, pypowerwall 0.18.2, [pypowerwall#398](https://github.com/jasonacox/pypowerwall/pull/398)): each Powerwall 3 inverter has two fans, reported by `/fans/pw` as `FANn_actual` (measured RPM) after any Powerwall 2 fans, leader first. Powerwall 3 has no target-RPM signal, so the dashed "Target" lines stay empty for Powerwall 3 fans. The panel shows fans 1-6, which covers up to three Powerwall 3s. The proxy also reports each fan's drive duty cycle (`FANn_duty`, %), which is stored in the raw data but not charted.
+    * PW3 temperatures and fans come from the gateway's TEDAPI interface, so they need a TEDAPI (full, v1r or hybrid) setup, as the rest of the vitals do.
+    * This applies to the standard Docker Compose install. The community Kubernetes manifests in `tools/k3s` pin their own proxy version (`0.11.1t64`) and dashboards, and aren't changed by this release.
+
+### Updates
+
+* **pypowerwall proxy `0.18.2t104`** — also includes, since `0.17.0t100`:
+    * **v1r LAN-down failover to the Gateway WiFi host**, race-free failover recovery and several TEDAPI hardening fixes ([pypowerwall#394](https://github.com/jasonacox/pypowerwall/pull/394), [pypowerwall#395](https://github.com/jasonacox/pypowerwall/pull/395)); `/health` reports the failover state
+    * **Tesla Remote Meter** (`trm_mb`) support: `/vitals` gains `TRM--<din>` blocks, and `/aggregates` falls back to the remote meter for site and solar readings (pypowerwall 0.17.4)
+    * Firmware change tracking in the proxy log (`PW_FIRMWARE_CHECK_INTERVAL`, [#854](https://github.com/jasonacox/Powerwall-Dashboard/discussions/854))
+    * Powerwall 3 `get_battery_block()` fix in WiFi/TEDAPI mode ([pypowerwall#396](https://github.com/jasonacox/pypowerwall/pull/396)), cloud-mode recovery when Tesla re-provisions a site, and per-gateway TEDAPI API locks
+
+### Bug Fixes
+
+* **Powerwall Temps and Fans panel: PW7-PW12 were off by one** — in `dashboard.json`, the series labeled PW7 through PW12 each charted the previous Powerwall's temperature (PW7 showed PW6, and so on), and PW12 appeared twice. Each label now charts its own Powerwall. This only affects systems with 7 or more Powerwalls; to pick it up, re-import `dashboards/dashboard.json`.
+
+### Contributors
+
+Thanks to everyone who reported missing Powerwall 3 temperatures and fan data, and to **@jasonacox-sam** for independent testing of the Powerwall 3 temperature and fan signals on hardware.
+
+## v5.2.5 - TEDAPI diagnostics & upgrade.sh env file check
+
+### New Features
+
+* **`verify.sh --tedapi`** — new detailed Gateway WiFi/TEDAPI diagnostics mode that reports Gateway WiFi signal strength and TEDAPI connectivity, to help debug SolarOnly-fallback and missing-vitals symptoms. `TEDAPI_HOST` is parsed as `host:port` where present, `PW_HOST` is masked in output so logs are safe to share, and the final verdict is TEDAPI-aware. ([PR #857](https://github.com/jasonacox/Powerwall-Dashboard/pull/857) by **@jasonacox-sam**)
+
+### Bug Fixes
+
+* **`upgrade.sh` detects unquoted env values containing spaces** — older or hand-edited installations can carry an unquoted value in `grafana.env` (e.g. `GF_AUTH_ANONYMOUS_ORG_NAME=Main Org.`). When `compose-dash.sh` sources the file, the shell tries to run the word after the space as a command, producing the cryptic `grafana.env: line 22: Org.: command not found` failure during `./upgrade.sh`. `upgrade.sh` now checks for this just after the Grafana env file is created/verified: it prints a pointed error showing the offending line(s) and the correct quoted form, and offers to add the quotes automatically (original saved as `grafana.env.bak`); declining exits with instructions to fix it manually. ([PR #860](https://github.com/jasonacox/Powerwall-Dashboard/pull/860), closes [#859](https://github.com/jasonacox/Powerwall-Dashboard/issues/859))
+
+### Contributors
+
+Thanks to **@dkerr64** for reporting the unquoted `grafana.env` failure and for the `shellcheck` suggestion — an optional shellcheck CI check for the project's shell scripts will follow separately.
+
+## v5.2.4 - Upgrade pypowerwall proxy to v0.17.0t100 (SolarOnly recovery fix)
+
+### Updates
+
+* **pypowerwall proxy `0.17.0t100`** — bumps the pinned proxy image from `0.16.2t97`. Notable changes since 0.16.2:
+    * **fix: TEDAPI auto-recovery wedge** — after a fully-failed reconnect attempt, the SolarOnly fallback recovery thread could stall permanently, leaving the proxy serving solar-only data until the container was restarted. Recovery now retries reliably (initial 60s interval, capped at 300s). Reported by @dthorndyke ([pypowerwall#366](https://github.com/jasonacox/pypowerwall/issues/366), fixed in [pypowerwall#367](https://github.com/jasonacox/pypowerwall/pull/367), shipped in pypowerwall v0.16.4). This is the "no longer recovers from SolarOnly mode after upgrading to v5.2.3" symptom reported in [#855](https://github.com/jasonacox/Powerwall-Dashboard/discussions/855) — the underlying network drops to the TEDAPI gateway path are unchanged, but the proxy now recovers from them again.
+    * **feat(tedapi):** lifetime energy accumulators merged into `/api/meters/aggregates` ([pypowerwall#372](https://github.com/jasonacox/pypowerwall/pull/372), pypowerwall v0.16.5)
+    * **feat(proxy):** optional bearer-token auth mode for the proxy API ([pypowerwall#359](https://github.com/jasonacox/pypowerwall/pull/359) by **@Nexarian**, pypowerwall v0.17.0)
+    * **fix(tedapi):** `TEDAPIApiVersion` is now comparable, and a `Content-Type` typo (`octet-string` → `octet-stream`) was corrected ([pypowerwall#363](https://github.com/jasonacox/pypowerwall/pull/363), [pypowerwall#364](https://github.com/jasonacox/pypowerwall/pull/364) by **@Nexarian**)
+
+No dashboard re-import is needed — run `./upgrade.sh` and the stack is recreated with the new image. `PW_TEDAPI_RECOVERY` remains on by default (`yes`).
+
+### Contributors
+
+Thanks to **@ViktorJp** for reporting the SolarOnly recovery failure on v5.2.3 ([#855](https://github.com/jasonacox/Powerwall-Dashboard/discussions/855)), to **@dthorndyke** for the precise upstream report of the recovery wedge ([pypowerwall#366](https://github.com/jasonacox/pypowerwall/issues/366)), and to **@Nexarian** for the bearer auth mode and TEDAPI fixes carried in this image.
+
+## v5.2.3 - Powerwall MCP server & pypowerwall time series data directory
+
+### New Features
+
+* **`tools/powerwall-mcp/`** — a new optional, self-contained MCP (Model Context Protocol) server that lets AI agents (Claude, Open WebUI, Hermes, etc.) query the dashboard's InfluxDB 1.8 data in plain language. It understands that the Telegraf exporter writes the same measurement names into multiple retention policies (`autogen`, `raw`, `vitals`, `kwh`, `daily`, `grid`, `pod`, `alerts`), so it can generate correct queries against the right data. Includes a standalone `Dockerfile`/`docker-compose.yml` (separate from the main dashboard stack), SELECT-only query validation, optional bearer-token auth, bounded query results, and a mock client with regression tests. Based on [ampersandru/powerwall-dashboard-mcp](https://github.com/ampersandru/powerwall-dashboard-mcp) (MIT-licensed, contributed by the original author). ([PR #850](https://github.com/jasonacox/Powerwall-Dashboard/pull/850) by **@jasonacox-sam**, closes [#848](https://github.com/jasonacox/Powerwall-Dashboard/issues/848))
+* **pypowerwall time series data directory** — laying groundwork for an upcoming `pypowerwall-server` time series feature (which will eventually replace the current proxy), `powerwall.yml` now bind-mounts a new `.pypowerwall_data/` directory to `/data` in the `pypowerwall` container. `setup.sh` and `upgrade.sh` create this directory automatically and chown it to `PWD_USER` (the uid:gid the container actually runs as, per `powerwall.yml`) so Docker doesn't auto-create it as `root` on first container start — which would otherwise cause permission errors, including for installs where the configured `PWD_USER` differs from the invoking host user. `verify.sh` now also checks that `.pypowerwall_data/` exists and is writable by the `pypowerwall` container.
+
+### Updates
+
+* **weather411 v0.2.5** — hardened the OpenWeatherMap fetch loop: the configured `TIMEOUT` is now actually passed to the HTTP request (previously it was read and reported but never used, so a hung connect/read could stall the fetch thread indefinitely), non-200 responses now log the HTTP status code along with OpenWeatherMap's error message (e.g. `401 Invalid API key`, `429 rate limited`), and exception handlers now report the real underlying error (DNS failure, connection refused, TLS, JSON decode, etc.) instead of a generic message — all on stderr, so the detail is visible in `docker logs` even with `DEBUG` disabled. Same treatment for the InfluxDB write error path. Inspired by the debugging of [#849](https://github.com/jasonacox/Powerwall-Dashboard/discussions/849) (thanks @anderep!).
+
+### Contributors
+
+Thanks to **@jasonacox-sam** (Sam Cox) for contributing the Powerwall MCP server ([PR #850](https://github.com/jasonacox/Powerwall-Dashboard/pull/850)), and to **@ampersandru** for the original [powerwall-dashboard-mcp](https://github.com/ampersandru/powerwall-dashboard-mcp) implementation it's based on.
+
 ## v5.2.2 - pypowerwall ulimits & weather411 0.2.4
 
 ### Bug Fixes

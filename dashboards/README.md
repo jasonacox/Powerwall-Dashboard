@@ -26,6 +26,12 @@ This dashboard provides the original time series "Live Monitoring" graph but rem
 
 <img width="864" alt="image" src="https://user-images.githubusercontent.com/836718/224519662-f29a044a-34d8-4d1f-9220-bebfe7172cd3.png">
 
+### No Sun and Moon
+
+This dashboard is the same as the default [dashboard.json](dashboard.json) but without the Sun and Moon arc card that graphs the sun and moon positions, rise/set times and moon phase for your location.
+
+[dashboard-no-sunmoon.json](dashboard-no-sunmoon.json)
+
 ### Simple
 
 Similar to the above, this dashboard provides a basic time series graph and meter data but without any of the Powerwall+ or extended data.
