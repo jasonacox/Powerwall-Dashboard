@@ -2,12 +2,11 @@
 Shared helpers for the one-time InfluxDB -> TimescaleDB historical migration
 scripts (migrate_*.py in this directory).
 
-Connection details are never hardcoded (see timescaledb/README.md):
+Connection details are never hardcoded (see tools/timescaledb/README.md):
 the TimescaleDB side always comes from this stack's own env vars (these
 scripts run inside the compose network, where POSTGRES_USER/PASSWORD/DB,
-PGHOST/PGPORT, and PGSSLMODE are already correct -- setup.sh sets these from
-timescaledb.env, pointing at either the bundled container or an existing
-server); the InfluxDB side defaults to this stack's own "influxdb" service
+PGHOST/PGPORT, and PGSSLMODE are already correct -- tools/timescaledb/setup.sh
+sets these from tools/timescaledb/timescaledb.env); the InfluxDB side defaults to this stack's own "influxdb" service
 but can be overridden via env vars or an interactive prompt, since a user may
 be migrating from a different/external InfluxDB instance.
 """

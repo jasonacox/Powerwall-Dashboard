@@ -1,15 +1,16 @@
 -- Powerwall Dashboard: TimescaleDB schema
 --
--- Applied automatically by setup.sh (docker exec ... psql -f schema.sql) and
--- safe to re-run -- every statement is idempotent (IF NOT EXISTS / if_not_exists).
+-- Applied automatically by the aggregate-cron container every time it starts
+-- (db/cron-entrypoint.sh), so it must stay safe to re-run -- every statement
+-- is idempotent (IF NOT EXISTS / if_not_exists).
 --
--- This only creates the AGGREGATE tables (populated by timescaledb/aggregate/*.sql
+-- This only creates the AGGREGATE tables (populated by tools/timescaledb/db/aggregate/*.sql
 -- on a schedule). The raw ingestion tables (http, alerts, weather) are created
--- lazily by Telegraf's outputs.postgresql on first write, then converted to
--- hypertables by the aggregate-cron container's bootstrap step -- see
--- timescaledb/aggregate/bootstrap_raw_tables.sql.
+-- lazily by Telegraf's outputs.postgresql on first write, as hypertables (see
+-- telegraf-timescale.conf's create_templates), with retention added by
+-- tools/timescaledb/db/aggregate/bootstrap_raw_tables.sql.
 --
--- Table shape follows timescaledb/README.md: wide (one column per field) for
+-- Table shape follows tools/timescaledb/README.md: wide (one column per field) for
 -- fixed, site-wide fields; narrow/long (time, metric_name, value) wherever the
 -- field set scales with hardware (per-pack fields) or is controlled by a third
 -- party (weather). Narrow tables need zero schema changes regardless of
@@ -166,7 +167,7 @@ ALTER TABLE pw_weather_log SET (timescaledb.compress, timescaledb.compress_segme
 SELECT add_compression_policy('pw_weather_log', compress_after => interval '7 days', if_not_exists => true);
 
 -- Checkpoint table for the one-time InfluxDB -> TimescaleDB historical
--- migration (timescaledb/migrate/*.py). Not a hypertable -- tiny, low churn.
+-- migration (tools/timescaledb/migrate/*.py). Not a hypertable -- tiny, low churn.
 -- "source" identifies which InfluxDB instance a checkpoint came from (see
 -- migrate_common.get_config()'s source_key) -- the migration source is a
 -- runtime prompt (setup.sh can point it at an external InfluxDB server, not

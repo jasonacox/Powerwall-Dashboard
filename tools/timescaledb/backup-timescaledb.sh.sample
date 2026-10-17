@@ -15,9 +15,9 @@ DASHBOARD="/home/user/Powerwall-Dashboard"    # Location of Dashboard to backup
 BACKUP_FOLDER="${DASHBOARD}/backups"          # Destination folder for backups
 KEEP="5"                                      # Days to keep backup
 
-# TimescaleDB connection settings -- must match timescaledb.env
-PG_USER="telegraf_powerwall"                  # POSTGRES_USER in timescaledb.env
-PG_DB="powerwall"                             # POSTGRES_DB in timescaledb.env
+# TimescaleDB connection settings -- must match tools/timescaledb/timescaledb.env
+PG_USER="telegraf_powerwall"                  # POSTGRES_USER in tools/timescaledb/timescaledb.env
+PG_DB="powerwall"                             # POSTGRES_DB in tools/timescaledb/timescaledb.env
 
 # Check to see if directory exists
 if [ ! -d "${DASHBOARD}" ]; then

@@ -1,7 +1,7 @@
 -- Time-weighted (not plain avg()) averaging: each sample weighted by seconds
 -- until the next sample, clamped to bucket boundaries. Corrects a distortion
 -- from two independently-clocked Telegraf pollers unevenly multi-sampling
--- transients -- see timescaledb/README.md.
+-- transients -- see tools/timescaledb/README.md.
 WITH agg_rows AS (
   SELECT
     time, load_instant_power, solar_instant_power, battery_instant_power, site_instant_power,

@@ -2,7 +2,7 @@
 """
 One-time migration: InfluxDB fans.http -> TimescaleDB pw_fans_log
 Best-effort port of Backup Switch fan telemetry (no hardware to validate
-against -- see timescaledb/README.md). Uses SELECT * and a regex filter
+against -- see tools/timescaledb/README.md). Uses SELECT * and a regex filter
 (matching aggregate_fans_log.sql's live pattern) instead of a fixed field list.
 """
 

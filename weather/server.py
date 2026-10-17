@@ -85,10 +85,8 @@ from socketserver import ThreadingMixIn
 import configparser
 from influxdb_client import InfluxDBClient
 from influxdb_client.client.write_api import SYNCHRONOUS
-import psycopg2
-import psycopg2.extras
 
-BUILD = "0.2.4"
+BUILD = "0.2.5"
 CLI = False
 LOADED = False
 CONFIG_LOADED = False
@@ -133,22 +131,6 @@ if os.path.exists(CONFIGFILE):
 
     if ITOKEN != "" and IURL == "":
         IURL = "http://%s:%s" % (IHOST, IPORT)
-
-    # TimescaleDB (optional section - absent/disabled means skip entirely)
-    if config.has_section("TimescaleDB"):
-        TSDB = config.get("TimescaleDB", "ENABLE", fallback="no").lower() == "yes"
-        TSHOST = config.get("TimescaleDB", "HOST", fallback="")
-        TSPORT = int(config.get("TimescaleDB", "PORT", fallback="0"))
-        TSNAME = config.get("TimescaleDB", "DB", fallback="")
-        TSUSER = config.get("TimescaleDB", "USER", fallback="")
-        TSPASS = config.get("TimescaleDB", "PASSWORD", fallback="")
-        # Older configs predate this setting -- fall back to "disable" (the
-        # bundled container's mode) rather than psycopg2's own "prefer".
-        TSSSLMODE = config.get("TimescaleDB", "SSLMODE", fallback="disable")
-    else:
-        TSDB = False
-        TSHOST = TSNAME = TSUSER = TSPASS = TSSSLMODE = ""
-        TSPORT = 0
 else:
     # No config file - Display Error
     sys.stderr.write("Weather411 Server %s\nERROR: No config file. Fix and restart.\n" % BUILD)
@@ -178,8 +160,6 @@ serverstats['start'] = int(time.time())      # Timestamp for Start
 serverstats['clear'] = int(time.time())      # Timestamp of lLast Stats Clear
 serverstats['influxdb'] = 0
 serverstats['influxdberrors'] = 0
-serverstats['timescaledb'] = 0
-serverstats['timescaledberrors'] = 0
 
 # Global Variables
 running = True
@@ -217,6 +197,26 @@ def lookup(source, index, valtype='string'):
         return str(source[index])
     return None
 
+def http_error_detail(response, limit=200):
+    # extract a short human-readable error detail from an HTTP error
+    # response - prefers the JSON "message" field used by OpenWeatherMap
+    detail = ""
+    try:
+        message = response.json().get("message")
+        if message:
+            detail = str(message)
+    except Exception:
+        pass
+    if not detail:
+        try:
+            detail = response.text.strip()
+        except Exception:
+            pass
+    # collapse to a single line and enforce the length limit so log
+    # lines stay scannable even when the message is empty or verbose
+    detail = " ".join(detail.split())[:limit]
+    return detail or "no detail"
+
 # Clear weather data
 clearweather()
 
@@ -241,7 +241,7 @@ def fetchWeather():
             if CLI:
                 print("\n")
             try:
-                response = requests.get(URL)
+                response = requests.get(URL, timeout=TIMEOUT)
                 if response.status_code == 200:
                     raw = response.json()
                     clearweather()
@@ -285,8 +285,8 @@ def fetchWeather():
                         if "snow" in raw:
                             weather["snow_1h"] = lookup(raw['snow'], '1h', 'float')
                             weather["snow_3h"] = lookup(raw['snow'], '3h', 'float')
-                    except:
-                        log.debug("Data error in payload from OpenWeatherMap")
+                    except Exception as e:
+                        log.debug("Data error in payload from OpenWeatherMap: %r" % e)
                         pass
 
                     log.debug("Weather data loaded")
@@ -323,59 +323,28 @@ def fetchWeather():
                             write_api.write(IDB,IORG,output)
                             serverstats['influxdb'] += 1
                             client.close()
-                        except:
-                            log.debug("Error writing to InfluxDB")
-                            sys.stderr.write("! Error writing to InfluxDB\n")
+                        except Exception as e:
+                            log.debug("Error writing to InfluxDB: %r" % e)
+                            detail = " ".join(str(e).split())
+                            sys.stderr.write("! Error writing to InfluxDB (%s: %s)\n"
+                                % (type(e).__name__, detail or "unknown error"))
                             serverstats['influxdberrors'] += 1
                             pass
-
-                    if TSDB:
-                        log.debug("Writing to TimescaleDB")
-                        conn = None
-                        try:
-                            # tz-aware, unlike datetime.utcfromtimestamp() --
-                            # psycopg2 sends naive datetimes to Postgres with
-                            # no offset, so they get interpreted in the
-                            # session's TimeZone (e.g. America/New_York)
-                            # instead of UTC, silently shifting every row by
-                            # the local UTC offset.
-                            ts = datetime.fromtimestamp(weather["dt"], tz=timezone.utc)
-                            rows = []
-                            for key, val in weather.items():
-                                if val is None:
-                                    continue
-                                if isinstance(val, str):
-                                    rows.append((ts, key, None, val))
-                                else:
-                                    rows.append((ts, key, val, None))
-                            conn = psycopg2.connect(host=TSHOST, port=TSPORT,
-                                dbname=TSNAME, user=TSUSER, password=TSPASS,
-                                sslmode=TSSSLMODE)
-                            with conn.cursor() as cur:
-                                psycopg2.extras.execute_values(
-                                    cur,
-                                    "INSERT INTO pw_weather_log (time, metric_name, value, text_value) "
-                                    "VALUES %s ON CONFLICT (time, metric_name) DO UPDATE SET "
-                                    "value = EXCLUDED.value, text_value = EXCLUDED.text_value",
-                                    rows,
-                                )
-                            conn.commit()
-                            serverstats['timescaledb'] += 1
-                        except Exception:
-                            log.exception("Error writing to TimescaleDB")
-                            sys.stderr.write("! Error writing to TimescaleDB\n")
-                            serverstats['timescaledberrors'] += 1
-                        finally:
-                            if conn is not None:
-                                conn.close()
                 else:
                     # showing the error message
-                    log.debug("Bad response from OpenWeatherMap")
-                    sys.stderr.write("! Bad response from OpenWeatherMap\n")
-            except:
-                log.debug("Error fetching OpenWeatherMap")
-                sys.stderr.write("! Error fetching OpenWeatherMap\n")
-                pass
+                    detail = http_error_detail(response)
+                    log.debug("Bad response from OpenWeatherMap: HTTP %s - %s"
+                        % (response.status_code, detail))
+                    sys.stderr.write("! Bad response from OpenWeatherMap (HTTP %s - %s)\n"
+                        % (response.status_code, detail))
+            except requests.exceptions.Timeout as e:
+                log.debug("Timeout fetching OpenWeatherMap: %r" % e)
+                sys.stderr.write("! Error fetching OpenWeatherMap (timed out after %ss)\n" % TIMEOUT)
+                serverstats['timeout'] += 1
+            except Exception as e:
+                log.debug("Error fetching OpenWeatherMap: %r" % e)
+                sys.stderr.write("! Error fetching OpenWeatherMap (%s: %s)\n"
+                    % (type(e).__name__, e))
         time.sleep(5)
     sys.stderr.write('\r ! fetchWeather Exit\n')
 
@@ -515,9 +484,7 @@ if __name__ == "__main__":
     if ITOKEN != "" or IORG != "":
         sys.stderr.write(" + InfluxDB - URL: %s, Org: %s, Token: %s\n"
             % (IURL, IORG, ITOKEN))
-    sys.stderr.write(" + TimescaleDB - Enable: %s, Host: %s, Port: %s, DB: %s, User: %s\n"
-        % (TSDB, TSHOST, TSPORT, TSNAME, TSUSER))
-
+    
     # Start threads
     sys.stderr.write("* Starting threads\n")
     thread_fetchWeather.start()

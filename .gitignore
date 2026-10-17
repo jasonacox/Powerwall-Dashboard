@@ -17,16 +17,17 @@
 compose.env
 grafana.env
 influxdb.env
-mcp.env
 powerwall.extend.yml
 pypowerwall.env
 telegraf.local
-timescaledb.env
-grafana/provisions/datasources/sunandmoon.yml
+tools/timescaledb/timescaledb.env
 grafana/provisions/datasources/timescaledb.yml
 
 # Auth files
 .auth/
+
+# pypowerwall time series data
+.pypowerwall_data/
 
 # Local Dev files
 *.bak
@@ -43,8 +44,7 @@ grafana/plugins/
 influxdb/meta/
 influxdb/wal/
 influxdb/data/
-
-timescaledb-data/
+tools/timescaledb/data/
 
 weather/uploadtest.sh
 weather/weather411.conf
@@ -57,7 +57,7 @@ tools/weather-history/weather-history.conf
 tools/ecowitt-weather-history/ecowitt-weather-history.conf
 tools/export/export.csv
 tools/export/export.xz
+tools/export/outages.csv
 issues/*
 sync.sh
 *.pyc
-.claude/

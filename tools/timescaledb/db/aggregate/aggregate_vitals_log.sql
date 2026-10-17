@@ -2,7 +2,7 @@
 -- keys matching known vitals field patterns, rather than a fixed PW1/PW2/PW3
 -- column list -- this makes the query correct for any Powerwall count (or
 -- split-phase vs three-phase installs) with zero changes, since Telegraf only
--- ever creates the columns actual hardware reports (see GOTCHAS.md).
+-- ever creates the columns actual hardware reports (see tools/timescaledb/README.md).
 WITH src AS (
   SELECT time, to_jsonb(t) - 'time' - 'host' - 'month' - 'year' - 'url' AS row_json
   FROM http t

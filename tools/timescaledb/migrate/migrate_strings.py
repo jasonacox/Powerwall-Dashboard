@@ -2,7 +2,7 @@
 """
 One-time migration: InfluxDB strings.http -> TimescaleDB pw_strings_log
 Best-effort port of Powerwall+ string monitoring (no PW+ hardware to validate
-against -- see timescaledb/README.md). Uses SELECT * and a regex filter
+against -- see tools/timescaledb/README.md). Uses SELECT * and a regex filter
 (matching aggregate_strings_log.sql's live pattern) instead of a fixed field
 list, so this works for any number of installed strings/inverters. Also
 computes the derived per-inverter total power, matching aggregate_strings_log.sql.

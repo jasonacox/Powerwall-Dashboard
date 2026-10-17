@@ -1,5 +1,5 @@
 -- Backup Switch fan telemetry -> pw_fans_log. Best-effort port (no Backup
--- Switch hardware to validate against -- see timescaledb/README.md). Same
+-- Switch hardware to validate against -- see tools/timescaledb/README.md). Same
 -- whole-row-unpivot-then-filter pattern as aggregate_pwtemps_log.sql.
 WITH src AS (
   SELECT time, to_jsonb(t) - 'time' - 'host' - 'month' - 'year' - 'url' AS row_json

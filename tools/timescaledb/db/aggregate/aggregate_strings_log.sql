@@ -1,5 +1,5 @@
 -- Powerwall+ string monitoring -> pw_strings_log. Best-effort port (no PW+
--- hardware to validate against -- see timescaledb/README.md). Same
+-- hardware to validate against -- see tools/timescaledb/README.md). Same
 -- whole-row-unpivot-then-filter pattern as aggregate_vitals_log.sql: matches
 -- field names A-F (optionally suffixed 1-5 for additional inverters) x
 -- Current/Power/Voltage, so it works for any number of installed strings.

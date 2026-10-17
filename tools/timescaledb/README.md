@@ -1,153 +1,213 @@
-# TimescaleDB (PostgreSQL) datastore extension
+# TimescaleDB (PostgreSQL) Datastore — EXPERIMENTAL
 
-> **EXPERIMENTAL.** This is an opt-in, community-contributed extension, not
-> part of the core supported stack. InfluxDB remains the default, tested
-> datastore for Powerwall-Dashboard. Expect rough edges, and please report
-> issues rather than assuming they're expected.
+> **Experimental, community-maintained add-on.** InfluxDB remains the default,
+> supported datastore. The TimescaleDB dashboard, SQL and tooling here are
+> maintained by the community: changes to the InfluxDB dashboards or tools do
+> **not** need a matching TimescaleDB change, so this dashboard may lag behind
+> or differ from the InfluxDB ones. Please report issues you find.
 
-Adds TimescaleDB as a **second, parallel** datastore alongside your existing
-InfluxDB stack -- pypowerwall data gets written to both. InfluxDB, `telegraf`,
-and the rest of the core stack are never disabled or modified by this
-extension. See [`../../timescaledb/README.md`](../../timescaledb/README.md)
-for the architecture, design decisions, and troubleshooting ("Gotchas")
-reference.
+This add-on stores your Powerwall data in [TimescaleDB](https://www.timescale.com/)
+(PostgreSQL with time-series extensions) **in addition to** InfluxDB. Your
+existing InfluxDB stack keeps running exactly as before. You get a separate
+Grafana dashboard backed by TimescaleDB, and your data in a regular SQL
+database you can query with any PostgreSQL tool.
 
-This is not wired into the main `./setup.sh`; it's an opt-in add-on via the
-stack's existing `powerwall.extend.yml` mechanism (the same one
-[`tools/tesla-history`](../tesla-history/) and [`tools/pgadmin`](../pgadmin/)
-use).
+It adds these services through the stack's `powerwall.extend.yml` mechanism:
 
-Once this is set up, [`mcp/`](mcp/) adds an optional MCP server on top,
-letting an AI agent query this database conversationally. Also experimental,
-also opt-in.
+| Service | What it does |
+|---|---|
+| `timescaledb` | The database (`timescale/timescaledb`, pinned version). Not exposed outside Docker by default. |
+| `telegraf-timescale` | A second Telegraf that polls pypowerwall and weather411, writing raw data to TimescaleDB. The pypowerwall proxy caches responses, so your Powerwall isn't polled twice. |
+| `aggregate-cron` | Every 60 seconds, runs the SQL in [`db/aggregate/`](db/aggregate/) to roll raw data up into the 1-minute and 1-hour tables the dashboard uses (the equivalent of InfluxDB's continuous queries). |
+
+It also gives the existing `grafana` service the database connection settings.
 
 ## Setup
 
-1. Run the base stack setup first if you haven't already: `./setup.sh`.
-2. From the repository root:
+1. Set up the base stack first, if you haven't: `./setup.sh`.
+2. From the repository root, run:
+
    ```bash
    ./tools/timescaledb/setup.sh
    ```
-   This creates/merges `powerwall.extend.yml` (see below if you already have
-   one for another add-on), creates `timescaledb.env` with a random database
-   password, asks whether to use this stack's own bundled TimescaleDB
-   container or an existing PostgreSQL/TimescaleDB server you already run,
-   starts the new services, applies the database schema, and offers to
-   migrate your existing InfluxDB history into TimescaleDB.
-3. Import `dashboards/dashboard-timescaledb.json` into Grafana (Dashboard/New
-   -> Import dashboard) and select "TimescaleDB (auto provisioned)" for its
-   datasource.
 
-`powerwall.extend.yml` and `timescaledb.env` are both gitignored, so your
-local copies survive `git pull` / `setup.sh` re-runs.
+   This:
+   - copies `tools/timescaledb/powerwall.extend.yml.sample` to `powerwall.extend.yml`
+   - creates `tools/timescaledb/timescaledb.env` with a random database password
+     and your timezone (from the `tz` file)
+   - installs the "TimescaleDB (auto provisioned)" Grafana datasource
+   - starts the services and waits for the database schema
+   - offers to copy your existing InfluxDB history into TimescaleDB (see
+     [Importing your InfluxDB history](#importing-your-influxdb-history))
+3. In Grafana, go to **Dashboards → New → Import**, upload
+   `tools/timescaledb/dashboard-timescaledb.json`, select **TimescaleDB (auto
+   provisioned)** as the datasource, and enter your timezone (setup prints it).
 
-### If you already have a `powerwall.extend.yml`
+`powerwall.extend.yml` and `tools/timescaledb/timescaledb.env` are gitignored,
+so `git pull` and `./upgrade.sh` won't overwrite them. Re-running
+`./tools/timescaledb/setup.sh` is safe.
 
-`docker compose` only reads a single `powerwall.extend.yml`. If you already
-have one (e.g. for `tesla-history` or `pgadmin`), `tools/timescaledb/setup.sh`
-detects it and tells you to merge the services from
-`tools/timescaledb/powerwall.extend.yml.sample` into it by hand instead of
-overwriting the file.
+**Already have a `powerwall.extend.yml`** (for example for tesla-history)?
+Docker Compose only reads one, so setup stops and asks you to copy the
+services from `tools/timescaledb/powerwall.extend.yml.sample` into your file by
+hand. Then run setup again.
 
-## Bundled vs. an existing server
+**Changed your timezone** with `./tz.sh`? Re-run `./tools/timescaledb/setup.sh`
+to update `timescaledb.env`, and set the dashboard's Timezone variable to match.
 
-Re-run `tools/timescaledb/setup.sh` any time to switch between a bundled
-TimescaleDB container and an existing server, or to update connection
-details. Note: switching from **external back to bundled** currently isn't a
-clean automatic re-merge (the bundled service block gets removed from
-`powerwall.extend.yml` in external mode, and safely reinserting it into a
-possibly hand-edited file isn't something this script attempts) -- the script
-will tell you to remove the TimescaleDB entries from `powerwall.extend.yml`
-(or delete the file, if TimescaleDB is the only thing in it) and re-run to
-recreate it fresh.
-
-## Running InfluxDB-idle (no fully-integrated "TimescaleDB-only" mode)
-
-This extension is dual-write only -- there's no supported way to disable
-InfluxDB through `setup.sh`/`powerwall.extend.yml`. If you want InfluxDB and
-`telegraf` idle (e.g. to stop double-polling pypowerwall), stop them directly:
+## Checking that it's working
 
 ```bash
-./tools/timescaledb/stop-influxdb.sh
+docker ps --filter name=timescale --filter name=aggregate-cron
+docker logs aggregate-cron
 ```
 
-This is **not sticky**: `influxdb`/`telegraf` are ordinary, unconditional
-services in `powerwall.yml` with `restart: unless-stopped`, so the next
-`./setup.sh` or `./upgrade.sh` run (both end in `docker compose up -d`, which
-reconciles every declared service back to running) will start them again.
-Re-run the script above afterward if you want them to stay stopped. Existing
-InfluxDB data is never touched either way.
+`aggregate-cron` reports **healthy** only if a full aggregation pass succeeded
+in the last 5 minutes, so "unhealthy" means the dashboard tables have stopped
+updating. Its log shows which script failed.
+
+## Importing your InfluxDB history
+
+Setup asks whether to import your InfluxDB history. You can say no and re-run
+setup later. The import:
+
+- copies each InfluxDB retention policy month by month, newest first, then
+  rebuilds `pw_kwh_1h` from the imported 1-minute data
+- records progress in a `migration_progress` table, so it's safe to stop and
+  re-run (finished months are skipped)
+- can read from this stack's `influxdb` container (the default) or another
+  InfluxDB 1.x server
+
+To run it outside setup, on a host with Python, `pip install psycopg2-binary
+requests` first, then `python3 tools/timescaledb/migrate/run_all.py`. Connection
+details come from environment variables or prompts (see
+`migrate/migrate_common.py`).
+
+**Known difference:** live data uses time-weighted 1-minute averages and
+energy integration that splits readings across hour boundaries. That needs
+raw samples, which InfluxDB only keeps for 3 days, so imported history uses
+InfluxDB's already-averaged data. The totals differ slightly around the
+switch-over point.
+
+## Using an existing TimescaleDB server
+
+Instead of the bundled container, you can point the add-on at a
+TimescaleDB/PostgreSQL server you already run:
+
+1. Run `./tools/timescaledb/setup.sh` once as normal.
+2. Edit `tools/timescaledb/timescaledb.env`: set `TIMESCALEDB_HOST`,
+   `TIMESCALEDB_PORT`, `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, and
+   `TIMESCALEDB_SSLMODE` (for example `require` if the server uses TLS).
+3. Edit `powerwall.extend.yml` and delete the whole `timescaledb:` service
+   block.
+4. Remove the bundled container and apply the change:
+
+   ```bash
+   docker rm -f timescaledb
+   ./compose-dash.sh up -d
+   ```
+
+The server needs TimescaleDB 2.x on PostgreSQL 13 or newer, reachable from
+this Docker host. The `timescaledb` extension must already be created in the
+database, or the user must be allowed to create it. The user also needs
+permission to create tables, hypertables and compression policies. The schema
+is applied automatically when `aggregate-cron` starts.
+
+## Accessing the database from the host
+
+The database isn't published outside Docker by default. To connect from the
+host (psql, pgAdmin, DBeaver, ...), add a `ports:` entry to the `timescaledb`
+service in `powerwall.extend.yml` (a commented example is already there).
+Choose a free host port if something else already uses 5432:
+
+```yaml
+        ports:
+            - "127.0.0.1:5432:5432"
+```
+
+Then run `./compose-dash.sh up -d`. The username and password are in
+`tools/timescaledb/timescaledb.env`.
 
 ## Backup and restore
 
-TimescaleDB is a real Postgres-compatible database with an active WAL, so
-copying `timescaledb-data/` directly while the container is running risks
-capturing a torn, inconsistent snapshot -- unlike the InfluxDB backup covered
-in [`backups/README.md`](../../backups/README.md), which doesn't apply here.
-Use Postgres's own backup tool instead (`pg_dump`).
-
-The "Transfer to a New Computer" steps in `backups/README.md` (stop the
-stack, `tar` everything, restore on the new machine) are still fine for
-TimescaleDB *as long as the stack is stopped first* -- a cold copy of a
-stopped database is safe. The steps below are for backing up TimescaleDB
-*while it keeps running*.
-
-1. Copy the sample script into `backups/` (matching where the InfluxDB
-   backup script lives, for consistency with any cron setup you may already
-   have):
-   ```bash
-   cp tools/timescaledb/backup-timescaledb.sh.sample backups/backup-timescaledb.sh
-   ```
-2. Edit `DASHBOARD="/home/user/Powerwall-Dashboard"` to your dashboard location.
-3. Edit `PG_USER`/`PG_DB` if you changed `POSTGRES_USER`/`POSTGRES_DB` from
-   their defaults in `timescaledb.env`.
-4. Make it executable: `chmod +x backups/backup-timescaledb.sh`.
-
-### Restoring a TimescaleDB backup
-
-`pg_restore`'s usual `--clean` option (drop-and-recreate objects in place)
-does **not** work against TimescaleDB hypertables -- it generates
-`ALTER TABLE ONLY ... DROP CONSTRAINT`, and TimescaleDB rejects the `ONLY`
-option on hypertable operations. Drop and recreate the database instead; this
-was verified end-to-end (backup taken from a live database with real data,
-restored into a fresh database, hypertable/compression metadata and all rows
-confirmed identical):
+The InfluxDB backup in [`backups/README.md`](../../backups/README.md) doesn't
+cover TimescaleDB, and copying `tools/timescaledb/data/` while the database is
+running can produce a broken copy. Use `pg_dump` instead:
 
 ```bash
-# 1. Stop the stack (or at least anything writing to TimescaleDB)
-./compose-dash.sh stop
+cp tools/timescaledb/backup-timescaledb.sh.sample backups/backup-timescaledb.sh
+chmod +x backups/backup-timescaledb.sh
+# edit DASHBOARD (and PG_USER/PG_DB if you changed them) at the top
+```
 
-# 2. Start just the timescaledb container
-docker compose -f powerwall.yml -f powerwall.extend.yml up -d timescaledb
+Copying the whole folder to a new computer, as described in `backups/README.md`,
+is fine **if the stack is stopped first**.
 
-# 3. Drop and recreate the database, then re-add the extension
-#    (replace telegraf_powerwall/powerwall if you customized these in timescaledb.env)
+To restore, drop and recreate the database. `pg_restore --clean` does not work
+with TimescaleDB hypertables:
+
+```bash
+docker stop aggregate-cron telegraf-timescale grafana
 docker exec -u postgres timescaledb psql -U telegraf_powerwall -d postgres -c "DROP DATABASE IF EXISTS powerwall;"
 docker exec -u postgres timescaledb psql -U telegraf_powerwall -d postgres -c "CREATE DATABASE powerwall OWNER telegraf_powerwall;"
 docker exec -u postgres timescaledb psql -U telegraf_powerwall -d powerwall -c "CREATE EXTENSION IF NOT EXISTS timescaledb;"
-
-# 4. Copy the backup file into the container and restore
-docker cp ./backups/timescaledb.xyz.dump timescaledb:/tmp/restore.dump
+docker cp ./backups/timescaledb.YYYY-MM-DD.dump timescaledb:/tmp/restore.dump
 docker exec -u postgres timescaledb pg_restore -U telegraf_powerwall -d powerwall --no-owner /tmp/restore.dump
-
-# 5. Start everything else back up
-./compose-dash.sh start
+./compose-dash.sh up -d
 ```
 
-If you're restoring onto a brand-new install where `tools/timescaledb/setup.sh`
-already ran and applied `timescaledb/schema.sql`, step 3 above (drop/recreate
-the database) is still required -- restoring on top of the already-created
-schema will fail with "relation already exists" errors, since `pg_restore`
-recreates the schema itself as part of the dump.
+(Replace `telegraf_powerwall`/`powerwall` if you changed `POSTGRES_USER`/`POSTGRES_DB`.)
 
-## Removing the extension
+## Removing the add-on
 
-```bash
-./compose-dash.sh down timescaledb telegraf-timescale aggregate-cron
-rm grafana/provisions/datasources/timescaledb.yml
-# Then remove the TimescaleDB services/patches from powerwall.extend.yml by
-# hand (or delete the file, if TimescaleDB is the only thing in it), and:
-rm timescaledb.env
-rm -rf timescaledb-data/   # only if you want the bundled container's data gone too
-rm -f backups/backup-timescaledb.sh   # if you set up scheduled backups
-```
+1. Delete the TimescaleDB services (`timescaledb`, `telegraf-timescale`,
+   `aggregate-cron`) and the `grafana:` patch from `powerwall.extend.yml`, or
+   delete the file if nothing else is in it.
+2. Then:
+
+   ```bash
+   docker rm -f timescaledb telegraf-timescale aggregate-cron
+   rm grafana/provisions/datasources/timescaledb.yml
+   ./compose-dash.sh up -d
+   ```
+
+3. Optionally delete your data and settings with
+   `rm -rf tools/timescaledb/data tools/timescaledb/timescaledb.env`, and
+   delete the TimescaleDB dashboard in Grafana.
+
+InfluxDB and its data are never touched.
+
+## Gotchas
+
+- **Disk space:** even with compression, TimescaleDB uses noticeably more disk
+  than InfluxDB for the same history.
+- **Powerwall+ strings and Backup Switch fans** panels have only been tested
+  with synthetic data, not real hardware. If they look wrong on your system,
+  compare the `http` table's columns with the patterns in
+  `db/aggregate/aggregate_strings_log.sql` / `aggregate_fans_log.sql`.
+- **Missing weather:** weather data comes from weather411's `/all` endpoint.
+  If weather411 has no OpenWeatherMap key, the weather panels stay empty
+  (nothing else is affected).
+- **Writing your own SQL:** the raw tables (`http`, `alerts`, `weather`,
+  `powerwall_dashboard`) store `time` as UTC `timestamp without time zone` and
+  keep 3 days. The `pw_*` tables use `timestamptz` and keep everything. Telegraf
+  only creates a raw column once it has seen a non-null value, so not every
+  field exists on every system.
+- **Re-aggregating a range:** `db/aggregate/kwh_backfill.sql` rebuilds
+  `pw_kwh_1h` from `pw_autogen_1m` for a date range (see its header for usage).
+
+## Files
+
+| Path | Purpose |
+|---|---|
+| `setup.sh` | Interactive setup (safe to re-run) |
+| `powerwall.extend.yml.sample` | Services added to the stack |
+| `timescaledb.env.sample` | Database connection settings template |
+| `telegraf-timescale.conf` | Telegraf config for the second collector |
+| `grafana-datasource.yml` | Grafana datasource, copied into `grafana/provisions/datasources/` |
+| `dashboard-timescaledb.json` | Grafana dashboard |
+| `db/schema.sql` | Aggregate table definitions, applied by `aggregate-cron` on start |
+| `db/cron-entrypoint.sh` | `aggregate-cron`'s loop |
+| `db/aggregate/` | Aggregation SQL run every minute (plus `kwh_backfill.sql`, run by hand) |
+| `migrate/` | InfluxDB history import |
+| `backup-timescaledb.sh.sample` | `pg_dump` backup script |

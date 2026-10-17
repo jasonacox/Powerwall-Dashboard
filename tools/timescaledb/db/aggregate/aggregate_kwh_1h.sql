@@ -1,7 +1,7 @@
 -- Boundary-interpolated integration: splits a trapezoid spanning an hour
 -- boundary proportionally between the two hours it touches, correcting a
 -- documented undercounting bug in InfluxDB's integral() (see
--- timescaledb/README.md). Any interval over 5 minutes is treated as a real
+-- tools/timescaledb/README.md). Any interval over 5 minutes is treated as a real
 -- outage (contributes 0) rather than bridged as one large trapezoid.
 --
 -- Requires a psql variable "tz" (the installation's Olson timezone, e.g.

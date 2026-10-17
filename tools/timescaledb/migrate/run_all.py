@@ -5,7 +5,7 @@ resolving connection details (prompting if needed) exactly once and sharing
 that config across all of them -- see migrate_common.get_config().
 
 Order matters: pw_kwh_1h has no migration script of its own -- its history is
-derived from pw_autogen_1m (via timescaledb/aggregate/kwh_backfill.sql), so
+derived from pw_autogen_1m (via tools/timescaledb/db/aggregate/kwh_backfill.sql), so
 autogen must be migrated first. This script runs that backfill automatically
 immediately after migrate_autogen finishes.
 """
@@ -27,7 +27,7 @@ import migrate_weather
 import migrate_strings
 import migrate_fans
 
-AGGREGATE_DIR = Path(__file__).resolve().parent.parent / "aggregate"
+AGGREGATE_DIR = Path(__file__).resolve().parent.parent / "db" / "aggregate"
 
 
 def backfill_kwh(config, earliest_year, earliest_month):
