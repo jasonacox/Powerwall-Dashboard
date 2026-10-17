@@ -50,7 +50,7 @@ def query_outages(start, end):
         'ORDER BY time ASC'
     ) % (start, end, TZ_STR)
 
-    print(f"Querying InfluxDB ...", flush=True)
+    print("Querying InfluxDB ...", flush=True)
     result = client.query(query)
 
     points = list(result.get_points())
