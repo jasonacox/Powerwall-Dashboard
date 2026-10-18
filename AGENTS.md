@@ -63,7 +63,6 @@ Use only the sections that apply. Always say what existing installs must do, and
 
 Users run these scripts on Linux, macOS, Windows WSL, Synology (BusyBox), Raspberry Pi and rootless Docker. Write for the lowest common denominator:
 
-* **Git 2.0 is the floor for `upgrade.sh`** (it checks and stops on older git).
 * **Bash 3.2 is the floor** (macOS). No associative arrays, `mapfile`/`readarray`, `${var,,}`/`${var^^}`, or `&>>`.
 * **`sed -i` differs between GNU and BSD.** Always use `sed -i.bak ...` (attached suffix, as the existing scripts do), and avoid GNU-only escapes like `\n`, `\t` and `\+` in replacements and patterns. Don't leave `.bak` files tracked.
 * **Avoid GNU-only flags and tools:** `grep -P`, `readlink -f`, `date -d`, `stat -c`, `xargs -r`, `sort -V`, `find -printf`, `echo -e` (use `printf`). Prefer POSIX options and test that a command exists with `command -v` before relying on it.

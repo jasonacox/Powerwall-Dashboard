@@ -287,7 +287,7 @@ If required, see [WINDOWS.md](WINDOWS.md) for notes on how to upgrade your WSL i
 ## Upgrading
 
 * The included `upgrade.sh` script will attempt to upgrade your installation to the latest Powerwall-Dashboard version without removing existing data. A backup is still recommended.
-* `upgrade.sh` installs the latest [release](https://github.com/jasonacox/Powerwall-Dashboard/releases) (`vX.Y.Z` tag), not the newest commit on `main`. Changes merged after a release reach you with the next release. Running `git pull` yourself picks up those unreleased changes. `upgrade.sh` needs git 2.0 or newer.
+* `upgrade.sh` installs the latest [release](https://github.com/jasonacox/Powerwall-Dashboard/releases) (`vX.Y.Z` tag), not the newest commit on `main`. Changes merged after a release reach you with the next release. Running `git pull` yourself picks up those unreleased changes.
 
 ## Powerwall 3
 

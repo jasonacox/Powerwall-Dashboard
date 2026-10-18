@@ -60,7 +60,7 @@ version_lt() {
     return 1
 }
 
-# Newest release tag (vX.Y.Z), sorted numerically by field (no GNU sort -V)
+# Newest release tag (vX.Y.Z), sorted numerically by field (no GNU sort -V or git 2.0+ --sort)
 latest_release() {
     git tag -l 'v*' | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sed 's/^v//' | sort -t. -k1,1n -k2,2n -k3,3n | tail -1 | sed 's/^/v/'
 }
@@ -69,14 +69,6 @@ latest_release() {
 # a vX.Y.Z tag is published. Run the latest release's copy of this script (this
 # copy may be older, or main's copy fetched by an older install).
 if [ -z "${PWD_UPGRADE_RELEASE}" ]; then
-    # Release upgrades need git 2.0 or newer; older git can still update by hand
-    GIT_MAJOR=$(git --version 2>/dev/null | sed -n 's/^git version \([0-9][0-9]*\)\..*/\1/p')
-    if [ -z "${GIT_MAJOR}" ] || [ "${GIT_MAJOR}" -lt 2 ]; then
-        echo "ERROR: upgrade.sh needs git 2.0 or newer (found: $(git --version 2>/dev/null || echo none))."
-        echo "       Upgrade git, or update by hand: run 'git fetch --tags', then"
-        echo "       'git rebase vX.Y.Z' with the latest release tag."
-        exit 1
-    fi
     echo "Checking for the latest release..."
     # The release this install is on, recorded before the fetch can move its tag
     BASE_TAG=$(git describe --tags --abbrev=0 --match 'v[0-9]*' 2>/dev/null || true)
