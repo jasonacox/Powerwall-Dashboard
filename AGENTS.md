@@ -10,21 +10,29 @@ A Docker Compose stack (InfluxDB 1.8, Telegraf, Grafana, the pypowerwall proxy, 
 
 * **Keep it simple.** Complex changes are hard to maintain and can break the install base. Prefer the smallest change that solves the problem, and remove code rather than add layers.
 * **Stay backward compatible.** Community members run many different versions and setups. Upgrades must work from older versions, and existing configs must keep working. No breaking changes without a serious discussion with the maintainers first (open an issue).
-* **Preserve local configuration.** Users upgrade with `git pull`, so tracked files get overwritten. Never ask users to edit tracked core files. Put user-specific or mutable settings in untracked local files created from a `.sample` file (`pypowerwall.env`, `compose.env`, `grafana.env`, `influxdb.env`, `telegraf.local`, `powerwall.extend.yml`, `weather/weather411.conf`), and make new options optional with safe defaults. The timezone substitution done by `tz.sh` in tracked files is a legacy exception; don't add more like it.
+* **Preserve local configuration.** Upgrades overwrite tracked files. Never ask users to edit tracked core files. Put user-specific or mutable settings in untracked local files created from a `.sample` file (`pypowerwall.env`, `compose.env`, `grafana.env`, `influxdb.env`, `telegraf.local`, `powerwall.extend.yml`, `weather/weather411.conf`), and make new options optional with safe defaults. The timezone substitution done by `tz.sh` in tracked files is a legacy exception; don't add more like it.
 * **Keep the UX consistent.** For dashboards, match the existing fonts, colors, fill modes, labels and infographic style; for the CLI (`setup.sh`, `upgrade.sh`, `verify.sh`, ...), match the existing prompts, wording and output layout. The goal is simple, intuitive, clean and consistent. Design changes need maintainer review, so discuss them in an issue before opening a PR.
 * **Document clearly and concisely.** The community ranges from novices to expert enthusiasts. Write for the novice without burying the expert: plain steps, copy-pasteable commands, and no unexplained jargon.
 
-## Merging to `main` is releasing
+## Tagging a release is releasing
 
-Users install by cloning this repo, and `upgrade.sh` updates them with `git stash` + `git pull --rebase`. It also downloads the latest `upgrade.sh` from `main` and runs that. So **anything merged to `main` is live for every user the next time they upgrade**. Do not push directly to `main`; use a branch and a PR.
+Users install by cloning this repo. `upgrade.sh` fetches the release tags, runs the newest `vX.Y.Z` tag's copy of itself, and moves the install to that tag (`git stash` + `git rebase vX.Y.Z`). So **merging to `main` doesn't reach users; tagging a release does**. Do not push directly to `main`; use a branch and a PR.
 
 Any PR that changes code, dashboards, configs or behavior should also:
 
-1. Bump `VERSION` and the `VERSION="x.y.z"` line in `upgrade.sh` (they must match; CI checks it).
-2. Add a `RELEASE.md` entry at the top (format below).
-3. If an image changes, update the pinned tag in `powerwall.yml`. State the scope in the notes; `tools/k3s` pins its own versions.
+1. Add its notes under `## Unreleased` at the top of `RELEASE.md` (format below; add the heading if it isn't there). Don't bump `VERSION`.
+2. If an image changes, update the pinned tag in `powerwall.yml`. State the scope in the notes; `tools/k3s` pins its own versions.
 
-Docs-only changes (README, AGENTS.md, notes for already-merged work) don't need a bump. If a change must land without a bump, say why in the PR.
+Docs-only changes (README, AGENTS.md, notes for already-merged work) don't need release notes.
+
+**Release PR:** when the maintainers decide to release, one PR:
+
+1. Bumps `VERSION` and the `VERSION="x.y.z"` line in `upgrade.sh` (they must match; CI checks it).
+2. Renames `## Unreleased` to `## vX.Y.Z - Short title` and finishes the notes (existing installs, contributors).
+
+After it merges, a maintainer tags the merge commit on `main` as `vX.Y.Z` and pushes the tag. Users get the release on their next `./upgrade.sh`. Don't move a published tag; release a new patch instead.
+
+**Keep `main`'s `upgrade.sh` able to find the latest tag.** Installs older than v5.4.0 download `upgrade.sh` from `main` and run it, so it must stay at that path and keep handing off to the newest release.
 
 **Choosing the bump:**
 
@@ -32,7 +40,7 @@ Docs-only changes (README, AGENTS.md, notes for already-merged work) don't need 
 * **Minor** (`5.2.x` to `5.3.0`): notable new features, scripts or dashboard panels.
 * **Major**: avoid. `upgrade.sh` treats upgrades from below `5.0.0` as a major upgrade and shows extra warnings. Only the maintainers decide on a major bump.
 
-**`RELEASE.md` entry format** (newest first, see existing entries):
+**`RELEASE.md` entry format** (newest first, see existing entries; PRs use `## Unreleased` until the release PR names the version):
 
 ```markdown
 ## v5.3.1 - Short title

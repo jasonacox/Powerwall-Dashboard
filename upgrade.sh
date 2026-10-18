@@ -6,7 +6,7 @@
 set -e
 
 # Set Globals
-VERSION="5.3.1"
+VERSION="5.4.0"
 CURRENT="Unknown"
 COMPOSE_ENV_FILE="compose.env"
 INFLUXDB_ENV_FILE="influxdb.env"
@@ -60,11 +60,28 @@ version_lt() {
     return 1
 }
 
-# Because this file can be upgraded, don't use it to run the upgrade
-if [ "$0" != "tmp.sh" ]; then
-    # Grab latest upgrade script from GitHub and run it
-    curl -sL --output tmp.sh https://raw.githubusercontent.com/jasonacox/Powerwall-Dashboard/main/upgrade.sh
-    exec bash tmp.sh upgrade
+# Newest release tag (vX.Y.Z), by git's own version sort (no GNU sort -V)
+latest_release() {
+    git tag -l 'v*' --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1
+}
+
+# Upgrades follow release tags, not main: merged changes reach users only once
+# a vX.Y.Z tag is published. Run the latest release's copy of this script (this
+# copy may be older, or main's copy fetched by an older install).
+if [ -z "${PWD_UPGRADE_RELEASE}" ]; then
+    echo "Checking for the latest release..."
+    # --force: follow tags the maintainers re-point (a plain fetch refuses to update them)
+    if ! git fetch --tags --force --quiet; then
+        echo "ERROR: Unable to fetch releases from GitHub. Check your network and try again."
+        exit 1
+    fi
+    RELEASE=$(latest_release)
+    if [ -z "${RELEASE}" ]; then
+        echo "ERROR: No release tags found."
+        exit 1
+    fi
+    git show "${RELEASE}:upgrade.sh" > tmp.sh
+    PWD_UPGRADE_RELEASE="${RELEASE}" exec bash tmp.sh upgrade
 fi
 
 # Check to see if an upgrade is available
@@ -234,12 +251,13 @@ if [ -z "${TZ}" ]; then
 fi
 ./tz.sh "${DEFAULT}" > /dev/null 2>&1
 
-# Pull from GitHub
+# Update to the release (rebase keeps local commits and never moves an install
+# that is already past the release back to it)
 echo ""
-echo "Pull influxdb.sql, dashboard.json, telegraf.conf, and other changes..."
+echo "Update influxdb.sql, dashboard.json, telegraf.conf, and other files to ${PWD_UPGRADE_RELEASE}..."
 echo ""
 git stash
-git pull --rebase
+git rebase "${PWD_UPGRADE_RELEASE}"
 echo ""
 
 # Create InfluxDB env file if missing (required in 3.0.7)
