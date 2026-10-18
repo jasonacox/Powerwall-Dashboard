@@ -6,7 +6,7 @@
 set -e
 
 # Set Globals
-VERSION="5.3.1"
+VERSION="5.4.0"
 CURRENT="Unknown"
 COMPOSE_ENV_FILE="compose.env"
 INFLUXDB_ENV_FILE="influxdb.env"
@@ -60,11 +60,34 @@ version_lt() {
     return 1
 }
 
-# Because this file can be upgraded, don't use it to run the upgrade
-if [ "$0" != "tmp.sh" ]; then
-    # Grab latest upgrade script from GitHub and run it
-    curl -sL --output tmp.sh https://raw.githubusercontent.com/jasonacox/Powerwall-Dashboard/main/upgrade.sh
-    exec bash tmp.sh upgrade
+# Newest release tag (vX.Y.Z), sorted numerically by field (no GNU sort -V or git 2.0+ --sort)
+latest_release() {
+    git tag -l 'v*' | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sed 's/^v//' | sort -t. -k1,1n -k2,2n -k3,3n | tail -1 | sed 's/^/v/'
+}
+
+# Upgrades follow release tags, not main: merged changes reach users only once
+# a vX.Y.Z tag is published. Run the latest release's copy of this script (this
+# copy may be older, or main's copy fetched by an older install).
+if [ -z "${PWD_UPGRADE_RELEASE}" ]; then
+    echo "Checking for the latest release..."
+    # The release this install is on, recorded before the fetch can move its tag
+    BASE_TAG=$(git describe --tags --abbrev=0 --match 'v[0-9]*' 2>/dev/null || true)
+    BASE=""
+    if [ -n "${BASE_TAG}" ]; then
+        BASE=$(git rev-parse "${BASE_TAG}^{commit}")
+    fi
+    # --force: follow tags the maintainers re-point (a plain fetch refuses to update them)
+    if ! git fetch --tags --force --quiet; then
+        echo "ERROR: Unable to fetch releases from GitHub. Check your network and try again."
+        exit 1
+    fi
+    RELEASE=$(latest_release)
+    if [ -z "${RELEASE}" ]; then
+        echo "ERROR: No release tags found."
+        exit 1
+    fi
+    git show "${RELEASE}:upgrade.sh" > tmp.sh
+    PWD_UPGRADE_RELEASE="${RELEASE}" PWD_UPGRADE_BASE="${BASE}" exec bash tmp.sh upgrade
 fi
 
 # Check to see if an upgrade is available
@@ -105,7 +128,7 @@ fi
 if [ ! -f ${PW_ENV_FILE} ] && [ "${PROFILE}" != "solar-only" ]; then
     echo "ERROR: Missing ${PW_ENV_FILE} - This means you have not run 'setup.sh' or"
     echo "       you have an older version that cannot be updated automatically."
-    echo "       Run 'git pull' and resolve any conflicts then run the 'setup.sh'"
+    echo "       Run 'git rebase ${PWD_UPGRADE_RELEASE}' and resolve any conflicts then run the 'setup.sh'"
     echo "       script to re-enter your Powerwall credentials."
     echo ""
     echo "Exiting"
@@ -234,12 +257,19 @@ if [ -z "${TZ}" ]; then
 fi
 ./tz.sh "${DEFAULT}" > /dev/null 2>&1
 
-# Pull from GitHub
+# Update to the release (rebase keeps local commits and never moves an install
+# that is already past the release back to it)
 echo ""
-echo "Pull influxdb.sql, dashboard.json, telegraf.conf, and other changes..."
+echo "Update influxdb.sql, dashboard.json, telegraf.conf, and other files to ${PWD_UPGRADE_RELEASE}..."
 echo ""
 git stash
-git pull --rebase
+if [ -n "${PWD_UPGRADE_BASE}" ] && [ "$(git merge-base "${PWD_UPGRADE_BASE}" "${PWD_UPGRADE_RELEASE}")" != "${PWD_UPGRADE_BASE}" ]; then
+    # This install's release was re-tagged onto different history: replay only the
+    # commits made after it, not the replaced release's own commits
+    git rebase --onto "${PWD_UPGRADE_RELEASE}" "${PWD_UPGRADE_BASE}"
+else
+    git rebase "${PWD_UPGRADE_RELEASE}"
+fi
 echo ""
 
 # Create InfluxDB env file if missing (required in 3.0.7)
