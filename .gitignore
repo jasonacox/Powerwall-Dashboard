@@ -20,6 +20,7 @@ influxdb.env
 powerwall.extend.yml
 pypowerwall.env
 telegraf.local
+grafana/provisions/datasources/sunandmoon.yml
 
 # Auth files
 .auth/
@@ -54,6 +55,7 @@ tools/weather-history/weather-history.conf
 tools/ecowitt-weather-history/ecowitt-weather-history.conf
 tools/export/export.csv
 tools/export/export.xz
+tools/export/outages.csv
 issues/*
 sync.sh
 *.pyc

@@ -9,7 +9,7 @@
 - [ ] User settings stay in local untracked files (`.sample` pattern); no user edits to tracked core files
 - [ ] Scripts work on Linux, macOS, WSL, Synology and Raspberry Pi (Bash 3.2, `sed -i.bak`, no GNU-only flags)
 - [ ] Dashboard/CLI look and wording match the existing style
-- [ ] `VERSION` and `upgrade.sh` bumped and `RELEASE.md` updated (or this is docs-only)
+- [ ] Notes added under `## Unreleased` in `RELEASE.md`, no `VERSION` bump (or this is docs-only)
 - [ ] Docs updated and clear for novice and expert users
 - [ ] No secrets or local files committed
 
