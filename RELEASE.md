@@ -5,8 +5,9 @@
 ### Bug Fixes
 
 * **`upgrade.sh` refreshes container images** - upgrades now run `./compose-dash.sh pull --ignore-pull-failures` before starting the stack, so a service on a moving tag such as `:latest` in `powerwall.extend.yml` gets the new image (`up -d` alone kept the cached one). Images that can't be pulled, such as local-only or private ones, are skipped. Installs that cached `influxdb:1.8` before October 2024 will pull the current `influxdb:1.8` image (1.8.10) and recreate the InfluxDB container. ([PR #877](https://github.com/jasonacox/Powerwall-Dashboard/pull/877) by **@cwagz**)
+* **Power flow animation works over HTTPS** - when the dashboard is opened over HTTPS through a reverse proxy, browsers blocked the animation and firmware version because they load from `http://<host>:8675`. The power flow panel now uses the same-origin `/pypowerwall` path when the reverse proxy serves it, and otherwise falls back to port 8675 as before. Plain HTTP is unchanged. The README has the two setup steps (route `/pypowerwall/` to port 8675 and set `PROXY_BASE_URL=/pypowerwall`). Applies to `dashboard.json`, `-no-sunmoon`, `-alt`, `-min-mean-max` and `-solar-only`. ([PR #PRNUM](https://github.com/jasonacox/Powerwall-Dashboard/pull/PRNUM) by **@lemassykoi** and **@jasonacox**, closes [#748](https://github.com/jasonacox/Powerwall-Dashboard/issues/748) reported by **@youzer-name**)
 
-**Existing installs:** run `./upgrade.sh`; no other action is required.
+**Existing installs:** run `./upgrade.sh`; no other action is required. If you open the dashboard over HTTPS through a reverse proxy, follow the README steps and re-import your dashboard to get the new power flow panel.
 
 ## v5.4.0 - Upgrades follow tagged releases
 
