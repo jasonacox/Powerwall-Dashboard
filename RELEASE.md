@@ -1,5 +1,13 @@
 # RELEASE NOTES
 
+## Unreleased
+
+### Bug Fixes
+
+* **Dashboard datasource references now match the import inputs** — the Inverter Power panel in `dashboard-alt.json`, `dashboard-min-mean-max.json` and `dashboard-no-animation.json` had 12 queries pointing at `${DS_INFLUXDB_(AUTO PROVISIONED)}`, an input those files don't define, so Grafana saved the placeholder as the datasource instead of your InfluxDB. Grafana 12.3.1 runs those queries on the panel's datasource, so the panel still showed data, but the saved queries pointed at a datasource that doesn't exist. `dashboard-simple.json` had a hard-coded datasource UID (`wzyByQkRz`) on its two row headers. All now use the file's `${DS_INFLUXDB}` input. No layout or styling changes.
+
+**Existing installs:** run `./upgrade.sh`, then re-import the affected dashboard (`dashboard-alt.json`, `dashboard-min-mean-max.json`, `dashboard-no-animation.json` or `dashboard-simple.json`) to get the fix. `dashboard.json`, `dashboard-no-sunmoon.json` and `dashboard-solar-only.json` are unchanged.
+
 ## v5.4.0 - Upgrades follow tagged releases
 
 ### Updates
