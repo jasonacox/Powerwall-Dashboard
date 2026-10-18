@@ -111,6 +111,7 @@ The pypowerwall proxy lives in [jasonacox/pypowerwall](https://github.com/jasona
 ## Working as an agent
 
 * Work on a branch and open a PR; never push to `main`, and don't create tags or releases.
+* Put release notes under `## Unreleased`. Don't bump `VERSION` or give the notes a version unless a maintainer asks for a release PR.
 * Don't post comments or reviews as a maintainer unless asked.
 * Ask before anything that could break existing installs, change dashboard or CLI design, or alter what `upgrade.sh` does. Suggest an issue first.
 * If a request conflicts with these principles, say so rather than working around them.
