@@ -118,10 +118,6 @@ Thanks to **@johncuthbertuk** for reporting and fixing the missing ulimits ([pyp
 
 ## v5.2.1 - Restore Script: Companion restore.sh for backup.sh
 
-### Upgrading
-
-* **Grafana datasource UID change** — auto-provisioned InfluxDB and Sun/Moon datasources now have explicit, stable UIDs (`pwd-influxdb-auto` and `pwd-sunandmoon-auto`) instead of Grafana-generated ones. This prevents UID collisions and drift across reprovisioning. **Existing installs:** after upgrading, Grafana will create new datasource entries with the pinned UIDs. If dashboards show "datasource not found" on affected panels, either re-import the dashboard or re-link the panel datasource to the same-named entry in the Grafana UI. ([PR #840](https://github.com/jasonacox/Powerwall-Dashboard/pull/840) by **@youzer-name**)
-
 ### New Features
 
 * **Restore script** — new `backups/restore.sh.sample`, an automated companion to `backup.sh.sample`, based on `restore_v16a.sh` by **@JonMurphy** ([#836](https://github.com/jasonacox/Powerwall-Dashboard/issues/836)). One command restores a backup archive on the same machine or migrates to a new one:
