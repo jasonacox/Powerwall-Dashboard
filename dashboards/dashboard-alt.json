@@ -6330,7 +6330,7 @@
           "alias": "Inverter1",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+            "uid": "${DS_INFLUXDB}"
           },
           "hide": false,
           "orderByTime": "ASC",
@@ -6344,7 +6344,7 @@
           "alias": "Inverter1+",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+            "uid": "${DS_INFLUXDB}"
           },
           "hide": false,
           "orderByTime": "ASC",
@@ -6358,7 +6358,7 @@
           "alias": "Inverter2",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+            "uid": "${DS_INFLUXDB}"
           },
           "hide": false,
           "orderByTime": "ASC",
@@ -6372,7 +6372,7 @@
           "alias": "Inverter2+",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+            "uid": "${DS_INFLUXDB}"
           },
           "hide": false,
           "orderByTime": "ASC",
@@ -6386,7 +6386,7 @@
           "alias": "Inverter3",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+            "uid": "${DS_INFLUXDB}"
           },
           "hide": false,
           "orderByTime": "ASC",
@@ -6400,7 +6400,7 @@
           "alias": "Inverter3+",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+            "uid": "${DS_INFLUXDB}"
           },
           "hide": false,
           "orderByTime": "ASC",
@@ -6414,7 +6414,7 @@
           "alias": "Inverter4",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+            "uid": "${DS_INFLUXDB}"
           },
           "hide": false,
           "orderByTime": "ASC",
@@ -6428,7 +6428,7 @@
           "alias": "Inverter4+",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+            "uid": "${DS_INFLUXDB}"
           },
           "hide": false,
           "orderByTime": "ASC",
@@ -6442,7 +6442,7 @@
           "alias": "Inverter5",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+            "uid": "${DS_INFLUXDB}"
           },
           "hide": false,
           "orderByTime": "ASC",
@@ -6456,7 +6456,7 @@
           "alias": "Inverter5+",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+            "uid": "${DS_INFLUXDB}"
           },
           "hide": false,
           "orderByTime": "ASC",
@@ -6470,7 +6470,7 @@
           "alias": "Inverter6",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+            "uid": "${DS_INFLUXDB}"
           },
           "hide": false,
           "orderByTime": "ASC",
@@ -6484,7 +6484,7 @@
           "alias": "Inverter6+",
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB_(AUTO PROVISIONED)}"
+            "uid": "${DS_INFLUXDB}"
           },
           "hide": false,
           "orderByTime": "ASC",
