@@ -1,6 +1,6 @@
 # RELEASE NOTES
 
-## v5.4.0 - Experimental TimescaleDB add-on
+## Unreleased
 
 ### Experimental
 
@@ -11,6 +11,19 @@
 ### Contributors
 
 Thanks to **@youzer-name** for the TimescaleDB add-on, and to **@jasonacox** and **@jasonacox-sam** for the reviews that shaped it.
+
+## v5.4.0 - Upgrades follow tagged releases
+
+### Updates
+
+* **`upgrade.sh` installs the latest release, not the latest commit on `main`** — upgrades used to download `upgrade.sh` from `main` and `git pull` every merged change, so anything merged was live for every user on their next upgrade. `upgrade.sh` now fetches the release tags, runs the newest `vX.Y.Z` release's copy of itself, and moves the install to that release with `git rebase`. Maintainers can merge and test changes on `main` and publish them together by tagging a release. Local commits are kept, and an install already ahead of the latest release (for example, after a manual `git pull`) is not moved back. If the release tags can't be fetched, the upgrade stops before changing anything. ([PR #882](https://github.com/jasonacox/Powerwall-Dashboard/pull/882) by **@jasonacox**)
+* **Release process** — PRs now add notes under `## Unreleased` in `RELEASE.md` without bumping `VERSION`; a release PR bumps the version and a maintainer tags it. See `AGENTS.md`.
+
+**Existing installs:** run `./upgrade.sh` as usual. Older versions of `upgrade.sh` download the new one from `main`, which hands off to the latest release, so nothing else is needed. To try unreleased changes, run `git pull` yourself.
+
+### Contributors
+
+Thanks to **@jasonacox**.
 
 ## v5.3.1 - Sun and Moon arc card & timezone validation fix
 

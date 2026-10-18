@@ -22,6 +22,7 @@ pypowerwall.env
 telegraf.local
 tools/timescaledb/timescaledb.env
 grafana/provisions/datasources/timescaledb.yml
+grafana/provisions/datasources/sunandmoon.yml
 
 # Auth files
 .auth/
