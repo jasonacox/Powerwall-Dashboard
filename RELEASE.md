@@ -6,7 +6,15 @@
 
 * **`upgrade.sh` refreshes container images** - upgrades now run `./compose-dash.sh pull --ignore-pull-failures` before starting the stack, so a service on a moving tag such as `:latest` in `powerwall.extend.yml` gets the new image (`up -d` alone kept the cached one). Images that can't be pulled, such as local-only or private ones, are skipped. Installs that cached `influxdb:1.8` before October 2024 will pull the current `influxdb:1.8` image (1.8.10) and recreate the InfluxDB container. ([PR #877](https://github.com/jasonacox/Powerwall-Dashboard/pull/877) by **@cwagz**)
 
-**Existing installs:** run `./upgrade.sh`; no other action is required.
+### Experimental
+
+* **TimescaleDB (PostgreSQL) datastore add-on** — an opt-in, community-maintained add-on in `tools/timescaledb/` that stores your Powerwall and weather data in TimescaleDB *in addition to* InfluxDB, with its own Grafana dashboard. Run `./tools/timescaledb/setup.sh` to add it; it uses the existing `powerwall.extend.yml` mechanism and does not change `powerwall.yml`, `setup.sh` or any core service. Grafana reads the data through a separate read-only database user. Includes an optional, resumable import of your InfluxDB history and a `pg_dump` backup script. InfluxDB remains the default, supported datastore, and InfluxDB dashboard or tool changes don't need a matching TimescaleDB change. See [tools/timescaledb/README.md](tools/timescaledb/README.md). ([PR #830](https://github.com/jasonacox/Powerwall-Dashboard/pull/830) by **@youzer-name**)
+
+**Existing installs:** run `./upgrade.sh`; no other action is required. The TimescaleDB add-on is opt-in and changes nothing unless you run `./tools/timescaledb/setup.sh`.
+
+### Contributors
+
+Thanks to **@youzer-name** for the TimescaleDB add-on, and to **@jasonacox** and **@jasonacox-sam** for the reviews that shaped it.
 
 ## v5.4.0 - Upgrades follow tagged releases
 

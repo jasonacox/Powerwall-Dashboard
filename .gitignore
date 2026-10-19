@@ -20,6 +20,8 @@ influxdb.env
 powerwall.extend.yml
 pypowerwall.env
 telegraf.local
+tools/timescaledb/timescaledb.env
+grafana/provisions/datasources/timescaledb.yml
 grafana/provisions/datasources/sunandmoon.yml
 
 # Auth files
@@ -43,6 +45,7 @@ grafana/plugins/
 influxdb/meta/
 influxdb/wal/
 influxdb/data/
+tools/timescaledb/data/
 
 weather/uploadtest.sh
 weather/weather411.conf
