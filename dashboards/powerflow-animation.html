@@ -47,7 +47,7 @@
   var pwbase = window.location.protocol + "//" + window.location.hostname + ":8675";
   function withpwbase(callback) {
       if (window.location.protocol !== "https:") { callback(); return; }
-      $.getJSON("/pypowerwall/version")
+      $.ajax({ url: "/pypowerwall/version", dataType: "json", timeout: 5000 })
           .done(function(data) { if (data && data.version) { pwbase = "/pypowerwall"; } })
           .always(callback);
   }
