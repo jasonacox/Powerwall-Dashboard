@@ -2,11 +2,15 @@
 
 ## Unreleased
 
+### Bug Fixes
+
+* **`upgrade.sh` refreshes container images** - upgrades now run `./compose-dash.sh pull --ignore-pull-failures` before starting the stack, so a service on a moving tag such as `:latest` in `powerwall.extend.yml` gets the new image (`up -d` alone kept the cached one). Images that can't be pulled, such as local-only or private ones, are skipped. Installs that cached `influxdb:1.8` before October 2024 will pull the current `influxdb:1.8` image (1.8.10) and recreate the InfluxDB container. ([PR #877](https://github.com/jasonacox/Powerwall-Dashboard/pull/877) by **@cwagz**)
+
 ### Experimental
 
 * **TimescaleDB (PostgreSQL) datastore add-on** — an opt-in, community-maintained add-on in `tools/timescaledb/` that stores your Powerwall and weather data in TimescaleDB *in addition to* InfluxDB, with its own Grafana dashboard. Run `./tools/timescaledb/setup.sh` to add it; it uses the existing `powerwall.extend.yml` mechanism and does not change `powerwall.yml`, `setup.sh` or any core service. Grafana reads the data through a separate read-only database user. Includes an optional, resumable import of your InfluxDB history and a `pg_dump` backup script. InfluxDB remains the default, supported datastore, and InfluxDB dashboard or tool changes don't need a matching TimescaleDB change. See [tools/timescaledb/README.md](tools/timescaledb/README.md). ([PR #830](https://github.com/jasonacox/Powerwall-Dashboard/pull/830) by **@youzer-name**)
 
-**Existing installs:** nothing to do.
+**Existing installs:** run `./upgrade.sh`; no other action is required. The TimescaleDB add-on is opt-in and changes nothing unless you run `./tools/timescaledb/setup.sh`.
 
 ### Contributors
 
@@ -129,10 +133,6 @@ Thanks to **@jasonacox-sam** (Sam Cox) for contributing the Powerwall MCP server
 Thanks to **@johncuthbertuk** for reporting and fixing the missing ulimits ([pypowerwall#369](https://github.com/jasonacox/pypowerwall/issues/369), [PR #846](https://github.com/jasonacox/Powerwall-Dashboard/pull/846)).
 
 ## v5.2.1 - Restore Script: Companion restore.sh for backup.sh
-
-### Upgrading
-
-* **Grafana datasource UID change** — auto-provisioned InfluxDB and Sun/Moon datasources now have explicit, stable UIDs (`pwd-influxdb-auto` and `pwd-sunandmoon-auto`) instead of Grafana-generated ones. This prevents UID collisions and drift across reprovisioning. **Existing installs:** after upgrading, Grafana will create new datasource entries with the pinned UIDs. If dashboards show "datasource not found" on affected panels, either re-import the dashboard or re-link the panel datasource to the same-named entry in the Grafana UI. ([PR #840](https://github.com/jasonacox/Powerwall-Dashboard/pull/840) by **@youzer-name**)
 
 ### New Features
 
