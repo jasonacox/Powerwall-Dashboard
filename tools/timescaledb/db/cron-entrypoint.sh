@@ -39,22 +39,28 @@ done
 
 # Create (or update the password of) the read-only user Grafana connects as.
 # The values are read from the environment with \getenv, so the password
-# never appears on a command line.
+# never appears on a command line. pg_read_all_data is only granted when the
+# user is first created, so narrower grants set up by hand (see README.md)
+# are kept.
 if [ -n "${GRAFANA_PG_USER:-}" ] && [ -n "${GRAFANA_PG_PASSWORD:-}" ]; then
     echo "aggregate-cron: setting up read-only Grafana user ${GRAFANA_PG_USER}..."
     if ! psql_run <<'EOF'
 \getenv grafana_user GRAFANA_PG_USER
 \getenv grafana_password GRAFANA_PG_PASSWORD
-SELECT format('CREATE ROLE %I LOGIN', :'grafana_user')
-WHERE NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = :'grafana_user')\gexec
+BEGIN;
+SELECT NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = :'grafana_user') AS grafana_new \gset
+\if :grafana_new
+SELECT format('CREATE ROLE %I LOGIN', :'grafana_user')\gexec
+SELECT format('GRANT pg_read_all_data TO %I', :'grafana_user')\gexec
+\endif
 SELECT format('ALTER ROLE %I WITH LOGIN PASSWORD %L', :'grafana_user', :'grafana_password')\gexec
 SELECT format('GRANT CONNECT ON DATABASE %I TO %I', current_database(), :'grafana_user')\gexec
-SELECT format('GRANT pg_read_all_data TO %I', :'grafana_user')
-WHERE NOT pg_has_role(:'grafana_user', 'pg_read_all_data', 'MEMBER')\gexec
+COMMIT;
 EOF
     then
         echo "aggregate-cron: [error] could not set up the Grafana user. ${POSTGRES_USER} needs"
-        echo "aggregate-cron: permission to create roles (see tools/timescaledb/README.md)."
+        echo "aggregate-cron: permission to create roles and grant pg_read_all_data"
+        echo "aggregate-cron: (see tools/timescaledb/README.md)."
     fi
 else
     echo "aggregate-cron: [error] GRAFANA_PG_USER/GRAFANA_PG_PASSWORD not set."

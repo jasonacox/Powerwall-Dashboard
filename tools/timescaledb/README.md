@@ -126,6 +126,24 @@ CREATE ROLE grafana_reader LOGIN PASSWORD 'GRAFANA_PG_PASSWORD value';
 GRANT pg_read_all_data TO grafana_reader;
 ```
 
+**What the Grafana user can read.** `pg_read_all_data` lets the user read
+every database on the server, which is handy if you add Grafana datasources
+for your other (non-Powerwall) databases with the same user. The TimescaleDB
+datasource itself only ever connects to the Powerwall database. To limit the
+user to the Powerwall database instead, run this as an admin while connected
+to that database (replace `telegraf_powerwall` with your `POSTGRES_USER`):
+
+```sql
+REVOKE pg_read_all_data FROM grafana_reader;
+GRANT USAGE ON SCHEMA public TO grafana_reader;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO grafana_reader;
+ALTER DEFAULT PRIVILEGES FOR ROLE telegraf_powerwall IN SCHEMA public
+    GRANT SELECT ON TABLES TO grafana_reader;
+```
+
+`aggregate-cron` only grants `pg_read_all_data` when it first creates the
+user, so this change is kept when it restarts.
+
 ## Accessing the database from the host
 
 The database isn't published outside Docker by default. To connect from the
