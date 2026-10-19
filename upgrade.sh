@@ -206,7 +206,10 @@ if [ -f tools/solar-only/compose.env ] && [ ! -f ${COMPOSE_ENV_FILE} ]; then
         ./compose-dash.sh down
     else
         # Files missing due to user manually pulling latest changes
+        # (word-splitting of `docker ps -aq` output is intentional here)
+        # shellcheck disable=SC2046
         docker stop $(docker ps -aq) > /dev/null 2>&1
+        # shellcheck disable=SC2046
         docker rm $(docker ps -aq) > /dev/null 2>&1
     fi
     mv compose.env ../../${COMPOSE_ENV_FILE}
