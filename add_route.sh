@@ -97,7 +97,7 @@ if [[ "${OS}" == "Linux" ]]; then
         exit 1
     else
         echo "Native Linux detected"
-		if $(ip route | grep -qw ${LINUX_IP}); then
+		if ip route | grep -qw "${LINUX_IP}"; then
 			read -r -p "${LINUX_IP} routing already in routing table. Still want to run this? [y/N] " response
 			if [[ ! "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
 				echo "Cancel"

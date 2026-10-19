@@ -48,7 +48,7 @@ fi
 
 # Verify user in docker group (not required for Windows Git Bash)
 if ! type winpty > /dev/null 2>&1; then
-    if ! $(id -Gn 2>/dev/null | grep -qw "docker"); then
+    if ! id -Gn 2>/dev/null | grep -qw "docker"; then
         echo "WARNING: You do not appear to be in the docker group."
         echo ""
         echo "Please ensure your local user is in the docker group and run without sudo."
@@ -76,8 +76,9 @@ fi
 running() {
     local url=${1:-http://localhost:80}
     local code=${2:-200}
-    local status=$(curl --head --location --connect-timeout 5 --write-out %{http_code} --silent --output /dev/null ${url})
-    [[ $status == ${code} ]]
+    local status
+    status=$(curl --head --location --connect-timeout 5 --write-out '%{http_code}' --silent --output /dev/null "${url}")
+    [[ $status == "${code}" ]]
 }
 
 # Docker Dependency Check
@@ -681,14 +682,14 @@ if [ "${LAT}" == "zzLAT" ] || [ "${LONG}" == "zzLONG" ] || [ "${LAT}" == "0.0" ]
     if PYTHON=$(command -v python3 || command -v python); then
         if IP_RESPONSE=$(curl -s -L --fail https://freeipapi.com/api/json); then
             # Try to parse JSON but catch any errors
-            read LAT LONG <<< $(printf '%s' "$IP_RESPONSE" | "${PYTHON}" -c '
+            read LAT LONG <<< "$(printf '%s' "$IP_RESPONSE" | "${PYTHON}" -c '
 import sys, json
 try:
     data = json.load(sys.stdin)
     print(data["latitude"], data["longitude"])
 except Exception:
     print("0.0", "0.0")
-')
+')"
         fi
     fi
 else
@@ -767,7 +768,7 @@ if [ "${config}" == "Tesla Cloud" ]; then
     echo ""
     echo "Once you have the token, paste it when prompted by the setup below."
     echo "-----------------------------------------"
-    docker exec -it pypowerwall python3 -m pypowerwall setup -email=$(grep -E "^PW_EMAIL=.+" "${PW_ENV_FILE}" | cut -d= -f2)
+    docker exec -it pypowerwall python3 -m pypowerwall setup "-email=$(grep -E '^PW_EMAIL=.+' "${PW_ENV_FILE}" | cut -d= -f2)"
     echo "Restarting..."
     docker restart pypowerwall
     echo "-----------------------------------------"

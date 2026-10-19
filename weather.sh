@@ -33,14 +33,14 @@ else
     if PYTHON=$(command -v python3 || command -v python); then
         if IP_RESPONSE=$(curl -s -L --fail https://freeipapi.com/api/json); then
             # Try to parse JSON but catch any errors
-            read LAT LONG <<< $(printf '%s' "$IP_RESPONSE" | "${PYTHON}" -c '
+            read LAT LONG <<< "$(printf '%s' "$IP_RESPONSE" | "${PYTHON}" -c '
 import sys, json
 try:
     data = json.load(sys.stdin)
     print(data["latitude"], data["longitude"])
 except Exception:
     print("0.0", "0.0")
-')
+')"
         fi
     fi
 fi
