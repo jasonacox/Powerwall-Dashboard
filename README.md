@@ -22,7 +22,7 @@ Monitoring Dashboard for Tesla Solar and Powerwall systems using Grafana, Influx
 * [Upgrading](#upgrading)
 * [Powerwall 3](#powerwall-3)
 * [Troubleshooting](#troubleshooting)
-* [Tips and Tricks](#tips-and-tricks) - raw data API, data retention and backups
+* [Tips and Tricks](#tips-and-tricks) - raw data API, HTTPS reverse proxy, data retention and backups
 * [Other Tools and Related Projects](#other-tools-and-related-projects)
 * [Support](#support)
 * [Acknowledgements](#acknowledgements)
@@ -435,6 +435,22 @@ Since [weather411](https://hub.docker.com/r/jasonacox/weather411) is part of thi
 * Current stats of weather411 service: http://localhost:8676/stats
 * Current conditions: http://localhost:8676/
 * Current conditions in JSON: http://localhost:8676/json
+
+### Running Behind an HTTPS Reverse Proxy
+
+If you open Grafana over HTTPS through your own reverse proxy (for example nginx, Nginx Proxy Manager, Traefik, Caddy or Cloudflare Tunnel), the browser blocks the power flow animation, because it loads from `http://<host>:8675`. To fix it:
+
+1. In your reverse proxy, route `/pypowerwall/` on the same HTTPS site to `http://<dashboard host>:8675/`. For nginx:
+
+   ```nginx
+   location /pypowerwall/ {
+       proxy_pass http://192.168.1.10:8675/;
+   }
+   ```
+
+2. Add `PROXY_BASE_URL=/pypowerwall` to `pypowerwall.env` and run `./compose-dash.sh up -d`, so pyPowerwall serves the animation's files under that path.
+
+When the dashboard is opened over HTTPS, the power flow panel uses `/pypowerwall` if it is available and otherwise falls back to port 8675. Telegraf and the URLs above keep working on port 8675.
 
 ### Data Retention and Backups
 
