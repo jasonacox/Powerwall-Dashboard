@@ -45,7 +45,7 @@ done
 
 # Create powerwall.extend.yml (or ask for a hand-merge if one already exists)
 if [ -f "${EXTEND_FILE}" ]; then
-    if grep -q "^    telegraf-timescale:" "${EXTEND_FILE}"; then
+    if grep -qE '^[[:space:]]+telegraf-timescale:' "${EXTEND_FILE}"; then
         echo "${EXTEND_FILE} already has the TimescaleDB services -- leaving it as-is."
     else
         echo "You already have a ${EXTEND_FILE} (e.g. for tesla-history)."
@@ -60,17 +60,32 @@ else
     echo "Created ${EXTEND_FILE} from ${EXTEND_SAMPLE}."
 fi
 
-# Create the env file with a random password if missing
+random_password() {
+    if command -v openssl > /dev/null 2>&1; then
+        openssl rand -hex 16
+    else
+        head -c 32 /dev/urandom | od -An -tx1 | tr -d ' \n'
+    fi
+}
+
+# Create the env file with random passwords if missing
 if [ ! -f "${TIMESCALEDB_ENV_FILE}" ]; then
     cp "${TIMESCALEDB_ENV_FILE}.sample" "${TIMESCALEDB_ENV_FILE}"
-    if command -v openssl > /dev/null 2>&1; then
-        TSDB_PASSWORD=$(openssl rand -hex 16)
-    else
-        TSDB_PASSWORD=$(head -c 32 /dev/urandom | od -An -tx1 | tr -d ' \n')
-    fi
-    sed -i.bak "s@^POSTGRES_PASSWORD=.*@POSTGRES_PASSWORD=${TSDB_PASSWORD}@" "${TIMESCALEDB_ENV_FILE}"
+    sed -i.bak -e "s@^POSTGRES_PASSWORD=.*@POSTGRES_PASSWORD=$(random_password)@" \
+        -e "s@^GRAFANA_PG_PASSWORD=.*@GRAFANA_PG_PASSWORD=$(random_password)@" "${TIMESCALEDB_ENV_FILE}"
     rm -f "${TIMESCALEDB_ENV_FILE}.bak"
-    echo "Created ${TIMESCALEDB_ENV_FILE} with a random POSTGRES_PASSWORD."
+    echo "Created ${TIMESCALEDB_ENV_FILE} with random passwords."
+fi
+
+# Env files from older versions don't have the read-only Grafana user yet
+if ! grep -qE '^GRAFANA_PG_USER=' "${TIMESCALEDB_ENV_FILE}"; then
+    {
+        echo ""
+        echo "# Read-only user for Grafana (created by aggregate-cron)"
+        echo "GRAFANA_PG_USER=grafana_reader"
+        echo "GRAFANA_PG_PASSWORD=$(random_password)"
+    } >> "${TIMESCALEDB_ENV_FILE}"
+    echo "Added a read-only Grafana user to ${TIMESCALEDB_ENV_FILE}."
 fi
 
 # Keep TZ in sync with the stack's timezone
@@ -135,6 +150,7 @@ case "${response}" in
         # than -e on the command line, so the InfluxDB password doesn't show
         # up in `docker inspect`/`ps` output.
         INFLUX_MIGRATE_ENV=$(mktemp)
+        trap 'rm -f "${INFLUX_MIGRATE_ENV}"' EXIT
         chmod 600 "${INFLUX_MIGRATE_ENV}"
         {
             echo "INFLUX_HOST=${MIGRATE_INFLUX_HOST}"
@@ -146,7 +162,7 @@ case "${response}" in
         # -it only when attached to a real terminal
         TTY_FLAGS="-i"
         [ -t 0 ] && TTY_FLAGS="-it"
-        docker run --rm ${TTY_FLAGS} \
+        if ! docker run --rm ${TTY_FLAGS} \
             --network "${NETWORK}" \
             -v "$(pwd)/${TSDB_DIR}/migrate:/timescaledb/migrate:ro" \
             -v "$(pwd)/${TSDB_DIR}/db:/timescaledb/db:ro" \
@@ -155,9 +171,11 @@ case "${response}" in
             -e PGHOST="${TSDB_HOST}" \
             -e PGPORT="${TSDB_PORT}" \
             -e PGSSLMODE="${TSDB_SSLMODE}" \
-            python:3.12-alpine sh -c "apk add --no-cache --quiet postgresql-client && pip install --quiet psycopg2-binary==2.9.* requests==2.* && python3 /timescaledb/migrate/run_all.py"
-        rm -f "${INFLUX_MIGRATE_ENV}"
-        echo "Migration complete."
+            alpine:3.23.6 sh -c "apk add --no-cache --quiet python3 py3-psycopg2 py3-requests postgresql16-client > /tmp/apk.log 2>&1 || { cat /tmp/apk.log; exit 1; }; python3 /timescaledb/migrate/run_all.py"; then
+            echo ""
+            echo "The import did not finish. Re-run ./tools/timescaledb/setup.sh to retry"
+            echo "(months that were already imported are skipped)."
+        fi
         ;;
     *)
         echo "Skipping migration. Re-run this script any time to be asked again."

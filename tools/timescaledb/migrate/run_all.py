@@ -35,9 +35,21 @@ def backfill_kwh(config, earliest_year, earliest_month):
     tz = os.environ.get("TZ", "UTC")
     start = f"{earliest_year:04d}-{earliest_month:02d}-01 00:00:00+00"
     end = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S+00")
+    pg = config["pg"]
+    # Connection details (including the password) go to psql through its
+    # environment, not the command line where `ps` would show them.
+    env = dict(
+        os.environ,
+        PGHOST=pg["host"],
+        PGPORT=str(pg["port"]),
+        PGDATABASE=pg["dbname"],
+        PGUSER=pg["user"],
+        PGPASSWORD=pg["password"],
+        PGSSLMODE=pg["sslmode"],
+    )
     subprocess.run(
         [
-            "psql", config["pg_dsn"],
+            "psql",
             "-v", f"tz={tz}",
             "-v", f"start_date={start}",
             "-v", f"end_date={end}",
@@ -45,6 +57,7 @@ def backfill_kwh(config, earliest_year, earliest_month):
             "-f", str(AGGREGATE_DIR / "kwh_backfill.sql"),
         ],
         check=True,
+        env=env,
     )
     print("[done]  pw_kwh_1h backfill")
 
@@ -61,6 +74,7 @@ def main():
         backfill_kwh(config, earliest_year, earliest_month)
     except subprocess.CalledProcessError as e:
         print(f"[FAIL] kwh backfill: {e}", file=sys.stderr)
+        mc.FAILURES.append(("pw_kwh_1h backfill", None))
 
     print("=== grid.http -> pw_grid_1m ===")
     migrate_grid.main(config)
@@ -85,6 +99,24 @@ def main():
 
     print("=== fans.http -> pw_fans_log (best-effort, no Backup Switch hardware to test against) ===")
     migrate_fans.main(config)
+
+    if mc.FAILURES:
+        print("=== Import finished with errors ===", file=sys.stderr)
+        print("These did not import:", file=sys.stderr)
+        failed = {}
+        for name, month in mc.FAILURES:
+            failed.setdefault(name, []).append(month)
+        for name, months in failed.items():
+            months = sorted(m for m in months if m)
+            if not months:
+                print(f"  {name}", file=sys.stderr)
+            elif len(months) <= 6:
+                print(f"  {name}: {', '.join(months)}", file=sys.stderr)
+            else:
+                print(f"  {name}: {len(months)} months, {months[0]} to {months[-1]}", file=sys.stderr)
+        print("Re-run ./tools/timescaledb/setup.sh to retry them "
+              "(months already imported are skipped).", file=sys.stderr)
+        sys.exit(1)
 
     print("=== Migration complete ===")
 

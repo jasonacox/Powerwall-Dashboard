@@ -10,7 +10,7 @@
 -- telegraf-timescale.conf's create_templates), with retention added by
 -- tools/timescaledb/db/aggregate/bootstrap_raw_tables.sql.
 --
--- Table shape follows tools/timescaledb/README.md: wide (one column per field) for
+-- Table shape: wide (one column per field) for
 -- fixed, site-wide fields; narrow/long (time, metric_name, value) wherever the
 -- field set scales with hardware (per-pack fields) or is controlled by a third
 -- party (weather). Narrow tables need zero schema changes regardless of
@@ -40,10 +40,6 @@ CREATE TABLE IF NOT EXISTS pw_autogen_1m (
     PRIMARY KEY (time)
 );
 SELECT create_hypertable('pw_autogen_1m', 'time', chunk_time_interval => interval '7 days', if_not_exists => true);
--- NULL = live-ingested (the normal case); 'cloud' = backfilled by
--- tools/tesla-history -- see that tool's README for why this exists (lets
--- --remove safely undo only its own imported rows).
-ALTER TABLE pw_autogen_1m ADD COLUMN IF NOT EXISTS source text;
 ALTER TABLE pw_autogen_1m SET (timescaledb.compress);
 SELECT add_compression_policy('pw_autogen_1m', compress_after => interval '7 days', if_not_exists => true);
 
@@ -71,8 +67,6 @@ CREATE TABLE IF NOT EXISTS pw_grid_1m (
     PRIMARY KEY (time)
 );
 SELECT create_hypertable('pw_grid_1m', 'time', chunk_time_interval => interval '7 days', if_not_exists => true);
--- See pw_autogen_1m's "source" column comment above.
-ALTER TABLE pw_grid_1m ADD COLUMN IF NOT EXISTS source text;
 
 -- Per-pack vitals (frequency/voltage/current/power per Powerwall + island/meter
 -- fields). Narrow format scales to any pack count with no DDL change -- see
@@ -121,9 +115,6 @@ CREATE TABLE IF NOT EXISTS pw_pod_log (
     PRIMARY KEY (time, metric_name)
 );
 SELECT create_hypertable('pw_pod_log', 'time', chunk_time_interval => interval '7 days', if_not_exists => true);
--- See pw_autogen_1m's "source" column comment above (used for the
--- 'backup_reserve_percent' metric written by tools/tesla-history).
-ALTER TABLE pw_pod_log ADD COLUMN IF NOT EXISTS source text;
 ALTER TABLE pw_pod_log SET (timescaledb.compress, timescaledb.compress_segmentby = 'metric_name');
 SELECT add_compression_policy('pw_pod_log', compress_after => interval '7 days', if_not_exists => true);
 

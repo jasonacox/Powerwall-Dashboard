@@ -3337,7 +3337,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket('1 day', time, '$tz') AS time,\n       sum(home) AS \"Home Usage\"\nFROM pw_kwh_1h\nWHERE $__timeFilter(time AT TIME ZONE '$tz')\nGROUP BY 1\nORDER BY 1",
+          "rawSql": "SELECT time_bucket('1 day', time, '$tz') AS time,\n       sum(home) AS \"Home Usage\"\nFROM pw_kwh_1h\nWHERE $__timeFilter(time)\nGROUP BY 1\nORDER BY 1",
           "refId": "A",
           "sql": {
             "columns": [
@@ -3474,7 +3474,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket('1 day', time, '$tz') AS time,\n       sum(solar) AS \"Solar Energy\"\nFROM pw_kwh_1h\nWHERE $__timeFilter(time AT TIME ZONE '$tz')\nGROUP BY 1\nORDER BY 1",
+          "rawSql": "SELECT time_bucket('1 day', time, '$tz') AS time,\n       sum(solar) AS \"Solar Energy\"\nFROM pw_kwh_1h\nWHERE $__timeFilter(time)\nGROUP BY 1\nORDER BY 1",
           "refId": "A",
           "sql": {
             "columns": [
@@ -3611,7 +3611,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket('1 day', time, '$tz') AS time,\n       sum(from_pw) AS \"From PW\"\nFROM pw_kwh_1h\nWHERE $__timeFilter(time AT TIME ZONE '$tz')\nGROUP BY 1\nORDER BY 1",
+          "rawSql": "SELECT time_bucket('1 day', time, '$tz') AS time,\n       sum(from_pw) AS \"From PW\"\nFROM pw_kwh_1h\nWHERE $__timeFilter(time)\nGROUP BY 1\nORDER BY 1",
           "refId": "A",
           "sql": {
             "columns": [
@@ -8821,43 +8821,66 @@
     "list": [
       {
         "current": {
-          "text": "0.19",
-          "value": "0.19"
+          "selected": false,
+          "text": "${VAR_AVG_BUY_PER_KWH}",
+          "value": "${VAR_AVG_BUY_PER_KWH}"
         },
         "description": "Average Buy Cost Per kWh",
         "hide": 2,
         "label": "Buy Cost per kWh",
         "name": "avg_buy_per_kwh",
-        "query": "0.19",
+        "query": "${VAR_AVG_BUY_PER_KWH}",
         "skipUrlSync": true,
-        "type": "constant"
+        "type": "constant",
+        "options": [
+          {
+            "selected": false,
+            "text": "${VAR_AVG_BUY_PER_KWH}",
+            "value": "${VAR_AVG_BUY_PER_KWH}"
+          }
+        ]
       },
       {
         "current": {
-          "text": "0.19",
-          "value": "0.19"
+          "selected": false,
+          "text": "${VAR_AVG_SELL_PER_KWH}",
+          "value": "${VAR_AVG_SELL_PER_KWH}"
         },
         "description": "Average Sell Cost Per kWh",
         "hide": 2,
         "label": "Sell Cost per kWh",
         "name": "avg_sell_per_kwh",
-        "query": "0.19",
+        "query": "${VAR_AVG_SELL_PER_KWH}",
         "skipUrlSync": true,
-        "type": "constant"
+        "type": "constant",
+        "options": [
+          {
+            "selected": false,
+            "text": "${VAR_AVG_SELL_PER_KWH}",
+            "value": "${VAR_AVG_SELL_PER_KWH}"
+          }
+        ]
       },
       {
         "current": {
           "selected": false,
-          "text": "America/Los_Angeles",
-          "value": "America/Los_Angeles"
+          "text": "${VAR_TZ}",
+          "value": "${VAR_TZ}"
         },
         "description": "Timezone",
         "hide": 2,
         "label": "Timezone",
         "name": "tz",
-        "query": "America/Los_Angeles",
+        "query": "${VAR_TZ}",
         "skipUrlSync": true,
-        "type": "constant"
+        "type": "constant",
+        "options": [
+          {
+            "selected": false,
+            "text": "${VAR_TZ}",
+            "value": "${VAR_TZ}"
+          }
+        ]
       }
     ]
   },

@@ -2,13 +2,12 @@
 Shared helpers for the one-time InfluxDB -> TimescaleDB historical migration
 scripts (migrate_*.py in this directory).
 
-Connection details are never hardcoded (see tools/timescaledb/README.md):
-the TimescaleDB side always comes from this stack's own env vars (these
-scripts run inside the compose network, where POSTGRES_USER/PASSWORD/DB,
-PGHOST/PGPORT, and PGSSLMODE are already correct -- tools/timescaledb/setup.sh
-sets these from tools/timescaledb/timescaledb.env); the InfluxDB side defaults to this stack's own "influxdb" service
-but can be overridden via env vars or an interactive prompt, since a user may
-be migrating from a different/external InfluxDB instance.
+Connection details are never hardcoded. The TimescaleDB side comes from env
+vars (POSTGRES_USER/PASSWORD/DB, PGHOST/PGPORT, PGSSLMODE), which
+tools/timescaledb/setup.sh sets from tools/timescaledb/timescaledb.env when it
+runs these scripts inside the compose network. The InfluxDB side defaults to
+this stack's own "influxdb" service but can be overridden with env vars or an
+interactive prompt, since a user may be importing from another InfluxDB server.
 """
 
 import os
@@ -43,9 +42,19 @@ def get_config():
     return {
         "influx_url": f"http://{influx_host}:{influx_port}/query",
         "influx_db": influx_db,
-        "influx_user": influx_user,
-        "influx_password": influx_password,
-        "pg_dsn": f"host={pg_host} port={pg_port} dbname={pg_db} user={pg_user} password={pg_password} sslmode={pg_sslmode}",
+        # Basic auth, not u/p query parameters, so the password can't end up
+        # in an error message that prints the URL.
+        "influx_auth": (influx_user, influx_password) if influx_user else None,
+        # psycopg2.connect() keyword arguments, so passwords with spaces or
+        # quotes work.
+        "pg": {
+            "host": pg_host,
+            "port": pg_port,
+            "dbname": pg_db,
+            "user": pg_user,
+            "password": pg_password,
+            "sslmode": pg_sslmode,
+        },
         # Identifies which InfluxDB instance this run is reading from, so a
         # migration checkpoint from one source is never mistaken for "done"
         # against a different source (see migration_progress in schema.sql).
@@ -81,10 +90,7 @@ def query_influx(config, select_clause, source_measurement, start, end, timeout=
         f"WHERE time >= '{start.isoformat()}' AND time < '{end.isoformat()}'"
     )
     params = {"db": config["influx_db"], "q": q, "epoch": "ns"}
-    if config["influx_user"]:
-        params["u"] = config["influx_user"]
-        params["p"] = config["influx_password"]
-    resp = requests.get(config["influx_url"], params=params, timeout=timeout)
+    resp = requests.get(config["influx_url"], params=params, auth=config["influx_auth"], timeout=timeout)
     resp.raise_for_status()
     data = resp.json()
 
@@ -107,10 +113,7 @@ def find_earliest_month(config, source_measurement):
     month and finish immediately).
     """
     params = {"db": config["influx_db"], "q": f"SELECT * FROM {source_measurement} LIMIT 1", "epoch": "ns"}
-    if config["influx_user"]:
-        params["u"] = config["influx_user"]
-        params["p"] = config["influx_password"]
-    resp = requests.get(config["influx_url"], params=params, timeout=30)
+    resp = requests.get(config["influx_url"], params=params, auth=config["influx_auth"], timeout=30)
     resp.raise_for_status()
     results = resp.json().get("results", [{}])[0]
     series = results.get("series")
@@ -147,8 +150,7 @@ def mark_progress(cur, source_measurement, source_key, year, month, status, row_
 def insert_wide(cur, dest_table, columns, rows):
     """rows: list of tuples matching (time, *columns), upserted by time.
 
-    Fill-gaps-only, same as tesla-history.py's write_timescaledb(): COALESCE
-    keeps the existing value on conflict rather than overwriting it. This
+    Fill-gaps-only: COALESCE keeps the existing value on conflict rather than overwriting it. This
     table can already have live-ingested data for the same timestamps the
     migration is walking back over (e.g. if TimescaleDB was set up and has
     been running for a while before a user goes back to migrate older
@@ -190,13 +192,18 @@ def insert_narrow_text(cur, dest_table, rows):
     psycopg2.extras.execute_values(cur, sql, rows, page_size=5000)
 
 
-def run_migration(pg_dsn, source_measurement, source_key, earliest_year, earliest_month, fetch_and_pivot, insert_rows):
+# (measurement, "year-month") for every month that failed in this run, so
+# run_all.py can list them at the end.
+FAILURES = []
+
+
+def run_migration(pg, source_measurement, source_key, earliest_year, earliest_month, fetch_and_pivot, insert_rows):
     """
     Generic backward-walking, checkpointed migration driver shared by every
-    migrate_*.py script. fetch_and_pivot(year, month) -> rows;
-    insert_rows(cur, rows) -> None.
+    migrate_*.py script. pg: psycopg2.connect() keyword arguments;
+    fetch_and_pivot(year, month) -> rows; insert_rows(cur, rows) -> None.
     """
-    conn = psycopg2.connect(pg_dsn)
+    conn = psycopg2.connect(**pg)
     conn.autocommit = False
 
     for year, month in month_chunks_descending(earliest_year, earliest_month):
@@ -222,5 +229,6 @@ def run_migration(pg_dsn, source_measurement, source_key, earliest_year, earlies
                 mark_progress(cur, source_measurement, source_key, year, month, "failed")
             conn.commit()
             print(f"[FAIL]  {year}-{month:02d}: {e}", file=sys.stderr)
+            FAILURES.append((source_measurement, f"{year}-{month:02d}"))
 
     conn.close()

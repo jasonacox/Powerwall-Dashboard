@@ -40,7 +40,7 @@ def main(config=None):
     def insert_rows(cur, rows):
         mc.insert_narrow(cur, DEST_TABLE, "metric_name", rows)
 
-    mc.run_migration(config["pg_dsn"], SOURCE_MEASUREMENT, config["source_key"], earliest_year, earliest_month, fetch_and_pivot, insert_rows)
+    mc.run_migration(config["pg"], SOURCE_MEASUREMENT, config["source_key"], earliest_year, earliest_month, fetch_and_pivot, insert_rows)
 
 
 if __name__ == "__main__":

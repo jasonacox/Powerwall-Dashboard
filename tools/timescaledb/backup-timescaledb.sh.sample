@@ -34,7 +34,7 @@ STAMP=$(date '+%Y-%m-%d')
 
 # Ask TimescaleDB to create a consistent logical backup (pg_dump custom
 # format). This is safe to run against a live database -- unlike copying
-# the timescaledb-data/ directory directly while the container is running,
+# the tools/timescaledb/data/ directory directly while the container is running,
 # which can capture a torn/inconsistent snapshot mid-write. Custom format
 # (-Fc) is compressed already, no need to pipe through gzip/xz.
 #
@@ -42,13 +42,22 @@ STAMP=$(date '+%Y-%m-%d')
 # TimescaleDB's internal "continuous_agg" catalog table. That's expected
 # (this project doesn't use continuous aggregates) and does not affect the
 # backup -- verified against a real restore.
+#
+# If any step fails, stop before cleaning up old backups, so a run of failed
+# backups never deletes the last good ones.
 echo "Creating TimescaleDB Backup"
-cd ${DASHBOARD}
-docker exec -u postgres timescaledb pg_dump -U "${PG_USER}" -d "${PG_DB}" -Fc -f /tmp/powerwall.dump
-docker cp timescaledb:/tmp/powerwall.dump ${BACKUP_FOLDER}/timescaledb.$STAMP.dump
+BACKUP_FILE="${BACKUP_FOLDER}/timescaledb.${STAMP}.dump"
+cd "${DASHBOARD}" || exit 1
+docker exec -u postgres timescaledb pg_dump -U "${PG_USER}" -d "${PG_DB}" -Fc -f /tmp/powerwall.dump || exit 1
+docker cp timescaledb:/tmp/powerwall.dump "${BACKUP_FILE}" || exit 1
 docker exec -u postgres timescaledb rm -f /tmp/powerwall.dump
+
+if [ ! -s "${BACKUP_FILE}" ]; then
+  echo "ERROR: ${BACKUP_FILE} is missing or empty -- keeping old backups."
+  exit 1
+fi
 
 # Cleanup Old Backups
 echo "Cleaning up old backups"
-find ${BACKUP_FOLDER}/timescaledb.*.dump -mtime +${KEEP} -type f -delete
+find "${BACKUP_FOLDER}"/timescaledb.*.dump -mtime +${KEEP} -type f -delete
 echo "Done"

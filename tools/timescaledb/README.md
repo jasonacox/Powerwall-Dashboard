@@ -33,9 +33,11 @@ It also gives the existing `grafana` service the database connection settings.
 
    This:
    - copies `tools/timescaledb/powerwall.extend.yml.sample` to `powerwall.extend.yml`
-   - creates `tools/timescaledb/timescaledb.env` with a random database password
-     and your timezone (from the `tz` file)
-   - installs the "TimescaleDB (auto provisioned)" Grafana datasource
+   - creates `tools/timescaledb/timescaledb.env` with random passwords and your
+     timezone (from the `tz` file)
+   - installs the "TimescaleDB (auto provisioned)" Grafana datasource. Grafana
+     connects as a separate read-only user (`grafana_reader`), so dashboard
+     viewers can't change your data
    - starts the services and waits for the database schema
    - offers to copy your existing InfluxDB history into TimescaleDB (see
      [Importing your InfluxDB history](#importing-your-influxdb-history))
@@ -78,10 +80,8 @@ setup later. The import:
 - can read from this stack's `influxdb` container (the default) or another
   InfluxDB 1.x server
 
-To run it outside setup, on a host with Python, `pip install psycopg2-binary
-requests` first, then `python3 tools/timescaledb/migrate/run_all.py`. Connection
-details come from environment variables or prompts (see
-`migrate/migrate_common.py`).
+To run the import again later (for example after an error), re-run
+`./tools/timescaledb/setup.sh` and answer **y** when it asks.
 
 **Known difference:** live data uses time-weighted 1-minute averages and
 energy integration that splits readings across hour boundaries. That needs
@@ -98,6 +98,8 @@ TimescaleDB/PostgreSQL server you already run:
 2. Edit `tools/timescaledb/timescaledb.env`: set `TIMESCALEDB_HOST`,
    `TIMESCALEDB_PORT`, `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, and
    `TIMESCALEDB_SSLMODE` (for example `require` if the server uses TLS).
+   `GRAFANA_PG_USER`/`GRAFANA_PG_PASSWORD` are the read-only user Grafana
+   connects as; change them if you like.
 3. Edit `powerwall.extend.yml` and delete the whole `timescaledb:` service
    block.
 4. Remove the bundled container and apply the change:
@@ -107,11 +109,22 @@ TimescaleDB/PostgreSQL server you already run:
    ./compose-dash.sh up -d
    ```
 
-The server needs TimescaleDB 2.x on PostgreSQL 13 or newer, reachable from
+The server needs TimescaleDB 2.x on PostgreSQL 14 or newer, reachable from
 this Docker host. The `timescaledb` extension must already be created in the
 database, or the user must be allowed to create it. The user also needs
 permission to create tables, hypertables and compression policies. The schema
 is applied automatically when `aggregate-cron` starts.
+
+`aggregate-cron` also creates the read-only Grafana user on start, which
+needs `POSTGRES_USER` to be a superuser or to have `CREATEROLE` and the right
+to grant `pg_read_all_data`. If it doesn't, `docker logs aggregate-cron` shows
+an error and Grafana can't connect; create the user yourself as an admin
+(with the values from `timescaledb.env`):
+
+```sql
+CREATE ROLE grafana_reader LOGIN PASSWORD 'GRAFANA_PG_PASSWORD value';
+GRANT pg_read_all_data TO grafana_reader;
+```
 
 ## Accessing the database from the host
 
@@ -143,16 +156,20 @@ chmod +x backups/backup-timescaledb.sh
 Copying the whole folder to a new computer, as described in `backups/README.md`,
 is fine **if the stack is stopped first**.
 
-To restore, drop and recreate the database. `pg_restore --clean` does not work
-with TimescaleDB hypertables:
+To restore, drop and recreate the database (`pg_restore --clean` does not work
+with TimescaleDB hypertables), and wrap `pg_restore` in TimescaleDB's
+`timescaledb_pre_restore()` and `timescaledb_post_restore()` calls:
 
 ```bash
 docker stop aggregate-cron telegraf-timescale grafana
 docker exec -u postgres timescaledb psql -U telegraf_powerwall -d postgres -c "DROP DATABASE IF EXISTS powerwall;"
 docker exec -u postgres timescaledb psql -U telegraf_powerwall -d postgres -c "CREATE DATABASE powerwall OWNER telegraf_powerwall;"
 docker exec -u postgres timescaledb psql -U telegraf_powerwall -d powerwall -c "CREATE EXTENSION IF NOT EXISTS timescaledb;"
+docker exec -u postgres timescaledb psql -U telegraf_powerwall -d powerwall -c "SELECT timescaledb_pre_restore();"
 docker cp ./backups/timescaledb.YYYY-MM-DD.dump timescaledb:/tmp/restore.dump
 docker exec -u postgres timescaledb pg_restore -U telegraf_powerwall -d powerwall --no-owner /tmp/restore.dump
+docker exec -u postgres timescaledb psql -U telegraf_powerwall -d powerwall -c "SELECT timescaledb_post_restore();"
+docker exec timescaledb rm -f /tmp/restore.dump
 ./compose-dash.sh up -d
 ```
 
@@ -171,9 +188,14 @@ docker exec -u postgres timescaledb pg_restore -U telegraf_powerwall -d powerwal
    ./compose-dash.sh up -d
    ```
 
-3. Optionally delete your data and settings with
-   `rm -rf tools/timescaledb/data tools/timescaledb/timescaledb.env`, and
-   delete the TimescaleDB dashboard in Grafana.
+3. Optionally delete your data and settings, and delete the TimescaleDB
+   dashboard in Grafana. The data folder is owned by the database container's
+   user, so this needs `sudo`:
+
+   ```bash
+   sudo rm -rf tools/timescaledb/data
+   rm tools/timescaledb/timescaledb.env
+   ```
 
 InfluxDB and its data are never touched.
 
