@@ -325,7 +325,7 @@ tedapi_diagnostics() {
     else
         echo -e "${dim} - pypowerwall.env: ${alert}missing${dim} - run ./setup.sh first"
     fi
-    # pypowerwall proxy status (if running locally)
+    # pypowerwall status (if running locally)
     local proxy_stats=""
     proxy_stats=$(curl --silent --connect-timeout 3 http://localhost:8675/stats 2>/dev/null) || true
     if [ -n "$proxy_stats" ]; then
@@ -334,12 +334,12 @@ tedapi_diagnostics() {
         tedapi=$(echo "$proxy_stats" | grep -o '"tedapi":[^,}]*' | cut -d: -f2 | tr -d ' ')
         tedapimode=$(echo "$proxy_stats" | grep -o '"tedapi_mode"[: ]*"[^"]*"' | cut -d\" -f4)
         firmware=$(curl --silent --connect-timeout 3 http://localhost:8675/version 2>/dev/null | sed 's/.*"version"[: ]*"\([^"]*\)".*/\1/') || true
-        echo -e "${dim} - pypowerwall proxy: ${subbold}running${dim} - cloudmode: ${subbold}${cloudmode:-unknown}${dim}, tedapi: ${subbold}${tedapi:-unknown}${dim}, tedapi_mode: ${subbold}${tedapimode:-unknown}"
+        echo -e "${dim} - pypowerwall: ${subbold}running${dim} - cloudmode: ${subbold}${cloudmode:-unknown}${dim}, tedapi: ${subbold}${tedapi:-unknown}${dim}, tedapi_mode: ${subbold}${tedapimode:-unknown}"
         if [ -n "$firmware" ]; then
-            echo -e "${dim} - Gateway firmware (via proxy): ${subbold}${firmware}"
+            echo -e "${dim} - Gateway firmware (via pypowerwall): ${subbold}${firmware}"
         fi
     else
-        echo -e "${dim} - pypowerwall proxy: ${normal}not reachable on localhost:8675${dim} (stack not running or on another host)"
+        echo -e "${dim} - pypowerwall: ${normal}not reachable on localhost:8675${dim} (stack not running or on another host)"
     fi
     echo -e ""
 
@@ -616,15 +616,30 @@ if [ "$HOST" != "localhost" ] || [ "$RUNNING" = "true" ]; then
         SITENAME=`echo "$STATS_JSON" | sed 's/.*"site_name"[: ]*"\([^"]*\)".*/\1/' 2>/dev/null`
         # Extract cloudmode - handle both true/false values
         CLOUDMODE=`echo "$STATS_JSON" | grep -o '"cloudmode"[: ]*[^,}]*' | cut -d: -f 2 | tr -d ' ' 2>/dev/null`
-        # Extract siteid - handle both null and numeric values
-        SITEID=`echo "$STATS_JSON" | grep -o '"siteid":[^,}]*' | cut -d: -f 2 | tr -d ' ' 2>/dev/null`
+        # Extract siteid - null, numeric, or masked ("**********": pypowerwall-server
+        # and proxy t108+ hide it, since /stats is unauthenticated)
+        SITEID=`echo "$STATS_JSON" | grep -o '"siteid":[^,}]*' | cut -d: -f 2 | tr -d ' "' 2>/dev/null`
+        case "$SITEID" in *'*'*) SITEID="hidden" ;; esac
         # Extract tedapi
         TEDAPI=`echo "$STATS_JSON" | grep -o '"tedapi":[^,}]*' | cut -d: -f 2 | tr -d ' ' 2>/dev/null`
         # Extract tedapi_mode
         TEDAPIMODE=`echo "$STATS_JSON" | grep -o '"tedapi_mode"[: ]*"[^"]*"' | cut -d\" -f 4 2>/dev/null`
-        # check connection with powerwall
-        if running http://$HOST:$PORT/version 200 0 2>/dev/null; then
+        # check connection with powerwall: pypowerwall-server's /health counts the
+        # gateways it reaches (its /version answers even while the gateway is
+        # offline); the legacy proxy's /health has no count, so use /version there
+        HEALTH_JSON=`curl --silent http://$HOST:$PORT/health 2>/dev/null`
+        # (end the pipe with tr: a failing last grep would stop verify.sh under set -e)
+        GWONLINE=`echo "$HEALTH_JSON" | grep -o '"gateways_online"[: ]*[0-9]*' | tr -dc '0-9'`
+        if echo "$HEALTH_JSON" | grep -q '"status"[: ]*"no_gateways"'; then
+            PWSTATE="${alert}ERROR: No Powerwall configured - check pypowerwall.env${dim}"
+        elif [ -n "$GWONLINE" ]; then
+            if [ "$GWONLINE" -gt 0 ]; then
+                PWSTATE="CONNECTED"
+            fi
+        elif running http://$HOST:$PORT/version 200 0 2>/dev/null; then
             PWSTATE="CONNECTED"
+        fi
+        if [ "$PWSTATE" = "CONNECTED" ]; then
             PWVER=`curl --silent http://$HOST:$PORT/version | sed 's/.*"version"[: ]*"\([^"]*\)".*/\1/' 2>/dev/null`
         fi
     else
@@ -643,7 +658,7 @@ if [ "$HOST" = "localhost" ]; then
     if running https://192.168.91.1/tedapi/din 403 0 2>/dev/null; then
         # if TEDAPI = "true" show connected
         if [ "$TEDAPI" = "true" ]; then
-            VAL="${subbold}Connected ${dim}- Mode: ${subbold}${TEDAPIMODE}"
+            VAL="${subbold}Connected ${dim}- Mode: ${subbold}${TEDAPIMODE:-unknown}"
         else
             VAL="${alert}Not Connected"
         fi

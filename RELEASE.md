@@ -2,11 +2,33 @@
 
 ## Unreleased
 
+### Updates
+
+* **pypowerwall-server replaces the pyPowerwall proxy** - the `pypowerwall` service now runs `jasonacox/pypowerwall-server:0.12.0` (it ran the proxy, `jasonacox/pypowerwall:0.18.2t104`). The server serves the proxy's API with the same values, from the same container name and port, and reads the same `pypowerwall.env` and `.auth/` files. Dashboards, Telegraf and tools such as `tools/switch-mode` work unchanged.
+  * It brings the pypowerwall 0.21.0 library: Powerwall 3 temperatures, fans and battery health, Powerwall 2 per-unit vitals, and TEDAPI recovery fixes.
+  * It adds a web Console at `http://localhost:8675/console`. Opening `http://localhost:8675/` in a browser now goes to the Console; the dashboard's power flow panel is unchanged.
+  * It keeps a small history database in `.pypowerwall_data/`.
+  * MQTT / Home Assistant and the control API stay off unless you configure them.
+  * `/stats` hides the Tesla account email, site ID and file paths, so `verify.sh` shows the site ID as hidden.
+  * To switch back, see [Switching back to the legacy pyPowerwall proxy](README.md#switching-back-to-the-legacy-pypowerwall-proxy).
+
+  (closes [#878](https://github.com/jasonacox/Powerwall-Dashboard/issues/878), PR by **@jasonacox**)
+
 ### Bug Fixes
+
+* **`setup.sh` fixes**:
+  * Passwords with characters such as `|`, `&`, `\` or `@` are saved as typed (they broke the `sed` that wrote them, and `read` dropped backslashes).
+  * The current settings are shown with passwords, emails and addresses hidden (setup printed the whole `pypowerwall.env`).
+  * Re-running setup recognizes FleetAPI, Extended Metrics (TEDAPI) and Wired LAN (v1r) installs, so pressing Enter keeps your mode (FleetAPI showed as Tesla Cloud and re-ran the wrong login).
+  * The Powerwall 3 path requires the Gateway Password, which local access needs.
+  * A `chmod` after v1r key registration no longer stops setup when the key file is missing.
+
+  (PR by **@jasonacox**)
+* **`verify.sh` reports the Powerwall connection correctly with pypowerwall-server** - it reads the server's `/health` gateway count, because the server's `/version` answers even while the gateway is offline. It falls back to `/version` with the proxy. It also shows a blank TEDAPI mode as `unknown`. (PR by **@jasonacox**)
 
 * **`upgrade.sh` refreshes container images** - upgrades now run `./compose-dash.sh pull --ignore-pull-failures` before starting the stack, so a service on a moving tag such as `:latest` in `powerwall.extend.yml` gets the new image (`up -d` alone kept the cached one). Images that can't be pulled, such as local-only or private ones, are skipped. Installs that cached `influxdb:1.8` before October 2024 will pull the current `influxdb:1.8` image (1.8.10) and recreate the InfluxDB container. ([PR #877](https://github.com/jasonacox/Powerwall-Dashboard/pull/877) by **@cwagz**)
 
-**Existing installs:** run `./upgrade.sh`; no other action is required.
+**Existing installs:** run `./upgrade.sh`; no other action is required. Your settings, tokens and data carry over to pypowerwall-server.
 
 ## v5.4.0 - Upgrades follow tagged releases
 

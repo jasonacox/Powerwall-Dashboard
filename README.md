@@ -289,6 +289,18 @@ If required, see [WINDOWS.md](WINDOWS.md) for notes on how to upgrade your WSL i
 * The included `upgrade.sh` script will attempt to upgrade your installation to the latest Powerwall-Dashboard version without removing existing data. A backup is still recommended.
 * `upgrade.sh` installs the latest [release](https://github.com/jasonacox/Powerwall-Dashboard/releases) (`vX.Y.Z` tag), not the newest commit on `main`. Changes merged after a release reach you with the next release. Running `git pull` yourself picks up those unreleased changes.
 
+### Switching back to the legacy pyPowerwall proxy
+
+The `pypowerwall` service runs [pypowerwall-server](https://github.com/jasonacox/pypowerwall-server), the successor to the [pyPowerwall proxy](https://github.com/jasonacox/pypowerwall/tree/main/proxy). It serves the same API on the same port and reads the same `pypowerwall.env` and `.auth/` files, so the dashboards and Telegraf work the same with either one. To run the legacy proxy instead, create `powerwall.extend.yml` in your install directory (or add these lines to it):
+
+```yaml
+services:
+    pypowerwall:
+        image: jasonacox/pypowerwall:0.21.0t108
+```
+
+Then restart the stack with `./compose-dash.sh up -d`. The file is yours, so `upgrade.sh` keeps it. To return to pypowerwall-server, remove those lines (or the file) and run `./compose-dash.sh up -d` again. No other change is needed either way.
+
 ## Powerwall 3
 
 The new Powerwall 3 does not have the local APIs that were found on the Powerwall 2/+ systems. However, it does provide APIs available via its internal Gateway WiFi access point at 192.168.91.1. If you add your Powerwall 3 to your local network (e.g. ethernet hardwire) or create a WiFi bridge to this access point, you are able to get the extended metrics from the /tedapi API. Additionally, users can use the "Tesla Cloud" mode to generate the basic graph data. It is more limited than the local APIs but does provide the core data  points. See details in the Powerwall 3 Support issue: https://github.com/jasonacox/Powerwall-Dashboard/issues/387
@@ -420,8 +432,10 @@ The equations that are used to compute the estimated savings:
 
 ## Tips and Tricks
 
-Since [pyPowerwall proxy](https://github.com/jasonacox/pypowerwall/tree/main/proxy) is part of this dashboard stack, you can query it to get raw data (read only) from the Powerwall API.  This includes some aggregate functions you might find useful for other projects.  I use this for [ESP32 driven display](https://github.com/jasonacox/Powerwall-Display) for example. Replace localhost with the address of the system running the dashboard:
+Since [pypowerwall-server](https://github.com/jasonacox/pypowerwall-server) is part of this dashboard stack, you can query it to get raw data (read only) from the Powerwall API. It serves the same API as the pyPowerwall proxy, including some aggregate functions you might find useful for other projects.  I use this for [ESP32 driven display](https://github.com/jasonacox/Powerwall-Display) for example. Replace localhost with the address of the system running the dashboard:
 
+* pypowerwall-server Console (live status and connection details): http://localhost:8675/console
+* API documentation: http://localhost:8675/docs
 * pyPowerwall stats: http://localhost:8675/stats
 * Powerwall firmware version and uptime: http://localhost:8675/api/status
 * Powerwall temperatures: http://localhost:8675/temps
