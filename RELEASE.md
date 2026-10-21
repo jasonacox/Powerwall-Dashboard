@@ -12,7 +12,7 @@
   * `/stats` hides the Tesla account email, site ID and file paths, so `verify.sh` shows the site ID as hidden.
   * To switch back, see [Switching back to the legacy pyPowerwall proxy](README.md#switching-back-to-the-legacy-pypowerwall-proxy).
 
-  (closes [#878](https://github.com/jasonacox/Powerwall-Dashboard/issues/878), PR by **@jasonacox**)
+  ([PR #886](https://github.com/jasonacox/Powerwall-Dashboard/pull/886) by **@jasonacox**, closes [#878](https://github.com/jasonacox/Powerwall-Dashboard/issues/878))
 
 ### Bug Fixes
 
@@ -23,8 +23,8 @@
   * The Powerwall 3 path requires the Gateway Password, which local access needs.
   * A `chmod` after v1r key registration no longer stops setup when the key file is missing.
 
-  (PR by **@jasonacox**)
-* **`verify.sh` reports the Powerwall connection correctly with pypowerwall-server** - it reads the server's `/health` gateway count, because the server's `/version` answers even while the gateway is offline. It falls back to `/version` with the proxy. It also shows a blank TEDAPI mode as `unknown`. (PR by **@jasonacox**)
+  ([PR #886](https://github.com/jasonacox/Powerwall-Dashboard/pull/886) by **@jasonacox**)
+* **`verify.sh` reports the Powerwall connection correctly with pypowerwall-server** - it reads the server's `/health` gateway count, because the server's `/version` answers even while the gateway is offline. It falls back to `/version` with the proxy. It also shows a blank TEDAPI mode as `unknown`. ([PR #886](https://github.com/jasonacox/Powerwall-Dashboard/pull/886) by **@jasonacox**)
 
 * **`upgrade.sh` refreshes container images** - upgrades now run `./compose-dash.sh pull --ignore-pull-failures` before starting the stack, so a service on a moving tag such as `:latest` in `powerwall.extend.yml` gets the new image (`up -d` alone kept the cached one). Images that can't be pulled, such as local-only or private ones, are skipped. Installs that cached `influxdb:1.8` before October 2024 will pull the current `influxdb:1.8` image (1.8.10) and recreate the InfluxDB container. ([PR #877](https://github.com/jasonacox/Powerwall-Dashboard/pull/877) by **@cwagz**)
 
