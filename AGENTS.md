@@ -4,7 +4,7 @@ Guidance for AI coding agents (and humans) working in Powerwall-Dashboard.
 
 ## What this repo is
 
-A Docker Compose stack (InfluxDB 1.8, Telegraf, Grafana, the pypowerwall proxy, weather411) for monitoring Tesla Powerwall and solar systems. The bash scripts in the repo root (`setup.sh`, `upgrade.sh`, `tz.sh`, `verify.sh`, `compose-dash.sh`, `watchdog.sh`, ...) are the product. `tools/` holds optional add-ons and `sandbox/` is experimental; neither ships as part of the stack.
+A Docker Compose stack (InfluxDB 1.8, Telegraf, Grafana, pypowerwall-server in the `pypowerwall` service, weather411) for monitoring Tesla Powerwall and solar systems. The bash scripts in the repo root (`setup.sh`, `upgrade.sh`, `tz.sh`, `verify.sh`, `compose-dash.sh`, `watchdog.sh`, ...) are the product. `tools/` holds optional add-ons and `sandbox/` is experimental; neither ships as part of the stack.
 
 ## Design principles
 
@@ -106,7 +106,9 @@ Never print, log or commit passwords, tokens, RSA keys, emails or `PW_HOST` valu
 
 ## Upstream projects
 
-The pypowerwall proxy lives in [jasonacox/pypowerwall](https://github.com/jasonacox/pypowerwall) and weather411 is a separate image. Fix their behavior there. This repo only pins their image tags (never `latest`) and adapts dashboards and scripts to them. Ignore `sandbox/` and `tools/` for stack changes unless the task is specifically about them.
+The `pypowerwall` service runs [pypowerwall-server](https://github.com/jasonacox/pypowerwall-server), the successor to the pypowerwall proxy in [jasonacox/pypowerwall](https://github.com/jasonacox/pypowerwall), and weather411 is a separate image. Fix their behavior there.
+
+**Work with both pypowerwall images.** Users can switch the `pypowerwall` service back to the legacy proxy (README, "Switching back to the legacy pyPowerwall proxy"). Until the proxy is retired, every change must keep working with either image: write only the single-gateway `PW_*` settings both read, and rely only on API fields both serve, or fall back when a server-only field is missing, as `verify.sh` does with `/health`. This repo only pins their image tags (never `latest`) and adapts dashboards and scripts to them. Ignore `sandbox/` and `tools/` for stack changes unless the task is specifically about them.
 
 ## Working as an agent
 
