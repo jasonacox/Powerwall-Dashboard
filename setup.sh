@@ -88,6 +88,10 @@ set_pw_env() {
         cp "${PW_ENV_FILE}" "${PW_ENV_FILE}.bak"
         KEY="$1" VALUE="$2" awk 'index($0, ENVIRON["KEY"] "=") == 1 { print ENVIRON["KEY"] "=" ENVIRON["VALUE"]; next } { print }' "${PW_ENV_FILE}.bak" > "${PW_ENV_FILE}"
     else
+        # Start a new line if the file doesn't end with one (e.g. hand-edited)
+        if [ -s "${PW_ENV_FILE}" ] && [ -n "$(tail -c 1 "${PW_ENV_FILE}")" ]; then
+            printf '\n' >> "${PW_ENV_FILE}"
+        fi
         printf '%s=%s\n' "$1" "$2" >> "${PW_ENV_FILE}"
     fi
 }
@@ -505,28 +509,28 @@ if [ $v1r -eq 1 ]; then
             read -r -p 'Enter WiFi Host (leave blank to skip): ' PW_WIFI_HOST
         fi
         if [ ! -z "${PW_WIFI_HOST}" ]; then
-            echo "PW_WIFI_HOST=${PW_WIFI_HOST}" >> ${PW_ENV_FILE}
+            set_pw_env PW_WIFI_HOST "${PW_WIFI_HOST}"
         fi
         # Append standard env vars if missing (PW_TIMEZONE, TZ, PW_DEBUG, PW_STYLE, PW_EMAIL, PW_PASSWORD)
         # These are normally written by the "Create Powerwall Settings" block below, but when the v1r
         # assertion block creates the file, that block sees the file exists and skips entirely.
         if ! grep -qE "^PW_TIMEZONE=.+" "${PW_ENV_FILE}"; then
-            echo "PW_TIMEZONE=${TZ}" >> ${PW_ENV_FILE}
+            set_pw_env PW_TIMEZONE "${TZ}"
         fi
         if ! grep -qE "^TZ=.+" "${PW_ENV_FILE}"; then
-            echo "TZ=${TZ}" >> ${PW_ENV_FILE}
+            set_pw_env TZ "${TZ}"
         fi
         if ! grep -qE "^PW_DEBUG=" "${PW_ENV_FILE}"; then
-            echo "PW_DEBUG=no" >> ${PW_ENV_FILE}
+            set_pw_env PW_DEBUG no
         fi
         if ! grep -qE "^PW_STYLE=.+" "${PW_ENV_FILE}"; then
-            echo "PW_STYLE=${PW_STYLE}" >> ${PW_ENV_FILE}
+            set_pw_env PW_STYLE "${PW_STYLE}"
         fi
         if ! grep -qE "^PW_EMAIL=" "${PW_ENV_FILE}"; then
-            echo "PW_EMAIL=" >> ${PW_ENV_FILE}
+            set_pw_env PW_EMAIL ""
         fi
         if ! grep -qE "^PW_PASSWORD=" "${PW_ENV_FILE}"; then
-            echo "PW_PASSWORD=" >> ${PW_ENV_FILE}
+            set_pw_env PW_PASSWORD ""
         fi
         echo ""
         echo "Updated ${PW_ENV_FILE} with v1r mode settings."

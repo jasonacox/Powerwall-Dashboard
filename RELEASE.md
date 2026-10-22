@@ -19,12 +19,13 @@
 * **`setup.sh` fixes**:
   * Passwords with characters such as `|`, `&`, `\` or `@` are saved as typed (they broke the `sed` that wrote them, and `read` dropped backslashes).
   * The current settings are shown with passwords, emails and addresses hidden (setup printed the whole `pypowerwall.env`).
+  * Settings it adds to an existing `pypowerwall.env` go on their own line, even if the file doesn't end with a newline, and an existing empty setting is filled in rather than added a second time.
   * Re-running setup recognizes FleetAPI, Extended Metrics (TEDAPI) and Wired LAN (v1r) installs, so pressing Enter keeps your mode (FleetAPI showed as Tesla Cloud and re-ran the wrong login).
   * The Powerwall 3 path requires the Gateway Password, which local access needs.
   * A `chmod` after v1r key registration no longer stops setup when the key file is missing.
 
   ([PR #886](https://github.com/jasonacox/Powerwall-Dashboard/pull/886) by **@jasonacox**)
-* **`verify.sh` reports the Powerwall connection correctly with pypowerwall-server** - it reads the server's `/health` gateway count, because the server's `/version` answers even while the gateway is offline. It falls back to `/version` with the proxy. It also shows a blank TEDAPI mode as `unknown`. ([PR #886](https://github.com/jasonacox/Powerwall-Dashboard/pull/886) by **@jasonacox**)
+* **`verify.sh` reports the Powerwall connection correctly with pypowerwall-server** - it reads the server's `/health` gateway count, because the server's `/version` answers even while the gateway is offline. It falls back to `/version` with the proxy. The final result now fails when the server reports no Powerwall configured or none online. It also shows a blank TEDAPI mode as `unknown`. ([PR #886](https://github.com/jasonacox/Powerwall-Dashboard/pull/886) by **@jasonacox**)
 
 * **`upgrade.sh` refreshes container images** - upgrades now run `./compose-dash.sh pull --ignore-pull-failures` before starting the stack, so a service on a moving tag such as `:latest` in `powerwall.extend.yml` gets the new image (`up -d` alone kept the cached one). Images that can't be pulled, such as local-only or private ones, are skipped. Installs that cached `influxdb:1.8` before October 2024 will pull the current `influxdb:1.8` image (1.8.10) and recreate the InfluxDB container. ([PR #877](https://github.com/jasonacox/Powerwall-Dashboard/pull/877) by **@cwagz**)
 

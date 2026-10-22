@@ -627,14 +627,18 @@ if [ "$HOST" != "localhost" ] || [ "$RUNNING" = "true" ]; then
         # check connection with powerwall: pypowerwall-server's /health counts the
         # gateways it reaches (its /version answers even while the gateway is
         # offline); the legacy proxy's /health has no count, so use /version there
-        HEALTH_JSON=`curl --silent http://$HOST:$PORT/health 2>/dev/null`
+        # (optional probe: a refused or stalled /health must not stop verify.sh)
+        HEALTH_JSON=`curl --silent --max-time 5 http://$HOST:$PORT/health 2>/dev/null || true`
         # (end the pipe with tr: a failing last grep would stop verify.sh under set -e)
         GWONLINE=`echo "$HEALTH_JSON" | grep -o '"gateways_online"[: ]*[0-9]*' | tr -dc '0-9'`
         if echo "$HEALTH_JSON" | grep -q '"status"[: ]*"no_gateways"'; then
             PWSTATE="${alert}ERROR: No Powerwall configured - check pypowerwall.env${dim}"
+            ALLGOOD=0
         elif [ -n "$GWONLINE" ]; then
             if [ "$GWONLINE" -gt 0 ]; then
                 PWSTATE="CONNECTED"
+            else
+                ALLGOOD=0
             fi
         elif running http://$HOST:$PORT/version 200 0 2>/dev/null; then
             PWSTATE="CONNECTED"
