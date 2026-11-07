@@ -17,12 +17,12 @@ WITH lagged AS (
     LAG(from_grid)  OVER (ORDER BY time) AS prev_from_grid,
     LAG(to_grid)    OVER (ORDER BY time) AS prev_to_grid
   FROM pw_autogen_1m
-  WHERE time >= :'start_date' AND time < :'end_date'
+  WHERE time >= :'start_date'::timestamptz - interval '1 hour' AND time < :'end_date'
 ),
 intervals AS (
   SELECT
     time, prev_time,
-    date_trunc('hour', time AT TIME ZONE :'tz') AT TIME ZONE :'tz' AS hour_start,
+    date_trunc('hour', time, :'tz') AS hour_start,
     CASE WHEN prev_time IS NULL OR (time - prev_time) > interval '5 minutes' THEN 0
          ELSE (COALESCE(home,0)+COALESCE(prev_home,0))/2.0 * (EXTRACT(EPOCH FROM (time-prev_time))/3600.0)/1000.0 END AS home_wh,
     CASE WHEN prev_time IS NULL OR (time - prev_time) > interval '5 minutes' THEN 0

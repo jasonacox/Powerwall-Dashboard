@@ -23,7 +23,7 @@ WITH lagged AS (
 intervals AS (
   SELECT
     time, prev_time,
-    date_trunc('hour', time AT TIME ZONE :'tz') AT TIME ZONE :'tz' AS hour_start,
+    date_trunc('hour', time, :'tz') AS hour_start,
     CASE WHEN prev_time IS NULL OR (time - prev_time) > interval '5 minutes' THEN 0
          ELSE (COALESCE(home,0)+COALESCE(prev_home,0))/2.0 * (EXTRACT(EPOCH FROM (time-prev_time))/3600.0)/1000.0 END AS home_wh,
     CASE WHEN prev_time IS NULL OR (time - prev_time) > interval '5 minutes' THEN 0
@@ -63,7 +63,7 @@ allocated AS (
 INSERT INTO pw_kwh_1h (time, home, solar, from_pw, to_pw, from_grid, to_grid)
 SELECT bucket, sum(home_wh), sum(solar_wh), sum(from_pw_wh), sum(to_pw_wh), sum(from_grid_wh), sum(to_grid_wh)
 FROM allocated
-WHERE bucket >= date_trunc('hour', now() AT TIME ZONE :'tz') AT TIME ZONE :'tz' - interval '3 hours'
+WHERE bucket >= date_trunc('hour', now(), :'tz') - interval '3 hours'
 GROUP BY bucket
 ON CONFLICT (time) DO UPDATE SET
   home = EXCLUDED.home, solar = EXCLUDED.solar,
