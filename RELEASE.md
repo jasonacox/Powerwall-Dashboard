@@ -5,8 +5,9 @@
 ### Bug Fixes
 
 * **`upgrade.sh` refreshes container images** - upgrades now run `./compose-dash.sh pull --ignore-pull-failures` before starting the stack, so a service on a moving tag such as `:latest` in `powerwall.extend.yml` gets the new image (`up -d` alone kept the cached one). Images that can't be pulled, such as local-only or private ones, are skipped. Installs that cached `influxdb:1.8` before October 2024 will pull the current `influxdb:1.8` image (1.8.10) and recreate the InfluxDB container. ([PR #877](https://github.com/jasonacox/Powerwall-Dashboard/pull/877) by **@cwagz**)
+* **`watchdog.sh` works from cron** - cron runs jobs with a minimal `PATH` (`/usr/bin:/bin`), so on macOS, Synology and other installs with `docker` in `/usr/local/bin` the watchdog could not run `docker`, read the empty result as healthy and never restarted an unhealthy `pypowerwall`. It now adds the usual docker locations to `PATH` and reports an error (instead of "healthy") when `docker inspect` fails. `./watchdog.sh -enable` run from another directory also wrote a crontab entry for a non-existent `watchdog.sh` in that directory; it now uses the script's own location. A small `tests/` suite covers it (`python3 -m pytest tests`).
 
-**Existing installs:** run `./upgrade.sh`; no other action is required.
+**Existing installs:** run `./upgrade.sh`; no other action is required. If you enabled the watchdog from outside the Powerwall-Dashboard directory, run `./watchdog.sh -enable` again from anywhere.
 
 ## v5.4.0 - Upgrades follow tagged releases
 
