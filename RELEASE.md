@@ -5,6 +5,7 @@
 ### Bug Fixes
 
 * **`upgrade.sh` refreshes container images** - upgrades now run `./compose-dash.sh pull --ignore-pull-failures` before starting the stack, so a service on a moving tag such as `:latest` in `powerwall.extend.yml` gets the new image (`up -d` alone kept the cached one). Images that can't be pulled, such as local-only or private ones, are skipped. Installs that cached `influxdb:1.8` before October 2024 will pull the current `influxdb:1.8` image (1.8.10) and recreate the InfluxDB container. ([PR #877](https://github.com/jasonacox/Powerwall-Dashboard/pull/877) by **@cwagz**)
+* **`tz.sh` no longer corrupts the Sun and Moon panel when changing away from `UTC`** - `tz.sh` replaced every occurrence of the current timezone name, so on an install set to `UTC` (or `GMT`, `EST`) re-running `setup.sh` with a new timezone, or running `./tz.sh <zone>`, also rewrote `Date.UTC(...)` in the default dashboard's Sun and Moon panel (breaking its script) and comments in `telegraf.conf`. It now only replaces the timezone settings themselves. A small `tests/` suite covers it (`python3 -m pytest tests`).
 
 **Existing installs:** run `./upgrade.sh`; no other action is required.
 
