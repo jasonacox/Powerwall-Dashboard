@@ -120,15 +120,16 @@ restore_pw_env() {
 }
 trap restore_pw_env EXIT
 
-# Show pypowerwall.env with passwords, secrets, emails and addresses hidden
+# Show pypowerwall.env with passwords, secrets, usernames and emails hidden
 # (setup output gets pasted into public issues). Matched by key name, so
-# settings such as MQTT_PASSWORD are hidden too.
+# settings such as MQTT_PASSWORD are hidden too. Addresses stay visible so
+# users can check which gateway setup is using.
 show_pw_env() {
     while IFS= read -r line || [ -n "$line" ]; do
         case "$line" in
             [A-Za-z_]*=?*)
                 case "${line%%=*}" in
-                    *PASSWORD*|*PWD*|*SECRET*|*TOKEN*|*EMAIL*|*USERNAME*|PW_HOST|PW_WIFI_HOST|MQTT_HOST)
+                    *PASSWORD*|*PWD*|*SECRET*|*TOKEN*|*EMAIL*|*USERNAME*)
                         printf '%s=********\n' "${line%%=*}"
                         continue ;;
                 esac ;;
@@ -454,7 +455,7 @@ echo ""
 
 # Powerwall Credentials
 if [ -f ${PW_ENV_FILE} ]; then
-    echo "Current Credentials (passwords, emails and addresses hidden):"
+    echo "Current Credentials (passwords and emails hidden):"
     echo ""
     show_pw_env
     echo ""

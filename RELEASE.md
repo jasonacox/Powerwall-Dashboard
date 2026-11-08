@@ -20,7 +20,7 @@
 
 * **`setup.sh` fixes**:
   * Passwords with characters such as `|`, `&`, `\` or `@` are saved as typed (they broke the `sed` that wrote them, and `read` dropped backslashes).
-  * The current settings are shown with passwords, secrets (such as `MQTT_PASSWORD`), emails and addresses hidden (setup printed the whole `pypowerwall.env`).
+  * The current settings are shown with passwords, secrets (such as `MQTT_PASSWORD`) and emails hidden (setup printed the whole `pypowerwall.env`). Addresses stay visible so you can check which gateway setup is using.
   * If setup stops before saving new credentials (you cancel, an error, or Ctrl-C), your previous `pypowerwall.env` is restored instead of being left deleted. When it looks for the Gateway, it also tries the address your install used before, not only `192.168.91.1`.
   * Settings it adds to an existing `pypowerwall.env` go on their own line, even if the file doesn't end with a newline, and an existing empty setting is filled in rather than added a second time.
   * Re-running setup recognizes FleetAPI, Extended Metrics (TEDAPI) and Wired LAN (v1r) installs, so pressing Enter keeps your mode (FleetAPI showed as Tesla Cloud and re-ran the wrong login).

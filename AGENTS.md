@@ -102,7 +102,7 @@ The timezone is substituted by `tz.sh` into `telegraf.conf`, `influxdb/influxdb.
 
 ## Secrets and privacy
 
-Never print, log or commit passwords, tokens, RSA keys, emails or `PW_HOST` values. Users paste script output into public issues, so diagnostics must mask sensitive values.
+Never print, log or commit passwords, tokens, RSA keys or emails. Users paste script output into public issues, so diagnostics must mask these values. Do show the gateway address (`PW_HOST`, `PW_WIFI_HOST`) in setup and diagnostics: users need it to confirm they are setting up and checking the right gateway. Never commit a real one.
 
 ## Upstream projects
 
