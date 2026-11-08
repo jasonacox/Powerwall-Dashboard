@@ -98,12 +98,16 @@ set_pw_env() {
 }
 
 # Move pypowerwall.env aside before new credentials are entered, remembering its
-# host. On exit, put it back if setup stopped before writing a new one (cancel,
-# error or Ctrl-C); otherwise delete the old copy.
+# host. On exit, put it back if setup stopped before the new credentials were
+# complete (cancel, error or Ctrl-C), even if a partial file was started;
+# otherwise delete the old copy.
 PREV_HOST=""
+PW_ENV_SAVED=0
+PW_ENV_DONE=0
 save_pw_env() {
     PREV_HOST=$(grep -E "^PW_HOST=" "${PW_ENV_FILE}" 2>/dev/null | tail -1 | cut -d= -f2-)
     mv "${PW_ENV_FILE}" "${PW_ENV_FILE}.prev"
+    PW_ENV_SAVED=1
 }
 SETUP_DIR=$(pwd)
 restore_pw_env() {
@@ -111,10 +115,10 @@ restore_pw_env() {
     if [ ! -f "${env}.prev" ]; then
         return 0
     fi
-    if [ -f "${env}" ]; then
+    if [ "${PW_ENV_DONE}" -eq 1 ]; then
         rm -f "${env}.prev"
-    else
-        mv "${env}.prev" "${env}"
+    elif [ "${PW_ENV_SAVED}" -eq 1 ]; then
+        mv -f "${env}.prev" "${env}"
         echo "Your previous ${PW_ENV_FILE} was restored."
     fi
 }
@@ -692,6 +696,8 @@ if [ ! -f ${PW_ENV_FILE} ]; then
         echo "PW_WIFI_HOST=${PW_WIFI_HOST}" >> ${PW_ENV_FILE}
     fi
 fi
+# The Powerwall credentials are complete (the v1r block above or this one)
+PW_ENV_DONE=1
 
 # Create default telegraf local file if needed.
 if [ ! -f ${TELEGRAF_LOCAL} ]; then
