@@ -5,8 +5,9 @@
 ### Bug Fixes
 
 * **`upgrade.sh` refreshes container images** - upgrades now run `./compose-dash.sh pull --ignore-pull-failures` before starting the stack, so a service on a moving tag such as `:latest` in `powerwall.extend.yml` gets the new image (`up -d` alone kept the cached one). Images that can't be pulled, such as local-only or private ones, are skipped. Installs that cached `influxdb:1.8` before October 2024 will pull the current `influxdb:1.8` image (1.8.10) and recreate the InfluxDB container. ([PR #877](https://github.com/jasonacox/Powerwall-Dashboard/pull/877) by **@cwagz**)
+* **Dashboard datasource references now match the import inputs** — the Inverter Power panel in `dashboard-alt.json`, `dashboard-min-mean-max.json` and `dashboard-no-animation.json` had 12 queries pointing at `${DS_INFLUXDB_(AUTO PROVISIONED)}`, an input those files don't define, so Grafana saved the placeholder as the datasource instead of your InfluxDB. Grafana 12.3.1 runs those queries on the panel's datasource, so the panel still showed data, but the saved queries pointed at a datasource that doesn't exist. `dashboard-simple.json` had a hard-coded datasource UID (`wzyByQkRz`) on its two row headers. All now use the file's `${DS_INFLUXDB}` input. No layout or styling changes. ([PR #884](https://github.com/jasonacox/Powerwall-Dashboard/pull/884) by **@jasonacox**)
 
-**Existing installs:** run `./upgrade.sh`; no other action is required.
+**Existing installs:** run `./upgrade.sh`. If you use `dashboard-alt.json`, `dashboard-min-mean-max.json`, `dashboard-no-animation.json` or `dashboard-simple.json`, re-import it to get the datasource fix.
 
 ## v5.4.0 - Upgrades follow tagged releases
 
