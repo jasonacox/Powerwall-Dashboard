@@ -598,7 +598,12 @@ if [ ! -f ${PW_ENV_FILE} ]; then
         fi
         if test_ip "${GW_IP}"; then
             IP="${GW_IP}"
-            echo "Found Powerwall Gateway at ${IP}"
+            if [ "${IP}" == "192.168.91.1" ]; then
+                echo "Found Powerwall Gateway at ${IP}"
+            else
+                # Don't print a saved address (setup output gets shared)
+                echo "Found Powerwall Gateway at your previous address"
+            fi
             read -p 'Use this IP? [Y/n] ' response
             if [[ "$response" =~ ^([nN][oO]|[nN])$ ]]; then
                 IP=""
