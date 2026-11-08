@@ -16,14 +16,19 @@ NEW=$1
 updatetz() {
     local from=${1}
     local to=${2}
-    sed -i.bak "s@${from}@${to}@g" telegraf.conf
-    sed -i.bak "s@${from}@${to}@g" influxdb/influxdb.sql
+    # Only replace the timezone settings themselves: a short zone name such as
+    # UTC also appears in code and comments (e.g. Date.UTC() in the Sun and Moon
+    # panel), and a bare replace would corrupt them when changing away from it.
+    sed -i.bak "s@timezone = \"${from}\"@timezone = \"${to}\"@g" telegraf.conf
+    sed -i.bak "s@tz('${from}')@tz('${to}')@g" influxdb/influxdb.sql
     if [ -f "pypowerwall.env" ]; then
-        sed -i.bak "s@${from}@${to}@g" pypowerwall.env
+        # Keep an optional opening quote (PW_TIMEZONE="America/Los_Angeles")
+        sed -i.bak -e "s@^\(PW_TIMEZONE=[\"']\{0,1\}\)${from}@\1${to}@" \
+            -e "s@^\(TZ=[\"']\{0,1\}\)${from}@\1${to}@" pypowerwall.env
     fi
     if [ -d "dashboards" ]; then
         for i in dashboards/*.json; do
-            sed -i.bak "s@${from}@${to}@g" $i
+            sed -i.bak "s@\"value\": \"${from}\"@\"value\": \"${to}\"@g" "$i"
         done
     fi
 }
