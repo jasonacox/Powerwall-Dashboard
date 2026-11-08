@@ -96,16 +96,43 @@ set_pw_env() {
     fi
 }
 
-# Show pypowerwall.env with passwords, emails and addresses hidden
-# (setup output gets pasted into public issues).
+# Move pypowerwall.env aside before new credentials are entered, remembering its
+# host. On exit, put it back if setup stopped before writing a new one (cancel,
+# error or Ctrl-C); otherwise delete the old copy.
+PREV_HOST=""
+save_pw_env() {
+    PREV_HOST=$(grep -E "^PW_HOST=" "${PW_ENV_FILE}" 2>/dev/null | tail -1 | cut -d= -f2-)
+    mv "${PW_ENV_FILE}" "${PW_ENV_FILE}.prev"
+}
+SETUP_DIR=$(pwd)
+restore_pw_env() {
+    local env="${SETUP_DIR}/${PW_ENV_FILE}"
+    if [ ! -f "${env}.prev" ]; then
+        return 0
+    fi
+    if [ -f "${env}" ]; then
+        rm -f "${env}.prev"
+    else
+        mv "${env}.prev" "${env}"
+        echo "Your previous ${PW_ENV_FILE} was restored."
+    fi
+}
+trap restore_pw_env EXIT
+
+# Show pypowerwall.env with passwords, secrets, emails and addresses hidden
+# (setup output gets pasted into public issues). Matched by key name, so
+# settings such as MQTT_PASSWORD are hidden too.
 show_pw_env() {
     while IFS= read -r line || [ -n "$line" ]; do
         case "$line" in
-            PW_PASSWORD=?*|PW_GW_PWD=?*|PW_EMAIL=?*|PW_HOST=?*|PW_WIFI_HOST=?*|PW_CONTROL_SECRET=?*)
-                printf '%s=********\n' "${line%%=*}" ;;
-            *)
-                printf '%s\n' "$line" ;;
+            [A-Za-z_]*=?*)
+                case "${line%%=*}" in
+                    *PASSWORD*|*PWD*|*SECRET*|*TOKEN*|*EMAIL*|*USERNAME*|PW_HOST|PW_WIFI_HOST|MQTT_HOST)
+                        printf '%s=********\n' "${line%%=*}"
+                        continue ;;
+                esac ;;
         esac
+        printf '%s\n' "$line"
     done < "${PW_ENV_FILE}"
 }
 
@@ -243,7 +270,7 @@ while :; do
         if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]
         then
             config="${selected}"
-            rm ${PW_ENV_FILE}
+            save_pw_env
             echo ""
             break
         else
@@ -432,7 +459,7 @@ if [ -f ${PW_ENV_FILE} ]; then
     echo ""
     read -r -p "Update these credentials? [y/N] " response
     if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
-        rm ${PW_ENV_FILE}
+        save_pw_env
         echo ""
     else
         echo "Using existing ${PW_ENV_FILE}."
@@ -564,9 +591,13 @@ if [ ! -f ${PW_ENV_FILE} ]; then
         # The assertion block runs when $v1r=1 and creates pypowerwall.env with all
         # required v1r settings, so this "Create Powerwall Settings" block (which
         # only runs when the file doesn't exist) is never reached for v1r mode.
-        # Can we reach 192.168.91.1
-        if test_ip "192.168.91.1"; then
-            IP="192.168.91.1"
+        # Can we reach 192.168.91.1 (or the host this install used before)?
+        GW_IP="192.168.91.1"
+        if ! test_ip "${GW_IP}" && [ -n "${PREV_HOST}" ] && test_ip "${PREV_HOST}"; then
+            GW_IP="${PREV_HOST}"
+        fi
+        if test_ip "${GW_IP}"; then
+            IP="${GW_IP}"
             echo "Found Powerwall Gateway at ${IP}"
             read -p 'Use this IP? [Y/n] ' response
             if [[ "$response" =~ ^([nN][oO]|[nN])$ ]]; then

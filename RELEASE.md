@@ -10,6 +10,7 @@
   * It keeps a small history database in `.pypowerwall_data/`.
   * MQTT / Home Assistant and the control API stay off unless you configure them.
   * `/stats` hides the Tesla account email, site ID and file paths, so `verify.sh` shows the site ID as hidden.
+  * `upgrade.sh` shows a one-time notice before it switches an install from the proxy, with how to go back.
   * To switch back, see [Switching back to the legacy pyPowerwall proxy](README.md#switching-back-to-the-legacy-pypowerwall-proxy).
 
   ([PR #886](https://github.com/jasonacox/Powerwall-Dashboard/pull/886) by **@jasonacox**, closes [#878](https://github.com/jasonacox/Powerwall-Dashboard/issues/878))
@@ -18,7 +19,8 @@
 
 * **`setup.sh` fixes**:
   * Passwords with characters such as `|`, `&`, `\` or `@` are saved as typed (they broke the `sed` that wrote them, and `read` dropped backslashes).
-  * The current settings are shown with passwords, emails and addresses hidden (setup printed the whole `pypowerwall.env`).
+  * The current settings are shown with passwords, secrets (such as `MQTT_PASSWORD`), emails and addresses hidden (setup printed the whole `pypowerwall.env`).
+  * If setup stops before saving new credentials (you cancel, an error, or Ctrl-C), your previous `pypowerwall.env` is restored instead of being left deleted. When it looks for the Gateway, it also tries the address your install used before, not only `192.168.91.1`.
   * Settings it adds to an existing `pypowerwall.env` go on their own line, even if the file doesn't end with a newline, and an existing empty setting is filled in rather than added a second time.
   * Re-running setup recognizes FleetAPI, Extended Metrics (TEDAPI) and Wired LAN (v1r) installs, so pressing Enter keeps your mode (FleetAPI showed as Tesla Cloud and re-ran the wrong login).
   * The Powerwall 3 path requires the Gateway Password, which local access needs.

@@ -19,6 +19,7 @@ grafana.env
 influxdb.env
 powerwall.extend.yml
 pypowerwall.env
+pypowerwall.env.prev
 telegraf.local
 grafana/provisions/datasources/sunandmoon.yml
 

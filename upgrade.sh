@@ -162,6 +162,37 @@ else
     fi
 fi
 
+# One-time notice when this upgrade replaces the pyPowerwall proxy with
+# pypowerwall-server: the running container is the proxy, this release runs the
+# server, and powerwall.extend.yml doesn't pin the proxy.
+PW_IMAGE=$(docker inspect --format '{{.Config.Image}}' pypowerwall 2>/dev/null || true)
+case "${PW_IMAGE}" in
+    jasonacox/pypowerwall:*|docker.io/jasonacox/pypowerwall:*)
+        if git show "${PWD_UPGRADE_RELEASE}:powerwall.yml" 2>/dev/null | grep -q "image: jasonacox/pypowerwall-server:" && \
+           ! grep -q "jasonacox/pypowerwall:" powerwall.extend.yml 2>/dev/null; then
+            cat <<EOF
+WARNING: This upgrade replaces the pyPowerwall proxy with pypowerwall-server.
+The server is the proxy's successor. It serves the same API on the same port
+and reads the same pypowerwall.env and .auth/ files, so your dashboards and
+Telegraf should work as before. It is still a big change to your setup.
+
+If you run into problems:
+  * Please open an issue: https://github.com/jasonacox/Powerwall-Dashboard/issues
+  * To go back to the proxy, add these lines to powerwall.extend.yml in this
+    directory (create the file if it doesn't exist), then run
+    ./compose-dash.sh up -d:
+
+        services:
+            pypowerwall:
+                image: jasonacox/pypowerwall:0.24.0t113
+
+    See "Switching back to the legacy pyPowerwall proxy" in README.md.
+
+EOF
+        fi
+        ;;
+esac
+
 # Verify Upgrade
 read -r -p "Upgrade - Proceed? [y/N] " response
 if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]
