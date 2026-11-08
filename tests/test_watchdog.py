@@ -65,3 +65,15 @@ def test_enable_from_another_directory_uses_script_path(env):
     assert f'{env["install"]}/watchdog.sh' in crontab.read_text()
     # A second -enable recognises the existing entry
     assert "INSTALLED" in run(env, "-enable", cwd=elsewhere).stdout
+
+
+def test_enable_with_cdpath_and_relative_path(env):
+    """An exported CDPATH makes `cd` print the directory; the crontab entry must stay one line."""
+    crontab = env["tmp"] / "crontab.txt"
+    stub(env["bin"], "crontab", f'if [ "$1" = "-l" ]; then cat {crontab} 2>/dev/null; else cat > {crontab}; fi')
+    result = subprocess.run(["/bin/bash", "Powerwall-Dashboard/watchdog.sh", "-enable"],
+                            cwd=env["tmp"], env={**env["env"], "CDPATH": str(env["tmp"])},
+                            input="y\n", capture_output=True, text=True)
+    assert result.returncode == 0
+    assert crontab.read_text().splitlines() == [
+        f'*/5 * * * * /bin/bash {env["install"]}/watchdog.sh > /dev/null 2>&1']

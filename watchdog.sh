@@ -15,7 +15,7 @@ DEBUG=0
 PATH="$PATH:/usr/local/bin:/opt/homebrew/bin:/snap/bin"
 
 # Directory of this script, for the crontab entry (not the caller's working directory)
-SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
+SCRIPT_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 
 if [ "$1" = "-debug" ]; then
     DEBUG=1
