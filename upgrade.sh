@@ -171,7 +171,7 @@ PW_IMAGE=$(docker inspect --format '{{.Config.Image}}' pypowerwall 2>/dev/null |
 case "${PW_IMAGE}" in
     jasonacox/pypowerwall:*|docker.io/jasonacox/pypowerwall:*)
         if git show "${PWD_UPGRADE_RELEASE}:powerwall.yml" 2>/dev/null | grep -q "image: jasonacox/pypowerwall-server:" && \
-           ! grep -q "jasonacox/pypowerwall:" powerwall.extend.yml 2>/dev/null; then
+           ! grep -qE "^[[:space:]]*image:[[:space:]]*[\"']?(docker\.io/)?jasonacox/pypowerwall:" powerwall.extend.yml 2>/dev/null; then
             cat <<EOF
 WARNING: This upgrade replaces the pyPowerwall proxy with pypowerwall-server.
 The server is the proxy's successor. It serves the same API on the same port
