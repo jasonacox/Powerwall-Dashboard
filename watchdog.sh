@@ -10,6 +10,13 @@
 CONTAINER="pypowerwall"
 DEBUG=0
 
+# Cron runs with a minimal PATH (/usr/bin:/bin), which misses docker on macOS,
+# Synology and Homebrew installs. Add the usual docker locations.
+PATH="$PATH:/usr/local/bin:/opt/homebrew/bin:/snap/bin"
+
+# Directory of this script, for the crontab entry (not the caller's working directory)
+SCRIPT_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
+
 if [ "$1" = "-debug" ]; then
     DEBUG=1
     shift
@@ -28,8 +35,8 @@ fi
 
 if [ "$1" = "-enable" ]; then
     # Check if watchdog.sh is already in the user's crontab (every 5 minutes)
-    CRON_LINE="*/5 * * * * /bin/bash $PWD/watchdog.sh > /dev/null 2>&1"
-    CRONTAB_EXISTS=$(crontab -l 2>/dev/null | grep -F "$PWD/watchdog.sh" | grep -q '*/5'; echo $?)
+    CRON_LINE="*/5 * * * * /bin/bash $SCRIPT_DIR/watchdog.sh > /dev/null 2>&1"
+    CRONTAB_EXISTS=$(crontab -l 2>/dev/null | grep -F "$SCRIPT_DIR/watchdog.sh" | grep -q '*/5'; echo $?)
     if [ "$CRONTAB_EXISTS" -eq 0 ]; then
         echo "INSTALLED: watchdog.sh is already scheduled in your crontab to run every 5 minutes."
         exit 0
@@ -50,7 +57,7 @@ if [ "$1" = "-enable" ]; then
     read -p "Would you like to add it to your crontab? [y/N]: " yn
     case $yn in
         [Yy]*)
-            (crontab -l 2>/dev/null; echo "*/5 * * * * /bin/bash $PWD/watchdog.sh > /dev/null 2>&1") | crontab -
+            (crontab -l 2>/dev/null; echo "*/5 * * * * /bin/bash $SCRIPT_DIR/watchdog.sh > /dev/null 2>&1") | crontab -
             echo "DONE. Added watchdog.sh to your crontab."
             ;;
         *)
@@ -62,7 +69,7 @@ fi
 
 if [ "$1" = "-disable" ]; then
     # Check if watchdog.sh is in the user's crontab
-    CRON_PRESENT=$(crontab -l 2>/dev/null | grep -F "$PWD/watchdog.sh" | grep '*/5')
+    CRON_PRESENT=$(crontab -l 2>/dev/null | grep -F "$SCRIPT_DIR/watchdog.sh" | grep '*/5')
     if [ -z "$CRON_PRESENT" ]; then
         echo "No watchdog.sh crontab entry found. Nothing to remove."
         exit 0
@@ -77,7 +84,7 @@ if [ "$1" = "-disable" ]; then
         case $yn in
             [Yy]*)
                 TMP_CRON=$(mktemp)
-                crontab -l 2>/dev/null | grep -v "$PWD/watchdog.sh" > "$TMP_CRON"
+                crontab -l 2>/dev/null | grep -v "$SCRIPT_DIR/watchdog.sh" > "$TMP_CRON"
                 crontab "$TMP_CRON"
                 rm -f "$TMP_CRON"
                 echo "Removed watchdog.sh from your crontab."
@@ -97,7 +104,14 @@ fi
 
 # Remove loop mode: just check once and exit
 [ "$DEBUG" -eq 1 ] && echo "[DEBUG] Checking health status of container: $CONTAINER"
-STATUS=$(docker inspect --format='{{.State.Health.Status}}' "$CONTAINER" 2>/dev/null)
+if ! command -v docker > /dev/null 2>&1; then
+    echo "[$(date)] ERROR: docker not found in PATH ($PATH)"
+    exit 1
+fi
+if ! STATUS=$(docker inspect --format='{{.State.Health.Status}}' "$CONTAINER" 2>/dev/null); then
+    echo "[$(date)] ERROR: unable to inspect container $CONTAINER (is docker running?)"
+    exit 1
+fi
 [ "$DEBUG" -eq 1 ] && echo "[DEBUG] Health status: $STATUS"
 if [ "$STATUS" = "unhealthy" ]; then
     echo "[$(date)] Restarting $CONTAINER (status: unhealthy)"
