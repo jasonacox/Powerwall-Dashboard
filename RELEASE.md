@@ -4,8 +4,8 @@
 
 ### Updates
 
-* **pypowerwall-server replaces the pyPowerwall proxy** - the `pypowerwall` service now runs `jasonacox/pypowerwall-server:0.12.0` (it ran the proxy, `jasonacox/pypowerwall:0.18.2t104`). The server serves the proxy's API with the same values, from the same container name and port, and reads the same `pypowerwall.env` and `.auth/` files. Dashboards, Telegraf and tools such as `tools/switch-mode` work unchanged.
-  * It brings the pypowerwall 0.21.0 library: Powerwall 3 temperatures, fans and battery health, Powerwall 2 per-unit vitals, and TEDAPI recovery fixes.
+* **pypowerwall-server replaces the pyPowerwall proxy** - the `pypowerwall` service now runs `jasonacox/pypowerwall-server:0.15.0` (it ran the proxy, `jasonacox/pypowerwall:0.18.2t104`). The server serves the proxy's API with the same values, from the same container name and port, and reads the same `pypowerwall.env` and `.auth/` files. Dashboards, Telegraf and tools such as `tools/switch-mode` work unchanged.
+  * It brings the pypowerwall 0.24.0 library: Powerwall 3 temperatures, fans and battery health, Powerwall 2 per-unit vitals, and TEDAPI recovery fixes. Lifetime energy totals no longer drop to 0 for one poll when a gateway fetch fails, and a stalled gateway shows up as gaps instead of frozen values.
   * It adds a web Console at `http://localhost:8675/console`. Opening `http://localhost:8675/` in a browser now goes to the Console; the dashboard's power flow panel is unchanged.
   * It keeps a small history database in `.pypowerwall_data/`.
   * MQTT / Home Assistant and the control API stay off unless you configure them.
