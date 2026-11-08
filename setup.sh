@@ -131,8 +131,11 @@ trap restore_pw_env EXIT
 show_pw_env() {
     local key
     while IFS= read -r line || [ -n "$line" ]; do
-        # Key without leading spaces or "export " (env files accept both)
+        # Key without leading spaces, "#" (a commented-out value is still a
+        # credential) or "export " (env files accept it)
         key="${line#"${line%%[![:space:]]*}"}"
+        key="${key#\#}"
+        key="${key#"${key%%[![:space:]]*}"}"
         key="${key#export }"
         key="${key#"${key%%[![:space:]]*}"}"
         case "$key" in
