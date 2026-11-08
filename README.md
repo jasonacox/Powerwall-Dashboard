@@ -452,6 +452,8 @@ If you open Grafana over HTTPS through your own reverse proxy (for example nginx
 
 When the dashboard is opened over HTTPS, the power flow panel uses `/pypowerwall` if it is available and otherwise falls back to port 8675. Telegraf and the URLs above keep working on port 8675.
 
+> **Caution:** the nginx example only shows the routing. `/pypowerwall/` serves pyPowerwall's whole API (including `/stats` and, if you enabled them, control endpoints) to anyone who can reach the site, without Grafana's login. If the site is reachable from the internet, restrict that path in your reverse proxy (for example nginx `allow`/`deny` or `auth_request`) or keep it on your LAN.
+
 ### Data Retention and Backups
 
 InfluxDB is configured to use an infinite retention policy (see [influxdb.sql](influxdb/influxdb.sql)).  It uses continuous queries to downsample Powerwall data and preserve disk space.  However, this does not safeguard the data from accidental deletion or corruption.  It is recommended that you set up a backup plan to snapshot the data for disaster recovery. See [backups](backups/) for some suggestions.
