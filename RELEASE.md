@@ -4,7 +4,7 @@
 
 ### Updates
 
-* **Stricter ShellCheck in CI** - core scripts are checked at warning severity; quoting cleanups in setup.sh, upgrade.sh, verify.sh, add_route.sh and weather.sh ([PR #861](https://github.com/jasonacox/Powerwall-Dashboard/pull/861))
+* **Stricter ShellCheck in CI** - core scripts are checked at warning severity; quoting cleanups in setup.sh, upgrade.sh, verify.sh, add_route.sh and weather.sh ([PR #861](https://github.com/jasonacox/Powerwall-Dashboard/pull/861) by **@jasonacox-sam**)
 
 ### Bug Fixes
 
