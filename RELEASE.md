@@ -1,6 +1,6 @@
 # RELEASE NOTES
 
-## Unreleased
+## v5.5.0 - pypowerwall-server replaces the proxy
 
 ### Updates
 
@@ -36,6 +36,10 @@
 * **`tz.sh` no longer corrupts the Sun and Moon panel when changing away from `UTC`** - `tz.sh` replaced every occurrence of the current timezone name, so on an install set to `UTC` (or `GMT`, `EST`) re-running `setup.sh` with a new timezone, or running `./tz.sh <zone>`, also rewrote `Date.UTC(...)` in the default dashboard's Sun and Moon panel (breaking its script) and comments in `telegraf.conf`. It now only replaces the timezone settings themselves, including quoted values in `pypowerwall.env`. A small `tests/` suite covers it (`python3 -m pytest tests`). If you changed your timezone away from `UTC`, `GMT` or `EST`, re-import `dashboards/dashboard.json` after upgrading to restore the Sun and Moon panel. ([PR #888](https://github.com/jasonacox/Powerwall-Dashboard/pull/888) by **@kochj23**)
 
 **Existing installs:** run `./upgrade.sh`. Your settings, tokens and data carry over to pypowerwall-server. If you use `dashboard-alt.json`, `dashboard-min-mean-max.json`, `dashboard-no-animation.json` or `dashboard-simple.json`, re-import it to get the datasource fix. If you open the dashboard over HTTPS through a reverse proxy, follow the README steps and re-import your dashboard to get the new power flow panel. If you enabled the watchdog from outside the Powerwall-Dashboard directory, run `./watchdog.sh -enable` again from anywhere.
+
+### Contributors
+
+Thanks to **@jasonacox**, **@cwagz**, **@kochj23**, **@jasonacox-sam** and **@lemassykoi**, and to **@youzer-name** for reporting and testing [#748](https://github.com/jasonacox/Powerwall-Dashboard/issues/748).
 
 ## v5.4.0 - Upgrades follow tagged releases
 
