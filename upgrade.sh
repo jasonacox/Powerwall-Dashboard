@@ -38,16 +38,18 @@ fi
 running() {
     local url=${1:-http://localhost:80}
     local code=${2:-200}
-    local status=$(curl --head --location --connect-timeout 5 --write-out %{http_code} --silent --output /dev/null ${url})
-    [[ $status == ${code} ]]
+    local status
+    status=$(curl --head --location --connect-timeout 5 --write-out '%{http_code}' --silent --output /dev/null "${url}")
+    [[ $status == "${code}" ]]
 }
 
 # Compare semantic versions: returns 0 if $1 < $2
 version_lt() {
     local IFS=.
     local i
-    local ver1=($1)
-    local ver2=($2)
+    local ver1 ver2
+    read -r -a ver1 <<< "$1"
+    read -r -a ver2 <<< "$2"
     for ((i=0;i<3;i++)); do
         local a=${ver1[i]:-0}
         local b=${ver2[i]:-0}
@@ -204,7 +206,10 @@ if [ -f tools/solar-only/compose.env ] && [ ! -f ${COMPOSE_ENV_FILE} ]; then
         ./compose-dash.sh down
     else
         # Files missing due to user manually pulling latest changes
+        # (word-splitting of `docker ps -aq` output is intentional here)
+        # shellcheck disable=SC2046
         docker stop $(docker ps -aq) > /dev/null 2>&1
+        # shellcheck disable=SC2046
         docker rm $(docker ps -aq) > /dev/null 2>&1
     fi
     mv compose.env ../../${COMPOSE_ENV_FILE}
