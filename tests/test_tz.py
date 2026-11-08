@@ -52,3 +52,19 @@ def test_changing_from_short_zone_only_touches_timezone_settings(install, curren
     tz(install, current)
     tz(install, "America/Los_Angeles")
     assert snapshot(install) == before
+
+
+@pytest.mark.parametrize("quote", ['"', "'"])
+def test_quoted_env_values_are_updated(install, quote):
+    """A hand-edited pypowerwall.env may quote its values; keep the quotes."""
+    env = install / "pypowerwall.env"
+    env.write_text(
+        env.read_text()
+        .replace("PW_TIMEZONE=America/Los_Angeles", f"PW_TIMEZONE={quote}America/Los_Angeles{quote}")
+        .replace("\nTZ=America/Los_Angeles", f"\nTZ={quote}America/Los_Angeles{quote}")
+    )
+    tz(install, "Europe/London")
+    text = env.read_text()
+    assert f"PW_TIMEZONE={quote}Europe/London{quote}" in text
+    assert f"TZ={quote}Europe/London{quote}" in text
+    assert "America/Los_Angeles" not in text

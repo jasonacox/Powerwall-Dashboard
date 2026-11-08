@@ -22,7 +22,9 @@ updatetz() {
     sed -i.bak "s@timezone = \"${from}\"@timezone = \"${to}\"@g" telegraf.conf
     sed -i.bak "s@tz('${from}')@tz('${to}')@g" influxdb/influxdb.sql
     if [ -f "pypowerwall.env" ]; then
-        sed -i.bak -e "s@^PW_TIMEZONE=${from}@PW_TIMEZONE=${to}@" -e "s@^TZ=${from}@TZ=${to}@" pypowerwall.env
+        # Keep an optional opening quote (PW_TIMEZONE="America/Los_Angeles")
+        sed -i.bak -e "s@^\(PW_TIMEZONE=[\"']\{0,1\}\)${from}@\1${to}@" \
+            -e "s@^\(TZ=[\"']\{0,1\}\)${from}@\1${to}@" pypowerwall.env
     fi
     if [ -d "dashboards" ]; then
         for i in dashboards/*.json; do
