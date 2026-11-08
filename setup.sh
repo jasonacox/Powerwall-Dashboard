@@ -129,10 +129,15 @@ trap restore_pw_env EXIT
 # settings such as MQTT_PASSWORD are hidden too. Addresses stay visible so
 # users can check which gateway setup is using.
 show_pw_env() {
+    local key
     while IFS= read -r line || [ -n "$line" ]; do
-        case "$line" in
+        # Key without leading spaces or "export " (env files accept both)
+        key="${line#"${line%%[![:space:]]*}"}"
+        key="${key#export }"
+        key="${key#"${key%%[![:space:]]*}"}"
+        case "$key" in
             [A-Za-z_]*=?*)
-                case "${line%%=*}" in
+                case "${key%%=*}" in
                     *PASSWORD*|*PWD*|*SECRET*|*TOKEN*|*EMAIL*|*USERNAME*)
                         printf '%s=********\n' "${line%%=*}"
                         continue ;;
