@@ -41,16 +41,25 @@
   }
   window.addEventListener('resize', function(e){ scale(); }, false);
 
+  // pyPowerwall base URL: port 8675 on this host. Over HTTPS, use the same-origin
+  // /pypowerwall path instead when a reverse proxy serves it there (browsers block
+  // http content on https pages); otherwise keep port 8675.
+  var pwbase = window.location.protocol + "//" + window.location.hostname + ":8675";
+  function withpwbase(callback) {
+      if (window.location.protocol !== "https:") { callback(); return; }
+      $.ajax({ url: "/pypowerwall/version", dataType: "json", timeout: 5000 })
+          .done(function(data) { if (data && data.version) { pwbase = "/pypowerwall"; } })
+          .always(callback);
+  }
+
   // Display Firmware Version
   function showversion() {
-      var pwver = window.location.protocol + "//" + window.location.hostname + ":8675/version";
-      $.getJSON(pwver, function(data) {
+      $.getJSON(pwbase + "/version", function(data) {
           var text = `Firmware: ${data.version.split(" ")[0]}`;
           $(".version").html(text);
       });
       setTimeout(showversion, 60000);
   }
-  showversion();
 
   // Load Animation from pyPowerwall
   var powerFrame = document.getElementById('frame8675');
@@ -60,5 +69,8 @@
     // and scale the frame to fit...
     scale();
   }
-  powerFrame.src = window.location.protocol + "//" + window.location.hostname + ":8675/";
+  withpwbase(function() {
+      showversion();
+      powerFrame.src = pwbase + "/";
+  });
   </script>
