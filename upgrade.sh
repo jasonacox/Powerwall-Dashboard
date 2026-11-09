@@ -6,7 +6,7 @@
 set -e
 
 # Set Globals
-VERSION="5.4.0"
+VERSION="5.5.0"
 CURRENT="Unknown"
 COMPOSE_ENV_FILE="compose.env"
 INFLUXDB_ENV_FILE="influxdb.env"
@@ -38,16 +38,18 @@ fi
 running() {
     local url=${1:-http://localhost:80}
     local code=${2:-200}
-    local status=$(curl --head --location --connect-timeout 5 --write-out %{http_code} --silent --output /dev/null ${url})
-    [[ $status == ${code} ]]
+    local status
+    status=$(curl --head --location --connect-timeout 5 --write-out '%{http_code}' --silent --output /dev/null "${url}")
+    [[ $status == "${code}" ]]
 }
 
 # Compare semantic versions: returns 0 if $1 < $2
 version_lt() {
     local IFS=.
     local i
-    local ver1=($1)
-    local ver2=($2)
+    local ver1 ver2
+    read -r -a ver1 <<< "$1"
+    read -r -a ver2 <<< "$2"
     for ((i=0;i<3;i++)); do
         local a=${ver1[i]:-0}
         local b=${ver2[i]:-0}
@@ -162,6 +164,37 @@ else
     fi
 fi
 
+# One-time notice when this upgrade replaces the pyPowerwall proxy with
+# pypowerwall-server: the running container is the proxy, this release runs the
+# server, and powerwall.extend.yml doesn't pin the proxy.
+PW_IMAGE=$(docker inspect --format '{{.Config.Image}}' pypowerwall 2>/dev/null || true)
+case "${PW_IMAGE}" in
+    jasonacox/pypowerwall:*|docker.io/jasonacox/pypowerwall:*)
+        if git show "${PWD_UPGRADE_RELEASE}:powerwall.yml" 2>/dev/null | grep -q "image: jasonacox/pypowerwall-server:" && \
+           ! grep -qE "^[[:space:]]*image:[[:space:]]*[\"']?(docker\.io/)?jasonacox/pypowerwall:" powerwall.extend.yml 2>/dev/null; then
+            cat <<EOF
+WARNING: This upgrade replaces the pyPowerwall proxy with pypowerwall-server.
+The server is the proxy's successor. It serves the same API on the same port
+and reads the same pypowerwall.env and .auth/ files, so your dashboards and
+Telegraf should work as before. It is still a big change to your setup.
+
+If you run into problems:
+  * Please open an issue: https://github.com/jasonacox/Powerwall-Dashboard/issues
+  * To go back to the proxy, add these lines to powerwall.extend.yml in this
+    directory (create the file if it doesn't exist), then run
+    ./compose-dash.sh up -d:
+
+        services:
+            pypowerwall:
+                image: jasonacox/pypowerwall:0.24.0t113
+
+    See "Switching back to the legacy pyPowerwall proxy" in README.md.
+
+EOF
+        fi
+        ;;
+esac
+
 # Verify Upgrade
 read -r -p "Upgrade - Proceed? [y/N] " response
 if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]
@@ -204,7 +237,10 @@ if [ -f tools/solar-only/compose.env ] && [ ! -f ${COMPOSE_ENV_FILE} ]; then
         ./compose-dash.sh down
     else
         # Files missing due to user manually pulling latest changes
+        # (word-splitting of `docker ps -aq` output is intentional here)
+        # shellcheck disable=SC2046
         docker stop $(docker ps -aq) > /dev/null 2>&1
+        # shellcheck disable=SC2046
         docker rm $(docker ps -aq) > /dev/null 2>&1
     fi
     mv compose.env ../../${COMPOSE_ENV_FILE}

@@ -48,7 +48,7 @@ fi
 
 # Verify user in docker group (not required for Windows Git Bash)
 if ! type winpty > /dev/null 2>&1; then
-    if ! $(id -Gn 2>/dev/null | grep -qw "docker"); then
+    if ! id -Gn 2>/dev/null | grep -qw "docker"; then
         echo "WARNING: You do not appear to be in the docker group."
         echo ""
         echo "Please ensure your local user is in the docker group and run without sudo."
@@ -76,8 +76,78 @@ fi
 running() {
     local url=${1:-http://localhost:80}
     local code=${2:-200}
-    local status=$(curl --head --location --connect-timeout 5 --write-out %{http_code} --silent --output /dev/null ${url})
-    [[ $status == ${code} ]]
+    local status
+    status=$(curl --head --location --connect-timeout 5 --write-out '%{http_code}' --silent --output /dev/null "${url}")
+    [[ $status == "${code}" ]]
+}
+
+# Set KEY=VALUE in pypowerwall.env, replacing the KEY line or appending one.
+# Uses awk's ENVIRON instead of sed so values with any characters (|, &, \, @)
+# are written exactly as typed.
+set_pw_env() {
+    if grep -q "^$1=" "${PW_ENV_FILE}" 2>/dev/null; then
+        cp "${PW_ENV_FILE}" "${PW_ENV_FILE}.bak"
+        KEY="$1" VALUE="$2" awk 'index($0, ENVIRON["KEY"] "=") == 1 { print ENVIRON["KEY"] "=" ENVIRON["VALUE"]; next } { print }' "${PW_ENV_FILE}.bak" > "${PW_ENV_FILE}"
+    else
+        # Start a new line if the file doesn't end with one (e.g. hand-edited)
+        if [ -s "${PW_ENV_FILE}" ] && [ -n "$(tail -c 1 "${PW_ENV_FILE}")" ]; then
+            printf '\n' >> "${PW_ENV_FILE}"
+        fi
+        printf '%s=%s\n' "$1" "$2" >> "${PW_ENV_FILE}"
+    fi
+}
+
+# Move pypowerwall.env aside before new credentials are entered, remembering its
+# host. On exit, put it back if setup stopped before the new credentials were
+# complete (cancel, error or Ctrl-C), even if a partial file was started;
+# otherwise delete the old copy.
+PREV_HOST=""
+PW_ENV_SAVED=0
+PW_ENV_DONE=0
+save_pw_env() {
+    PREV_HOST=$(grep -E "^PW_HOST=" "${PW_ENV_FILE}" 2>/dev/null | tail -1 | cut -d= -f2-)
+    mv "${PW_ENV_FILE}" "${PW_ENV_FILE}.prev"
+    PW_ENV_SAVED=1
+}
+SETUP_DIR=$(pwd)
+restore_pw_env() {
+    local env="${SETUP_DIR}/${PW_ENV_FILE}"
+    if [ ! -f "${env}.prev" ]; then
+        return 0
+    fi
+    if [ "${PW_ENV_DONE}" -eq 1 ]; then
+        rm -f "${env}.prev"
+    elif [ "${PW_ENV_SAVED}" -eq 1 ]; then
+        mv -f "${env}.prev" "${env}"
+        echo "Your previous ${PW_ENV_FILE} was restored."
+    fi
+}
+trap restore_pw_env EXIT
+
+# Show pypowerwall.env with passwords, secrets, usernames and emails hidden
+# (setup output gets pasted into public issues). Matched by key name, so
+# settings such as MQTT_PASSWORD are hidden too. Addresses stay visible so
+# users can check which gateway setup is using.
+show_pw_env() {
+    local key
+    while IFS= read -r line || [ -n "$line" ]; do
+        # Key without leading spaces, "#" (a commented-out value is still a
+        # credential) or "export " (env files accept it)
+        key="${line#"${line%%[![:space:]]*}"}"
+        key="${key#\#}"
+        key="${key#"${key%%[![:space:]]*}"}"
+        key="${key#export }"
+        key="${key#"${key%%[![:space:]]*}"}"
+        case "$key" in
+            [A-Za-z_]*=?*)
+                case "${key%%=*}" in
+                    *PASSWORD*|*PWD*|*SECRET*|*TOKEN*|*EMAIL*|*USERNAME*)
+                        printf '%s=********\n' "${line%%=*}"
+                        continue ;;
+                esac ;;
+        esac
+        printf '%s\n' "$line"
+    done < "${PW_ENV_FILE}"
 }
 
 # Docker Dependency Check
@@ -148,12 +218,26 @@ while getopts ":hf" opt; do
 done
 
 # Check PW_ENV_FILE for existing configuration
+current_pw3=0
+current_v1r=0
 if [ ! -f ${PW_ENV_FILE} ]; then
     choice=""
     config="None"
+elif grep -qE "^PW_HOST=.+" "${PW_ENV_FILE}" && grep -qE "^PW_RSA_KEY_PATH=.+" "${PW_ENV_FILE}"; then
+    choice="[5] "
+    config="Wired LAN (v1r)"
+    current_pw3=1
+    current_v1r=1
+elif grep -qE "^PW_HOST=.+" "${PW_ENV_FILE}" && grep -qE "^PW_GW_PWD=.+" "${PW_ENV_FILE}" && ! grep -qE "^PW_PASSWORD=.+" "${PW_ENV_FILE}"; then
+    choice="[4] "
+    config="Local Access"
+    current_pw3=1
 elif grep -qE "^PW_HOST=.+" "${PW_ENV_FILE}"; then
     choice="[1] "
     config="Local Access"
+elif [ -f .auth/.pypowerwall.fleetapi ]; then
+    choice="[3] "
+    config="FleetAPI Cloud"
 else
     choice="[2] "
     config="Tesla Cloud"
@@ -189,6 +273,8 @@ while :; do
         v1r=1
     elif [ -z "${response}" ] && [ ! -z "${choice}" ]; then
         selected="${config}"
+        pw3=${current_pw3}
+        v1r=${current_v1r}
     else
         continue
     fi
@@ -198,7 +284,7 @@ while :; do
         if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]
         then
             config="${selected}"
-            rm ${PW_ENV_FILE}
+            save_pw_env
             echo ""
             break
         else
@@ -381,13 +467,13 @@ echo ""
 
 # Powerwall Credentials
 if [ -f ${PW_ENV_FILE} ]; then
-    echo "Current Credentials:"
+    echo "Current Credentials (passwords and emails hidden):"
     echo ""
-    cat ${PW_ENV_FILE}
+    show_pw_env
     echo ""
     read -r -p "Update these credentials? [y/N] " response
     if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
-        rm ${PW_ENV_FILE}
+        save_pw_env
         echo ""
     else
         echo "Using existing ${PW_ENV_FILE}."
@@ -424,13 +510,9 @@ if [ $v1r -eq 1 ]; then
         # Upsert PW_HOST
         if ! grep -qE "^PW_HOST=.+" "${PW_ENV_FILE}"; then
             while [ -z "${IP}" ]; do
-                read -p 'Powerwall Wired LAN IP Address (e.g. 10.42.1.1): ' IP
+                read -r -p 'Powerwall Wired LAN IP Address (e.g. 10.42.1.1): ' IP
             done
-            if grep -q "^PW_HOST=" "${PW_ENV_FILE}"; then
-                sed -i.bak "s|^PW_HOST=.*|PW_HOST=${IP}|g" "${PW_ENV_FILE}"
-            else
-                echo "PW_HOST=${IP}" >> ${PW_ENV_FILE}
-            fi
+            set_pw_env PW_HOST "${IP}"
         fi
         # Upsert PW_GW_PWD
         if ! grep -qE "^PW_GW_PWD=.+" "${PW_ENV_FILE}"; then
@@ -440,23 +522,15 @@ if [ $v1r -eq 1 ]; then
             echo "It is the same password used for TEDAPI mode — the one on the PW3 unit itself."
             echo ""
             while [ -z "${PW_GW_PWD}" ]; do
-                read -p 'Powerwall 3 Password (10 characters): ' PW_GW_PWD
+                read -r -p 'Powerwall 3 Password (10 characters): ' PW_GW_PWD
             done
-            if grep -q "^PW_GW_PWD=" "${PW_ENV_FILE}"; then
-                sed -i.bak "s|^PW_GW_PWD=.*|PW_GW_PWD=${PW_GW_PWD}|g" "${PW_ENV_FILE}"
-            else
-                echo "PW_GW_PWD=${PW_GW_PWD}" >> ${PW_ENV_FILE}
-            fi
+            set_pw_env PW_GW_PWD "${PW_GW_PWD}"
         fi
         # Upsert PW_RSA_KEY_PATH
-        if grep -q "^PW_RSA_KEY_PATH=" "${PW_ENV_FILE}"; then
-            sed -i.bak 's|^PW_RSA_KEY_PATH=.*|PW_RSA_KEY_PATH=.auth/tedapi_rsa_private.pem|g' "${PW_ENV_FILE}"
-        else
-            echo "PW_RSA_KEY_PATH=.auth/tedapi_rsa_private.pem" >> ${PW_ENV_FILE}
-        fi
+        set_pw_env PW_RSA_KEY_PATH ".auth/tedapi_rsa_private.pem"
         # Clear PW_PASSWORD for v1r mode (not needed, avoids confusion)
         if grep -qE "^PW_PASSWORD=.+" "${PW_ENV_FILE}"; then
-            sed -i.bak 's|^PW_PASSWORD=.*|PW_PASSWORD=|g' "${PW_ENV_FILE}"
+            set_pw_env PW_PASSWORD ""
         fi
         # WiFi fallback host for v1r mode
         PW_WIFI_HOST=""
@@ -473,37 +547,37 @@ if [ $v1r -eq 1 ]; then
             fi
         fi
         if [ -z "${PW_WIFI_HOST}" ]; then
-            read -p 'Enter WiFi Host (leave blank to skip): ' PW_WIFI_HOST
+            read -r -p 'Enter WiFi Host (leave blank to skip): ' PW_WIFI_HOST
         fi
         if [ ! -z "${PW_WIFI_HOST}" ]; then
-            echo "PW_WIFI_HOST=${PW_WIFI_HOST}" >> ${PW_ENV_FILE}
+            set_pw_env PW_WIFI_HOST "${PW_WIFI_HOST}"
         fi
         # Append standard env vars if missing (PW_TIMEZONE, TZ, PW_DEBUG, PW_STYLE, PW_EMAIL, PW_PASSWORD)
         # These are normally written by the "Create Powerwall Settings" block below, but when the v1r
         # assertion block creates the file, that block sees the file exists and skips entirely.
         if ! grep -qE "^PW_TIMEZONE=.+" "${PW_ENV_FILE}"; then
-            echo "PW_TIMEZONE=${TZ}" >> ${PW_ENV_FILE}
+            set_pw_env PW_TIMEZONE "${TZ}"
         fi
         if ! grep -qE "^TZ=.+" "${PW_ENV_FILE}"; then
-            echo "TZ=${TZ}" >> ${PW_ENV_FILE}
+            set_pw_env TZ "${TZ}"
         fi
         if ! grep -qE "^PW_DEBUG=" "${PW_ENV_FILE}"; then
-            echo "PW_DEBUG=no" >> ${PW_ENV_FILE}
+            set_pw_env PW_DEBUG no
         fi
         if ! grep -qE "^PW_STYLE=.+" "${PW_ENV_FILE}"; then
-            echo "PW_STYLE=${PW_STYLE}" >> ${PW_ENV_FILE}
+            set_pw_env PW_STYLE "${PW_STYLE}"
         fi
         if ! grep -qE "^PW_EMAIL=" "${PW_ENV_FILE}"; then
-            echo "PW_EMAIL=" >> ${PW_ENV_FILE}
+            set_pw_env PW_EMAIL ""
         fi
         if ! grep -qE "^PW_PASSWORD=" "${PW_ENV_FILE}"; then
-            echo "PW_PASSWORD=" >> ${PW_ENV_FILE}
+            set_pw_env PW_PASSWORD ""
         fi
         echo ""
         echo "Updated ${PW_ENV_FILE} with v1r mode settings."
     else
         # Even if settings exist, ensure RSA key path is correct
-        sed -i.bak 's|^PW_RSA_KEY_PATH=.*|PW_RSA_KEY_PATH=.auth/tedapi_rsa_private.pem|g' "${PW_ENV_FILE}"
+        set_pw_env PW_RSA_KEY_PATH ".auth/tedapi_rsa_private.pem"
     fi
 fi
 
@@ -517,10 +591,10 @@ if [ ! -f ${PW_ENV_FILE} ]; then
         else
             echo "Enter credentials for Powerwall..."
             while [ -z "${PASSWORD}" ]; do
-                read -p 'Password: ' PASSWORD
+                read -r -p 'Password: ' PASSWORD
             done
             while [ -z "${EMAIL}" ]; do
-                read -p 'Email: ' EMAIL
+                read -r -p 'Email: ' EMAIL
             done
         fi
         IP=""
@@ -531,9 +605,13 @@ if [ ! -f ${PW_ENV_FILE} ]; then
         # The assertion block runs when $v1r=1 and creates pypowerwall.env with all
         # required v1r settings, so this "Create Powerwall Settings" block (which
         # only runs when the file doesn't exist) is never reached for v1r mode.
-        # Can we reach 192.168.91.1
-        if test_ip "192.168.91.1"; then
-            IP="192.168.91.1"
+        # Can we reach 192.168.91.1 (or the host this install used before)?
+        GW_IP="192.168.91.1"
+        if ! test_ip "${GW_IP}" && [ -n "${PREV_HOST}" ] && test_ip "${PREV_HOST}"; then
+            GW_IP="${PREV_HOST}"
+        fi
+        if test_ip "${GW_IP}"; then
+            IP="${GW_IP}"
             echo "Found Powerwall Gateway at ${IP}"
             read -p 'Use this IP? [Y/n] ' response
             if [[ "$response" =~ ^([nN][oO]|[nN])$ ]]; then
@@ -546,11 +624,12 @@ if [ ! -f ${PW_ENV_FILE} ]; then
                 echo "Powerwall or gateway access point, and you will need the WiFi password."
                 echo "This password is often found on a QR code on the Powerwall."
                 echo ""
-                read -p 'Enter Gateway Password or leave blank to disable: ' PW
-                if [ -z "${PW}" ]; then
-                    PW_GW_PWD=""
+                if [ $pw3 -eq 1 ]; then
+                    while [ -z "${PW_GW_PWD}" ]; do
+                        read -r -p 'Enter Gateway Password: ' PW_GW_PWD
+                    done
                 else
-                    PW_GW_PWD="${PW}"
+                    read -r -p 'Enter Gateway Password or leave blank to disable: ' PW_GW_PWD
                 fi
                 echo ""
                 # Double check the user doesn't have a Powerwall 3
@@ -582,12 +661,22 @@ if [ ! -f ${PW_ENV_FILE} ]; then
             echo ""
         fi
         if [ -z "${IP}" ]; then
-            read -p 'Powerwall IP Address (leave blank to scan network): ' IP
+            read -r -p 'Powerwall IP Address (leave blank to scan network): ' IP
+        fi
+        # Powerwall 3 has no local API without TEDAPI, so it needs the Gateway Password
+        if [ $pw3 -eq 1 ] && [ -z "${PW_GW_PWD}" ]; then
+            echo ""
+            echo "Powerwall 3 local access requires the Gateway Password (TEDAPI)."
+            echo "This password is often found on a QR code on the Powerwall."
+            while [ -z "${PW_GW_PWD}" ]; do
+                read -r -p 'Enter Gateway Password: ' PW_GW_PWD
+            done
+            echo ""
         fi
     else
         echo "Enter email address for Tesla Account..."
         while [ -z "${EMAIL}" ]; do
-            read -p 'Email: ' EMAIL
+            read -r -p 'Email: ' EMAIL
         done
         echo "If you have a Solar-only system, you can customize the dashboard for Solar and"
         echo "hide the Powerwall metrics."
@@ -615,6 +704,8 @@ if [ ! -f ${PW_ENV_FILE} ]; then
         echo "PW_WIFI_HOST=${PW_WIFI_HOST}" >> ${PW_ENV_FILE}
     fi
 fi
+# The Powerwall credentials are complete (the v1r block above or this one)
+PW_ENV_DONE=1
 
 # Create default telegraf local file if needed.
 if [ ! -f ${TELEGRAF_LOCAL} ]; then
@@ -681,14 +772,14 @@ if [ "${LAT}" == "zzLAT" ] || [ "${LONG}" == "zzLONG" ] || [ "${LAT}" == "0.0" ]
     if PYTHON=$(command -v python3 || command -v python); then
         if IP_RESPONSE=$(curl -s -L --fail https://freeipapi.com/api/json); then
             # Try to parse JSON but catch any errors
-            read LAT LONG <<< $(printf '%s' "$IP_RESPONSE" | "${PYTHON}" -c '
+            read LAT LONG <<< "$(printf '%s' "$IP_RESPONSE" | "${PYTHON}" -c '
 import sys, json
 try:
     data = json.load(sys.stdin)
     print(data["latitude"], data["longitude"])
 except Exception:
     print("0.0", "0.0")
-')
+')"
         fi
     fi
 else
@@ -743,12 +834,12 @@ if [ "${config}" == "Local Access" ] && ! grep -qE "^PW_HOST=.+" "${PW_ENV_FILE}
     docker exec -it pypowerwall python3 -m pypowerwall scan -ip=${IP}
     echo "-----------------------------------------"
     echo "Enter address for Powerwall... (or leave blank to switch to Tesla Cloud mode)"
-    read -p 'IP Address: ' IP
+    read -r -p 'IP Address: ' IP
     echo ""
     if [ -z "${IP}" ]; then
         config="Tesla Cloud"
     fi
-    sed -i.bak "s@^PW_HOST=.*@PW_HOST=${IP}@g" "${PW_ENV_FILE}"
+    set_pw_env PW_HOST "${IP}"
     ./compose-dash.sh up -d
     echo "-----------------------------------------"
 fi
@@ -767,7 +858,7 @@ if [ "${config}" == "Tesla Cloud" ]; then
     echo ""
     echo "Once you have the token, paste it when prompted by the setup below."
     echo "-----------------------------------------"
-    docker exec -it pypowerwall python3 -m pypowerwall setup -email=$(grep -E "^PW_EMAIL=.+" "${PW_ENV_FILE}" | cut -d= -f2)
+    docker exec -it pypowerwall python3 -m pypowerwall setup "-email=$(grep -E '^PW_EMAIL=.+' "${PW_ENV_FILE}" | cut -d= -f2)"
     echo "Restarting..."
     docker restart pypowerwall
     echo "-----------------------------------------"
@@ -795,8 +886,8 @@ if [ $v1r -eq 1 ]; then
         echo "Check container logs: docker logs pypowerwall"
         echo ""
     fi
-    chmod 700 .auth/
-    chmod 600 .auth/tedapi_rsa_private.pem 2>/dev/null
+    chmod 700 .auth/ || true
+    chmod 600 .auth/tedapi_rsa_private.pem 2>/dev/null || true
     echo "Restarting..."
     docker restart pypowerwall
     echo "-----------------------------------------"
