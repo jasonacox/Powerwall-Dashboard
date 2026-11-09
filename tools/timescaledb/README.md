@@ -76,7 +76,8 @@ setup later. The import:
 - copies each InfluxDB retention policy month by month, newest first, then
   rebuilds `pw_kwh_1h` from the imported 1-minute data
 - records progress in a `migration_progress` table, so it's safe to stop and
-  re-run (finished months are skipped)
+  re-run (finished months are skipped; the current month is imported again
+  so new data is picked up)
 - can read from this stack's `influxdb` container (the default) or another
   InfluxDB 1.x server
 

@@ -127,12 +127,18 @@ def find_earliest_month(config, source_measurement):
 
 
 def already_done(cur, source_measurement, source_key, year, month):
+    # A month only counts as done if it was imported after it ended. The
+    # current month (or one imported before it ended) is fetched again, so
+    # data added since the last run is picked up. Re-inserting is safe:
+    # the insert_* helpers handle duplicate rows.
+    _, month_end = month_bounds(year, month)
     cur.execute(
-        "SELECT status FROM migration_progress WHERE source_measurement=%s AND source=%s AND year=%s AND month=%s",
-        (source_measurement, source_key, year, month),
+        "SELECT status = 'done' AND migrated_at >= %s FROM migration_progress "
+        "WHERE source_measurement=%s AND source=%s AND year=%s AND month=%s",
+        (month_end, source_measurement, source_key, year, month),
     )
     row = cur.fetchone()
-    return row is not None and row[0] == "done"
+    return row is not None and bool(row[0])
 
 
 def mark_progress(cur, source_measurement, source_key, year, month, status, row_count=None):
