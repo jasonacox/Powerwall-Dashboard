@@ -3059,7 +3059,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT round(load_instant_power / 10) / 100 AS \"Home\"\nFROM http\nWHERE load_instant_power IS NOT NULL AND time >= now() - interval '10 minutes'\nORDER BY time DESC LIMIT 1\n",
+          "rawSql": "SELECT round(load_instant_power / 10) / 100 AS \"Home\"\nFROM http\nWHERE load_instant_power IS NOT NULL AND time >= (now() - interval '10 minutes') AT TIME ZONE 'UTC'\nORDER BY time DESC LIMIT 1\n",
           "refId": "A",
           "sql": {
             "columns": [
@@ -3089,7 +3089,7 @@
           "format": "table",
           "hide": false,
           "rawQuery": true,
-          "rawSql": "SELECT round(solar_instant_power / 10) / 100 AS \"Solar\"\nFROM http\nWHERE solar_instant_power IS NOT NULL AND time >= now() - interval '10 minutes'\nORDER BY time DESC LIMIT 1\n",
+          "rawSql": "SELECT round(solar_instant_power / 10) / 100 AS \"Solar\"\nFROM http\nWHERE solar_instant_power IS NOT NULL AND time >= (now() - interval '10 minutes') AT TIME ZONE 'UTC'\nORDER BY time DESC LIMIT 1\n",
           "refId": "B",
           "sql": {
             "columns": [
@@ -3119,7 +3119,7 @@
           "format": "table",
           "hide": false,
           "rawQuery": true,
-          "rawSql": "SELECT round(battery_instant_power / 10) / 100 AS \"Battery\"\nFROM http\nWHERE battery_instant_power IS NOT NULL AND time >= now() - interval '10 minutes'\nORDER BY time DESC LIMIT 1\n",
+          "rawSql": "SELECT round(battery_instant_power / 10) / 100 AS \"Battery\"\nFROM http\nWHERE battery_instant_power IS NOT NULL AND time >= (now() - interval '10 minutes') AT TIME ZONE 'UTC'\nORDER BY time DESC LIMIT 1\n",
           "refId": "C",
           "sql": {
             "columns": [
@@ -3149,7 +3149,7 @@
           "format": "table",
           "hide": false,
           "rawQuery": true,
-          "rawSql": "SELECT round(site_instant_power / 10) / 100 AS \"Grid\"\nFROM http\nWHERE site_instant_power IS NOT NULL AND time >= now() - interval '10 minutes'\nORDER BY time DESC LIMIT 1\n",
+          "rawSql": "SELECT round(site_instant_power / 10) / 100 AS \"Grid\"\nFROM http\nWHERE site_instant_power IS NOT NULL AND time >= (now() - interval '10 minutes') AT TIME ZONE 'UTC'\nORDER BY time DESC LIMIT 1\n",
           "refId": "D",
           "sql": {
             "columns": [
@@ -4163,7 +4163,7 @@
           "format": "table",
           "hide": false,
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket('1d', time,  '$tz') as time,\nsum(\"home\") as \"Home Usage\"\nFROM pw_kwh_1h \nWHERE (\"home\" > 0) and $__timeFilter(time at time zone '$tz')   \nGROUP BY 1\norder by 1\n",
+          "rawSql": "SELECT time_bucket('1d', time,  '$tz') as time,\nsum(\"home\") as \"Home Usage\"\nFROM pw_kwh_1h \nWHERE (\"home\" > 0) and $__timeFilter(time)   \nGROUP BY 1\norder by 1\n",
           "refId": "A",
           "sql": {
             "columns": [
@@ -4193,7 +4193,7 @@
           "format": "table",
           "hide": false,
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket('1d', time,  '$tz')  as time,\nsum(\"solar\") as \"Solar\"\nFROM pw_kwh_1h \nWHERE (\"solar\" > 0) and $__timeFilter(time at time zone '$tz')  \nGROUP BY 1\norder by 1\n",
+          "rawSql": "SELECT time_bucket('1d', time,  '$tz')  as time,\nsum(\"solar\") as \"Solar\"\nFROM pw_kwh_1h \nWHERE (\"solar\" > 0) and $__timeFilter(time)  \nGROUP BY 1\norder by 1\n",
           "refId": "B",
           "sql": {
             "columns": [
@@ -4223,7 +4223,7 @@
           "format": "table",
           "hide": false,
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket('1d', time, '$tz') as time,\nsum(\"from_grid\" - \"to_grid\")  as \"Grid Usage\"\nFROM pw_kwh_1h \nWHERE $__timeFilter(time at time zone '$tz') \nGROUP BY 1\norder by 1",
+          "rawSql": "SELECT time_bucket('1d', time, '$tz') as time,\nsum(\"from_grid\" - \"to_grid\")  as \"Grid Usage\"\nFROM pw_kwh_1h \nWHERE $__timeFilter(time) \nGROUP BY 1\norder by 1",
           "refId": "C",
           "sql": {
             "columns": [

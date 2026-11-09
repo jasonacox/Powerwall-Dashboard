@@ -16,6 +16,9 @@ PGHOST="${TIMESCALEDB_HOST:-timescaledb}"
 PGPORT="${TIMESCALEDB_PORT:-5432}"
 export PGPASSWORD="${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}"
 export PGSSLMODE="${TIMESCALEDB_SSLMODE:-disable}"
+# Hide NOTICE lines (e.g. "retention policy already exists") so the log
+# does not grow by thousands of lines a day; warnings and errors still show.
+export PGOPTIONS="-c client_min_messages=warning"
 
 SQL_DIR="/timescaledb"
 AGG_DIR="${SQL_DIR}/aggregate"
