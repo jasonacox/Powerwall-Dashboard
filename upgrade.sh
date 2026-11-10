@@ -481,7 +481,7 @@ echo "Pulling container images..."
 # Update InfluxDB
 echo ""
 echo "Waiting for InfluxDB to start..."
-until running http://localhost:8086/ping 204 2>/dev/null; do
+until [ "$(docker exec influxdb curl -s -o /dev/null -w '%{http_code}' http://localhost:8086/ping)" = "204" ]; do
     printf '.'
     sleep 5
 done
