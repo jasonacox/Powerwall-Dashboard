@@ -17,7 +17,11 @@ WITH lagged AS (
     LAG(from_grid)  OVER (ORDER BY time) AS prev_from_grid,
     LAG(to_grid)    OVER (ORDER BY time) AS prev_to_grid
   FROM pw_autogen_1m
-  WHERE time >= :'start_date'::timestamptz - interval '1 hour' AND time < :'end_date'
+  -- Read a little past end_date: the first sample at or after it closes the
+  -- range's last hour (only buckets before end_date are written below).
+  -- 5 minutes matches the longest gap integrated across.
+  WHERE time >= :'start_date'::timestamptz - interval '1 hour'
+    AND time < :'end_date'::timestamptz + interval '5 minutes'
 ),
 intervals AS (
   SELECT

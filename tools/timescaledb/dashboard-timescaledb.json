@@ -1407,7 +1407,7 @@
           "format": "table",
           "hide": false,
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket_gapfill('$__interval', time, $__timeFrom()::timestamptz, $__timeTo()::timestamptz) as time,\n       min(grid_status) + 1 as \"off_grid\"\nFROM pw_grid_1m\nWHERE grid_status = 0 AND time BETWEEN $__timeFrom()::timestamptz AND $__timeTo()::timestamptz\nGROUP BY 1",
+          "rawSql": "SELECT time_bucket_gapfill('$__interval', time, $__timeFrom()::timestamptz, $__timeTo()::timestamptz) as time,\n       min(grid_status) + 2 as \"sync\"\nFROM pw_grid_1m\nWHERE grid_status = -1 AND time BETWEEN $__timeFrom()::timestamptz AND $__timeTo()::timestamptz\nGROUP BY 1",
           "refId": "B",
           "sql": {
             "columns": [
@@ -4948,7 +4948,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket('$__interval', time) AS time,\n       regexp_replace(metric_name, '_Power$', '') AS metric_name,\n       avg(value) AS value\nFROM pw_strings_log\nWHERE $__timeFilter(time) AND metric_name ~ '^[A-F]_Power$'\nGROUP BY 1, metric_name\nORDER BY 1, 2",
+          "rawSql": "SELECT time_bucket('$__interval', time) AS time,\n       regexp_replace(metric_name, '_Power$', '') AS metric_name,\n       avg(value) AS value\nFROM pw_strings_log\nWHERE $__timeFilter(time) AND metric_name ~ '^[A-F][1-5]?_Power$'\nGROUP BY 1, metric_name\nORDER BY 1, 2",
           "refId": "A",
           "sql": {
             "columns": [
