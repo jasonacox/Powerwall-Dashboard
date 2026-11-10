@@ -296,7 +296,7 @@ The `pypowerwall` service runs [pypowerwall-server](https://github.com/jasonacox
 ```yaml
 services:
     pypowerwall:
-        image: jasonacox/pypowerwall:0.24.0t113
+        image: jasonacox/pypowerwall:0.25.0t114
 ```
 
 Then restart the stack with `./compose-dash.sh up -d`. The file is yours, so `upgrade.sh` keeps it. To return to pypowerwall-server, remove those lines (or the file) and run `./compose-dash.sh up -d` again. No other change is needed either way.

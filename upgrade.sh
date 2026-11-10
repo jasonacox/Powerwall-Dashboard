@@ -6,7 +6,7 @@
 set -e
 
 # Set Globals
-VERSION="5.5.0"
+VERSION="5.6.0"
 CURRENT="Unknown"
 COMPOSE_ENV_FILE="compose.env"
 INFLUXDB_ENV_FILE="influxdb.env"
@@ -186,7 +186,7 @@ If you run into problems:
 
         services:
             pypowerwall:
-                image: jasonacox/pypowerwall:0.24.0t113
+                image: jasonacox/pypowerwall:0.25.0t114
 
     See "Switching back to the legacy pyPowerwall proxy" in README.md.
 

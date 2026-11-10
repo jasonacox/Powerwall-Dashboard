@@ -1,6 +1,14 @@
 # RELEASE NOTES
 
-## Unreleased
+## v5.6.0 - TimescaleDB add-on and Self-Powered fix
+
+### Updates
+
+* **pypowerwall-server 0.15.1** - the `pypowerwall` service moves from `jasonacox/pypowerwall-server:0.15.0` to `0.15.1`, with the pypowerwall 0.25.0 library:
+  * In TEDAPI (Extended Metrics / v1r) mode, `/aggregates` includes the `generator` section again on sites whose gateway has a generator meter, so the `generator_*` values Telegraf stores fill in again after switching from local mode.
+  * Gateway `start_time` and uptime are reported on Backup Gateway 2 sites with Powerwall 2s.
+  * Console fixes: config and error strings are escaped, and the redundant Power Flow header link is gone.
+  * The legacy proxy rollback example (README and the `upgrade.sh` notice) now names `jasonacox/pypowerwall:0.25.0t114`.
 
 ### New Features
 
@@ -11,6 +19,10 @@
 * **Self-Powered panel: Powerwall charging from the grid is counted correctly** - the panel takes the grid energy that charges the Powerwall out of "From Grid", since it reaches the home later as "From Powerwall". Its formula subtracted all of solar from the grid import, even solar going into the battery, so when the battery charged from the grid and solar together, that grid charging stayed in "From Grid" and "From Solar" came out too low. On @youzer-name's data, about half of the grid charging was missed. Fixed in `dashboard.json`, `dashboard-alt.json`, `dashboard-min-mean-max.json`, `dashboard-no-sunmoon.json`, `dashboard-solar-only.json` and the `tools/k3s` dashboards. `dashboard-no-animation.json` never had this correction and counted all grid import as "From Grid"; it now matches the others. (closes [#891](https://github.com/jasonacox/Powerwall-Dashboard/issues/891), reported by **@youzer-name**)
 
 **Existing installs:** run `./upgrade.sh`, then re-import your dashboard (for example `dashboards/dashboard.json`) to pick up the Self-Powered fix. The TimescaleDB add-on is opt-in and changes nothing unless you run `./tools/timescaledb/setup.sh`.
+
+### Contributors
+
+Thanks to **@youzer-name** for the TimescaleDB add-on and for reporting #891, to **@clonea1** for the pypowerwall 0.25.0 generator and uptime fixes, and to **@jasonacox** and **@jasonacox-sam**.
 
 ## v5.5.0 - pypowerwall-server replaces the proxy
 
