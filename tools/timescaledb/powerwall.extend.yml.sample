@@ -1,0 +1,101 @@
+# EXPERIMENTAL: TimescaleDB (PostgreSQL) as an additional datastore.
+#
+# Adds TimescaleDB alongside your existing InfluxDB stack. InfluxDB, telegraf
+# and every other core service keep running exactly as before.
+#
+# tools/timescaledb/setup.sh copies this file to the repo root as
+# powerwall.extend.yml. If you already have a powerwall.extend.yml for another
+# add-on, merge the services below into it by hand instead (docker compose
+# only reads one powerwall.extend.yml).
+#
+# See tools/timescaledb/README.md for setup, removal, and how to use an
+# existing PostgreSQL/TimescaleDB server instead of the bundled one.
+
+services:
+
+    timescaledb:
+        image: timescale/timescaledb:2.30.2-pg16
+        container_name: timescaledb
+        hostname: timescaledb
+        restart: unless-stopped
+        volumes:
+            - type: bind
+              source: ./tools/timescaledb/data
+              target: /var/lib/postgresql/data
+        # Not published to the host by default -- everything that uses the
+        # database talks to it inside the compose network. To reach it from
+        # the host, uncomment (pick a free host port if 5432 is taken):
+        # ports:
+        #     - "127.0.0.1:5432:5432"
+        env_file:
+            - tools/timescaledb/timescaledb.env
+        healthcheck:
+            test: pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}" || exit 1
+            interval: 30s
+            timeout: 10s
+            retries: 3
+            start_period: 60s
+
+    telegraf-timescale:
+        image: telegraf:1.28.2
+        container_name: telegraf-timescale
+        hostname: telegraf-timescale
+        restart: unless-stopped
+        user: "${PWD_USER:-1000:1000}"
+        command: [
+            "telegraf",
+            "--config",
+            "/etc/telegraf/telegraf.conf"
+        ]
+        volumes:
+            - type: bind
+              source: ./tools/timescaledb/telegraf-timescale.conf
+              target: /etc/telegraf/telegraf.conf
+              read_only: true
+            - type: bind
+              source: ./VERSION
+              target: /etc/telegraf/VERSION
+              read_only: true
+            - type: bind
+              source: ./ver.sh
+              target: /etc/telegraf/ver.sh
+              read_only: true
+        env_file:
+            - tools/timescaledb/timescaledb.env
+        depends_on:
+            - pypowerwall
+        healthcheck:
+            test: pgrep telegraf || exit 1
+            interval: 30s
+            timeout: 10s
+            retries: 3
+            start_period: 30s
+
+    aggregate-cron:
+        image: postgres:16.15-alpine3.23
+        container_name: aggregate-cron
+        hostname: aggregate-cron
+        restart: unless-stopped
+        entrypoint: ["/bin/sh", "/timescaledb/cron-entrypoint.sh"]
+        volumes:
+            - type: bind
+              source: ./tools/timescaledb/db
+              target: /timescaledb
+              read_only: true
+        env_file:
+            - tools/timescaledb/timescaledb.env
+        healthcheck:
+            # Healthy only if a full aggregation pass succeeded in the last
+            # 5 minutes (cron-entrypoint.sh touches /tmp/last_ok after each
+            # pass where every script succeeded).
+            test: test -n "$$(find /tmp/last_ok -mmin -5 2>/dev/null)" || exit 1
+            interval: 60s
+            timeout: 10s
+            retries: 3
+            start_period: 5m
+
+    # Adds the TimescaleDB connection settings to the core grafana service, so
+    # the provisioned "TimescaleDB (auto provisioned)" datasource can use them.
+    grafana:
+        env_file:
+            - tools/timescaledb/timescaledb.env

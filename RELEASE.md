@@ -1,5 +1,13 @@
 # RELEASE NOTES
 
+## Unreleased
+
+### New Features
+
+* **TimescaleDB (PostgreSQL) datastore add-on (experimental)** — an opt-in, community-maintained add-on in `tools/timescaledb/` that stores your Powerwall and weather data in TimescaleDB *in addition to* InfluxDB, with its own Grafana dashboard. Run `./tools/timescaledb/setup.sh` to add it; it uses the existing `powerwall.extend.yml` mechanism and does not change `powerwall.yml` or `setup.sh`. Grafana gets the add-on's database settings in its environment and reads the data through a separate read-only database user. Includes an optional, resumable import of your InfluxDB history and a `pg_dump` backup script. InfluxDB remains the default, supported datastore, and InfluxDB dashboard or tool changes don't need a matching TimescaleDB change. See [tools/timescaledb/README.md](tools/timescaledb/README.md). ([PR #830](https://github.com/jasonacox/Powerwall-Dashboard/pull/830) by **@youzer-name**)
+
+**Existing installs:** run `./upgrade.sh`; no other action is required. The TimescaleDB add-on is opt-in and changes nothing unless you run `./tools/timescaledb/setup.sh`.
+
 ## v5.5.0 - pypowerwall-server replaces the proxy
 
 ### Updates

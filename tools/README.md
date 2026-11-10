@@ -100,3 +100,10 @@ This tool automates both the Powerwall's operating mode (self-powered/time-based
 * Author: [@goodoldme](https://github.com/goodoldme)
 * [Details and Instructions](switch-mode/)
 * Scripts: [switch-mode.zsh](switch-mode/switch-mode.zsh), [switch-mode.sh](switch-mode/switch-mode.sh)
+
+## TimescaleDB (PostgreSQL) Datastore — EXPERIMENTAL
+
+An opt-in, community-maintained add-on that stores your data in TimescaleDB in addition to InfluxDB, with its own Grafana dashboard. InfluxDB keeps running unchanged.
+
+* Author: [@youzer-name](https://github.com/youzer-name) - see PR [#830](https://github.com/jasonacox/Powerwall-Dashboard/pull/830) if you have any questions or find problems.
+* [Details and Instructions](timescaledb/)
