@@ -6,7 +6,11 @@
 
 * **TimescaleDB (PostgreSQL) datastore add-on (experimental)** — an opt-in, community-maintained add-on in `tools/timescaledb/` that stores your Powerwall and weather data in TimescaleDB *in addition to* InfluxDB, with its own Grafana dashboard. Run `./tools/timescaledb/setup.sh` to add it; it uses the existing `powerwall.extend.yml` mechanism and does not change `powerwall.yml` or `setup.sh`. Grafana gets the add-on's database settings in its environment and reads the data through a separate read-only database user. Includes an optional, resumable import of your InfluxDB history and a `pg_dump` backup script. InfluxDB remains the default, supported datastore, and InfluxDB dashboard or tool changes don't need a matching TimescaleDB change. See [tools/timescaledb/README.md](tools/timescaledb/README.md). ([PR #830](https://github.com/jasonacox/Powerwall-Dashboard/pull/830) by **@youzer-name**)
 
-**Existing installs:** run `./upgrade.sh`; no other action is required. The TimescaleDB add-on is opt-in and changes nothing unless you run `./tools/timescaledb/setup.sh`.
+### Bug Fixes
+
+* **Self-Powered panel: Powerwall charging from the grid is counted correctly** - the panel takes the grid energy that charges the Powerwall out of "From Grid", since it reaches the home later as "From Powerwall". Its formula subtracted all of solar from the grid import, even solar going into the battery, so when the battery charged from the grid and solar together, that grid charging stayed in "From Grid" and "From Solar" came out too low. On @youzer-name's data, about half of the grid charging was missed. Fixed in `dashboard.json`, `dashboard-alt.json`, `dashboard-min-mean-max.json`, `dashboard-no-sunmoon.json`, `dashboard-solar-only.json` and the `tools/k3s` dashboards. `dashboard-no-animation.json` never had this correction and counted all grid import as "From Grid"; it now matches the others. (closes [#891](https://github.com/jasonacox/Powerwall-Dashboard/issues/891), reported by **@youzer-name**)
+
+**Existing installs:** run `./upgrade.sh`, then re-import your dashboard (for example `dashboards/dashboard.json`) to pick up the Self-Powered fix. The TimescaleDB add-on is opt-in and changes nothing unless you run `./tools/timescaledb/setup.sh`.
 
 ## v5.5.0 - pypowerwall-server replaces the proxy
 
