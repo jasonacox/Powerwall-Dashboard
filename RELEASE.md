@@ -1,5 +1,13 @@
 # RELEASE NOTES
 
+## Unreleased
+
+### Bug Fixes
+
+* **`verify.sh` works when service ports are not published** - local service probes now run from inside their containers, so reverse-proxy installs such as Traefik do not need host port mappings. Remote scans with `--host` continue to probe the remote host.
+
+**Existing installs:** run `./upgrade.sh`; no other action is needed.
+
 ## v5.6.1 - pypowerwall-server 0.16.0 and InfluxDB readiness fix
 
 ### Updates
