@@ -4,9 +4,9 @@
 
 ### Bug Fixes
 
-* **Support unpublished InfluxDB ports** - setup and upgrade now check InfluxDB readiness from inside its container, so they also work when port 8086 is not published.
+* **Setup and upgrade work when InfluxDB's port isn't published** - `setup.sh` and `upgrade.sh` now check that InfluxDB is ready from inside its container. Before, they checked `localhost:8086` on the host, so on installs that don't publish port 8086 they waited forever at "Waiting for InfluxDB to start...". ([PR #894](https://github.com/jasonacox/Powerwall-Dashboard/pull/894) by **@goodoldme**)
 
-**Existing installs:** no action is needed until this change is included in a release.
+**Existing installs:** run `./upgrade.sh`; no other action is needed.
 
 ## v5.6.0 - TimescaleDB add-on and Self-Powered fix
 
