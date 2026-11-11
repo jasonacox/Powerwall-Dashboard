@@ -72,15 +72,6 @@ if type winpty > /dev/null 2>&1; then
     alias docker="winpty -Xallow-non-tty -Xplain docker"
 fi
 
-# Service Running Helper Function
-running() {
-    local url=${1:-http://localhost:80}
-    local code=${2:-200}
-    local status
-    status=$(curl --head --location --connect-timeout 5 --write-out '%{http_code}' --silent --output /dev/null "${url}")
-    [[ $status == "${code}" ]]
-}
-
 # Set KEY=VALUE in pypowerwall.env, replacing the KEY line or appending one.
 # Uses awk's ENVIRON instead of sed so values with any characters (|, &, \, @)
 # are written exactly as typed.
@@ -903,7 +894,7 @@ fi
 
 # Set up Influx
 echo "Waiting for InfluxDB to start..."
-until running http://localhost:8086/ping 204 2>/dev/null; do
+until [ "$(docker exec influxdb curl -s --max-time 5 -o /dev/null -w '%{http_code}' http://localhost:8086/ping 2>/dev/null)" = "204" ]; do
     printf '.'
     sleep 5
 done
