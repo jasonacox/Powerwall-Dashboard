@@ -1,12 +1,20 @@
 # RELEASE NOTES
 
-## Unreleased
+## v5.6.1 - pypowerwall-server 0.16.0 and InfluxDB readiness fix
+
+### Updates
+
+* **pypowerwall-server 0.16.0** - the `pypowerwall` service moves from `jasonacox/pypowerwall-server:0.15.1` to `0.16.0`. It adds MQTT / Home Assistant battery dispatch, which stays off unless you set both `MQTT_CONTROLS` bit `32` and `PW_BATTERY_DISPATCH=yes` in `pypowerwall.env`. **Use at your own risk: battery dispatch could void or limit your Tesla Powerwall warranty.** Nothing changes for installs that don't set them. See the [pypowerwall-server 0.16.0 release](https://github.com/jasonacox/pypowerwall-server/releases/tag/v0.16.0).
 
 ### Bug Fixes
 
 * **Setup and upgrade work when InfluxDB's port isn't published** - `setup.sh` and `upgrade.sh` now check that InfluxDB is ready from inside its container. Before, they checked `localhost:8086` on the host, so on installs that don't publish port 8086 they waited forever at "Waiting for InfluxDB to start...". ([PR #894](https://github.com/jasonacox/Powerwall-Dashboard/pull/894) by **@goodoldme**)
 
 **Existing installs:** run `./upgrade.sh`; no other action is needed.
+
+### Contributors
+
+Thanks to **@goodoldme** for the InfluxDB readiness fix, to **@longzheng** for MQTT battery dispatch in pypowerwall-server 0.16.0 and **@BJReplay** for testing it on hardware, and to **@jasonacox** and **@jasonacox-sam**.
 
 ## v5.6.0 - TimescaleDB add-on and Self-Powered fix
 
