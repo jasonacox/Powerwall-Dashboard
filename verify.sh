@@ -267,9 +267,12 @@ container_has_curl() {
 service_get() {
     local url="$1"
     shift
-    local body inner
-    body=$(curl --silent "$@" "$url" 2>/dev/null) || true
-    if [ -z "$body" ] && inner=$(container_url "$url"); then
+    local out code body inner
+    out=$(curl --silent --write-out '\n%{http_code}' "$@" "$url" 2>/dev/null) || true
+    code=${out##*$'\n'}
+    body=${out%$'\n'*}
+    # Not a 2xx (refused, or another program answering on that port)
+    if [[ $code != 2* ]] && inner=$(container_url "$url"); then
         if container_has_curl; then
             body=$(docker exec "$CONTAINER" curl --silent "$@" "$inner" 2>/dev/null) || true
         else
