@@ -248,32 +248,38 @@ if type winpty > /dev/null 2>&1; then
     alias docker="winpty -Xallow-non-tty -Xplain docker"
 fi
 
-# Service Running Helper Function
-service_curl() {
-    local url="$1"
-    shift
-    if [ "$HOST" = "localhost" ] && [[ "$url" == http://localhost:* ]]; then
-        docker exec "$CONTAINER" curl "$@" "$url"
-    else
-        curl "$@" "$url"
-    fi
+# Service Probe Helper Functions
+# Local services are probed on their host port first. If that fails (the port
+# isn't published, e.g. behind Traefik), the probe runs again inside $CONTAINER
+# with its curl, or busybox wget for images without curl (weather411, ecowitt).
+
+# Print the in-container URL for a local service URL, or fail if there's none
+container_url() {
+    [ "$HOST" = "localhost" ] && [ -n "$CONTAINER" ] && [[ "$1" == http://localhost:* ]] || return 1
+    echo "${1/localhost/127.0.0.1}"
 }
 
+container_has_curl() {
+    docker exec "$CONTAINER" sh -c 'command -v curl' > /dev/null 2>&1
+}
+
+# Print the response body of a GET (extra args are passed to curl)
 service_get() {
     local url="$1"
     shift
-    if [ "$HOST" = "localhost" ] && [[ "$url" == http://localhost:* ]]; then
-        if [ "$CONTAINER" = "weather411" ]; then
-            local weather_url="${url/localhost/127.0.0.1}"
-            docker exec "$CONTAINER" wget -q -O - -T 5 "$weather_url"
+    local body inner
+    body=$(curl --silent "$@" "$url" 2>/dev/null) || true
+    if [ -z "$body" ] && inner=$(container_url "$url"); then
+        if container_has_curl; then
+            body=$(docker exec "$CONTAINER" curl --silent "$@" "$inner" 2>/dev/null) || true
         else
-            docker exec "$CONTAINER" curl --silent "$@" "$url"
+            body=$(docker exec "$CONTAINER" wget -q -O - -T 5 "$inner" 2>/dev/null) || true
         fi
-    else
-        curl --silent "$@" "$url"
     fi
+    printf '%s' "$body"
 }
 
+# Succeed if URL answers with HTTP status CODE (HEAD request if the third arg is 1)
 running() {
     local url=${1:-http://localhost:80}
     local code=${2:-200}
@@ -281,14 +287,17 @@ running() {
     if [[ $3 == 1 ]]; then
         head_args=(--head)
     fi
-    local status
-    if [ "$HOST" = "localhost" ] && [ "$CONTAINER" = "weather411" ] && [[ "$url" == http://localhost:* ]]; then
-        local weather_url="${url/localhost/127.0.0.1}"
-        docker exec "$CONTAINER" wget -q -O /dev/null -T 5 "$weather_url"
-        return $?
+    local status inner
+    status=$(curl "${head_args[@]}" -k --location --connect-timeout 5 --write-out '%{http_code}' --silent --output /dev/null "${url}") || true
+    [[ $status == "${code}" ]] && return 0
+    inner=$(container_url "$url") || return 1
+    if container_has_curl; then
+        status=$(docker exec "$CONTAINER" curl "${head_args[@]}" -k --location --connect-timeout 5 --write-out '%{http_code}' --silent --output /dev/null "$inner" 2>/dev/null) || true
+        [[ $status == "${code}" ]]
+    else
+        # busybox wget has no status output; it succeeds only on 2xx
+        [[ $code == 2* ]] && docker exec "$CONTAINER" wget -q -O /dev/null -T 5 "$inner" > /dev/null 2>&1
     fi
-    status=$(service_curl "$url" "${head_args[@]}" -k --location --connect-timeout 5 --write-out '%{http_code}' --silent --output /dev/null)
-    [[ $status == "${code}" ]]
 }
 
 # Operating system details
@@ -358,13 +367,13 @@ tedapi_diagnostics() {
     fi
     # pypowerwall status (if running locally)
     local proxy_stats=""
-    proxy_stats=$(docker exec pypowerwall curl --silent --connect-timeout 3 http://localhost:8675/stats 2>/dev/null) || true
+    proxy_stats=$(HOST=localhost CONTAINER=pypowerwall service_get http://localhost:8675/stats --connect-timeout 3) || true
     if [ -n "$proxy_stats" ]; then
         local cloudmode tedapi tedapimode firmware
         cloudmode=$(echo "$proxy_stats" | grep -o '"cloudmode":[^,}]*' | cut -d: -f2 | tr -d ' ')
         tedapi=$(echo "$proxy_stats" | grep -o '"tedapi":[^,}]*' | cut -d: -f2 | tr -d ' ')
         tedapimode=$(echo "$proxy_stats" | grep -o '"tedapi_mode"[: ]*"[^"]*"' | cut -d\" -f4)
-        firmware=$(docker exec pypowerwall curl --silent --connect-timeout 3 http://localhost:8675/version 2>/dev/null | sed 's/.*"version"[: ]*"\([^"]*\)".*/\1/') || true
+        firmware=$(HOST=localhost CONTAINER=pypowerwall service_get http://localhost:8675/version --connect-timeout 3 | sed 's/.*"version"[: ]*"\([^"]*\)".*/\1/') || true
         echo -e "${dim} - pypowerwall: ${subbold}running${dim} - cloudmode: ${subbold}${cloudmode:-unknown}${dim}, tedapi: ${subbold}${tedapi:-unknown}${dim}, tedapi_mode: ${subbold}${tedapimode:-unknown}"
         if [ -n "$firmware" ]; then
             echo -e "${dim} - Gateway firmware (via pypowerwall): ${subbold}${firmware}"
