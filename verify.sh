@@ -248,7 +248,41 @@ if type winpty > /dev/null 2>&1; then
     alias docker="winpty -Xallow-non-tty -Xplain docker"
 fi
 
-# Service Running Helper Function
+# Service Probe Helper Functions
+# Local services are probed on their host port first. If that fails (the port
+# isn't published, e.g. behind Traefik), the probe runs again inside $CONTAINER
+# with its curl, or busybox wget for images without curl (weather411, ecowitt).
+
+# Print the in-container URL for a local service URL, or fail if there's none
+container_url() {
+    [ "$HOST" = "localhost" ] && [ -n "$CONTAINER" ] && [[ "$1" == http://localhost:* ]] || return 1
+    echo "${1/localhost/127.0.0.1}"
+}
+
+container_has_curl() {
+    docker exec "$CONTAINER" sh -c 'command -v curl' > /dev/null 2>&1
+}
+
+# Print the response body of a GET (extra args are passed to curl)
+service_get() {
+    local url="$1"
+    shift
+    local out code body inner
+    out=$(curl --silent --write-out '\n%{http_code}' "$@" "$url" 2>/dev/null) || true
+    code=${out##*$'\n'}
+    body=${out%$'\n'*}
+    # Not a 2xx (refused, or another program answering on that port)
+    if [[ $code != 2* ]] && inner=$(container_url "$url"); then
+        if container_has_curl; then
+            body=$(docker exec "$CONTAINER" curl --silent "$@" "$inner" 2>/dev/null) || true
+        else
+            body=$(docker exec "$CONTAINER" wget -q -O - -T 5 "$inner" 2>/dev/null) || true
+        fi
+    fi
+    printf '%s' "$body"
+}
+
+# Succeed if URL answers with HTTP status CODE (HEAD request if the third arg is 1)
 running() {
     local url=${1:-http://localhost:80}
     local code=${2:-200}
@@ -256,9 +290,17 @@ running() {
     if [[ $3 == 1 ]]; then
         head_args=(--head)
     fi
-    local status
-    status=$(curl "${head_args[@]}" -k --location --connect-timeout 5 --write-out '%{http_code}' --silent --output /dev/null "${url}")
-    [[ $status == "${code}" ]]
+    local status inner
+    status=$(curl "${head_args[@]}" -k --location --connect-timeout 5 --write-out '%{http_code}' --silent --output /dev/null "${url}") || true
+    [[ $status == "${code}" ]] && return 0
+    inner=$(container_url "$url") || return 1
+    if container_has_curl; then
+        status=$(docker exec "$CONTAINER" curl "${head_args[@]}" -k --location --connect-timeout 5 --write-out '%{http_code}' --silent --output /dev/null "$inner" 2>/dev/null) || true
+        [[ $status == "${code}" ]]
+    else
+        # busybox wget has no status output; it succeeds only on 2xx
+        [[ $code == 2* ]] && docker exec "$CONTAINER" wget -q -O /dev/null -T 5 "$inner" > /dev/null 2>&1
+    fi
 }
 
 # Operating system details
@@ -328,13 +370,13 @@ tedapi_diagnostics() {
     fi
     # pypowerwall status (if running locally)
     local proxy_stats=""
-    proxy_stats=$(curl --silent --connect-timeout 3 http://localhost:8675/stats 2>/dev/null) || true
+    proxy_stats=$(HOST=localhost CONTAINER=pypowerwall service_get http://localhost:8675/stats --connect-timeout 3) || true
     if [ -n "$proxy_stats" ]; then
         local cloudmode tedapi tedapimode firmware
         cloudmode=$(echo "$proxy_stats" | grep -o '"cloudmode":[^,}]*' | cut -d: -f2 | tr -d ' ')
         tedapi=$(echo "$proxy_stats" | grep -o '"tedapi":[^,}]*' | cut -d: -f2 | tr -d ' ')
         tedapimode=$(echo "$proxy_stats" | grep -o '"tedapi_mode"[: ]*"[^"]*"' | cut -d\" -f4)
-        firmware=$(curl --silent --connect-timeout 3 http://localhost:8675/version 2>/dev/null | sed 's/.*"version"[: ]*"\([^"]*\)".*/\1/') || true
+        firmware=$(HOST=localhost CONTAINER=pypowerwall service_get http://localhost:8675/version --connect-timeout 3 | sed 's/.*"version"[: ]*"\([^"]*\)".*/\1/') || true
         echo -e "${dim} - pypowerwall: ${subbold}running${dim} - cloudmode: ${subbold}${cloudmode:-unknown}${dim}, tedapi: ${subbold}${tedapi:-unknown}${dim}, tedapi_mode: ${subbold}${tedapimode:-unknown}"
         if [ -n "$firmware" ]; then
             echo -e "${dim} - Gateway firmware (via pypowerwall): ${subbold}${firmware}"
@@ -610,7 +652,7 @@ if [ "$HOST" != "localhost" ] || [ "$RUNNING" = "true" ]; then
     echo -e -n "${dim} - Service (port $PORT): "
     if running http://$HOST:$PORT/stats 200 0 2>/dev/null; then
         echo -e $GOOD
-        STATS_JSON=`curl --silent http://$HOST:$PORT/stats 2>/dev/null`
+        STATS_JSON=`service_get http://$HOST:$PORT/stats 2>/dev/null`
         # Extract version - works for both old and new formats
         VER=`echo "$STATS_JSON" | sed 's/.*"pypowerwall"[: ]*"\([^"]*\)".*/\1/' 2>/dev/null`
         # Extract site_name - works for both old and new formats
@@ -629,7 +671,7 @@ if [ "$HOST" != "localhost" ] || [ "$RUNNING" = "true" ]; then
         # gateways it reaches (its /version answers even while the gateway is
         # offline); the legacy proxy's /health has no count, so use /version there
         # (optional probe: a refused or stalled /health must not stop verify.sh)
-        HEALTH_JSON=`curl --silent --max-time 5 http://$HOST:$PORT/health 2>/dev/null || true`
+        HEALTH_JSON=`service_get http://$HOST:$PORT/health --max-time 5 2>/dev/null || true`
         # (end the pipe with tr: a failing last grep would stop verify.sh under set -e)
         GWONLINE=`echo "$HEALTH_JSON" | grep -o '"gateways_online"[: ]*[0-9]*' | tr -dc '0-9'`
         if echo "$HEALTH_JSON" | grep -q '"status"[: ]*"no_gateways"'; then
@@ -645,7 +687,7 @@ if [ "$HOST" != "localhost" ] || [ "$RUNNING" = "true" ]; then
             PWSTATE="CONNECTED"
         fi
         if [ "$PWSTATE" = "CONNECTED" ]; then
-            PWVER=`curl --silent http://$HOST:$PORT/version | sed 's/.*"version"[: ]*"\([^"]*\)".*/\1/' 2>/dev/null`
+            PWVER=`service_get http://$HOST:$PORT/version | sed 's/.*"version"[: ]*"\([^"]*\)".*/\1/' 2>/dev/null`
         fi
     else
         echo -e "${alert}ERROR: Not Listening${normal}"
@@ -692,7 +734,7 @@ fi
 # Display current power metrics if service is available
 if [ "$HOST" != "localhost" ] || [ "$RUNNING" = "true" ]; then
     if running http://$HOST:$PORT/csv/v2 200 0 2>/dev/null; then
-        METRICS=`curl --silent http://$HOST:$PORT/csv/v2 2>/dev/null`
+        METRICS=`service_get http://$HOST:$PORT/csv/v2 2>/dev/null`
         if [ -n "$METRICS" ]; then
             # Parse CSV values: Grid,Home,Solar,Battery,BatteryLevel,GridStatus,Reserve
             IFS=',' read -r GRID HOME SOLAR BATTERY BATTERYLEVEL GRIDSTATUS RESERVE <<< "$METRICS"
@@ -963,10 +1005,10 @@ elif [ "$HOST" = "localhost" ] || running http://$HOST:$PORT/stats 200 0 2>/dev/
         echo -e -n "${dim} - Service (port $PORT): "
         if running http://$HOST:$PORT/stats 200 0 2>/dev/null; then
             echo -e $GOOD
-            VER=`curl --silent http://$HOST:$PORT/stats | awk '{print $2" "$3" "$4}' | cut -d\" -f 2 2>/dev/null`
+            VER=`service_get http://$HOST:$PORT/stats | awk '{print $2" "$3" "$4}' | cut -d\" -f 2 2>/dev/null`
             # check connection with openweather
             if running http://$HOST:$PORT/temp 200 0 2>/dev/null; then
-                WEATHER=`curl --silent http://$HOST:$PORT/temp 2>/dev/null`
+                WEATHER=`service_get http://$HOST:$PORT/temp 2>/dev/null`
             fi
             echo -e "${dim} - Weather: ${subbold}${WEATHER}"
         else
@@ -1023,10 +1065,10 @@ if grep -q "ecowitt" powerwall.extend.yml 2>/dev/null; then
         echo -e -n "${dim} - Service (port $PORT): "
         if running http://$HOST:$PORT/stats 200 0 2>/dev/null; then
             echo -e $GOOD
-            VER=`curl --silent http://$HOST:$PORT/stats | awk '{print $2" "$3" "$4}' | cut -d\" -f 2 2>/dev/null`
+            VER=`service_get http://$HOST:$PORT/stats | awk '{print $2" "$3" "$4}' | cut -d\" -f 2 2>/dev/null`
             # check connection with ecowitt
             if running http://$HOST:$PORT/temp 200 0 2>/dev/null; then
-                WEATHER=`curl --silent http://$HOST:$PORT/temp 2>/dev/null`
+                WEATHER=`service_get http://$HOST:$PORT/temp 2>/dev/null`
             fi
             echo -e "${dim} - Weather: ${subbold}${WEATHER}"
         else
