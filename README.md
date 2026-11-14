@@ -259,6 +259,39 @@ See the [dashboards folder](dashboards/) for these and other alternative dashboa
 * The database queries are set to use `America/Los_Angeles` as the timezone. Remember to edit the database commands [influxdb.sql](influxdb/influxdb.sql) with your own timezone. During import of dashboards into Grafana you'll be prompted to enter your timezone for queries.
 * The "Sun and Moon" panel in the Weather row draws today's sun and moon path in the browser. It uses the latitude and longitude that `setup.sh` saves in the Sun and Moon datasource (`grafana/provisions/datasources/sunandmoon.yml`), so there is nothing to enter on import. Re-run `setup.sh` or edit that file to change the location.
 
+#### Tune an imported dashboard
+
+The string graphs list every string the dashboard knows about. Strings that are not connected still take a line in the legend. `dashboard-tune.sh` asks pypowerwall which strings are connected and hides the ones that are not, on the String Voltage, String Current and String Power panels only. It does not change the queries, so a panel that adds the strings together (such as Inverter Power) still sees every string. It works with pypowerwall-server and with the legacy pyPowerwall proxy, because both serve `/strings`.
+
+Run it on the same computer as the dashboard, while the sun is up. A Powerwall 3 reports every string as disconnected at night. The script then leaves the dashboard alone and asks you to run it again in daylight.
+
+```bash
+./dashboard-tune.sh
+```
+
+It prints the string ids it will hide or keep, the dashboard title, and the Grafana address, then asks `Apply these changes? [y/N]`. `./dashboard-tune.sh --yes` saves without that question. `./dashboard-tune.sh --dry-run` only prints the plan. `./dashboard-tune.sh --reset` removes the hides this script added. `./dashboard-tune.sh --legend-bottom` moves legends to the bottom on the time series, bar, pie and state panels (the older graph panels lose the right-side legend). Other panel types are left alone.
+
+Importing a dashboard again replaces these edits. Run `./dashboard-tune.sh` after each import. Add `--uid` or `--title` to limit which dashboard is updated. A dashboard Grafana provisioned from a file is skipped, because Grafana will not let the API save it.
+
+The script reads the Grafana port from `compose.env` (`GRAFANA_PORTS`) and `grafana.env` (`GF_SERVER_HTTP_PORT`, and `GF_SERVER_PROTOCOL` when that is `https`). It reads the pypowerwall port from `PYPOWERWALL_PORTS` (default `8675`). If a port is not published on the host, it tries again from inside the container. Do not run it as root.
+
+**Logging in to Grafana.** Saving a dashboard needs a login that can edit. Grafana's own command line cannot do that without a password, and this script does not turn on anonymous Admin or edit Grafana's database.
+
+1. **Service account token.** In Grafana open Administration, then Users and access, then Service accounts, then Add service account. Choose the Editor role (Admin also works). Open the account, choose Add service account token, and copy the token. Grafana shows it only once. Keep it outside this repo. Do not put it in `grafana.env`. That file is passed into the container and other scripts read it. For example, in your home directory:
+
+   ```bash
+   echo "export GRAFANA_TOKEN='paste-token-here'" >> ~/.config/powerwall-dashboard-tune.env
+   chmod 600 ~/.config/powerwall-dashboard-tune.env
+   . ~/.config/powerwall-dashboard-tune.env
+   ./dashboard-tune.sh
+   ```
+
+   Anyone who can read the token can edit your dashboards. Treat it like a password.
+
+2. **Anonymous access**, if you already turned it on with `./anonymous-access.sh`. Read-only anonymous access can view dashboards but cannot save them. The script stops and lists the `anonymous-access.sh` choices. Choice 3 (Anonymous Read/Write) can save. Choice 1 is a username and password.
+
+3. **Username and password.** If neither of the above is set, the script asks. Press Enter to use the user `admin`. The password is not printed. A new install signs in as `admin` / `admin` until you change it.
+
 ## Platform Notes
 
 Extra setup help for specific platforms.
@@ -376,7 +409,7 @@ Check the logs of the services using:
 
 ### Missing Powerwalls or String data?
 
-* String data only shows up for Tesla inverters as part of Powerwall+ systems.  Unfortunately, non-Tesla inverter data is not available via the Tesla API. If you find a way to pull this data, please submit an Issue or Pull Request to get it added.
+* String data only shows up for Tesla inverters as part of Powerwall+ systems.  Unfortunately, non-Tesla inverter data is not available via the Tesla API. If you find a way to pull this data, please submit an Issue or Pull Request to get it added. To hide strings that are not connected, see [Tune an imported dashboard](#tune-an-imported-dashboard).
 * The default dashboard and InfluxDB setup supports up to 12 Tesla Powerwalls. Support for more can be added by editing the [dashboard.json](dashboards/dashboard.json) and [influxdb.sql](influxdb/influxdb.sql) files. Open an Issue and we can help (see [#2](https://github.com/jasonacox/Powerwall-Dashboard/issues/2)).
 
 ### Docker Errors

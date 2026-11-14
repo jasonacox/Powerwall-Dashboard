@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### New Features
+
+* **Tune an imported dashboard** - `./dashboard-tune.sh` hides solar strings that are not connected, on the String Voltage, String Current and String Power panels of a dashboard you already imported. It reads `/strings` from pypowerwall (the same data with pypowerwall-server or the legacy proxy) and saves the dashboard back to Grafana. It does not change queries. `--reset` removes those hides, and `--legend-bottom` moves legends to the bottom. Run it while the sun is up. A Powerwall 3 reports every string disconnected at night, and the script leaves the dashboard alone then.
+
+**Existing installs:** run `./upgrade.sh`, then `./dashboard-tune.sh` after you import or re-import a dashboard. Importing again replaces the dashboard, so re-run `./dashboard-tune.sh` after each re-import.
+
 ### Bug Fixes
 
 * **`verify.sh` works when service ports are not published** - each local service is still checked on its host port first, as before. If that fails, `verify.sh` checks it again from inside its container (with `curl`, or `wget` for weather411 and ecowitt), so reverse-proxy installs such as Traefik don't need host port mappings. Remote scans with `--host` are unchanged (#896).
