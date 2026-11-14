@@ -46,13 +46,12 @@ the dashboard alone.
   --title TITLE     Only dashboards with this exact title
 
 Grafana login, in this order:
-  1. GRAFANA_TOKEN  service account token (Editor or Admin). Keep it outside
-                    this repo. Do not put it in grafana.env.
-  2. Anonymous access, if it can already save dashboards.
-  3. A password prompt (default user admin). The password is not printed.
+  1. Anonymous access, when it can already save (see grafana.env.sample,
+     "disable login requirement (full access)").
+  2. A password prompt (default user admin). The password is not printed.
 
-Read-only anonymous access cannot save. Run ./anonymous-access.sh and choose
-1 (username and password) or 3 (anonymous read/write), or set GRAFANA_TOKEN.
+Read-only anonymous access cannot save. Uncomment the full-access block in
+grafana.env.sample, or run ./anonymous-access.sh and choose 3.
 See README, "Tune an imported dashboard".
 EOF
 }
@@ -857,7 +856,7 @@ choose_python() {
 }
 
 # JSON goes on stdin. Credentials do not. The process environment is cleared
-# so a password or token in this shell is not copied into Python.
+# so a password in this shell is not copied into Python.
 run_python() {
     if [ "$PY_MODE" = "docker" ]; then
         docker exec -i pypowerwall env -i \
@@ -1042,12 +1041,11 @@ fetch_strings() {
 explain_403() {
     cat <<'EOF'
 Grafana can view dashboards but cannot save them.
-This is what anonymous read-only access does (HTTP 403).
-Run ./anonymous-access.sh and choose one:
-  1) Username / Password
-  2) Anonymous Read-Only (cannot save changes)
-  3) Anonymous Read/Write
-Or export GRAFANA_TOKEN from a service account with the Editor or Admin role.
+Read-only anonymous access does this (HTTP 403).
+To save without a password, uncomment "disable login requirement (full access)"
+in grafana.env.sample (GF_AUTH_ANONYMOUS_ORG_ROLE=Admin), or run
+./anonymous-access.sh and choose 3) Anonymous Read/Write.
+You can also sign in with a Grafana user that can edit.
 No changes saved.
 EOF
 }
@@ -1113,7 +1111,7 @@ prompt_basic() {
         *[$'\n\r']*) die "The password cannot contain a newline." ;;
     esac
     if [ -z "$_pass" ]; then
-        die "A password is required. Set GRAFANA_TOKEN to skip the prompt."
+        die "A password is required."
     fi
     _b64=$(printf '%s' "${_user}:${_pass}" | run_python b64) || die "Could not encode the login."
     _pass=""
@@ -1128,17 +1126,6 @@ establish_auth() {
         2*) ;;
         *) die "Grafana is not reachable at ${GF_SCHEME}://localhost:${GF_HOST_PORT}." ;;
     esac
-    if [ -n "${GRAFANA_TOKEN:-}" ]; then
-        case "$GRAFANA_TOKEN" in
-            *[$'\n\r"\\']*) die "GRAFANA_TOKEN contains a character this script will not send." ;;
-        esac
-        AUTH_HEADER="Bearer ${GRAFANA_TOKEN}"
-        write_curl_cfg
-        if ! auth_ok; then
-            die "GRAFANA_TOKEN was rejected. Create a new service account token and export it again."
-        fi
-        return
-    fi
     AUTH_HEADER=""
     write_curl_cfg
     grafana_request GET "/api/search?type=dash-db&limit=1" "" "$WORKDIR/probe.json"
@@ -1147,19 +1134,16 @@ establish_auth() {
             if auth_can_save; then
                 return
             fi
-            explain_403
-            exit 1
             ;;
-        401)
-            prompt_basic
-            if ! auth_ok; then
-                die "Grafana rejected that login."
-            fi
-            ;;
+        401) ;;
         *)
             die "Grafana is not reachable at ${GF_SCHEME}://localhost:${GF_HOST_PORT} (HTTP ${HTTP_CODE})."
             ;;
     esac
+    prompt_basic
+    if ! auth_ok; then
+        die "Grafana rejected that login."
+    fi
 }
 
 run_edit() {

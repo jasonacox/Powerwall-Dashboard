@@ -275,20 +275,11 @@ It prints one line per panel it would change, such as `String Voltage (32): hide
 
 Ports come from `compose.env` (`GRAFANA_PORTS`, `PYPOWERWALL_PORTS`) and `grafana.env` (`GF_SERVER_HTTP_PORT`, default `9000`, and `GF_SERVER_PROTOCOL` when that is `https`). If a port is not published on the host, the script tries again inside the container. Do not run it as root.
 
-**Logging in to Grafana.** The script needs a login that can edit. It tries these in order, and it does not turn on anonymous Admin or edit Grafana's database:
+**Logging in to Grafana.** The script needs a login that can edit. It does not change `grafana.env` or Grafana's database. It tries these in order:
 
-1. **`GRAFANA_TOKEN`**, if that variable is set. In Grafana open Administration, then Users and access, then Service accounts. Add a service account with the Editor role (Admin also works), add a token, and copy it. Grafana shows the token only once. Keep it outside this repo, not in `grafana.env`:
+1. **Anonymous access**, when it can already save. That is the commented "disable login requirement (full access)" block in `grafana.env.sample` (`GF_AUTH_ANONYMOUS_ORG_ROLE=Admin`). `./anonymous-access.sh` choice 3 does the same thing. Read-only anonymous access cannot save.
 
-   ```bash
-   echo "export GRAFANA_TOKEN='paste-token-here'" >> ~/.config/powerwall-dashboard-tune.env
-   chmod 600 ~/.config/powerwall-dashboard-tune.env
-   . ~/.config/powerwall-dashboard-tune.env
-   ./dashboard-tune.sh
-   ```
-
-2. **Anonymous access**, if `./anonymous-access.sh` already lets that login save. Read-only anonymous access cannot save. The script stops and lists the choices. Choice 3 (Anonymous Read/Write) can save.
-
-3. **Password prompt.** Press Enter for the user `admin`. The password is not shown. It is held only in a private temp file, which is removed on every exit, including Ctrl+C.
+2. **Password prompt.** Press Enter for the user `admin`. The password is not shown. It is held only in a private temp file, which is removed on every exit, including Ctrl+C.
 
 ## Platform Notes
 
