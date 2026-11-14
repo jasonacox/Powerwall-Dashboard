@@ -290,7 +290,7 @@ The script reads the Grafana port from `compose.env` (`GRAFANA_PORTS`) and `graf
 
 2. **Anonymous access**, if you already turned it on with `./anonymous-access.sh`. Read-only anonymous access can view dashboards but cannot save them. The script stops and lists the `anonymous-access.sh` choices. Choice 3 (Anonymous Read/Write) can save. Choice 1 is a username and password.
 
-3. **Username and password.** If neither of the above is set, the script asks. Press Enter to use the user `admin`. The password is not printed. A new install signs in as `admin` / `admin` until you change it.
+3. **Username and password.** If neither of the above is set, the script asks. Press Enter to use the user `admin`. The password is not printed. It is kept only in a private temp file, which is deleted when the script exits, including if you press Ctrl+C. A new install signs in as `admin` / `admin` until you change it.
 
 ## Platform Notes
 

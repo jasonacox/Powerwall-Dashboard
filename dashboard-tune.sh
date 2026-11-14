@@ -98,8 +98,12 @@ EDIT_N=0
 EDIT_MARK=""
 
 cleanup() {
-    if [ -n "$WORKDIR" ] && [ -d "$WORKDIR" ]; then
-        rm -rf "$WORKDIR"
+    local _dir
+    _dir=$WORKDIR
+    WORKDIR=""
+    CURL_CFG=""
+    if [ -n "$_dir" ] && [ -d "$_dir" ]; then
+        rm -rf "$_dir"
     fi
     if command -v docker >/dev/null 2>&1; then
         docker exec -u 0 grafana rm -f \
@@ -107,6 +111,7 @@ cleanup() {
             "/tmp/dashboard-tune-$$.json" \
             "/tmp/dashboard-tune-$$.out" >/dev/null 2>&1 || true
     fi
+    return 0
 }
 
 # Read one KEY=value from an env file. Do not source the file: grafana.env
@@ -733,17 +738,22 @@ run_python() {
 }
 
 write_curl_cfg() {
-    CURL_CFG="$WORKDIR/curl.cfg"
+    local _new _old
+    _old=$CURL_CFG
     umask 077
-    : > "$CURL_CFG"
-    chmod 600 "$CURL_CFG"
+    _new=$(mktemp "${WORKDIR}/curl.XXXXXX") || die "Could not create a temp file."
+    chmod 600 "$_new"
     {
         printf '%s\n' "silent"
         printf '%s\n' "connect-timeout = 5"
         printf '%s\n' "max-time = 60"
-    } > "$CURL_CFG"
+    } > "$_new"
     if [ -n "$AUTH_HEADER" ]; then
-        printf 'header = "Authorization: %s"\n' "$AUTH_HEADER" >> "$CURL_CFG"
+        printf 'header = "Authorization: %s"\n' "$AUTH_HEADER" >> "$_new"
+    fi
+    CURL_CFG=$_new
+    if [ -n "$_old" ] && [ -f "$_old" ]; then
+        rm -f "$_old"
     fi
 }
 
@@ -1240,7 +1250,12 @@ fi
 umask 077
 WORKDIR=$(mktemp -d "${TMPDIR:-/tmp}/dashboard-tune.XXXXXX") || die "Could not create a temp directory."
 chmod 700 "$WORKDIR"
-trap cleanup EXIT INT TERM
+# EXIT covers a normal exit, die(), and set -e. The signal traps exit so
+# Ctrl+C, TERM, and HUP run that same cleanup instead of continuing.
+trap cleanup EXIT
+trap 'exit 129' HUP
+trap 'exit 130' INT
+trap 'exit 143' TERM
 
 load_ports
 choose_python
