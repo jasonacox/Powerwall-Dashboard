@@ -38,7 +38,7 @@ Current and String Power panels. Run it while the sun is up. A Powerwall 3
 reports every string as disconnected at night, and the script then leaves
 the dashboard alone.
 
-  --dry-run         Print the changes and do not save
+  --dry-run         Print one line per panel that would change, and do not save
   --yes             Save without the confirm prompt
   --reset           Remove hides this script added
   --legend-bottom   Move legends to the bottom
@@ -94,6 +94,7 @@ EDIT_UID=""
 EDIT_FOLDER=""
 EDIT_TITLE=""
 EDIT_REMOVED=""
+EDIT_N=0
 EDIT_MARK=""
 
 cleanup() {
@@ -347,9 +348,10 @@ def overrides_of(panel, create):
 
 
 def strip_hides(panel, only_names, removed):
+    stripped = []
     overrides = overrides_of(panel, False)
     if overrides is None:
-        return
+        return stripped
     kept_overrides = []
     for ov in overrides:
         name = override_name(ov)
@@ -369,19 +371,24 @@ def strip_hides(panel, only_names, removed):
             continue
         if name not in removed:
             removed.append(name)
+        if name not in stripped:
+            stripped.append(name)
         if kept_props:
             ov["properties"] = kept_props
             kept_overrides.append(ov)
     overrides[:] = kept_overrides
+    return stripped
 
 
 def add_hides(panel, names):
+    added = []
     overrides = overrides_of(panel, True)
     if overrides is None:
-        return
+        return added
     for name in names:
         if not isinstance(name, str) or NAME_RE.match(name) is None:
             continue
+        mutated = False
         target = None
         for ov in overrides:
             if override_name(ov) != name:
@@ -394,6 +401,7 @@ def add_hides(panel, names):
                     target = ov
                     if prop.get("value") != HIDE:
                         prop["value"] = {"legend": True, "tooltip": True, "viz": True}
+                        mutated = True
                     break
             if target is not None:
                 break
@@ -401,6 +409,7 @@ def add_hides(panel, names):
                 target = ov
         if target is None:
             overrides.append({"matcher": {"id": "byName", "options": name}, "properties": [hide_prop()]})
+            added.append(name)
             continue
         props = target.get("properties")
         if not isinstance(props, list):
@@ -413,6 +422,45 @@ def add_hides(panel, names):
                 break
         if not already:
             props.append(hide_prop())
+            mutated = True
+        if mutated:
+            added.append(name)
+    return added
+
+
+def legend_will_change(panel):
+    ptype = panel.get("type")
+    if ptype in LEGEND_TYPES:
+        options = panel.get("options")
+        if options is None:
+            return True
+        if not isinstance(options, dict):
+            return False
+        legend = options.get("legend")
+        if legend is None:
+            return True
+        if not isinstance(legend, dict):
+            return False
+        return legend.get("placement") != "bottom"
+    if ptype == "graph":
+        legend = panel.get("legend")
+        if legend is None:
+            return True
+        if not isinstance(legend, dict):
+            return False
+        return legend.get("rightSide") is not False
+    return False
+
+
+def panel_label(panel):
+    title = panel.get("title") if isinstance(panel.get("title"), str) else "panel"
+    title = title.replace("\n", " ").replace("\r", " ")
+    pid = panel.get("id")
+    if isinstance(pid, bool) or not isinstance(pid, (int, float)):
+        return title
+    if isinstance(pid, float) and pid != int(pid):
+        return title
+    return "%s (%d)" % (title, int(pid))
 
 
 def apply_legend(panel):
@@ -462,24 +510,39 @@ def mode_edit():
     legend = data.get("legend") is True
     panels = count_string_panels(dash.get("panels"))
     removed = []
+    lines = []
     if not provisioned:
         def edit(panel):
+            clauses = []
             if is_string_panel(panel):
                 if reset:
-                    strip_hides(panel, None, removed)
+                    if strip_hides(panel, None, removed):
+                        clauses.append("remove hide overrides")
                 else:
+                    hidden = []
+                    shown = []
                     if unhide:
-                        strip_hides(panel, unhide, removed)
+                        shown = strip_hides(panel, unhide, removed)
                     if hide:
-                        add_hides(panel, hide)
+                        hidden = add_hides(panel, hide)
+                    if hidden:
+                        clauses.append("hide " + ", ".join(sort_names(hidden)))
+                    if shown:
+                        clauses.append("show " + ", ".join(sort_names(shown)))
+            if legend and legend_will_change(panel):
+                clauses.append("legend -> bottom")
             if legend:
                 apply_legend(panel)
+            if clauses:
+                lines.append(panel_label(panel) + ": " + "; ".join(clauses))
         before = json.dumps(dash, separators=(",", ":"), ensure_ascii=False)
         walk(dash.get("panels"), edit)
         after = json.dumps(dash, separators=(",", ":"), ensure_ascii=False)
         changed = before != after
     else:
         changed = False
+    if not changed:
+        lines = []
     if changed and not provisioned:
         bits = []
         if reset:
@@ -505,6 +568,9 @@ def mode_edit():
     sys.stdout.write(folder + "\n")
     sys.stdout.write(title + "\n")
     sys.stdout.write(removed_line + "\n")
+    sys.stdout.write(str(len(lines)) + "\n")
+    for line in lines:
+        sys.stdout.write(line + "\n")
     sys.stdout.write("---\n")
     if post is not None:
         json.dump(post, sys.stdout, separators=(",", ":"), ensure_ascii=False)
@@ -984,7 +1050,29 @@ load_edit_header() {
     EDIT_FOLDER=$(sed -n '5p' "$_file")
     EDIT_TITLE=$(sed -n '6p' "$_file")
     EDIT_REMOVED=$(sed -n '7p' "$_file")
-    EDIT_MARK=$(sed -n '8p' "$_file")
+    EDIT_N=$(sed -n '8p' "$_file")
+    case "$EDIT_N" in
+        ""|*[!0-9]*) die "Could not edit the dashboard JSON." ;;
+    esac
+    EDIT_MARK=$(sed -n "$((9 + EDIT_N))p" "$_file")
+}
+
+edit_body_to() {
+    local _file _dest _start
+    _file=$1
+    _dest=$2
+    _start=$((10 + EDIT_N))
+    sed -n "${_start},\$p" "$_file" > "$_dest"
+}
+
+print_edit_details() {
+    local _file _end
+    _file=$1
+    if [ "$EDIT_N" -eq 0 ]; then
+        return
+    fi
+    _end=$((8 + EDIT_N))
+    sed -n "9,${_end}p" "$_file"
 }
 
 process_uid() {
@@ -1031,15 +1119,13 @@ process_uid() {
     if [ -n "$ONLY_TITLE" ] && [ "$EDIT_TITLE" != "$ONLY_TITLE" ]; then
         die "Dashboard ${EDIT_UID} is titled ${EDIT_TITLE}."
     fi
-    sed -n '9,$p' "$_edit" > "$_post"
+    edit_body_to "$_edit" "$_post"
     if [ "$EDIT_CHANGED" = "1" ]; then
         if [ ! -s "$_post" ]; then
             die "Could not edit the dashboard JSON."
         fi
         printf '%s\n' "Dashboard: ${EDIT_TITLE} (${EDIT_UID})"
-        if [ "$RESET" -eq 1 ] && [ "$EDIT_REMOVED" != "-" ] && [ -n "$EDIT_REMOVED" ]; then
-            printf '%s\n' "Reset hides: ${EDIT_REMOVED}."
-        fi
+        print_edit_details "$_edit"
         CHANGE_UID[${#CHANGE_UID[@]}]=$EDIT_UID
         CHANGE_POST[${#CHANGE_POST[@]}]=$_post
         return
@@ -1049,7 +1135,6 @@ process_uid() {
         printf '%s\n' "No String Voltage, String Current, or String Power panels."
         return
     fi
-    printf '%s\n' "Dashboard: ${EDIT_TITLE} (${EDIT_UID}) already up to date."
 }
 
 post_one() {
@@ -1078,7 +1163,7 @@ post_one() {
         if [ "$_changed" != "1" ]; then
             return 0
         fi
-        sed -n '9,$p' "$WORKDIR/retry-edit.txt" > "$WORKDIR/retry-post.json"
+        edit_body_to "$WORKDIR/retry-edit.txt" "$WORKDIR/retry-post.json"
         grafana_request POST "/api/dashboards/db" "$WORKDIR/retry-post.json" "$WORKDIR/post-res.json"
     fi
     case "$HTTP_CODE" in
@@ -1239,7 +1324,7 @@ if [ "$SEEN" -eq 0 ]; then
 fi
 
 if [ "${#CHANGE_POST[@]}" -eq 0 ]; then
-    printf '%s\n' "No changes to save."
+    printf '%s\n' "No changes needed."
     exit 0
 fi
 

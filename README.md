@@ -269,7 +269,7 @@ Run it on the same computer as the dashboard, while the sun is up. A Powerwall 3
 ./dashboard-tune.sh
 ```
 
-It prints the string ids it will hide or keep, the dashboard title, and the Grafana address, then asks `Apply these changes? [y/N]`. `./dashboard-tune.sh --yes` saves without that question. `./dashboard-tune.sh --dry-run` only prints the plan. `./dashboard-tune.sh --reset` removes the hides this script added. `./dashboard-tune.sh --legend-bottom` moves legends to the bottom on the time series, bar, pie and state panels (the older graph panels lose the right-side legend). Other panel types are left alone.
+It prints the string ids it will hide or keep, the dashboard title, and the Grafana address. For each panel it would change, it prints one line, such as `String Voltage (32): hide B, D` or `Inverter Power (40): legend -> bottom`. `--reset` uses `remove hide overrides` on that line. If nothing would change, it says `No changes needed.` It then asks `Apply these changes? [y/N]`. `./dashboard-tune.sh --yes` saves without that question. `./dashboard-tune.sh --dry-run` prints the same plan and does not save. `./dashboard-tune.sh --reset` removes the hides this script added. `./dashboard-tune.sh --legend-bottom` moves legends to the bottom on the time series, bar, pie and state panels (the older graph panels lose the right-side legend). Other panel types are left alone.
 
 Importing a dashboard again replaces these edits. Run `./dashboard-tune.sh` after each import. Add `--uid` or `--title` to limit which dashboard is updated. A dashboard Grafana provisioned from a file is skipped, because Grafana will not let the API save it.
 

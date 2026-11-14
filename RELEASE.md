@@ -4,7 +4,7 @@
 
 ### New Features
 
-* **Tune an imported dashboard** - `./dashboard-tune.sh` hides solar strings that are not connected, on the String Voltage, String Current and String Power panels of a dashboard you already imported. It reads `/strings` from pypowerwall (the same data with pypowerwall-server or the legacy proxy) and saves the dashboard back to Grafana. It does not change queries. `--reset` removes those hides, and `--legend-bottom` moves legends to the bottom. Run it while the sun is up. A Powerwall 3 reports every string disconnected at night, and the script leaves the dashboard alone then.
+* **Tune an imported dashboard** - `./dashboard-tune.sh` hides solar strings that are not connected, on the String Voltage, String Current and String Power panels of a dashboard you already imported. It reads `/strings` from pypowerwall (the same data with pypowerwall-server or the legacy proxy) and saves the dashboard back to Grafana. It does not change queries. `--reset` removes those hides, and `--legend-bottom` moves legends to the bottom. A dry run prints the same plan as a real run: one line per panel it would change, or `No changes needed.` Run it while the sun is up. A Powerwall 3 reports every string disconnected at night, and the script leaves the dashboard alone then.
 
 **Existing installs:** run `./upgrade.sh`, then `./dashboard-tune.sh` after you import or re-import a dashboard. Importing again replaces the dashboard, so re-run `./dashboard-tune.sh` after each re-import.
 
