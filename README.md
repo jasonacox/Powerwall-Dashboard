@@ -261,23 +261,23 @@ See the [dashboards folder](dashboards/) for these and other alternative dashboa
 
 #### Tune an imported dashboard
 
-The string graphs list every string the dashboard knows about. Strings that are not connected still take a line in the legend and a color. `dashboard-tune.sh` asks pypowerwall which strings are connected and hides those queries (the same eye icon as in the panel editor) on the String Voltage, String Current and String Power panels only. It does not change the query text, so a panel that adds the strings together (such as Inverter Power) still sees every string. It works with pypowerwall-server and with the legacy pyPowerwall proxy, because both serve `/strings`.
+The String Voltage, String Current and String Power panels draw every string the dashboard knows about. pypowerwall's `/strings` includes a `Connected` flag for each string, but that flag is not stored in InfluxDB, so Grafana still draws the disconnected strings and gives each one a color. `dashboard-tune.sh` reads `/strings` and sets the hide flag on those queries (the same control as the eye icon in the panel editor). It does not change query text. Inverter Power and every other panel are left alone. The same `/strings` response is served by pypowerwall-server and the legacy proxy.
 
-Run it on the same computer as the dashboard, while the sun is up. A Powerwall 3 reports every string as disconnected at night. The script then leaves the dashboard alone and asks you to run it again in daylight.
+Run it on the dashboard computer while the sun is up. When every `Connected` value is false, which a Powerwall 3 reports at night, the script does not change the dashboard.
 
 ```bash
 ./dashboard-tune.sh
 ```
 
-It prints the string ids it will hide or keep, the dashboard title, and the Grafana address. For each panel it would change, it prints one line, such as `String Voltage (32): hide B, D` or `Inverter Power (40): legend -> bottom`. If nothing would change, it says `No changes needed.` It then asks `Apply these changes? [y/N]`. `./dashboard-tune.sh --yes` saves without that question. `./dashboard-tune.sh --dry-run` prints the same plan and does not save. `./dashboard-tune.sh --legend-bottom` moves legends to the bottom on the time series, bar, pie and state panels (the older graph panels lose the right-side legend) and remembers where each one was. `./dashboard-tune.sh --reset` shows those strings again and puts each legend back where it was when `--legend-bottom` moved it. Legends it did not move are left as they are. Other panel types are left alone, and a query you hid yourself is left hidden.
+It prints one line per panel it would change, such as `String Voltage (32): hide B, D`, then asks `Apply these changes? [y/N]`. `--dry-run` prints that plan and does not save. `--yes` saves without asking. If nothing would change, it says `No changes needed.`
 
-Importing a dashboard again replaces these edits. Run `./dashboard-tune.sh` after each import. Add `--uid` or `--title` to limit which dashboard is updated. A dashboard Grafana provisioned from a file is skipped, because Grafana will not let the API save it.
+`--legend-bottom` moves legends that are not already at the bottom (time series, bar, pie and state panels, and older graph panels) and saves each previous position in the dashboard. `--reset` shows the strings this script hid and restores only those saved positions. A query you hid yourself is left hidden. Re-importing a dashboard drops these edits, so run the script again after each import. `--uid` or `--title` limits which dashboard is updated. A dashboard Grafana provisions from a file is skipped.
 
-The script reads the Grafana port from `compose.env` (`GRAFANA_PORTS`) and `grafana.env` (`GF_SERVER_HTTP_PORT`, and `GF_SERVER_PROTOCOL` when that is `https`). It reads the pypowerwall port from `PYPOWERWALL_PORTS` (default `8675`). If a port is not published on the host, it tries again from inside the container. Do not run it as root.
+Ports come from `compose.env` (`GRAFANA_PORTS`, `PYPOWERWALL_PORTS`) and `grafana.env` (`GF_SERVER_HTTP_PORT`, default `9000`, and `GF_SERVER_PROTOCOL` when that is `https`). If a port is not published on the host, the script tries again inside the container. Do not run it as root.
 
-**Logging in to Grafana.** Saving a dashboard needs a login that can edit. Grafana's own command line cannot do that without a password, and this script does not turn on anonymous Admin or edit Grafana's database.
+**Logging in to Grafana.** The script needs a login that can edit. It tries these in order, and it does not turn on anonymous Admin or edit Grafana's database:
 
-1. **Service account token.** In Grafana open Administration, then Users and access, then Service accounts, then Add service account. Choose the Editor role (Admin also works). Open the account, choose Add service account token, and copy the token. Grafana shows it only once. Keep it outside this repo. Do not put it in `grafana.env`. That file is passed into the container and other scripts read it. For example, in your home directory:
+1. **`GRAFANA_TOKEN`**, if that variable is set. In Grafana open Administration, then Users and access, then Service accounts. Add a service account with the Editor role (Admin also works), add a token, and copy it. Grafana shows the token only once. Keep it outside this repo, not in `grafana.env`:
 
    ```bash
    echo "export GRAFANA_TOKEN='paste-token-here'" >> ~/.config/powerwall-dashboard-tune.env
@@ -286,11 +286,9 @@ The script reads the Grafana port from `compose.env` (`GRAFANA_PORTS`) and `graf
    ./dashboard-tune.sh
    ```
 
-   Anyone who can read the token can edit your dashboards. Treat it like a password.
+2. **Anonymous access**, if `./anonymous-access.sh` already lets that login save. Read-only anonymous access cannot save. The script stops and lists the choices. Choice 3 (Anonymous Read/Write) can save.
 
-2. **Anonymous access**, if you already turned it on with `./anonymous-access.sh`. Read-only anonymous access can view dashboards but cannot save them. The script stops and lists the `anonymous-access.sh` choices. Choice 3 (Anonymous Read/Write) can save. Choice 1 is a username and password.
-
-3. **Username and password.** If neither of the above is set, the script asks. Press Enter to use the user `admin`. The password is not printed. It is kept only in a private temp file, which is deleted when the script exits, including if you press Ctrl+C. A new install signs in as `admin` / `admin` until you change it.
+3. **Password prompt.** Press Enter for the user `admin`. The password is not shown. It is held only in a private temp file, which is removed on every exit, including Ctrl+C.
 
 ## Platform Notes
 

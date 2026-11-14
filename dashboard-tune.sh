@@ -40,8 +40,8 @@ the dashboard alone.
 
   --dry-run         Print one line per panel that would change, and do not save
   --yes             Save without the confirm prompt
-  --reset           Remove hides this script added
-  --legend-bottom   Move legends to the bottom
+  --reset           Undo this script's string hides and legend moves
+  --legend-bottom   Move legends that are not already at the bottom
   --uid UID         Only this dashboard
   --title TITLE     Only dashboards with this exact title
 
