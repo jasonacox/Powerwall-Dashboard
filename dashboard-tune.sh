@@ -568,9 +568,7 @@ def legend_dict(panel, create):
     return None
 
 
-def legend_phrase(snap, fallback):
-    if fallback:
-        return "legend -> right (no saved position, using the stock right side)"
+def legend_phrase(snap):
     if not isinstance(snap, dict):
         return "legend restored"
     if snap.get("kind") == "rightSide":
@@ -621,21 +619,12 @@ def move_legend_bottom(panel):
 
 def restore_legend(panel):
     state = marker(panel, False)
-    if isinstance(state, dict) and isinstance(state.get("legend"), dict):
-        snap = state["legend"]
-        apply_saved_legend(panel, snap)
-        del state["legend"]
-        return legend_phrase(snap, False)
-    if legend_snapshot(panel) is None or not legend_is_bottom(panel):
+    if not isinstance(state, dict) or not isinstance(state.get("legend"), dict):
         return None
-    legend = legend_dict(panel, True)
-    if legend is None:
-        return None
-    if panel.get("type") == "graph":
-        legend["rightSide"] = True
-    else:
-        legend["placement"] = "right"
-    return legend_phrase(None, True)
+    snap = state["legend"]
+    apply_saved_legend(panel, snap)
+    del state["legend"]
+    return legend_phrase(snap)
 
 
 def mode_edit():
