@@ -261,7 +261,7 @@ See the [dashboards folder](dashboards/) for these and other alternative dashboa
 
 #### Tune an imported dashboard
 
-The string graphs list every string the dashboard knows about. Strings that are not connected still take a line in the legend. `dashboard-tune.sh` asks pypowerwall which strings are connected and hides the ones that are not, on the String Voltage, String Current and String Power panels only. It does not change the queries, so a panel that adds the strings together (such as Inverter Power) still sees every string. It works with pypowerwall-server and with the legacy pyPowerwall proxy, because both serve `/strings`.
+The string graphs list every string the dashboard knows about. Strings that are not connected still take a line in the legend and a color. `dashboard-tune.sh` asks pypowerwall which strings are connected and hides those queries (the same eye icon as in the panel editor) on the String Voltage, String Current and String Power panels only. It does not change the query text, so a panel that adds the strings together (such as Inverter Power) still sees every string. It works with pypowerwall-server and with the legacy pyPowerwall proxy, because both serve `/strings`.
 
 Run it on the same computer as the dashboard, while the sun is up. A Powerwall 3 reports every string as disconnected at night. The script then leaves the dashboard alone and asks you to run it again in daylight.
 
@@ -269,7 +269,7 @@ Run it on the same computer as the dashboard, while the sun is up. A Powerwall 3
 ./dashboard-tune.sh
 ```
 
-It prints the string ids it will hide or keep, the dashboard title, and the Grafana address. For each panel it would change, it prints one line, such as `String Voltage (32): hide B, D` or `Inverter Power (40): legend -> bottom`. `--reset` uses `remove hide overrides` on that line. If nothing would change, it says `No changes needed.` It then asks `Apply these changes? [y/N]`. `./dashboard-tune.sh --yes` saves without that question. `./dashboard-tune.sh --dry-run` prints the same plan and does not save. `./dashboard-tune.sh --reset` removes the hides this script added. `./dashboard-tune.sh --legend-bottom` moves legends to the bottom on the time series, bar, pie and state panels (the older graph panels lose the right-side legend). Other panel types are left alone.
+It prints the string ids it will hide or keep, the dashboard title, and the Grafana address. For each panel it would change, it prints one line, such as `String Voltage (32): hide B, D` or `Inverter Power (40): legend -> bottom`. If nothing would change, it says `No changes needed.` It then asks `Apply these changes? [y/N]`. `./dashboard-tune.sh --yes` saves without that question. `./dashboard-tune.sh --dry-run` prints the same plan and does not save. `./dashboard-tune.sh --legend-bottom` moves legends to the bottom on the time series, bar, pie and state panels (the older graph panels lose the right-side legend) and remembers where each one was. `./dashboard-tune.sh --reset` shows those strings again and puts the legends back. If a legend was moved before that memory existed, reset uses the stock right side and says so. Other panel types are left alone, and a query you hid yourself is left hidden.
 
 Importing a dashboard again replaces these edits. Run `./dashboard-tune.sh` after each import. Add `--uid` or `--title` to limit which dashboard is updated. A dashboard Grafana provisioned from a file is skipped, because Grafana will not let the API save it.
 

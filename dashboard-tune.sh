@@ -212,8 +212,8 @@ import sys
 NAME_RE = re.compile(r"^[A-F][1-8]?$")
 UID_RE = re.compile(r"^[A-Za-z0-9_-]+$")
 STRING_TITLES = ("String Voltage", "String Current", "String Power")
-HIDE = {"legend": True, "tooltip": True, "viz": True}
 LEGEND_TYPES = ("timeseries", "barchart", "piechart", "state-timeline")
+MARKER = "dashboardTune"
 
 
 def sort_names(names):
@@ -330,10 +330,6 @@ def override_name(ov):
     return name
 
 
-def hide_prop():
-    return {"id": "custom.hideFrom", "value": {"legend": True, "tooltip": True, "viz": True}}
-
-
 def overrides_of(panel, create):
     fc = panel.get("fieldConfig")
     if not isinstance(fc, dict):
@@ -385,76 +381,153 @@ def strip_hides(panel, only_names, removed):
     return stripped
 
 
-def add_hides(panel, names):
+def field_names(target):
+    select = target.get("select")
+    if not isinstance(select, list):
+        return
+    for group in select:
+        if not isinstance(group, list):
+            continue
+        for part in group:
+            if not isinstance(part, dict) or part.get("type") != "field":
+                continue
+            params = part.get("params")
+            if not isinstance(params, list):
+                continue
+            for param in params:
+                if isinstance(param, str):
+                    yield param
+
+
+def target_string_id(target):
+    alias = target.get("alias")
+    if isinstance(alias, str) and NAME_RE.match(alias):
+        return alias
+    ref = target.get("refId")
+    if isinstance(ref, str) and NAME_RE.match(ref):
+        return ref
+    for field in field_names(target):
+        prefix = field.split("_", 1)[0]
+        if prefix != field and NAME_RE.match(prefix):
+            return prefix
+    return None
+
+
+def targets_named(panel, name):
+    found = []
+    targets = panel.get("targets")
+    if not isinstance(targets, list):
+        return found
+    for target in targets:
+        if isinstance(target, dict) and target_string_id(target) == name:
+            found.append(target)
+    return found
+
+
+def marker(panel, create):
+    state = panel.get(MARKER)
+    if not isinstance(state, dict):
+        if not create:
+            return None
+        state = {}
+        panel[MARKER] = state
+    return state
+
+
+def hidden_names(state):
+    raw = state.get("hidden") if isinstance(state, dict) else None
+    if not isinstance(raw, list):
+        return []
+    names = []
+    for name in raw:
+        if isinstance(name, str) and name not in names:
+            names.append(name)
+    return names
+
+
+def set_hidden(panel, names):
+    state = marker(panel, True)
+    if names:
+        state["hidden"] = sort_names(names)
+    elif "hidden" in state:
+        del state["hidden"]
+
+
+def drop_empty_marker(panel):
+    state = panel.get(MARKER)
+    if not isinstance(state, dict):
+        return
+    if state.get("hidden") or "legend" in state:
+        return
+    del panel[MARKER]
+
+
+def hide_targets(panel, names):
     added = []
-    overrides = overrides_of(panel, True)
-    if overrides is None:
-        return added
+    state = marker(panel, False)
+    hidden = hidden_names(state) if state is not None else []
     for name in names:
         if not isinstance(name, str) or NAME_RE.match(name) is None:
             continue
-        mutated = False
-        target = None
-        for ov in overrides:
-            if override_name(ov) != name:
+        did = False
+        for target in targets_named(panel, name):
+            if target.get("hide") is True:
                 continue
-            props = ov.get("properties")
-            if not isinstance(props, list):
-                continue
-            for prop in props:
-                if isinstance(prop, dict) and prop.get("id") == "custom.hideFrom":
-                    target = ov
-                    if prop.get("value") != HIDE:
-                        prop["value"] = {"legend": True, "tooltip": True, "viz": True}
-                        mutated = True
-                    break
-            if target is not None:
-                break
-            if target is None:
-                target = ov
-        if target is None:
-            overrides.append({"matcher": {"id": "byName", "options": name}, "properties": [hide_prop()]})
-            added.append(name)
+            target["hide"] = True
+            did = True
+        if not did:
             continue
-        props = target.get("properties")
-        if not isinstance(props, list):
-            props = []
-            target["properties"] = props
-        already = False
-        for prop in props:
-            if isinstance(prop, dict) and prop.get("id") == "custom.hideFrom":
-                already = True
-                break
-        if not already:
-            props.append(hide_prop())
-            mutated = True
-        if mutated:
-            added.append(name)
+        if name not in hidden:
+            hidden.append(name)
+        added.append(name)
+    if added:
+        set_hidden(panel, hidden)
     return added
 
 
-def legend_will_change(panel):
+def show_targets(panel, only_names):
+    state = marker(panel, False)
+    if state is None:
+        return []
+    hidden = hidden_names(state)
+    shown = []
+    kept = []
+    for name in hidden:
+        if only_names is not None and name not in only_names:
+            kept.append(name)
+            continue
+        for target in targets_named(panel, name):
+            if target.get("hide") is True:
+                target["hide"] = False
+        shown.append(name)
+    set_hidden(panel, kept)
+    return shown
+
+
+def legend_snapshot(panel):
     ptype = panel.get("type")
     if ptype in LEGEND_TYPES:
         options = panel.get("options")
-        if options is None:
-            return True
-        if not isinstance(options, dict):
-            return False
-        legend = options.get("legend")
-        if legend is None:
-            return True
-        if not isinstance(legend, dict):
-            return False
-        return legend.get("placement") != "bottom"
+        if isinstance(options, dict):
+            legend = options.get("legend")
+            if isinstance(legend, dict) and "placement" in legend:
+                return {"kind": "placement", "value": legend.get("placement")}
+        return {"kind": "placement", "value": None}
     if ptype == "graph":
         legend = panel.get("legend")
-        if legend is None:
-            return True
-        if not isinstance(legend, dict):
-            return False
-        return legend.get("rightSide") is not False
-    return False
+        if isinstance(legend, dict) and "rightSide" in legend:
+            return {"kind": "rightSide", "value": legend.get("rightSide") is True}
+        return {"kind": "rightSide", "value": None}
+    return None
+
+
+def legend_is_bottom(panel):
+    snap = legend_snapshot(panel)
+    if snap is None:
+        return False
+    if snap["kind"] == "placement":
+        return snap["value"] == "bottom"
+    return snap["value"] is False
 
 
 def panel_label(panel):
@@ -468,28 +541,101 @@ def panel_label(panel):
     return "%s (%d)" % (title, int(pid))
 
 
-def apply_legend(panel):
+def legend_dict(panel, create):
     ptype = panel.get("type")
     if ptype in LEGEND_TYPES:
         options = panel.get("options")
-        if options is None:
+        if not isinstance(options, dict):
+            if not create or options is not None:
+                return None
             options = {}
             panel["options"] = options
-        if not isinstance(options, dict):
-            return
         legend = options.get("legend")
-        if legend is None:
+        if not isinstance(legend, dict):
+            if not create or legend is not None:
+                return None
             legend = {}
             options["legend"] = legend
-        if isinstance(legend, dict):
-            legend["placement"] = "bottom"
-    elif ptype == "graph":
+        return legend
+    if ptype == "graph":
         legend = panel.get("legend")
-        if legend is None:
+        if not isinstance(legend, dict):
+            if not create or legend is not None:
+                return None
             legend = {}
             panel["legend"] = legend
-        if isinstance(legend, dict):
-            legend["rightSide"] = False
+        return legend
+    return None
+
+
+def legend_phrase(snap, fallback):
+    if fallback:
+        return "legend -> right (no saved position, using the stock right side)"
+    if not isinstance(snap, dict):
+        return "legend restored"
+    if snap.get("kind") == "rightSide":
+        if snap.get("value") is True:
+            return "legend -> right"
+        if snap.get("value") is False:
+            return "legend -> bottom"
+        return "legend restored"
+    value = snap.get("value")
+    if isinstance(value, str) and value:
+        return "legend -> " + value
+    return "legend restored"
+
+
+def apply_saved_legend(panel, snap):
+    legend = legend_dict(panel, snap.get("value") is not None)
+    if legend is None:
+        return
+    if snap.get("kind") == "rightSide":
+        if snap.get("value") is None:
+            if "rightSide" in legend:
+                del legend["rightSide"]
+        else:
+            legend["rightSide"] = snap.get("value") is True
+        return
+    if snap.get("value") is None:
+        if "placement" in legend:
+            del legend["placement"]
+    else:
+        legend["placement"] = snap.get("value")
+
+
+def move_legend_bottom(panel):
+    if legend_snapshot(panel) is None or legend_is_bottom(panel):
+        return None
+    state = marker(panel, True)
+    if not isinstance(state.get("legend"), dict):
+        state["legend"] = legend_snapshot(panel)
+    legend = legend_dict(panel, True)
+    if legend is None:
+        return None
+    if panel.get("type") == "graph":
+        legend["rightSide"] = False
+    else:
+        legend["placement"] = "bottom"
+    return "legend -> bottom"
+
+
+def restore_legend(panel):
+    state = marker(panel, False)
+    if isinstance(state, dict) and isinstance(state.get("legend"), dict):
+        snap = state["legend"]
+        apply_saved_legend(panel, snap)
+        del state["legend"]
+        return legend_phrase(snap, False)
+    if legend_snapshot(panel) is None or not legend_is_bottom(panel):
+        return None
+    legend = legend_dict(panel, True)
+    if legend is None:
+        return None
+    if panel.get("type") == "graph":
+        legend["rightSide"] = True
+    else:
+        legend["placement"] = "right"
+    return legend_phrase(None, True)
 
 
 def mode_edit():
@@ -520,24 +666,28 @@ def mode_edit():
         def edit(panel):
             clauses = []
             if is_string_panel(panel):
+                dropped = strip_hides(panel, None, removed)
                 if reset:
-                    if strip_hides(panel, None, removed):
-                        clauses.append("remove hide overrides")
-                else:
+                    shown = show_targets(panel, None)
                     hidden = []
-                    shown = []
-                    if unhide:
-                        shown = strip_hides(panel, unhide, removed)
-                    if hide:
-                        hidden = add_hides(panel, hide)
-                    if hidden:
-                        clauses.append("hide " + ", ".join(sort_names(hidden)))
-                    if shown:
-                        clauses.append("show " + ", ".join(sort_names(shown)))
-            if legend and legend_will_change(panel):
-                clauses.append("legend -> bottom")
-            if legend:
-                apply_legend(panel)
+                else:
+                    shown = show_targets(panel, unhide) if unhide else []
+                    hidden = hide_targets(panel, hide) if hide else []
+                if hidden:
+                    clauses.append("hide " + ", ".join(sort_names(hidden)))
+                if shown:
+                    clauses.append("show " + ", ".join(sort_names(shown)))
+                if dropped:
+                    clauses.append("drop hideFrom " + ", ".join(sort_names(dropped)))
+            if reset:
+                phrase = restore_legend(panel)
+                if phrase:
+                    clauses.append(phrase)
+            elif legend:
+                phrase = move_legend_bottom(panel)
+                if phrase:
+                    clauses.append(phrase)
+            drop_empty_marker(panel)
             if clauses:
                 lines.append(panel_label(panel) + ": " + "; ".join(clauses))
         before = json.dumps(dash, separators=(",", ":"), ensure_ascii=False)
