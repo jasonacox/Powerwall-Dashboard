@@ -22,6 +22,7 @@ pypowerwall.env
 pypowerwall.env.prev
 telegraf.local
 tools/timescaledb/timescaledb.env
+tools/dashboard-import/dashboard-import.env
 grafana/provisions/datasources/timescaledb.yml
 grafana/provisions/datasources/sunandmoon.yml
 
