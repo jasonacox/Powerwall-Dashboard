@@ -1,7 +1,8 @@
 #!/bin/bash
 #
-# Hide disconnected solar strings on an imported Powerwall dashboard.
-# Reads pypowerwall /strings and saves Grafana field overrides.
+# Hide disconnected solar strings on a Powerwall dashboard.
+# The default imports a stock file from dashboards/ and saves once.
+# --live edits the dashboard already open in Grafana.
 # Does not print passwords, tokens, emails, or gateway data.
 #
 # Grafana 12.3.1 has no supported way to save a dashboard from inside the
@@ -31,19 +32,29 @@ fi
 
 usage() {
     cat <<'EOF'
-Usage: ./dashboard-tune.sh [--dry-run] [--yes] [--reset] [--legend-bottom] [--uid UID] [--title TITLE]
+Usage: ./dashboard-tune.sh [--file FILE] [--live] [--dry-run] [--yes] [--reset] [--legend-bottom] [--uid UID] [--title TITLE]
 
-Hide solar strings that are not connected on the String Voltage, String
-Current and String Power panels. Run it while the sun is up. A Powerwall 3
-reports every string as disconnected at night, and the script then leaves
-the dashboard alone.
+Import a stock dashboard from dashboards/ and hide solar strings that are
+not connected. The hides are applied in memory, then saved once. Run it
+while the sun is up. A Powerwall 3 reports every string as disconnected at
+night, and the script then leaves Grafana alone.
 
-  --dry-run         Print one line per panel that would change, and do not save
+  --file FILE       Stock file to import, for example dashboards/dashboard.json.
+                    A terminal lists the files and Enter selects dashboard.json.
+                    With no terminal and no --file, dashboard.json is used.
+  --live            Edit the dashboard already in Grafana. Other dashboards
+                    and panels you changed by hand are left as they are.
+  --dry-run         Print the plan and do not save
   --yes             Save without the confirm prompt
-  --reset           Undo this script's string hides and legend moves
+  --reset           With --live, undo this script's hides and legend moves.
+                    Without --live, import the stock file with none of those edits.
   --legend-bottom   Move legends that are not already at the bottom
-  --uid UID         Only this dashboard
-  --title TITLE     Only dashboards with this exact title
+  --uid UID         With --live, only this dashboard
+  --title TITLE     With --live, only dashboards with this exact title
+
+Importing overwrites that dashboard, so edits made in Grafana are lost.
+A plain re-import in the Grafana UI brings the disconnected strings back.
+Use this script to import, or --live to keep other edits.
 
 Grafana login, in this order:
   1. Anonymous access, when it can already save (see grafana.env.sample,
@@ -61,6 +72,8 @@ die() {
     exit 1
 }
 
+SCRIPT_DIR=$(CDPATH='' cd -- "$(dirname "$0")" && pwd) || die "Could not find this script's directory."
+
 WORKDIR=""
 CURL_CFG=""
 AUTH_HEADER=""
@@ -75,6 +88,9 @@ DRY_RUN=0
 ASSUME_YES=0
 RESET=0
 LEGEND=0
+LIVE=0
+DASH_FILE=""
+STOCK_FILE=""
 ONLY_UID=""
 ONLY_TITLE=""
 EXPLICIT=0
@@ -205,6 +221,7 @@ load_ports() {
 
 PY_CODE=$(cat <<'PYCODE'
 import json
+import os
 import re
 import sys
 
@@ -626,81 +643,75 @@ def restore_legend(panel):
     return legend_phrase(snap)
 
 
-def mode_edit():
-    data = json.load(sys.stdin)
-    if not isinstance(data, dict) or not isinstance(data.get("response"), dict):
-        sys.stderr.write("Could not edit the dashboard JSON.\n")
-        sys.exit(1)
-    response = data["response"]
-    dash = response.get("dashboard")
-    meta = response.get("meta") if isinstance(response.get("meta"), dict) else {}
-    if not isinstance(dash, dict):
-        sys.stderr.write("Could not edit the dashboard JSON.\n")
-        sys.exit(1)
-    provisioned = meta.get("provisioned") is True
-    title = dash.get("title") if isinstance(dash.get("title"), str) else "dashboard"
-    title = title.replace("\n", " ").replace("\r", " ")
-    uid = dash.get("uid") if isinstance(dash.get("uid"), str) else ""
-    folder = meta.get("folderUid") if isinstance(meta.get("folderUid"), str) else ""
-    folder = folder.replace("\n", "").replace("\r", "")
-    hide = data.get("hide") if isinstance(data.get("hide"), list) else []
-    unhide = data.get("unhide") if isinstance(data.get("unhide"), list) else []
-    reset = data.get("reset") is True
-    legend = data.get("legend") is True
-    panels = count_string_panels(dash.get("panels"))
+def clean_text(value, fallback):
+    if not isinstance(value, str) or not value:
+        return fallback
+    return value.replace("\n", " ").replace("\r", " ")
+
+
+def query_match_warning(panel):
+    targets = panel.get("targets")
+    if not isinstance(targets, list):
+        targets = []
+    total = 0
+    matched = 0
+    for target in targets:
+        if not isinstance(target, dict):
+            continue
+        total = total + 1
+        if target_string_id(target):
+            matched = matched + 1
+    if matched < total or total == 0:
+        return "matched %d of %d string queries. The query names may have changed." % (matched, total)
+    return None
+
+
+def apply_dashboard(dash, hide, unhide, reset, legend):
     removed = []
     lines = []
-    if not provisioned:
-        def edit(panel):
-            clauses = []
-            if is_string_panel(panel):
-                dropped = strip_hides(panel, None, removed)
-                if reset:
-                    shown = show_targets(panel, None)
-                    hidden = []
-                else:
-                    shown = show_targets(panel, unhide) if unhide else []
-                    hidden = hide_targets(panel, hide) if hide else []
-                if hidden:
-                    clauses.append("hide " + ", ".join(sort_names(hidden)))
-                if shown:
-                    clauses.append("show " + ", ".join(sort_names(shown)))
-                if dropped:
-                    clauses.append("drop hideFrom " + ", ".join(sort_names(dropped)))
+    warnings = []
+
+    def edit(panel):
+        clauses = []
+        if is_string_panel(panel):
+            warn = query_match_warning(panel)
+            if warn:
+                warnings.append(panel_label(panel) + ": warning: " + warn)
+            dropped = strip_hides(panel, None, removed)
             if reset:
-                phrase = restore_legend(panel)
-                if phrase:
-                    clauses.append(phrase)
-            elif legend:
-                phrase = move_legend_bottom(panel)
-                if phrase:
-                    clauses.append(phrase)
-            drop_empty_marker(panel)
-            if clauses:
-                lines.append(panel_label(panel) + ": " + "; ".join(clauses))
-        before = json.dumps(dash, separators=(",", ":"), ensure_ascii=False)
-        walk(dash.get("panels"), edit)
-        after = json.dumps(dash, separators=(",", ":"), ensure_ascii=False)
-        changed = before != after
-    else:
-        changed = False
-    if not changed:
-        lines = []
-    if changed and not provisioned:
-        bits = []
+                shown = show_targets(panel, None)
+                hidden = []
+            else:
+                shown = show_targets(panel, unhide) if unhide else []
+                hidden = hide_targets(panel, hide) if hide else []
+            if hidden:
+                clauses.append("hide " + ", ".join(sort_names(hidden)))
+            if shown:
+                clauses.append("show " + ", ".join(sort_names(shown)))
+            if dropped:
+                clauses.append("drop hideFrom " + ", ".join(sort_names(dropped)))
         if reset:
-            bits.append("reset string hides")
-        elif hide or unhide:
-            bits.append("hide disconnected strings")
-        if legend:
-            bits.append("legend bottom")
-        message = "dashboard-tune.sh"
-        if bits:
-            message = message + ": " + ", ".join(bits)
-        post = {"dashboard": dash, "folderUid": folder, "overwrite": True, "message": message}
-    else:
-        post = None
-        changed = False
+            phrase = restore_legend(panel)
+            if phrase:
+                clauses.append(phrase)
+        elif legend:
+            phrase = move_legend_bottom(panel)
+            if phrase:
+                clauses.append(phrase)
+        drop_empty_marker(panel)
+        if clauses:
+            lines.append(panel_label(panel) + ": " + "; ".join(clauses))
+
+    before = json.dumps(dash, separators=(",", ":"), ensure_ascii=False)
+    walk(dash.get("panels"), edit)
+    after = json.dumps(dash, separators=(",", ":"), ensure_ascii=False)
+    changed = before != after
+    if not changed:
+        lines[:] = []
+    return changed, removed, warnings + lines
+
+
+def write_result(changed, provisioned, panels, uid, folder, title, removed, lines, post):
     removed_line = "-"
     if removed:
         removed_line = ", ".join(sort_names(removed))
@@ -718,6 +729,195 @@ def mode_edit():
     if post is not None:
         json.dump(post, sys.stdout, separators=(",", ":"), ensure_ascii=False)
         sys.stdout.write("\n")
+
+
+def mode_edit():
+    data = json.load(sys.stdin)
+    if not isinstance(data, dict) or not isinstance(data.get("response"), dict):
+        sys.stderr.write("Could not edit the dashboard JSON.\n")
+        sys.exit(1)
+    response = data["response"]
+    dash = response.get("dashboard")
+    meta = response.get("meta") if isinstance(response.get("meta"), dict) else {}
+    if not isinstance(dash, dict):
+        sys.stderr.write("Could not edit the dashboard JSON.\n")
+        sys.exit(1)
+    provisioned = meta.get("provisioned") is True
+    title = clean_text(dash.get("title"), "dashboard")
+    uid = dash.get("uid") if isinstance(dash.get("uid"), str) else ""
+    folder = meta.get("folderUid") if isinstance(meta.get("folderUid"), str) else ""
+    folder = folder.replace("\n", "").replace("\r", "")
+    hide = data.get("hide") if isinstance(data.get("hide"), list) else []
+    unhide = data.get("unhide") if isinstance(data.get("unhide"), list) else []
+    reset = data.get("reset") is True
+    legend = data.get("legend") is True
+    panels = count_string_panels(dash.get("panels"))
+    changed = False
+    removed = []
+    lines = []
+    if not provisioned:
+        changed, removed, lines = apply_dashboard(dash, hide, unhide, reset, legend)
+    post = None
+    if changed and not provisioned:
+        bits = []
+        if reset:
+            bits.append("reset string hides")
+        elif hide or unhide:
+            bits.append("hide disconnected strings")
+        if legend:
+            bits.append("legend bottom")
+        message = "dashboard-tune.sh"
+        if bits:
+            message = message + ": " + ", ".join(bits)
+        post = {"dashboard": dash, "folderUid": folder, "overwrite": True, "message": message}
+    write_result(changed, provisioned, panels, uid, folder, title, removed, lines, post)
+
+
+def pick_datasource(plugin_id, label, datasources):
+    same = []
+    for ds in datasources:
+        if not isinstance(ds, dict):
+            continue
+        if ds.get("type") != plugin_id:
+            continue
+        ds_uid = ds.get("uid")
+        if not isinstance(ds_uid, str) or not ds_uid:
+            continue
+        same.append(ds)
+    for ds in same:
+        if label and ds.get("name") == label:
+            return ds, None
+    if len(same) == 1:
+        return same[0], None
+    if not same:
+        return None, "none"
+    return None, "many"
+
+
+def mode_prepare():
+    data = json.load(sys.stdin)
+    if not isinstance(data, dict):
+        sys.stderr.write("The dashboard file is not JSON.\n")
+        sys.exit(1)
+    dash = data.get("dashboard")
+    if not isinstance(dash, dict):
+        sys.stderr.write("The dashboard file is not JSON.\n")
+        sys.exit(1)
+    uid = dash.get("uid") if isinstance(dash.get("uid"), str) else ""
+    if UID_RE.match(uid) is None:
+        sys.stderr.write("This dashboard file has no uid.\n")
+        sys.exit(1)
+    title = clean_text(dash.get("title"), "dashboard")
+    existing = data.get("existing")
+    provisioned = False
+    folder = ""
+    if isinstance(existing, dict):
+        meta = existing.get("meta") if isinstance(existing.get("meta"), dict) else {}
+        provisioned = meta.get("provisioned") is True
+        if isinstance(meta.get("folderUid"), str):
+            folder = meta.get("folderUid").replace("\n", "").replace("\r", "")
+    panels = count_string_panels(dash.get("panels"))
+    if provisioned:
+        write_result(False, True, panels, uid, folder, title, [], [], None)
+        return
+    datasources = data.get("datasources")
+    if not isinstance(datasources, list):
+        sys.stderr.write("Could not read Grafana datasources.\n")
+        sys.exit(1)
+    inputs = []
+    defined = dash.get("__inputs")
+    if isinstance(defined, list):
+        for item in defined:
+            if not isinstance(item, dict):
+                continue
+            name = item.get("name")
+            kind = item.get("type")
+            if not isinstance(name, str) or not name:
+                continue
+            if kind == "datasource":
+                plugin = item.get("pluginId") if isinstance(item.get("pluginId"), str) else ""
+                label = item.get("label") if isinstance(item.get("label"), str) else ""
+                chosen, why = pick_datasource(plugin, label, datasources)
+                if chosen is None:
+                    if why == "many":
+                        names = []
+                        for ds in datasources:
+                            if isinstance(ds, dict) and ds.get("type") == plugin and isinstance(ds.get("name"), str):
+                                names.append(ds.get("name"))
+                        sys.stderr.write(
+                            "Grafana has more than one %s datasource (%s). Leave one, or name it \"%s\".\n"
+                            % (plugin or "matching", ", ".join(names), label or name)
+                        )
+                    else:
+                        sys.stderr.write(
+                            "Grafana has no %s datasource for \"%s\".\n" % (plugin or "matching", label or name)
+                        )
+                    sys.exit(1)
+                inputs.append({
+                    "name": name,
+                    "type": "datasource",
+                    "pluginId": plugin,
+                    "value": chosen["uid"],
+                })
+            elif kind == "constant":
+                value = item.get("value")
+                if value is None:
+                    value = ""
+                elif not isinstance(value, str):
+                    value = str(value)
+                inputs.append({"name": name, "type": "constant", "value": value})
+    hide = data.get("hide") if isinstance(data.get("hide"), list) else []
+    unhide = data.get("unhide") if isinstance(data.get("unhide"), list) else []
+    reset = data.get("reset") is True
+    legend = data.get("legend") is True
+    if "id" in dash:
+        del dash["id"]
+    changed, removed, lines = apply_dashboard(dash, hide, unhide, reset, legend)
+    post = {"dashboard": dash, "overwrite": True, "inputs": inputs, "folderUid": folder}
+    write_result(changed, False, panels, uid, folder, title, removed, lines, post)
+
+
+def mode_file_uid():
+    try:
+        data = json.load(sys.stdin)
+    except Exception:
+        sys.stderr.write("The dashboard file is not JSON.\n")
+        sys.exit(1)
+    uid = data.get("uid") if isinstance(data, dict) else None
+    if not isinstance(uid, str) or UID_RE.match(uid) is None:
+        sys.stderr.write("This dashboard file has no uid.\n")
+        sys.exit(1)
+    sys.stdout.write(uid + "\n")
+
+
+def mode_catalog():
+    root = sys.stdin.read().strip()
+    if not os.path.isdir(root):
+        sys.stderr.write("No dashboards folder.\n")
+        sys.exit(1)
+    names = []
+    for name in os.listdir(root):
+        if not name.startswith("dashboard") or not name.endswith(".json"):
+            continue
+        path = os.path.join(root, name)
+        if os.path.isfile(path):
+            names.append(name)
+
+    def sort_key(name):
+        if name == "dashboard.json":
+            return (0, name)
+        return (1, name)
+
+    for name in sorted(names, key=sort_key):
+        title = ""
+        try:
+            with open(os.path.join(root, name), "r") as handle:
+                data = json.load(handle)
+            if isinstance(data, dict) and isinstance(data.get("title"), str):
+                title = data.get("title").replace("\n", " ").replace("|", " ")
+        except Exception:
+            title = ""
+        sys.stdout.write(name + "|" + title + "\n")
 
 
 def mode_search():
@@ -797,6 +997,12 @@ def main():
         mode_classify()
     elif mode == "edit":
         mode_edit()
+    elif mode == "prepare":
+        mode_prepare()
+    elif mode == "file_uid":
+        mode_file_uid()
+    elif mode == "catalog":
+        mode_catalog()
     elif mode == "search":
         mode_search()
     elif mode == "encode":
@@ -1263,6 +1469,10 @@ process_uid() {
         CHANGE_POST[${#CHANGE_POST[@]}]=$_post
         return
     fi
+    if [ "$EDIT_N" -gt 0 ]; then
+        printf '%s\n' "Dashboard: ${EDIT_TITLE} (${EDIT_UID})"
+        print_edit_details "$_edit"
+    fi
     if [ "$EDIT_PANELS" = "0" ] && [ "$LEGEND" -ne 1 ] && [ "$RESET" -ne 1 ]; then
         printf '%s\n' "Dashboard: ${EDIT_TITLE} (${EDIT_UID})"
         printf '%s\n' "No String Voltage, String Current, or String Power panels."
@@ -1315,12 +1525,291 @@ post_one() {
     esac
 }
 
+resolve_stock_file() {
+    local _in _base
+    _in=$1
+    case "$_in" in
+        *..*) return 1 ;;
+    esac
+    _base=$(basename -- "$_in")
+    case "$_base" in
+        dashboard*.json) ;;
+        *) return 1 ;;
+    esac
+    if [ ! -f "$SCRIPT_DIR/dashboards/$_base" ]; then
+        return 1
+    fi
+    case "$_in" in
+        "$_base"|"dashboards/$_base"|"./dashboards/$_base"|"$SCRIPT_DIR/dashboards/$_base")
+            printf '%s\n' "$SCRIPT_DIR/dashboards/$_base"
+            return 0
+            ;;
+    esac
+    return 1
+}
+
+load_catalog() {
+    local _line _name _title
+    CATALOG_NAME=()
+    CATALOG_TITLE=()
+    printf '%s' "$SCRIPT_DIR/dashboards" | run_python catalog > "$WORKDIR/catalog.txt" || die "Could not list dashboards."
+    while IFS= read -r _line || [ -n "$_line" ]; do
+        if [ -z "$_line" ]; then
+            continue
+        fi
+        _name=${_line%%|*}
+        _title=${_line#*|}
+        CATALOG_NAME[${#CATALOG_NAME[@]}]=$_name
+        CATALOG_TITLE[${#CATALOG_TITLE[@]}]=$_title
+    done < "$WORKDIR/catalog.txt"
+    if [ "${#CATALOG_NAME[@]}" -eq 0 ]; then
+        die "No dashboards found in dashboards/."
+    fi
+}
+
+choose_stock_file() {
+    local _ans _n _path _i
+    if [ -n "$DASH_FILE" ]; then
+        _path=$(resolve_stock_file "$DASH_FILE") || die "No stock dashboard at ${DASH_FILE}. Use a file in dashboards/, for example dashboards/dashboard.json."
+        STOCK_FILE=$_path
+        return
+    fi
+    if [ ! -t 0 ]; then
+        STOCK_FILE="$SCRIPT_DIR/dashboards/dashboard.json"
+        if [ ! -f "$STOCK_FILE" ]; then
+            die "Could not find dashboards/dashboard.json."
+        fi
+        return
+    fi
+    load_catalog
+    printf '%s\n' "Stock dashboards:" >&2
+    _i=0
+    while [ "$_i" -lt "${#CATALOG_NAME[@]}" ]; do
+        printf '  %s) %s (%s)\n' "$((_i + 1))" "${CATALOG_NAME[$_i]}" "${CATALOG_TITLE[$_i]}" >&2
+        _i=$((_i + 1))
+    done
+    printf '%s' "Dashboard file [dashboard.json]: " >&2
+    _ans=""
+    read -r _ans || true
+    if [ -z "$_ans" ]; then
+        _ans="dashboard.json"
+    fi
+    case "$_ans" in
+        *[!0-9]*) ;;
+        *)
+            _n=$_ans
+            if [ "$_n" -ge 1 ] && [ "$_n" -le "${#CATALOG_NAME[@]}" ]; then
+                _ans=${CATALOG_NAME[$((_n - 1))]}
+            else
+                die "There is no dashboard number ${_ans}."
+            fi
+            ;;
+    esac
+    _path=$(resolve_stock_file "$_ans") || die "No stock dashboard named ${_ans}."
+    STOCK_FILE=$_path
+}
+
+confirm_or_stop() {
+    local _response
+    if [ "$DRY_RUN" -eq 1 ]; then
+        printf '%s\n' "Dry run. No changes saved."
+        exit 0
+    fi
+    if [ "$ASSUME_YES" -eq 1 ]; then
+        return 0
+    fi
+    _response=""
+    printf '%s' "Apply these changes? [y/N] " >&2
+    read -r _response || true
+    if [[ ! "$_response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+        printf '%s\n' "No changes applied."
+        exit 0
+    fi
+}
+
+prepare_import() {
+    local _status _err
+    STOCK_UID=$(run_python file_uid < "$STOCK_FILE" 2>"$WORKDIR/uid.err") || {
+        _err=$(sed -n '1p' "$WORKDIR/uid.err")
+        die "${_err:-This dashboard file has no uid.}"
+    }
+    case "$STOCK_UID" in
+        *[!A-Za-z0-9_-]*) die "This dashboard file has no uid." ;;
+    esac
+    grafana_request GET "/api/datasources" "" "$WORKDIR/datasources.json"
+    if [ "$HTTP_CODE" != "200" ]; then
+        die "Could not list Grafana datasources (HTTP ${HTTP_CODE})."
+    fi
+    grafana_request GET "/api/dashboards/uid/${STOCK_UID}" "" "$WORKDIR/existing.json"
+    IMPORT_EXISTS=0
+    case "$HTTP_CODE" in
+        200) IMPORT_EXISTS=1 ;;
+        404) ;;
+        *) die "Could not read dashboard ${STOCK_UID} (HTTP ${HTTP_CODE})." ;;
+    esac
+    {
+        printf '%s' '{"hide":'
+        printf '%s' "$HIDE_JSON"
+        printf '%s' ',"unhide":'
+        printf '%s' "$UNHIDE_JSON"
+        printf '%s' ',"reset":'
+        if [ "$RESET" -eq 1 ]; then
+            printf '%s' 'true'
+        else
+            printf '%s' 'false'
+        fi
+        printf '%s' ',"legend":'
+        if [ "$LEGEND" -eq 1 ]; then
+            printf '%s' 'true'
+        else
+            printf '%s' 'false'
+        fi
+        printf '%s' ',"dashboard":'
+        cat "$STOCK_FILE"
+        printf '%s' ',"datasources":'
+        cat "$WORKDIR/datasources.json"
+        printf '%s' ',"existing":'
+        if [ "$IMPORT_EXISTS" -eq 1 ]; then
+            cat "$WORKDIR/existing.json"
+        else
+            printf '%s' 'null'
+        fi
+        printf '%s' '}'
+    } | run_python prepare > "$WORKDIR/edit.txt" 2>"$WORKDIR/prepare.err"
+    _status=$?
+    if [ "$_status" -ne 0 ]; then
+        _err=$(sed -n '1p' "$WORKDIR/prepare.err")
+        die "${_err:-Could not prepare the dashboard.}"
+    fi
+    load_edit_header "$WORKDIR/edit.txt"
+    if [ "$EDIT_MARK" != "---" ]; then
+        die "Could not prepare the dashboard."
+    fi
+    if [ "$EDIT_PROV" = "1" ]; then
+        die "Grafana will not overwrite a provisioned dashboard: ${EDIT_TITLE} (${EDIT_UID})."
+    fi
+}
+
+print_import_plan() {
+    local _base
+    _base=$(basename -- "$STOCK_FILE")
+    printf '%s\n' "Dashboard: ${EDIT_TITLE} (${EDIT_UID})"
+    printf '%s\n' "File: dashboards/${_base}"
+    if [ "$EDIT_N" -gt 0 ]; then
+        print_edit_details "$WORKDIR/edit.txt"
+    elif [ "$EDIT_PANELS" = "0" ]; then
+        printf '%s\n' "No String Voltage, String Current, or String Power panels."
+    else
+        printf '%s\n' "No string hides or legend moves."
+    fi
+    if [ "$IMPORT_EXISTS" -eq 1 ]; then
+        printf '%s\n' "This will overwrite \"${EDIT_TITLE}\" (${EDIT_UID})."
+        printf '%s\n' "Manual edits in Grafana will be lost. Use --live to edit the dashboard that is already there."
+    else
+        printf '%s\n' "This will add \"${EDIT_TITLE}\" (${EDIT_UID}) to Grafana."
+    fi
+}
+
+post_import() {
+    local _msg
+    edit_body_to "$WORKDIR/edit.txt" "$WORKDIR/import.json"
+    if [ ! -s "$WORKDIR/import.json" ]; then
+        die "Could not prepare the dashboard."
+    fi
+    grafana_request POST "/api/dashboards/import" "$WORKDIR/import.json" "$WORKDIR/post-res.json"
+    case "$HTTP_CODE" in
+        2*) return 0 ;;
+        403)
+            explain_403
+            exit 1
+            ;;
+        412)
+            _msg=$(run_python message < "$WORKDIR/post-res.json" 2>/dev/null || true)
+            if [ -n "$_msg" ]; then
+                die "Grafana refused the import (HTTP 412): ${_msg}"
+            fi
+            die "Grafana refused the import (HTTP 412). The dashboard in Grafana has changed."
+            ;;
+        *)
+            _msg=$(run_python message < "$WORKDIR/post-res.json" 2>/dev/null || true)
+            if [ -n "$_msg" ]; then
+                die "Grafana did not import the dashboard (HTTP ${HTTP_CODE}): ${_msg}"
+            fi
+            die "Grafana did not import the dashboard (HTTP ${HTTP_CODE})."
+            ;;
+    esac
+}
+
+run_live() {
+    if [ -n "$ONLY_UID" ]; then
+        printf '%s\n' "$ONLY_UID" > "$WORKDIR/uids.txt"
+    else
+        grafana_request GET "/api/search?type=dash-db&limit=5000" "" "$WORKDIR/search.json"
+        if [ "$HTTP_CODE" != "200" ]; then
+            die "Could not list dashboards (HTTP ${HTTP_CODE})."
+        fi
+        if [ -n "$ONLY_TITLE" ]; then
+            _title_json=$(printf '%s' "$ONLY_TITLE" | run_python encode) || die "Could not read the dashboard title."
+            {
+                printf '%s' "{\"title\":${_title_json},\"hits\":"
+                cat "$WORKDIR/search.json"
+                printf '%s' '}'
+            } | run_python search > "$WORKDIR/uids.txt" || die "Could not read Grafana's dashboard list."
+            if [ ! -s "$WORKDIR/uids.txt" ]; then
+                die "No dashboard titled ${ONLY_TITLE}."
+            fi
+        else
+            {
+                printf '%s' '{"title":null,"hits":'
+                cat "$WORKDIR/search.json"
+                printf '%s' '}'
+            } | run_python search > "$WORKDIR/uids.txt" || die "Could not read Grafana's dashboard list."
+        fi
+    fi
+
+    while IFS= read -r _one_uid; do
+        process_uid "$_one_uid"
+    done < "$WORKDIR/uids.txt"
+
+    if [ "$SEEN" -eq 0 ]; then
+        die "No imported dashboard has String Voltage, String Current, or String Power panels."
+    fi
+
+    if [ "${#CHANGE_POST[@]}" -eq 0 ]; then
+        printf '%s\n' "No changes needed."
+        exit 0
+    fi
+
+    confirm_or_stop
+
+    _i=0
+    while [ "$_i" -lt "${#CHANGE_POST[@]}" ]; do
+        post_one "${CHANGE_UID[$_i]}" "${CHANGE_POST[$_i]}"
+        _i=$((_i + 1))
+    done
+    printf '%s\n' "Saved."
+}
+
 while [ $# -gt 0 ]; do
     case "$1" in
         --dry-run) DRY_RUN=1 ;;
         --yes) ASSUME_YES=1 ;;
         --reset) RESET=1 ;;
         --legend-bottom) LEGEND=1 ;;
+        --live) LIVE=1 ;;
+        --file)
+            shift
+            if [ $# -lt 1 ] || [ -z "$1" ]; then
+                die "Missing file after --file."
+            fi
+            DASH_FILE=$1
+            ;;
+        --file=*)
+            DASH_FILE=${1#--file=}
+            if [ -z "$DASH_FILE" ]; then
+                die "Missing file after --file."
+            fi
+            ;;
         --uid)
             shift
             if [ $# -lt 1 ] || [ -z "$1" ]; then
@@ -1360,6 +1849,15 @@ while [ $# -gt 0 ]; do
     shift
 done
 
+if [ "$LIVE" -eq 1 ] && [ -n "$DASH_FILE" ]; then
+    die "--file imports a stock dashboard. --live edits the one already in Grafana."
+fi
+if [ "$LIVE" -ne 1 ]; then
+    if [ -n "$ONLY_UID" ] || [ -n "$ONLY_TITLE" ]; then
+        die "--uid and --title apply to --live. Use --file to choose a stock dashboard."
+    fi
+fi
+
 if [ -n "$ONLY_UID" ]; then
     case "$ONLY_UID" in
         *[!A-Za-z0-9_-]*) die "The dashboard uid may only contain letters, numbers, _ and -." ;;
@@ -1384,6 +1882,10 @@ load_ports
 choose_python
 write_curl_cfg
 
+if [ "$LIVE" -ne 1 ]; then
+    choose_stock_file
+fi
+
 if [ "$RESET" -ne 1 ]; then
     if ! fetch_strings "$WORKDIR/strings.json"; then
         die "pypowerwall /strings is not reachable at http://localhost:${PW_HOST_PORT}/strings."
@@ -1404,11 +1906,19 @@ if [ "$RESET" -ne 1 ]; then
         \[*\]) ;;
         *) die "Could not read /strings." ;;
     esac
-    if [ "$STRING_ACTION" != "hide" ] && [ "$LEGEND" -ne 1 ]; then
-        printf '%s\n' "$STRING_SUMMARY"
-        exit 0
-    fi
     if [ "$STRING_ACTION" != "hide" ]; then
+        if [ "$LIVE" -ne 1 ]; then
+            printf '%s\n' "$STRING_SUMMARY"
+            printf '%s\n' "Not importing. The dashboard was left as it is."
+            if [ "$LEGEND" -eq 1 ]; then
+                printf '%s\n' "Use --live --legend-bottom to move legends without replacing the dashboard."
+            fi
+            exit 0
+        fi
+        if [ "$LEGEND" -ne 1 ]; then
+            printf '%s\n' "$STRING_SUMMARY"
+            exit 0
+        fi
         HIDE_JSON="[]"
         UNHIDE_JSON="[]"
     fi
@@ -1418,7 +1928,11 @@ if [ -n "$STRING_SUMMARY" ]; then
     printf '%s\n' "$STRING_SUMMARY"
 fi
 if [ "$RESET" -eq 1 ]; then
-    printf '%s\n' "Removing this script's string hides."
+    if [ "$LIVE" -eq 1 ]; then
+        printf '%s\n' "Removing this script's string hides."
+    else
+        printf '%s\n' "Importing the stock file with no string hides and no legend moves."
+    fi
 fi
 if [ "$LEGEND" -eq 1 ]; then
     printf '%s\n' "Legend: bottom."
@@ -1427,63 +1941,13 @@ printf '%s\n' "Grafana: ${GF_SCHEME}://localhost:${GF_HOST_PORT}"
 
 establish_auth
 
-if [ -n "$ONLY_UID" ]; then
-    printf '%s\n' "$ONLY_UID" > "$WORKDIR/uids.txt"
-else
-    grafana_request GET "/api/search?type=dash-db&limit=5000" "" "$WORKDIR/search.json"
-    if [ "$HTTP_CODE" != "200" ]; then
-        die "Could not list dashboards (HTTP ${HTTP_CODE})."
-    fi
-    if [ -n "$ONLY_TITLE" ]; then
-        _title_json=$(printf '%s' "$ONLY_TITLE" | run_python encode) || die "Could not read the dashboard title."
-        {
-            printf '%s' "{\"title\":${_title_json},\"hits\":"
-            cat "$WORKDIR/search.json"
-            printf '%s' '}'
-        } | run_python search > "$WORKDIR/uids.txt" || die "Could not read Grafana's dashboard list."
-        if [ ! -s "$WORKDIR/uids.txt" ]; then
-            die "No dashboard titled ${ONLY_TITLE}."
-        fi
-    else
-        {
-            printf '%s' '{"title":null,"hits":'
-            cat "$WORKDIR/search.json"
-            printf '%s' '}'
-        } | run_python search > "$WORKDIR/uids.txt" || die "Could not read Grafana's dashboard list."
-    fi
-fi
-
-while IFS= read -r _one_uid; do
-    process_uid "$_one_uid"
-done < "$WORKDIR/uids.txt"
-
-if [ "$SEEN" -eq 0 ]; then
-    die "No imported dashboard has String Voltage, String Current, or String Power panels."
-fi
-
-if [ "${#CHANGE_POST[@]}" -eq 0 ]; then
-    printf '%s\n' "No changes needed."
+if [ "$LIVE" -eq 1 ]; then
+    run_live
     exit 0
 fi
 
-if [ "$DRY_RUN" -eq 1 ]; then
-    printf '%s\n' "Dry run. No changes saved."
-    exit 0
-fi
-
-if [ "$ASSUME_YES" -ne 1 ]; then
-    _response=""
-    printf '%s' "Apply these changes? [y/N] " >&2
-    read -r _response || true
-    if [[ ! "$_response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
-        printf '%s\n' "No changes applied."
-        exit 0
-    fi
-fi
-
-_i=0
-while [ "$_i" -lt "${#CHANGE_POST[@]}" ]; do
-    post_one "${CHANGE_UID[$_i]}" "${CHANGE_POST[$_i]}"
-    _i=$((_i + 1))
-done
+prepare_import
+print_import_plan
+confirm_or_stop
+post_import
 printf '%s\n' "Saved."

@@ -263,15 +263,17 @@ See the [dashboards folder](dashboards/) for these and other alternative dashboa
 
 The String Voltage, String Current and String Power panels draw every string the dashboard knows about. pypowerwall's `/strings` includes a `Connected` flag for each string, but that flag is not stored in InfluxDB, so Grafana still draws the disconnected strings and gives each one a color. `dashboard-tune.sh` reads `/strings` and sets the hide flag on those queries (the same control as the eye icon in the panel editor). It does not change query text. Inverter Power and every other panel are left alone. The same `/strings` response is served by pypowerwall-server and the legacy proxy.
 
-Run it on the dashboard computer while the sun is up. When every `Connected` value is false, which a Powerwall 3 reports at night, the script does not change the dashboard.
+Run it on the dashboard computer while the sun is up. When every `Connected` value is false, which a Powerwall 3 reports at night, the script does not change Grafana.
 
 ```bash
 ./dashboard-tune.sh
 ```
 
-It prints one line per panel it would change, such as `String Voltage (32): hide B, D`, then asks `Apply these changes? [y/N]`. `--dry-run` prints that plan and does not save. `--yes` saves without asking. If nothing would change, it says `No changes needed.`
+With no extra flags it imports a stock file from `dashboards/`. On a terminal it lists the files and Enter selects `dashboard.json`. Otherwise it uses `dashboard.json`. `--file dashboards/dashboard-alt.json` picks a file. It fills in the InfluxDB datasource the same way Grafana's import screen does, applies the hides (and `--legend-bottom`, if you set it) in memory, and saves once. That overwrites the dashboard with the same uid. The plan names that dashboard and warns that edits made in Grafana will be lost. Use `--live` to change the dashboard that is already open and leave your other edits in place.
 
-`--legend-bottom` moves legends that are not already at the bottom (time series, bar, pie and state panels, and older graph panels) and saves each previous position in the dashboard. `--reset` shows the strings this script hid and restores only those saved positions. A query you hid yourself is left hidden. Re-importing a dashboard drops these edits, so run the script again after each import. `--uid` or `--title` limits which dashboard is updated. A dashboard Grafana provisions from a file is skipped.
+A plain re-import in the Grafana UI brings the disconnected strings back. Run `./dashboard-tune.sh` to import instead of doing that by hand.
+
+It prints one line per panel, such as `String Voltage (32): hide B, D`, then asks `Apply these changes? [y/N]`. `--dry-run` prints that plan and does not save. `--yes` saves without asking. If a string panel's queries no longer match the names in the file, it prints a warning. `--reset` with `--live` shows the strings this script hid and restores only the legend positions it moved. Without `--live`, `--reset` imports the stock file with none of those edits. `--uid` or `--title` apply only with `--live`. A dashboard Grafana provisions from a file is not overwritten.
 
 Ports come from `compose.env` (`GRAFANA_PORTS`, `PYPOWERWALL_PORTS`) and `grafana.env` (`GF_SERVER_HTTP_PORT`, default `9000`, and `GF_SERVER_PROTOCOL` when that is `https`). If a port is not published on the host, the script tries again inside the container. Do not run it as root.
 
