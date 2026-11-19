@@ -10,6 +10,10 @@
 
 ### Bug Fixes
 
+* **dashboard-import uses Python on the host** - the script was running Python inside the pypowerwall container, then failing to write its temp file, and the message only said it could not read the JSON. It now uses Python 3 on the host, and a failure names the error.
+
+**Existing installs:** run `./upgrade.sh`, then `./tools/dashboard-import/dashboard-import.sh` again.
+
 * **`verify.sh` works when service ports are not published** - each local service is still checked on its host port first, as before. If that fails, `verify.sh` checks it again from inside its container (with `curl`, or `wget` for weather411 and ecowitt), so reverse-proxy installs such as Traefik don't need host port mappings. Remote scans with `--host` are unchanged (#896).
 
 **Existing installs:** run `./upgrade.sh`; no other action is needed.

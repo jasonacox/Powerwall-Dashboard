@@ -65,7 +65,7 @@ ENV_FILE="$SCRIPT_DIR/dashboard-import.env"
 WORKDIR=""
 CURL_CFG=""
 AUTH_HEADER=""
-PY_MODE=""
+PYTHON=""
 PY_CODE=""
 GF_SCHEME="http"
 GF_HOST_PORT="9000"
@@ -893,56 +893,31 @@ if __name__ == "__main__":
         main()
     except SystemExit:
         raise
-    except Exception:
-        sys.stderr.write("dashboard-import: could not read the JSON.\n")
+    except Exception as exc:
+        text = str(exc).replace("\n", " ").replace("\r", " ")
+        if len(text) > 160:
+            text = text[:160]
+        if text:
+            sys.stderr.write("dashboard-import: %s: %s\n" % (type(exc).__name__, text))
+        else:
+            sys.stderr.write("dashboard-import: %s\n" % type(exc).__name__)
         sys.exit(1)
 PYCODE
 )
 
 choose_python() {
-    PY_MODE=""
-    if command -v docker >/dev/null 2>&1; then
-        if docker exec pypowerwall env -i \
-            PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
-            PYTHONIOENCODING=utf-8 PYTHONUTF8=1 \
-            python3 -c 'import sys' </dev/null >/dev/null 2>&1; then
-            PY_MODE=docker
-            return
-        fi
+    PYTHON=$(command -v python3 || command -v python || true)
+    if [ -z "$PYTHON" ]; then
+        die "python3 was not found. Install Python 3 and run this again."
     fi
-    if command -v python3 >/dev/null 2>&1; then
-        if env -i PATH="$PATH" PYTHONIOENCODING=utf-8 PYTHONUTF8=1 \
-            python3 -c 'import sys' </dev/null >/dev/null 2>&1; then
-            PY_MODE=python3
-            return
-        fi
+    if ! "$PYTHON" -c 'import sys; raise SystemExit(0 if sys.version_info[0] >= 3 else 1)' >/dev/null 2>&1; then
+        die "python3 was not found. Install Python 3 and run this again."
     fi
-    if command -v python >/dev/null 2>&1; then
-        if env -i PATH="$PATH" PYTHONIOENCODING=utf-8 PYTHONUTF8=1 \
-            python -c 'import sys; raise SystemExit(0 if sys.version_info[0] >= 3 else 1)' \
-            </dev/null >/dev/null 2>&1; then
-            PY_MODE=python
-            return
-        fi
-    fi
-    die "python3 is not available in the pypowerwall container or on this host."
 }
 
 run_python() {
-    if [ "$PY_MODE" = "docker" ]; then
-        docker exec -i pypowerwall env -i \
-            PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
-            PYTHONIOENCODING=utf-8 PYTHONUTF8=1 \
-            python3 -c "$PY_CODE" "$@"
-        return
-    fi
-    if [ "$PY_MODE" = "python3" ]; then
-        env -i PATH="$PATH" PYTHONIOENCODING=utf-8 PYTHONUTF8=1 \
-            python3 -c "$PY_CODE" "$@"
-        return
-    fi
     env -i PATH="$PATH" PYTHONIOENCODING=utf-8 PYTHONUTF8=1 \
-        python -c "$PY_CODE" "$@"
+        "$PYTHON" -c "$PY_CODE" "$@"
 }
 
 write_curl_cfg() {
@@ -1613,6 +1588,11 @@ post_save() {
             ;;
     esac
 }
+
+# Tests source this file and call run_python. A normal run does not set this.
+if [ "${DASHBOARD_IMPORT_SOURCE:-0}" = 1 ]; then
+    return 0 2>/dev/null || exit 0
+fi
 
 while [ $# -gt 0 ]; do
     case "$1" in

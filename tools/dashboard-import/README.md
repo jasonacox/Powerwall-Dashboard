@@ -8,6 +8,8 @@ The String Voltage, String Current and String Power panels draw every string the
 ./tools/dashboard-import/dashboard-import.sh
 ```
 
+Python 3 must be installed on this computer (`python3`, or `python` if that is Python 3). The script does not run Python inside a container.
+
 The first run on a terminal writes `dashboard-import.env` after asking for each setting. Later runs print those settings and only ask you to confirm. Copy `dashboard-import.env.sample` if you would rather edit the file yourself. The env file has no passwords in it.
 
 Importing overwrites the dashboard with the same uid. Edits you made in Grafana are lost. `--live` changes the dashboard that is already open and leaves your other edits in place. A plain re-import in the Grafana UI brings the disconnected strings back. Run this script to import instead.
