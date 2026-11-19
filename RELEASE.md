@@ -4,7 +4,7 @@
 
 ### New Features
 
-* **Import a dashboard** - `tools/dashboard-import/dashboard-import.sh` imports a stock dashboard and can hide disconnected solar strings in that same save. Settings are in `dashboard-import.env` (dashboard file, legend, string hiding, refresh, and time range). `default` leaves the stock value. `--live` edits the dashboard already in Grafana. A plain Grafana re-import brings the strings back; run this tool to import instead. See `tools/dashboard-import/README.md`.
+* **Import a dashboard** - `tools/dashboard-import/dashboard-import.sh` imports a stock dashboard and can hide disconnected solar strings in that same save. Settings are in `dashboard-import.env` (dashboard file, legend, string hiding, refresh, and time range). `default` keeps the chosen file's own value, and the setup menu shows that refresh and time range by name. `--live` edits the dashboard already in Grafana. A plain Grafana re-import brings the strings back; run this tool to import instead. See `tools/dashboard-import/README.md`.
 
 **Existing installs:** run `./upgrade.sh`, then `./tools/dashboard-import/dashboard-import.sh`. Use `--live` when you want to keep edits you made in Grafana.
 

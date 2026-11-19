@@ -16,15 +16,15 @@ Importing overwrites the dashboard with the same uid. Edits you made in Grafana 
 
 ## Settings
 
-Each value can be `default`, which leaves the stock dashboard alone (for the dashboard file, `default` means `dashboard.json`).
+Each value can be `default`, which keeps the setting already in the chosen dashboard file (for the file name, `default` means `dashboard.json`). The setup menu shows that file's refresh and time range, for example `keep file setting (5m)` and `keep file setting (Last 24 hours)`.
 
 | Setting | Values |
 | --- | --- |
 | `DASHBOARD_FILE` | `default`, or a file in `dashboards/` such as `dashboard.json` |
-| `LEGEND` | `default`, `bottom`, `right` |
-| `HIDE_STRINGS` | `auto` (hide strings `/strings` reports as disconnected), `off`. `default` means `auto` |
-| `REFRESH` | `default`, or `5s`, `10s`, `30s`, `1m`, `5m`, `15m`, `30m`, `1h`, `2h`, `1d` |
-| `TIME_RANGE` | `default`, `today` (the whole day, `now/d` to `now/d`), `today_so_far` (`now/d` to `now`), `last_24h`, `last_7d` |
+| `LEGEND` | `default` (keep the file's legend), `bottom`, `right` |
+| `HIDE_STRINGS` | `auto` (hide disconnected strings), `off` (show every string). `default` means `auto` |
+| `REFRESH` | `default` (keep the file's interval), or `5s`, `10s`, `30s`, `1m`, `5m`, `15m`, `30m`, `1h`, `2h`, `1d` |
+| `TIME_RANGE` | `default` (keep the file's range), `today` (Today, the whole day), `today_so_far` (Today so far), `last_24h` (Last 24 hours), `last_7d` (Last 7 days) |
 
 A bad value stops the script before it saves.
 

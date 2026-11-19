@@ -20,7 +20,6 @@ if type winpty > /dev/null 2>&1; then
     shopt -s expand_aliases
     alias docker="winpty -Xallow-non-tty -Xplain docker"
 fi
-
 usage() {
     cat <<'EOF'
 Usage: ./tools/dashboard-import/dashboard-import.sh [--setup] [--file FILE] [--live] [--reset] [--legend-bottom] [--dry-run] [--yes] [--uid UID] [--title TITLE]
@@ -52,7 +51,6 @@ Login: anonymous access when it can already save (grafana.env.sample,
 The password is not printed. See tools/dashboard-import/README.md.
 EOF
 }
-
 die() {
     printf '%s\n' "$1" >&2
     exit 1
@@ -105,7 +103,6 @@ EDIT_FOLDER=""
 EDIT_TITLE=""
 EDIT_N=""
 EDIT_MARK=""
-
 cleanup() {
     local _dir
     _dir=$WORKDIR
@@ -122,7 +119,6 @@ cleanup() {
     fi
     return 0
 }
-
 read_env_key() {
     local _rek_file _rek_key _rek_line _rek_val
     _rek_file=$1
@@ -146,7 +142,6 @@ read_env_key() {
     esac
     printf '%s' "$_rek_val"
 }
-
 repo_env() {
     if [ -f "$REPO_DIR/$1" ]; then
         printf '%s\n' "$REPO_DIR/$1"
@@ -154,7 +149,6 @@ repo_env() {
         printf '%s\n' "$1"
     fi
 }
-
 parse_ports() {
     local _spec _container _left _hostport
     _spec=$1
@@ -181,7 +175,6 @@ parse_ports() {
     esac
     printf '%s %s\n' "$_hostport" "$_container"
 }
-
 load_ports() {
     local _gf _comp _listen _explicit _gp _parsed _cport _pp
     _gf=$(repo_env grafana.env)
@@ -230,7 +223,24 @@ UID_RE = re.compile(r"^[A-Za-z0-9_-]+$")
 STRING_TITLES = ("String Voltage", "String Current", "String Power")
 LEGEND_TYPES = ("timeseries", "barchart", "piechart", "state-timeline")
 MARKER = "dashboardTune"
-
+# key, from, to, Grafana name. An empty key is only a label for a file's current range.
+_LAST = (
+    ("5m", "5 minutes"), ("15m", "15 minutes"), ("30m", "30 minutes"),
+    ("1h", "1 hour"), ("3h", "3 hours"), ("6h", "6 hours"), ("12h", "12 hours"),
+    ("2d", "2 days"), ("30d", "30 days"), ("90d", "90 days"),
+    ("6M", "6 months"), ("1y", "1 year"), ("2y", "2 years"), ("5y", "5 years"),
+)
+RANGES = (
+    ("today", "now/d", "now/d", "Today"),
+    ("today_so_far", "now/d", "now", "Today so far"),
+    ("last_24h", "now-24h", "now", "Last 24 hours"),
+    ("last_7d", "now-7d", "now", "Last 7 days"),
+) + tuple(("", "now-" + spec, "now", "Last " + name) for spec, name in _LAST) + (
+    ("", "now-1d/d", "now-1d/d", "Yesterday"),
+    ("", "now/w", "now/w", "This week"), ("", "now/w", "now", "This week so far"),
+    ("", "now/M", "now/M", "This month"), ("", "now/M", "now", "This month so far"),
+    ("", "now/y", "now/y", "This year"), ("", "now/y", "now", "This year so far"),
+)
 
 def sort_names(names):
     def key(name):
@@ -238,16 +248,13 @@ def sort_names(names):
         return (name[0], int(num), name)
     return sorted(names, key=key)
 
-
 def join_names(names):
     return ", ".join(sort_names(names)) if names else "none"
-
 
 def clean(value, fallback):
     if not isinstance(value, str) or not value:
         return fallback
     return value.replace("\n", " ").replace("\r", " ")
-
 
 def walk(panels, fn):
     if not isinstance(panels, list):
@@ -256,7 +263,6 @@ def walk(panels, fn):
         if isinstance(panel, dict):
             fn(panel)
             walk(panel.get("panels"), fn)
-
 
 def count_string_panels(panels):
     total = 0
@@ -270,10 +276,8 @@ def count_string_panels(panels):
         total = total + count_string_panels(panel.get("panels"))
     return total
 
-
 def is_string_panel(panel):
     return panel.get("title") in STRING_TITLES and panel.get("type") in ("timeseries", "graph")
-
 
 def field_names(target):
     select = target.get("select")
@@ -291,7 +295,6 @@ def field_names(target):
                     if isinstance(param, str):
                         yield param
 
-
 def target_string_id(target):
     alias = target.get("alias")
     if isinstance(alias, str) and NAME_RE.match(alias):
@@ -305,14 +308,12 @@ def target_string_id(target):
             return prefix
     return None
 
-
 def targets_named(panel, name):
     found = []
     for target in panel.get("targets") or []:
         if isinstance(target, dict) and target_string_id(target) == name:
             found.append(target)
     return found
-
 
 def marker(panel, create):
     state = panel.get(MARKER)
@@ -323,7 +324,6 @@ def marker(panel, create):
         panel[MARKER] = state
     return state
 
-
 def hidden_names(state):
     raw = state.get("hidden") if isinstance(state, dict) else None
     names = []
@@ -333,7 +333,6 @@ def hidden_names(state):
                 names.append(name)
     return names
 
-
 def set_hidden(panel, names):
     state = marker(panel, True)
     if names:
@@ -341,12 +340,10 @@ def set_hidden(panel, names):
     elif "hidden" in state:
         del state["hidden"]
 
-
 def drop_empty_marker(panel):
     state = panel.get(MARKER)
     if isinstance(state, dict) and not state.get("hidden") and "legend" not in state:
         del panel[MARKER]
-
 
 def strip_hides(panel, removed):
     fc = panel.get("fieldConfig")
@@ -381,7 +378,6 @@ def strip_hides(panel, removed):
     fc["overrides"][:] = kept
     return stripped
 
-
 def hide_targets(panel, names):
     added = []
     state = marker(panel, False)
@@ -402,7 +398,6 @@ def hide_targets(panel, names):
         set_hidden(panel, hidden)
     return added
 
-
 def show_targets(panel, only_names):
     state = marker(panel, False)
     if state is None:
@@ -420,7 +415,6 @@ def show_targets(panel, only_names):
     set_hidden(panel, kept)
     return shown
 
-
 def legend_snapshot(panel):
     ptype = panel.get("type")
     if ptype in LEGEND_TYPES:
@@ -436,7 +430,6 @@ def legend_snapshot(panel):
         return {"kind": "rightSide", "value": None}
     return None
 
-
 def legend_side(panel):
     snap = legend_snapshot(panel)
     if snap is None:
@@ -448,7 +441,6 @@ def legend_side(panel):
             return "right"
         return None
     return snap["value"] if snap["value"] in ("bottom", "right") else None
-
 
 def legend_dict(panel, create):
     ptype = panel.get("type")
@@ -476,7 +468,6 @@ def legend_dict(panel, create):
         return legend
     return None
 
-
 def legend_phrase(snap):
     if not isinstance(snap, dict):
         return "legend restored"
@@ -489,7 +480,6 @@ def legend_phrase(snap):
     if isinstance(value, str) and value:
         return "legend -> " + value
     return "legend restored"
-
 
 def apply_saved_legend(panel, snap):
     legend = legend_dict(panel, snap.get("value") is not None)
@@ -506,7 +496,6 @@ def apply_saved_legend(panel, snap):
     elif snap.get("value") is not None:
         legend["placement"] = snap.get("value")
 
-
 def move_legend(panel, where):
     if legend_snapshot(panel) is None or legend_side(panel) == where:
         return None
@@ -522,7 +511,6 @@ def move_legend(panel, where):
         legend["placement"] = where
     return "legend -> " + where
 
-
 def restore_legend(panel):
     state = marker(panel, False)
     if not isinstance(state, dict) or not isinstance(state.get("legend"), dict):
@@ -532,7 +520,6 @@ def restore_legend(panel):
     del state["legend"]
     return phrase
 
-
 def panel_label(panel):
     title = clean(panel.get("title"), "panel")
     pid = panel.get("id")
@@ -540,7 +527,30 @@ def panel_label(panel):
         return title
     return "%s (%d)" % (title, int(pid))
 
-
+def time_key(key):
+    for item in RANGES:
+        if item[0] and item[0] == key:
+            return item
+    return None
+def range_name(frm, to):
+    for item in RANGES:
+        if item[1] == frm and item[2] == to:
+            return item[3]
+    if frm and to:
+        return frm + " to " + to
+    return "none"
+def file_labels(path):
+    with open(path, "r") as handle:
+        data = json.load(handle)
+    if not isinstance(data, dict):
+        data = {}
+    refresh = data.get("refresh")
+    if not isinstance(refresh, str) or not refresh:
+        refresh = "none"
+    span = data.get("time") if isinstance(data.get("time"), dict) else {}
+    frm = span.get("from") if isinstance(span.get("from"), str) else ""
+    to = span.get("to") if isinstance(span.get("to"), str) else ""
+    return refresh, range_name(frm, to)
 def query_warning(panel):
     targets = panel.get("targets") if isinstance(panel.get("targets"), list) else []
     total = 0
@@ -554,7 +564,6 @@ def query_warning(panel):
     if matched < total or total == 0:
         return "matched %d of %d string queries. The query names may have changed." % (matched, total)
     return None
-
 
 def apply_dashboard(dash, hide, unhide, reset, legend, refresh, time_from, time_to, do_hide):
     lines = []
@@ -601,10 +610,9 @@ def apply_dashboard(dash, hide, unhide, reset, legend, refresh, time_from, time_
             current = dash.get("time") if isinstance(dash.get("time"), dict) else {}
             if current.get("from") != time_from or current.get("to") != time_to:
                 dash["time"] = {"from": time_from, "to": time_to}
-                lines.append("time -> " + time_from + " to " + time_to)
+                lines.append("time -> " + range_name(time_from, time_to))
     after = json.dumps(dash, separators=(",", ":"), ensure_ascii=False)
     return before != after, lines
-
 
 def pick_datasource(plugin_id, label, datasources):
     same = []
@@ -617,7 +625,6 @@ def pick_datasource(plugin_id, label, datasources):
     if len(same) == 1:
         return same[0], None
     return None, ("many" if same else "none")
-
 
 def build_inputs(dash, datasources):
     inputs = []
@@ -647,7 +654,6 @@ def build_inputs(dash, datasources):
             inputs.append({"name": name, "type": "constant", "value": value})
     return inputs
 
-
 def emit(changed, provisioned, panels, uid, folder, title, lines, post, path):
     sys.stdout.write(("1" if changed else "0") + "\n")
     sys.stdout.write(("1" if provisioned else "0") + "\n")
@@ -666,7 +672,6 @@ def emit(changed, provisioned, panels, uid, folder, title, lines, post, path):
             handle.write("\n")
         finally:
             handle.close()
-
 
 def mode_classify():
     try:
@@ -710,7 +715,6 @@ def mode_classify():
     sys.stdout.write("hide\n" + summary + "\n")
     sys.stdout.write(json.dumps(sort_names(hiding), separators=(",", ":")) + "\n")
     sys.stdout.write(json.dumps(sort_names(keeping), separators=(",", ":")) + "\n")
-
 
 def mode_plan(path):
     data = json.load(sys.stdin)
@@ -768,7 +772,6 @@ def mode_plan(path):
     post = {"dashboard": dash, "overwrite": True, "inputs": inputs, "folderUid": folder}
     emit(changed, False, panels, uid, folder, title, lines, post, path)
 
-
 def mode_file_uid():
     try:
         data = json.load(sys.stdin)
@@ -781,10 +784,8 @@ def mode_file_uid():
         sys.exit(1)
     sys.stdout.write(uid + "\n")
 
-
 def mode_encode():
     json.dump(sys.stdin.read(), sys.stdout)
-
 
 def mode_catalog():
     root = sys.stdin.read().strip()
@@ -803,7 +804,6 @@ def mode_catalog():
             title = ""
         sys.stdout.write(name + "|" + title + "\n")
 
-
 def mode_search():
     data = json.load(sys.stdin)
     want = data.get("title") if isinstance(data, dict) else None
@@ -817,11 +817,9 @@ def mode_search():
         if isinstance(uid, str) and UID_RE.match(uid) and (want is None or hit.get("title") == want):
             sys.stdout.write(uid + "\n")
 
-
 def mode_b64():
     import base64
     sys.stdout.write(base64.b64encode(sys.stdin.read().encode("utf-8")).decode("ascii"))
-
 
 def mode_can_save_actions():
     try:
@@ -833,7 +831,6 @@ def mode_can_save_actions():
         sys.stdout.write("yes")
     else:
         sys.stdout.write("no")
-
 
 def mode_can_save_orgs():
     try:
@@ -848,7 +845,37 @@ def mode_can_save_orgs():
                 ok = True
     sys.stdout.write("yes" if ok else "no")
 
-
+def mode_bounds():
+    found = time_key(sys.stdin.read().strip())
+    if found is not None:
+        sys.stdout.write(found[1] + "\n" + found[2] + "\n")
+def mode_filemeta():
+    try:
+        refresh, tname = file_labels(sys.stdin.read().strip())
+    except Exception:
+        sys.stderr.write("Could not read the dashboard file.\n")
+        sys.exit(1)
+    sys.stdout.write(refresh + "\n" + tname + "\n")
+def mode_summary():
+    parts = sys.stdin.read().splitlines() + [""] * 5
+    path, legend, hide, refresh, key = parts[:5]
+    try:
+        file_refresh, file_time = file_labels(path)
+    except Exception:
+        file_refresh, file_time = "none", "none"
+    if legend == "default":
+        legend = "keep file setting"
+    if refresh == "default":
+        refresh = "keep file setting (" + file_refresh + ")"
+    found = time_key(key)
+    if key == "default":
+        shown = "keep file setting (" + file_time + ")"
+    elif found is not None:
+        shown = found[3]
+    else:
+        shown = key
+    sys.stdout.write("Settings: file=%s legend=%s hide=%s refresh=%s time=%s\n" % (
+        os.path.basename(path), legend, hide, refresh, shown))
 def mode_message():
     try:
         data = json.load(sys.stdin)
@@ -856,7 +883,6 @@ def mode_message():
         return
     if isinstance(data, dict) and isinstance(data.get("message"), str):
         sys.stdout.write(data["message"].replace("\n", " ").replace("\r", " ")[:200])
-
 
 def main():
     mode = sys.argv[1] if len(sys.argv) > 1 else ""
@@ -881,6 +907,12 @@ def main():
         mode_can_save_actions()
     elif mode == "can_save_orgs":
         mode_can_save_orgs()
+    elif mode == "bounds":
+        mode_bounds()
+    elif mode == "filemeta":
+        mode_filemeta()
+    elif mode == "summary":
+        mode_summary()
     elif mode == "message":
         mode_message()
     else:
@@ -904,7 +936,6 @@ if __name__ == "__main__":
         sys.exit(1)
 PYCODE
 )
-
 choose_python() {
     PYTHON=$(command -v python3 || command -v python || true)
     if [ -z "$PYTHON" ]; then
@@ -914,12 +945,10 @@ choose_python() {
         die "python3 was not found. Install Python 3 and run this again."
     fi
 }
-
 run_python() {
     env -i PATH="$PATH" PYTHONIOENCODING=utf-8 PYTHONUTF8=1 \
         "$PYTHON" -c "$PY_CODE" "$@"
 }
-
 write_curl_cfg() {
     local _new _old
     _old=$CURL_CFG
@@ -939,7 +968,6 @@ write_curl_cfg() {
         rm -f "$_old"
     fi
 }
-
 grafana_curl_host() {
     local _method _url _body _dest _code
     _method=$1
@@ -962,7 +990,6 @@ grafana_curl_host() {
     fi
     printf '%s' "$_code"
 }
-
 grafana_curl_exec() {
     local _method _url _body _dest _tmp _code
     _method=$1
@@ -1013,7 +1040,6 @@ grafana_curl_exec() {
     fi
     printf '%s' "$_code"
 }
-
 grafana_request() {
     local _method _path _body _dest _host _inner _inner_code
     _method=$1
@@ -1044,7 +1070,6 @@ grafana_request() {
     esac
     rm -f "$_dest.inner"
 }
-
 fetch_strings() {
     local _dest _code _inner _running
     _dest=$1
@@ -1075,7 +1100,6 @@ fetch_strings() {
     fi
     return 0
 }
-
 explain_403() {
     cat <<'EOF'
 Grafana can view dashboards but cannot save them.
@@ -1087,7 +1111,6 @@ You can also sign in with a Grafana user that can edit.
 No changes saved.
 EOF
 }
-
 auth_can_save() {
     local _answer
     grafana_request GET "/api/access-control/user/actions" "" "$WORKDIR/actions.json"
@@ -1108,7 +1131,6 @@ auth_can_save() {
     fi
     return 0
 }
-
 auth_ok() {
     grafana_request GET "/api/search?type=dash-db&limit=1" "" "$WORKDIR/probe.json"
     case "$HTTP_CODE" in
@@ -1128,7 +1150,6 @@ auth_ok() {
     explain_403
     exit 1
 }
-
 prompt_basic() {
     local _user _pass _b64
     _user=""
@@ -1157,7 +1178,6 @@ prompt_basic() {
     _b64=""
     write_curl_cfg
 }
-
 establish_auth() {
     grafana_request GET "/api/health" "" "$WORKDIR/health.json"
     case "$HTTP_CODE" in
@@ -1183,7 +1203,6 @@ establish_auth() {
         die "Grafana rejected that login."
     fi
 }
-
 blank_to() {
     if [ -n "$2" ]; then
         printf '%s' "$2"
@@ -1191,7 +1210,6 @@ blank_to() {
         printf '%s' "$1"
     fi
 }
-
 load_saved_settings() {
     DASHBOARD_FILE=$(blank_to "default" "$(read_env_key "$ENV_FILE" DASHBOARD_FILE)")
     LEGEND=$(blank_to "default" "$(read_env_key "$ENV_FILE" LEGEND)")
@@ -1199,46 +1217,25 @@ load_saved_settings() {
     REFRESH=$(blank_to "default" "$(read_env_key "$ENV_FILE" REFRESH)")
     TIME_RANGE=$(blank_to "default" "$(read_env_key "$ENV_FILE" TIME_RANGE)")
 }
-
 valid_refresh() {
     case "$1" in
         default|5s|10s|30s|1m|5m|15m|30m|1h|2h|1d) return 0 ;;
     esac
     return 1
 }
-
-valid_time() {
-    case "$1" in
-        default|today|today_so_far|last_24h|last_7d) return 0 ;;
-    esac
-    return 1
-}
-
 apply_time_bounds() {
     TIME_FROM=""
     TIME_TO=""
-    case "$TIME_RANGE" in
-        default) ;;
-        today)
-            TIME_FROM="now/d"
-            TIME_TO="now/d"
-            ;;
-        today_so_far)
-            TIME_FROM="now/d"
-            TIME_TO="now"
-            ;;
-        last_24h)
-            TIME_FROM="now-24h"
-            TIME_TO="now"
-            ;;
-        last_7d)
-            TIME_FROM="now-7d"
-            TIME_TO="now"
-            ;;
-        *) die "TIME_RANGE must be default, today, today_so_far, last_24h, or last_7d." ;;
-    esac
+    if [ "$TIME_RANGE" = "default" ]; then
+        return
+    fi
+    printf '%s' "$TIME_RANGE" | run_python bounds > "$WORKDIR/bounds.txt" 2>"$WORKDIR/bounds.err" || true
+    TIME_FROM=$(sed -n '1p' "$WORKDIR/bounds.txt")
+    TIME_TO=$(sed -n '2p' "$WORKDIR/bounds.txt")
+    if [ -z "$TIME_FROM" ] || [ -z "$TIME_TO" ]; then
+        die "TIME_RANGE must be default, today, today_so_far, last_24h, or last_7d."
+    fi
 }
-
 validate_settings() {
     case "$DASHBOARD_FILE" in
         default) DASHBOARD_FILE="dashboard.json" ;;
@@ -1262,16 +1259,12 @@ validate_settings() {
     if ! valid_refresh "$REFRESH"; then
         die "REFRESH must be default, 5s, 10s, 30s, 1m, 5m, 15m, 30m, 1h, 2h, or 1d."
     fi
-    if ! valid_time "$TIME_RANGE"; then
-        die "TIME_RANGE must be default, today, today_so_far, last_24h, or last_7d."
-    fi
     apply_time_bounds
     STOCK_FILE="$REPO_DIR/dashboards/$DASHBOARD_FILE"
     if [ ! -f "$STOCK_FILE" ]; then
         die "No stock dashboard named ${DASHBOARD_FILE}."
     fi
 }
-
 apply_flag_overrides() {
     local _base
     if [ -n "$FILE_FLAG" ]; then
@@ -1290,23 +1283,24 @@ apply_flag_overrides() {
         LEGEND=$LEGEND_FLAG
     fi
 }
-
 prompt_choice() {
-    local _title _def _ans _i _n _pick
+    local _title _def _ans _i _n _pick _val _lab _deflab
     _title=$1
     _def=$2
     shift 2
+    _deflab=$_def
     printf '%s\n' "$_title" >&2
     _i=1
     for _pick in "$@"; do
-        if [ "$_pick" = "$_def" ]; then
-            printf '  %s) %s [stock]\n' "$_i" "$_pick" >&2
-        else
-            printf '  %s) %s\n' "$_i" "$_pick" >&2
+        _val=${_pick%%|*}
+        _lab=${_pick#*|}
+        if [ "$_val" = "$_def" ]; then
+            _deflab=$_lab
         fi
+        printf '  %s) %s\n' "$_i" "$_lab" >&2
         _i=$((_i + 1))
     done
-    printf '%s' "${_title} [${_def}]: " >&2
+    printf '%s' "${_title} [${_deflab}]: " >&2
     _ans=""
     read -r _ans || true
     if [ -z "$_ans" ]; then
@@ -1315,13 +1309,21 @@ prompt_choice() {
     fi
     case "$_ans" in
         *[!0-9]*)
-            printf '%s\n' "$_ans"
+            for _pick in "$@"; do
+                _val=${_pick%%|*}
+                _lab=${_pick#*|}
+                if [ "$_ans" = "$_val" ] || [ "$_ans" = "$_lab" ]; then
+                    printf '%s\n' "$_val"
+                    return
+                fi
+            done
+            die "There is no choice ${_ans}."
             ;;
         *)
             _n=1
             for _pick in "$@"; do
                 if [ "$_n" -eq "$_ans" ]; then
-                    printf '%s\n' "$_pick"
+                    printf '%s\n' "${_pick%%|*}"
                     return
                 fi
                 _n=$((_n + 1))
@@ -1330,7 +1332,6 @@ prompt_choice() {
             ;;
     esac
 }
-
 choose_dashboard_file() {
     local _line _name _title _i _ans
     printf '%s' "$REPO_DIR/dashboards" | run_python catalog > "$WORKDIR/catalog.txt" || die "Could not list dashboards."
@@ -1344,11 +1345,7 @@ choose_dashboard_file() {
         _title=${_line#*|}
         CATALOG_NAME[${#CATALOG_NAME[@]}]=$_name
         _i=${#CATALOG_NAME[@]}
-        if [ "$_name" = "dashboard.json" ]; then
-            printf '  %s) %s (%s) [stock]\n' "$_i" "$_name" "$_title" >&2
-        else
-            printf '  %s) %s (%s)\n' "$_i" "$_name" "$_title" >&2
-        fi
+        printf '  %s) %s (%s)\n' "$_i" "$_name" "$_title" >&2
     done < "$WORKDIR/catalog.txt"
     if [ "${#CATALOG_NAME[@]}" -eq 0 ]; then
         die "No dashboards found in dashboards/."
@@ -1371,7 +1368,6 @@ choose_dashboard_file() {
             ;;
     esac
 }
-
 write_settings() {
     local _tmp
     umask 077
@@ -1390,24 +1386,27 @@ write_settings() {
     chmod 600 "$ENV_FILE"
     printf '%s\n' "Wrote tools/dashboard-import/dashboard-import.env"
 }
-
 guided_setup() {
     if [ ! -t 0 ]; then
         die "Setup needs a terminal. Copy dashboard-import.env.sample to dashboard-import.env, or pass flags."
     fi
     choose_dashboard_file
-    prompt_choice "Legend" "default" default bottom right > "$WORKDIR/choice.txt"
+    printf '%s' "$REPO_DIR/dashboards/$DASHBOARD_FILE" | run_python filemeta > "$WORKDIR/filemeta.txt" || die "Could not read ${DASHBOARD_FILE}."
+    FILE_REFRESH=$(sed -n '1p' "$WORKDIR/filemeta.txt")
+    FILE_TIME=$(sed -n '2p' "$WORKDIR/filemeta.txt")
+    prompt_choice "Legend" "default" "default|keep file setting" bottom right > "$WORKDIR/choice.txt"
     LEGEND=$(cat "$WORKDIR/choice.txt")
-    prompt_choice "Hide strings" "auto" auto off > "$WORKDIR/choice.txt"
+    prompt_choice "Hide strings" "auto" "auto|auto (hide disconnected strings)" "off|off (show all strings)" > "$WORKDIR/choice.txt"
     HIDE_STRINGS=$(cat "$WORKDIR/choice.txt")
-    prompt_choice "Refresh" "default" default 5s 10s 30s 1m 5m 15m 30m 1h 2h 1d > "$WORKDIR/choice.txt"
+    prompt_choice "Refresh" "default" "default|keep file setting (${FILE_REFRESH})" 5s 10s 30s 1m 5m 15m 30m 1h 2h 1d > "$WORKDIR/choice.txt"
     REFRESH=$(cat "$WORKDIR/choice.txt")
-    prompt_choice "Time range" "default" default today today_so_far last_24h last_7d > "$WORKDIR/choice.txt"
+    prompt_choice "Time range" "default" "default|keep file setting (${FILE_TIME})" \
+        "today|Today (today)" "today_so_far|Today so far (today_so_far)" \
+        "last_24h|Last 24 hours (last_24h)" "last_7d|Last 7 days (last_7d)" > "$WORKDIR/choice.txt"
     TIME_RANGE=$(cat "$WORKDIR/choice.txt")
     validate_settings
     write_settings
 }
-
 load_plan() {
     local _file
     _file=$1
@@ -1426,7 +1425,6 @@ load_plan() {
         die "Could not prepare the dashboard."
     fi
 }
-
 print_plan_lines() {
     local _end
     if [ "$EDIT_N" -gt 0 ]; then
@@ -1438,7 +1436,6 @@ print_plan_lines() {
         printf '%s\n' "No string hides or legend moves."
     fi
 }
-
 build_job() {
     local _err
     rm -f "$WORKDIR/post.json"
@@ -1524,7 +1521,6 @@ build_job() {
         die "Grafana will not overwrite a provisioned dashboard: ${EDIT_TITLE} (${EDIT_UID})."
     fi
 }
-
 confirm_or_stop() {
     local _response
     if [ "$DRY_RUN" -eq 1 ]; then
@@ -1542,7 +1538,6 @@ confirm_or_stop() {
         exit 0
     fi
 }
-
 grafana_error() {
     local _msg
     _msg=$(run_python message < "$WORKDIR/post-res.json" 2>/dev/null || true)
@@ -1551,7 +1546,6 @@ grafana_error() {
     fi
     die "$1."
 }
-
 post_save() {
     local _url
     if [ "$LIVE" -eq 1 ]; then
@@ -1724,7 +1718,7 @@ if [ "$RESET" -ne 1 ] && [ "$HIDE_STRINGS" = "auto" ]; then
     fi
 fi
 
-printf '%s\n' "Settings: file=${DASHBOARD_FILE} legend=${LEGEND} hide=${HIDE_STRINGS} refresh=${REFRESH} time=${TIME_RANGE}"
+printf '%s\n' "$STOCK_FILE" "$LEGEND" "$HIDE_STRINGS" "$REFRESH" "$TIME_RANGE" | run_python summary || die "Could not read ${DASHBOARD_FILE}."
 if [ -n "$STRING_SUMMARY" ]; then
     printf '%s\n' "$STRING_SUMMARY"
 fi
