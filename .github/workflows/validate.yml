@@ -59,7 +59,12 @@ jobs:
             --exclude=SC2068,SC2145,SC1090,SC2034,SC2063 \
             add_route.sh anonymous-access.sh compose-dash.sh setup.sh \
             tz.sh upgrade.sh ver.sh verify.sh watchdog.sh weather.sh \
+            tools/dashboard-import/dashboard-import.sh \
             backups/backup.sh.sample backups/restore.sh.sample
+
+      - name: Check dashboard-import
+        shell: bash
+        run: bash .github/dashboard-import-check.sh
 
   structured-data:
     name: JSON and YAML

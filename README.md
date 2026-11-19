@@ -259,6 +259,14 @@ See the [dashboards folder](dashboards/) for these and other alternative dashboa
 * The database queries are set to use `America/Los_Angeles` as the timezone. Remember to edit the database commands [influxdb.sql](influxdb/influxdb.sql) with your own timezone. During import of dashboards into Grafana you'll be prompted to enter your timezone for queries.
 * The "Sun and Moon" panel in the Weather row draws today's sun and moon path in the browser. It uses the latitude and longitude that `setup.sh` saves in the Sun and Moon datasource (`grafana/provisions/datasources/sunandmoon.yml`), so there is nothing to enter on import. Re-run `setup.sh` or edit that file to change the location.
 
+#### Tune an imported dashboard
+
+Disconnected strings stay on the graphs because the `Connected` flag from `/strings` is not stored in InfluxDB. [tools/dashboard-import](tools/dashboard-import/README.md) imports a stock dashboard and can hide those strings in one save:
+
+```bash
+./tools/dashboard-import/dashboard-import.sh
+```
+
 ## Platform Notes
 
 Extra setup help for specific platforms.
@@ -376,7 +384,7 @@ Check the logs of the services using:
 
 ### Missing Powerwalls or String data?
 
-* String data only shows up for Tesla inverters as part of Powerwall+ systems.  Unfortunately, non-Tesla inverter data is not available via the Tesla API. If you find a way to pull this data, please submit an Issue or Pull Request to get it added.
+* String data only shows up for Tesla inverters as part of Powerwall+ systems.  Unfortunately, non-Tesla inverter data is not available via the Tesla API. If you find a way to pull this data, please submit an Issue or Pull Request to get it added. To hide strings that are not connected, see [Tune an imported dashboard](#tune-an-imported-dashboard).
 * The default dashboard and InfluxDB setup supports up to 12 Tesla Powerwalls. Support for more can be added by editing the [dashboard.json](dashboards/dashboard.json) and [influxdb.sql](influxdb/influxdb.sql) files. Open an Issue and we can help (see [#2](https://github.com/jasonacox/Powerwall-Dashboard/issues/2)).
 
 ### Docker Errors

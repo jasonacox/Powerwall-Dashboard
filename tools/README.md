@@ -2,6 +2,14 @@
 
 This directory contains a list of tools discovered or developed by the community to make the most of your Powerwall Dashboard. If you have a great tool or trick that you think the community would enjoy, please open an [issue](https://github.com/jasonacox/Powerwall-Dashboard/issues) or [pull request](https://github.com/jasonacox/Powerwall-Dashboard/pulls) to get it added here.
 
+## Import a Dashboard
+
+Hides solar strings that `/strings` reports as disconnected, then sets the legend, time range, and refresh in the same save.
+
+* See issue [#899](https://github.com/jasonacox/Powerwall-Dashboard/issues/899).
+* [Details and Instructions](dashboard-import/)
+* Script: [dashboard-import.sh](dashboard-import/dashboard-import.sh)
+
 ## Tesla History Import Tool
 
 This is a command line tool to import Powerwall history data from the Tesla Cloud into Powerwall-Dashboard.
