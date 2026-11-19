@@ -32,8 +32,8 @@ then leaves Grafana alone.
   --setup           Ask for each setting and write dashboard-import.env
   --file FILE       Stock file, for example dashboards/dashboard.json
   --live            Edit the open dashboard instead of importing it
-  --reset           With --live, undo this script's hides and legend moves.
-                    Without --live, import the stock file with no edits.
+  --reset           With --live, remove string hides and legend moves.
+                    Refresh and time stay. Otherwise import the stock file.
   --legend-bottom   Same as LEGEND=bottom
   --dry-run         Print the plan and do not save
   --yes             Save without the confirm prompt
@@ -1583,6 +1583,14 @@ post_save() {
     esac
 }
 
+print_settings() {
+    if [ "$RESET" -eq 1 ]; then
+        printf '%s\n' "Settings: file=${DASHBOARD_FILE} (reset)"
+        return
+    fi
+    printf '%s\n' "$STOCK_FILE" "$LEGEND" "$HIDE_STRINGS" "$REFRESH" "$TIME_RANGE" | run_python summary || die "Could not read ${DASHBOARD_FILE}."
+}
+
 # Tests source this file and call run_python. A normal run does not set this.
 if [ "${DASHBOARD_IMPORT_SOURCE:-0}" = 1 ]; then
     return 0 2>/dev/null || exit 0
@@ -1718,7 +1726,7 @@ if [ "$RESET" -ne 1 ] && [ "$HIDE_STRINGS" = "auto" ]; then
     fi
 fi
 
-printf '%s\n' "$STOCK_FILE" "$LEGEND" "$HIDE_STRINGS" "$REFRESH" "$TIME_RANGE" | run_python summary || die "Could not read ${DASHBOARD_FILE}."
+print_settings
 if [ -n "$STRING_SUMMARY" ]; then
     printf '%s\n' "$STRING_SUMMARY"
 fi

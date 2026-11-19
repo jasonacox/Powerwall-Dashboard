@@ -36,8 +36,9 @@ Flags override the env file for that run. They do not change the file.
 --setup           Ask again and rewrite dashboard-import.env
 --file FILE       Stock file, for example dashboards/dashboard-alt.json
 --live            Edit the open dashboard instead of importing
---reset           With --live, undo this script's hides and legend moves.
-                  Without --live, import the stock file with none of those edits
+--reset           With --live, remove this script's string hides and legend moves.
+                  Refresh and time stay as they are. Without --live, import
+                  the stock file with no legend, hide, refresh, or time changes.
 --legend-bottom   Same as LEGEND=bottom
 --dry-run         Print the plan and do not save
 --yes             Save without asking

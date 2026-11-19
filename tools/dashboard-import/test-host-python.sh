@@ -145,4 +145,41 @@ else
     echo "PASS time menu"
 fi
 
+RESET=1
+DASHBOARD_FILE=dashboard.json
+LEGEND=bottom
+HIDE_STRINGS=auto
+REFRESH=30s
+TIME_RANGE=today
+print_settings > "$WORK/reset.txt"
+if [ "$(cat "$WORK/reset.txt")" != "Settings: file=dashboard.json (reset)" ]; then
+    echo "FAIL reset settings line" >&2
+    cat "$WORK/reset.txt" >&2
+    fail=1
+else
+    echo "PASS reset settings line"
+fi
+
+LIVE_RESET='{"live":true,"reset":true,"legend":"bottom","refresh":"30s","time_from":"now/d","time_to":"now/d","do_hide":false,"hide":[],"unhide":[],"dashboard":null,"datasources":null,"existing":null,"response":{"meta":{},"dashboard":{"uid":"probeuid","title":"Probe","refresh":"30s","time":{"from":"now/d","to":"now/d"},"panels":[{"id":1,"type":"timeseries","title":"String Voltage","targets":[{"refId":"B","alias":"B","hide":true}],"dashboardTune":{"hidden":["B"],"legend":{"kind":"placement","value":"right"}},"options":{"legend":{"placement":"bottom"}}}]}}}'
+printf '%s' "$LIVE_RESET" | run_python plan "$WORK/live-reset.json" > "$WORK/live-reset.txt"
+python3 - "$WORK/live-reset.json" <<'PY'
+import json, sys
+dash = json.load(open(sys.argv[1]))["dashboard"]
+panel = dash["panels"][0]
+ok = (
+    dash.get("refresh") == "30s"
+    and dash.get("time") == {"from": "now/d", "to": "now/d"}
+    and panel["targets"][0].get("hide") is False
+    and panel["options"]["legend"].get("placement") == "right"
+    and "dashboardTune" not in panel
+)
+sys.exit(0 if ok else 1)
+PY
+if [ "$?" -ne 0 ]; then
+    echo "FAIL live reset kept refresh and time" >&2
+    fail=1
+else
+    echo "PASS live reset keeps refresh and time"
+fi
+
 exit "$fail"
