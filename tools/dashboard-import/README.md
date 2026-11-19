@@ -18,15 +18,22 @@ Importing overwrites the dashboard with the same uid. Edits you made in Grafana 
 
 ## Settings
 
-Each value can be `default`, which keeps the setting already in the chosen dashboard file (for the file name, `default` means `dashboard.json`). The setup menu shows that file's refresh and time range, for example `keep file setting (5m)` and `keep file setting (Last 24 hours)`.
+Setup asks in this order: dashboard file, hide strings, legend, time range, refresh. Each value can be `default`. For the file name, `default` means `dashboard.json`. For the legend, time range, and refresh, `default` keeps the value in the chosen file. The menu shows that file's names, for example `keep file setting (Last 24 hours)` and `keep file setting (5m)`. The settings line uses the same order and prints `keep` for those three:
+
+```text
+Settings: file=dashboard.json hide=auto legend=bottom time=Today refresh=30s
+Settings: file=dashboard.json hide=auto legend=keep time=keep refresh=keep
+```
+
+`--live` does not print the stock file name. That line is only for an import.
 
 | Setting | Values |
 | --- | --- |
 | `DASHBOARD_FILE` | `default`, or a file in `dashboards/` such as `dashboard.json` |
-| `LEGEND` | `default` (keep the file's legend), `bottom`, `right` |
 | `HIDE_STRINGS` | `auto` (hide disconnected strings), `off` (show every string). `default` means `auto` |
-| `REFRESH` | `default` (keep the file's interval), or `5s`, `10s`, `30s`, `1m`, `5m`, `15m`, `30m`, `1h`, `2h`, `1d` |
+| `LEGEND` | `default` (keep the file's legend), `bottom`, `right` |
 | `TIME_RANGE` | `default` (keep the file's range), `today` (Today, the whole day), `today_so_far` (Today so far), `last_24h` (Last 24 hours), `last_7d` (Last 7 days) |
+| `REFRESH` | `default` (keep the file's interval), or `5s`, `10s`, `30s`, `1m`, `5m`, `15m`, `30m`, `1h`, `2h`, `1d` |
 
 A bad value stops the script before it saves.
 

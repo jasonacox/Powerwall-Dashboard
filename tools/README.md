@@ -4,7 +4,7 @@ This directory contains a list of tools discovered or developed by the community
 
 ## Import a Dashboard
 
-Imports a stock dashboard and can hide solar strings that `/strings` reports as disconnected. Legend, refresh, and time range are set in the same save.
+Hides solar strings that `/strings` reports as disconnected, then sets the legend, time range, and refresh in the same save.
 
 * See issue [#899](https://github.com/jasonacox/Powerwall-Dashboard/issues/899).
 * [Details and Instructions](dashboard-import/)

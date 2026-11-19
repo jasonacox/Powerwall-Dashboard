@@ -111,23 +111,44 @@ else
     echo "PASS min-mean-max is Last 7 days"
 fi
 
-printf '%s\n' "$ROOT/dashboards/dashboard.json" default auto default default | run_python summary > "$WORK/sum.txt"
-if ! grep -q 'refresh=keep file setting (5m)' "$WORK/sum.txt" || ! grep -q 'time=keep file setting (Last 24 hours)' "$WORK/sum.txt"; then
-    echo "FAIL summary" >&2
+RESET=0
+STOCK_FILE="$ROOT/dashboards/dashboard.json"
+DASHBOARD_FILE=dashboard.json
+HIDE_STRINGS=auto
+LEGEND=default
+TIME_RANGE=default
+REFRESH=default
+print_settings > "$WORK/sum.txt"
+if [ "$(cat "$WORK/sum.txt")" != "Settings: file=dashboard.json hide=auto legend=keep time=keep refresh=keep" ]; then
+    echo "FAIL keep settings line" >&2
     cat "$WORK/sum.txt" >&2
     fail=1
 else
-    echo "PASS summary uses file names"
+    echo "PASS keep settings line"
 fi
 
-JOB_TODAY=$(printf '%s' '{"live":false,"reset":false,"legend":"","refresh":"","time":"today","do_hide":false,"hide":[],"unhide":[],"stock":"'"$WORK/dashboards/dashboard.json"'","existing":"","response":"","datasources":"'"$WORK/datasources.json"'"}')
+LEGEND=bottom
+TIME_RANGE=today
+REFRESH=30s
+print_settings > "$WORK/sum.txt"
+if [ "$(cat "$WORK/sum.txt")" != "Settings: file=dashboard.json hide=auto legend=bottom time=Today refresh=30s" ]; then
+    echo "FAIL settings line" >&2
+    cat "$WORK/sum.txt" >&2
+    fail=1
+else
+    echo "PASS settings line order"
+fi
+
+JOB_TODAY=$(printf '%s' '{"live":false,"reset":false,"legend":"","refresh":"30s","time":"today","do_hide":false,"hide":[],"unhide":[],"stock":"'"$WORK/dashboards/dashboard.json"'","existing":"","response":"","datasources":"'"$WORK/datasources.json"'"}')
 printf '%s' "$JOB_TODAY" | run_python plan "$WORK/post-today.json" > "$WORK/plan-today.txt"
-if ! grep -q 'time -> Today$' "$WORK/plan-today.txt"; then
-    echo "FAIL plan time name" >&2
+tline=$(grep -n '^time -> Today$' "$WORK/plan-today.txt" | head -n 1 | cut -d: -f1)
+rline=$(grep -n '^refresh -> 30s$' "$WORK/plan-today.txt" | head -n 1 | cut -d: -f1)
+if [ -z "$tline" ] || [ -z "$rline" ] || [ "$tline" -ge "$rline" ]; then
+    echo "FAIL plan time before refresh" >&2
     cat "$WORK/plan-today.txt" >&2
     fail=1
 else
-    echo "PASS plan says Today"
+    echo "PASS plan puts time before refresh"
 fi
 
 printf '\n' | prompt_choice "Time range" default \
@@ -192,7 +213,7 @@ else
     echo "PASS none connected leaves queries unchanged"
 fi
 
-printf '%s\n' '{"meta":{"folderUid":"fld"},"dashboard":{"uid":"probeuid","title":"Probe","refresh":"30s","time":{"from":"now/d","to":"now/d"},"panels":[{"id":1,"type":"timeseries","title":"String Voltage","targets":[{"refId":"B","alias":"B","hide":true}],"dashboardTune":{"hidden":["B"],"legend":{"kind":"placement","value":"right"}},"options":{"legend":{"placement":"bottom"}}}]}}' > "$WORK/response.json"
+printf '%s\n' '{"meta":{"folderUid":"fld"},"dashboard":{"uid":"probeuid","title":"Probe","refresh":"30s","time":{"from":"now/d","to":"now/d"},"panels":[{"id":1,"type":"timeseries","title":"String Voltage","targets":[{"refId":"B","alias":"B","hide":true}],"dashboardTune":{"hidden":["B"],"legend":{"kind":"placement","value":"right"}},"options":{"legend":{"placement":"bottom"}}},{"id":2,"type":"graph","title":"String Current","legend":{"rightSide":false},"targets":[{"refId":"A","alias":"A","hide":true}],"dashboardTune":{"hidden":["A"],"legend":{"kind":"rightSide","value":true}}}]}}' > "$WORK/response.json"
 LIVE_RESET=$(printf '%s' '{"live":true,"reset":true,"legend":"bottom","refresh":"30s","time":"today","do_hide":false,"hide":[],"unhide":[],"stock":"","existing":"","datasources":"","response":"'"$WORK/response.json"'"}')
 printf '%s' "$LIVE_RESET" | run_python plan "$WORK/live-reset.json" > "$WORK/live-reset.txt"
 python3 - "$WORK/live-reset.json" <<'PY'
@@ -200,6 +221,7 @@ import json, sys
 body = json.load(open(sys.argv[1]))
 dash = body["dashboard"]
 panel = dash["panels"][0]
+graph = dash["panels"][1]
 ok = (
     body.get("folderUid") == "fld"
     and dash.get("refresh") == "30s"
@@ -207,6 +229,9 @@ ok = (
     and panel["targets"][0].get("hide") is False
     and panel["options"]["legend"].get("placement") == "right"
     and "dashboardTune" not in panel
+    and graph["legend"].get("rightSide") is True
+    and graph["targets"][0].get("hide") is False
+    and "dashboardTune" not in graph
 )
 sys.exit(0 if ok else 1)
 PY
@@ -215,6 +240,27 @@ if [ "$?" -ne 0 ]; then
     fail=1
 else
     echo "PASS live reset keeps refresh and time"
+fi
+
+rows=$(run_python rows time)
+if [ "$(printf '%s\n' "$rows" | sed -n '1p')" != "today|Today (today)" ]; then
+    echo "FAIL time menu source" >&2
+    printf '%s\n' "$rows" >&2
+    fail=1
+else
+    echo "PASS time choices come from the range list"
+fi
+
+setup=$(awk '/^guided_setup\(\)/,/^}/' "$SCRIPT")
+hide_at=$(printf '%s\n' "$setup" | grep -n 'Hide strings' | head -n 1 | cut -d: -f1)
+legend_at=$(printf '%s\n' "$setup" | grep -n '"Legend"' | head -n 1 | cut -d: -f1)
+time_at=$(printf '%s\n' "$setup" | grep -n 'Time range' | head -n 1 | cut -d: -f1)
+refresh_at=$(printf '%s\n' "$setup" | grep -n '"Refresh"' | head -n 1 | cut -d: -f1)
+if [ -z "$hide_at" ] || [ -z "$legend_at" ] || [ -z "$time_at" ] || [ -z "$refresh_at" ] || [ "$hide_at" -ge "$legend_at" ] || [ "$legend_at" -ge "$time_at" ] || [ "$time_at" -ge "$refresh_at" ]; then
+    echo "FAIL setup order" >&2
+    fail=1
+else
+    echo "PASS setup asks hide, legend, time, refresh"
 fi
 
 exit "$fail"
