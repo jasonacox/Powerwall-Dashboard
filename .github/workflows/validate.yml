@@ -62,6 +62,10 @@ jobs:
             tools/dashboard-import/dashboard-import.sh \
             backups/backup.sh.sample backups/restore.sh.sample
 
+      - name: Check dashboard-import
+        shell: bash
+        run: bash .github/dashboard-import-check.sh
+
   structured-data:
     name: JSON and YAML
     runs-on: ubuntu-latest

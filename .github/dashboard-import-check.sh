@@ -1,11 +1,11 @@
 #!/bin/bash
 #
-# Regression: plan and catalog run through the script's host Python,
-# even if a docker command is on PATH. Synthetic files only.
+# Host-Python checks for tools/dashboard-import/dashboard-import.sh.
+# Synthetic files only. Called from .github/workflows/validate.yml.
 
 set -u
 
-ROOT=$(CDPATH='' cd -- "$(dirname "$0")/../.." && pwd)
+ROOT=$(CDPATH='' cd -- "$(dirname "$0")/.." && pwd)
 SCRIPT="$ROOT/tools/dashboard-import/dashboard-import.sh"
 WORK=$(mktemp -d "${TMPDIR:-/tmp}/dashboard-import-test.XXXXXX")
 SHIM="$WORK/bin"
