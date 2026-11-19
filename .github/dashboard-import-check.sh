@@ -18,7 +18,8 @@ cleanup() {
 trap cleanup EXIT
 
 mkdir -p "$SHIM" "$WORK/dashboards" "$WORK/no-such-dir"
-printf '%s\n' '{"title":"Probe","uid":"probeuid"}' > "$WORK/dashboards/dashboard.json"
+printf '%s\n' '{"title":"Probe","uid":"probeuid","panels":[],"time":{"from":"now-24h","to":"now"}}' > "$WORK/dashboards/dashboard.json"
+printf '%s\n' '[]' > "$WORK/datasources.json"
 cat > "$SHIM/docker" <<'EOF'
 #!/bin/bash
 printf '%s\n' "$*" >> "$DASHBOARD_IMPORT_DOCKER_LOG"
@@ -35,7 +36,7 @@ export PATH="$SHIM:$PATH"
 choose_python
 : > "$LOG"
 
-JOB='{"live":false,"reset":false,"legend":"","refresh":"","time_from":"","time_to":"","do_hide":false,"hide":[],"unhide":[],"dashboard":{"uid":"probeuid","title":"Probe","panels":[]},"response":null,"datasources":[],"existing":null}'
+JOB=$(printf '%s' '{"live":false,"reset":false,"legend":"","refresh":"","time":"","do_hide":false,"hide":[],"unhide":[],"stock":"'"$WORK/dashboards/dashboard.json"'","existing":"","response":"","datasources":"'"$WORK/datasources.json"'"}')
 printf '%s' "$JOB" | run_python plan "$WORK/post.json" > "$WORK/plan.txt" 2>"$WORK/plan.err"
 if [ ! -s "$WORK/post.json" ]; then
     echo "FAIL plan did not write post.json" >&2
@@ -43,6 +44,9 @@ if [ ! -s "$WORK/post.json" ]; then
     fail=1
 elif ! grep -q probeuid "$WORK/post.json"; then
     echo "FAIL post.json missing uid" >&2
+    fail=1
+elif grep -q folderUid "$WORK/post.json"; then
+    echo "FAIL empty folderUid was sent" >&2
     fail=1
 else
     echo "PASS plan wrote post.json"
@@ -116,7 +120,7 @@ else
     echo "PASS summary uses file names"
 fi
 
-JOB_TODAY='{"live":false,"reset":false,"legend":"","refresh":"","time_from":"now/d","time_to":"now/d","do_hide":false,"hide":[],"unhide":[],"dashboard":{"uid":"probeuid","title":"Probe","panels":[],"time":{"from":"now-24h","to":"now"}},"response":null,"datasources":[],"existing":null}'
+JOB_TODAY=$(printf '%s' '{"live":false,"reset":false,"legend":"","refresh":"","time":"today","do_hide":false,"hide":[],"unhide":[],"stock":"'"$WORK/dashboards/dashboard.json"'","existing":"","response":"","datasources":"'"$WORK/datasources.json"'"}')
 printf '%s' "$JOB_TODAY" | run_python plan "$WORK/post-today.json" > "$WORK/plan-today.txt"
 if ! grep -q 'time -> Today$' "$WORK/plan-today.txt"; then
     echo "FAIL plan time name" >&2
@@ -160,14 +164,45 @@ else
     echo "PASS reset settings line"
 fi
 
-LIVE_RESET='{"live":true,"reset":true,"legend":"bottom","refresh":"30s","time_from":"now/d","time_to":"now/d","do_hide":false,"hide":[],"unhide":[],"dashboard":null,"datasources":null,"existing":null,"response":{"meta":{},"dashboard":{"uid":"probeuid","title":"Probe","refresh":"30s","time":{"from":"now/d","to":"now/d"},"panels":[{"id":1,"type":"timeseries","title":"String Voltage","targets":[{"refId":"B","alias":"B","hide":true}],"dashboardTune":{"hidden":["B"],"legend":{"kind":"placement","value":"right"}},"options":{"legend":{"placement":"bottom"}}}]}}}'
+printf '%s\n' '{"refresh":"5m","time":{"from":"now-5y","to":"now"}}' > "$WORK/dashboards/unknown-range.json"
+printf '%s' "$WORK/dashboards/unknown-range.json" | run_python filemeta > "$WORK/meta.txt"
+if ! grep -q '^now-5y to now$' "$WORK/meta.txt"; then
+    echo "FAIL unknown range" >&2
+    cat "$WORK/meta.txt" >&2
+    fail=1
+else
+    echo "PASS unknown range prints from/to"
+fi
+
+printf '%s' '{"strings":{"A":{"Connected":1},"B":{"Connected":false},"C":{"Connected":0}}}' | run_python classify > "$WORK/class.txt"
+if [ "$(sed -n '1p' "$WORK/class.txt")" != "hide" ] || [ "$(sed -n '3p' "$WORK/class.txt")" != '["B","C"]' ] || [ "$(sed -n '4p' "$WORK/class.txt")" != '["A"]' ]; then
+    echo "FAIL Connected 1" >&2
+    cat "$WORK/class.txt" >&2
+    fail=1
+else
+    echo "PASS Connected 1 hides the others"
+fi
+
+printf '%s' '{"strings":{"A":{"Connected":false}}}' | run_python classify > "$WORK/class.txt"
+if [ "$(sed -n '1p' "$WORK/class.txt")" != "unchanged" ] || [ "$(sed -n '2p' "$WORK/class.txt")" != "String queries were left unchanged." ]; then
+    echo "FAIL unchanged strings" >&2
+    cat "$WORK/class.txt" >&2
+    fail=1
+else
+    echo "PASS none connected leaves queries unchanged"
+fi
+
+printf '%s\n' '{"meta":{"folderUid":"fld"},"dashboard":{"uid":"probeuid","title":"Probe","refresh":"30s","time":{"from":"now/d","to":"now/d"},"panels":[{"id":1,"type":"timeseries","title":"String Voltage","targets":[{"refId":"B","alias":"B","hide":true}],"dashboardTune":{"hidden":["B"],"legend":{"kind":"placement","value":"right"}},"options":{"legend":{"placement":"bottom"}}}]}}' > "$WORK/response.json"
+LIVE_RESET=$(printf '%s' '{"live":true,"reset":true,"legend":"bottom","refresh":"30s","time":"today","do_hide":false,"hide":[],"unhide":[],"stock":"","existing":"","datasources":"","response":"'"$WORK/response.json"'"}')
 printf '%s' "$LIVE_RESET" | run_python plan "$WORK/live-reset.json" > "$WORK/live-reset.txt"
 python3 - "$WORK/live-reset.json" <<'PY'
 import json, sys
-dash = json.load(open(sys.argv[1]))["dashboard"]
+body = json.load(open(sys.argv[1]))
+dash = body["dashboard"]
 panel = dash["panels"][0]
 ok = (
-    dash.get("refresh") == "30s"
+    body.get("folderUid") == "fld"
+    and dash.get("refresh") == "30s"
     and dash.get("time") == {"from": "now/d", "to": "now/d"}
     and panel["targets"][0].get("hide") is False
     and panel["options"]["legend"].get("placement") == "right"

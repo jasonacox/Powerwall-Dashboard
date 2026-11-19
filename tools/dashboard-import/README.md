@@ -2,7 +2,9 @@
 
 The String Voltage, String Current and String Power panels draw every string the stock dashboard knows about. pypowerwall's `/strings` says which strings are connected, but that flag is not stored in InfluxDB, so Grafana still draws the disconnected ones and gives each a color.
 
-`dashboard-import.sh` imports a stock file from `dashboards/` and can hide those strings in the same save. It does not change query text. Inverter Power is left alone. Run it from the Powerwall-Dashboard directory, while the sun is up. A Powerwall 3 reports every string disconnected at night, and the script then leaves Grafana alone.
+`dashboard-import.sh` imports a stock file from `dashboards/` and can hide those strings in the same save. It does not change query text. Inverter Power is left alone. Run it from the Powerwall-Dashboard directory.
+
+`GET /strings` on pypowerwall-server and the legacy proxy returns one object per string id. A string counts as connected when `Connected` is JSON `true` or `1`. The script hides a string only when that value is false and at least one string is connected. If none are connected, or `Connected` is missing, it prints `String queries were left unchanged.` and still applies the legend, refresh, and time range. If `/strings` cannot be read, the script stops.
 
 ```bash
 ./tools/dashboard-import/dashboard-import.sh
@@ -33,20 +35,17 @@ A bad value stops the script before it saves.
 Flags override the env file for that run. They do not change the file.
 
 ```text
---setup           Ask again and rewrite dashboard-import.env
---file FILE       Stock file, for example dashboards/dashboard-alt.json
---live            Edit the open dashboard instead of importing
---reset           With --live, remove this script's string hides and legend moves.
-                  Refresh and time stay as they are. Without --live, import
-                  the stock file with no legend, hide, refresh, or time changes.
---legend-bottom   Same as LEGEND=bottom
---dry-run         Print the plan and do not save
---yes             Save without asking
---uid UID         With --live, this dashboard instead of the file's uid
---title TITLE     With --live, the dashboard with this exact title
+--setup     Ask again and rewrite dashboard-import.env
+--file FILE Stock file, for example dashboards/dashboard-alt.json
+--live      Edit the open dashboard instead of importing
+--reset     With --live, remove this script's string hides and legend moves.
+            Refresh and time stay as they are. Without --live, import
+            the stock file with no legend, hide, refresh, or time changes.
+--dry-run   Print the plan and do not save
+--yes       Save without asking
 ```
 
-`--dry-run` names the dashboard that would be replaced. If a string panel's queries no longer match the names in the file, the plan includes a warning. A dashboard Grafana provisions from a file is not overwritten.
+`--dry-run` names the dashboard that would be replaced. If a string panel's queries no longer match the names in the file, the plan includes a warning. Grafana refuses to overwrite a dashboard it provisions from a file, and the script prints that error.
 
 ## Login
 

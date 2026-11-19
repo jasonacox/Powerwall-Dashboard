@@ -4,15 +4,11 @@
 
 ### New Features
 
-* **Import a dashboard** - `tools/dashboard-import/dashboard-import.sh` imports a stock dashboard and can hide disconnected solar strings in that same save. Settings are in `dashboard-import.env` (dashboard file, legend, string hiding, refresh, and time range). `default` keeps the chosen file's own value, and the setup menu shows that refresh and time range by name. `--live` edits the dashboard already in Grafana. A plain Grafana re-import brings the strings back; run this tool to import instead. See `tools/dashboard-import/README.md`.
+* **Import a dashboard** - `tools/dashboard-import/dashboard-import.sh` imports a stock dashboard and can hide disconnected solar strings in that same save. It reads `GET /strings` from pypowerwall-server or the legacy proxy. A string is connected when `Connected` is JSON true or 1, and the script hides the others only when at least one string is connected. Otherwise it leaves the string queries unchanged and still applies legend, refresh, and time. Settings are in `dashboard-import.env`. `default` keeps the chosen file's own value. `--live` edits the dashboard already in Grafana. `--reset` with `--live` removes this script's string hides and legend moves and leaves refresh and time alone. It uses Python 3 on the host. See [#899](https://github.com/jasonacox/Powerwall-Dashboard/issues/899) and `tools/dashboard-import/README.md`.
 
 **Existing installs:** run `./upgrade.sh`, then `./tools/dashboard-import/dashboard-import.sh`. Use `--live` when you want to keep edits you made in Grafana.
 
 ### Bug Fixes
-
-* **dashboard-import uses Python on the host** - the script was running Python inside the pypowerwall container, then failing to write its temp file, and the message only said it could not read the JSON. It now uses Python 3 on the host, and a failure names the error.
-
-**Existing installs:** run `./upgrade.sh`, then `./tools/dashboard-import/dashboard-import.sh` again.
 
 * **`verify.sh` works when service ports are not published** - each local service is still checked on its host port first, as before. If that fails, `verify.sh` checks it again from inside its container (with `curl`, or `wget` for weather411 and ecowitt), so reverse-proxy installs such as Traefik don't need host port mappings. Remote scans with `--host` are unchanged (#896).
 
