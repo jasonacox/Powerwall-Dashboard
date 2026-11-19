@@ -91,7 +91,6 @@ cleanup() {
     fi
     if command -v docker >/dev/null 2>&1; then
         docker exec grafana rm -f \
-            "/tmp/dashboard-import-$$.cfg" \
             "/tmp/dashboard-import-$$.json" \
             "/tmp/dashboard-import-$$.out" >/dev/null 2>&1 || true
     fi
@@ -195,7 +194,10 @@ RANGES = (
 )
 MARKER = "dashboardTune"
 def sort_names(names):
-    return sorted(names, key=lambda name: (name[0], int(name[1:] or "0"), name))
+    def key(name):
+        rest = name[1:]
+        return (name[0], int(rest) if rest.isdigit() else 0, name)
+    return sorted(names, key=key)
 def join_names(names):
     return ", ".join(sort_names(names)) if names else "none"
 def clean(value, fallback):
@@ -228,17 +230,21 @@ def field_names(target):
                 if isinstance(param, str):
                     yield param
 def target_string_id(target):
-    for key in ("alias", "refId"):
-        value = target.get(key)
-        if isinstance(value, str) and NAME_RE.match(value):
-            return value
+    # The selected field is the string (A_Voltage, A1_Current). refId is only a
+    # Grafana query id (A0, B0) and is not the string. Alias is the fallback.
     for field in field_names(target):
         prefix = field.split("_", 1)[0]
         if prefix != field and NAME_RE.match(prefix):
             return prefix
+    alias = target.get("alias")
+    if isinstance(alias, str) and NAME_RE.match(alias):
+        return alias
     return None
-def targets_named(panel, name):
-    return [t for t in (panel.get("targets") or []) if isinstance(t, dict) and target_string_id(t) == name]
+def target_key(target, index):
+    ref = target.get("refId")
+    if isinstance(ref, str) and ref:
+        return ref
+    return "#" + str(index)
 def marker(panel, create):
     state = panel.get(MARKER)
     if isinstance(state, dict):
@@ -266,20 +272,23 @@ def drop_empty_marker(panel):
     if isinstance(state, dict) and not state.get("hidden") and "legend" not in state:
         del panel[MARKER]
 def hide_targets(panel, names):
+    raw = panel.get("targets")
+    if not isinstance(raw, list):
+        return []
     state = marker(panel, False)
     hidden = hidden_names(state) if state is not None else []
     added = []
-    for name in names:
-        if not isinstance(name, str) or NAME_RE.match(name) is None:
+    for index, target in enumerate(raw):
+        if not isinstance(target, dict) or target.get("hide") is True:
             continue
-        did = False
-        for target in targets_named(panel, name):
-            if target.get("hide") is not True:
-                target["hide"] = True
-                did = True
-        if did:
-            if name not in hidden:
-                hidden.append(name)
+        name = target_string_id(target)
+        if name not in names:
+            continue
+        target["hide"] = True
+        key = target_key(target, index)
+        if key not in hidden:
+            hidden.append(key)
+        if name not in added:
             added.append(name)
     if added:
         set_hidden(panel, hidden)
@@ -288,15 +297,25 @@ def show_targets(panel, only_names):
     state = marker(panel, False)
     if state is None:
         return []
+    raw = panel.get("targets")
+    raw = raw if isinstance(raw, list) else []
     shown, kept = [], []
-    for name in hidden_names(state):
-        if only_names is not None and name not in only_names:
-            kept.append(name)
+    for token in hidden_names(state):
+        keyed = [t for i, t in enumerate(raw) if isinstance(t, dict) and target_key(t, i) == token]
+        # A token that is not a query id is an older marker that stored the string letter.
+        hits = keyed or [t for t in raw if isinstance(t, dict) and target_string_id(t) == token]
+        if not hits:
             continue
-        for target in targets_named(panel, name):
+        sid = target_string_id(hits[0])
+        if only_names is not None and sid not in only_names and token not in only_names:
+            kept.append(token)
+            continue
+        for target in hits:
             if target.get("hide") is True:
                 target["hide"] = False
-        shown.append(name)
+            name = target_string_id(target)
+            if name and name not in shown:
+                shown.append(name)
     set_hidden(panel, kept)
     return shown
 def legend_box(panel, create):
@@ -779,19 +798,18 @@ grafana_curl_exec() {
         return
     fi
     if [ "$_method" = "POST" ]; then
-        docker exec -i grafana sh -c "cat > ${_tmp}.cfg" < "$CURL_CFG" >/dev/null 2>&1 || { printf '%s' "000"; return; }
-        if ! docker exec -i grafana sh -c "cat > ${_tmp}.json" < "$_body" >/dev/null 2>&1; then
-            docker exec grafana rm -f "${_tmp}.cfg" >/dev/null 2>&1 || true
+        # The login stays on stdin. Only the dashboard body is a file, and it is not a credential.
+        if ! docker exec -i grafana sh -c 'umask 077; p="$1"; if [ -e "$p" ] || [ -L "$p" ]; then exit 1; fi; cat > "$p"' sh "${_tmp}.json" < "$_body" >/dev/null 2>&1; then
             printf '%s' "000"
             return
         fi
-        _code=$(docker exec grafana curl --config "${_tmp}.cfg" --insecure --request POST \
+        _code=$(docker exec -i grafana curl -K - --insecure --request POST \
             --header "Content-Type: application/json" --data-binary @"${_tmp}.json" \
-            --output "${_tmp}.out" --write-out '%{http_code}' "$_url" 2>/dev/null) || true
+            --output "${_tmp}.out" --write-out '%{http_code}' "$_url" < "$CURL_CFG" 2>/dev/null) || true
         docker exec grafana cat "${_tmp}.out" > "$_dest" 2>/dev/null || : > "$_dest"
-        docker exec grafana rm -f "${_tmp}.cfg" "${_tmp}.json" "${_tmp}.out" >/dev/null 2>&1 || true
+        docker exec grafana rm -f "${_tmp}.json" "${_tmp}.out" >/dev/null 2>&1 || true
     else
-        _code=$(docker exec -i grafana curl --config - --insecure \
+        _code=$(docker exec -i grafana curl -K - --insecure \
             --output "${_tmp}.out" --write-out '%{http_code}' "$_url" < "$CURL_CFG" 2>/dev/null) || true
         docker exec grafana cat "${_tmp}.out" > "$_dest" 2>/dev/null || : > "$_dest"
         docker exec grafana rm -f "${_tmp}.out" >/dev/null 2>&1 || true
@@ -837,7 +855,7 @@ fetch_strings() {
     fi
     _inner="http://127.0.0.1:${PW_INNER_PORT}/strings"
     if docker exec pypowerwall sh -c 'command -v curl' >/dev/null 2>&1; then
-        docker exec pypowerwall curl --silent --connect-timeout 5 --max-time 30 "$_inner" > "$_dest" 2>/dev/null || return 1
+        docker exec pypowerwall curl --silent --fail --connect-timeout 5 --max-time 30 "$_inner" > "$_dest" 2>/dev/null || return 1
     elif docker exec pypowerwall sh -c 'command -v wget' >/dev/null 2>&1; then
         docker exec pypowerwall wget -q -O - -T 5 "$_inner" > "$_dest" 2>/dev/null || return 1
     else
@@ -849,9 +867,10 @@ explain_403() {
     cat <<'EOF'
 Grafana can view dashboards but cannot save them.
 Read-only anonymous access does this (HTTP 403).
-To save without a password, uncomment "disable login requirement (full access)"
-in grafana.env.sample (GF_AUTH_ANONYMOUS_ORG_ROLE=Admin), or from the dashboard
-directory run ./anonymous-access.sh and choose 3) Anonymous Read/Write.
+To save without a password, set GF_AUTH_ANONYMOUS_ORG_ROLE=Admin in grafana.env
+(the file powerwall.yml loads), then recreate Grafana: ./compose-dash.sh up -d
+./anonymous-access.sh choice 3 writes that same setting into grafana.env.
+Recreate Grafana after that script too.
 You can also sign in with a Grafana user that can edit.
 No changes saved.
 EOF

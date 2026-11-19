@@ -263,4 +263,101 @@ else
     echo "PASS setup asks hide, legend, time, refresh"
 fi
 
+cat > "$WORK/dashboards/mismatch.json" <<'EOF'
+{"uid":"probeuid","title":"Probe","panels":[{"id":32,"type":"timeseries","title":"String Voltage","targets":[
+  {"refId":"A0","alias":"B","select":[[{"type":"field","params":["A_Voltage"]}]]},
+  {"refId":"A","alias":"A","select":[[{"type":"field","params":["A1_Voltage"]}]]},
+  {"refId":"B0","alias":"A"},
+  {"refId":"C0","alias":"C","select":[[{"type":"field","params":["B_Voltage"]}]]}
+]}]}
+EOF
+JOB_ID=$(printf '%s' '{"live":false,"reset":false,"legend":"","refresh":"","time":"","do_hide":true,"hide":["A"],"unhide":[],"stock":"'"$WORK/dashboards/mismatch.json"'","existing":"","response":"","datasources":"'"$WORK/datasources.json"'"}')
+printf '%s' "$JOB_ID" | run_python plan "$WORK/post-id.json" > "$WORK/plan-id.txt" 2>"$WORK/plan-id.err"
+python3 - "$WORK/post-id.json" <<'PY'
+import json, sys
+panel = json.load(open(sys.argv[1]))["dashboard"]["panels"][0]
+targets = panel["targets"]
+# field A, field A1 (not A), alias A with no field, field B despite alias C
+ok = (
+    targets[0].get("hide") is True
+    and targets[1].get("hide") is not True
+    and targets[2].get("hide") is True
+    and targets[3].get("hide") is not True
+    and panel["dashboardTune"]["hidden"] == ["A0", "B0"]
+)
+sys.exit(0 if ok else 1)
+PY
+if [ "$?" -ne 0 ]; then
+    echo "FAIL string id ignores refId" >&2
+    cat "$WORK/plan-id.err" "$WORK/post-id.json" >&2
+    fail=1
+else
+    echo "PASS string id uses field then alias"
+fi
+
+cat > "$WORK/dashboards/manual.json" <<'EOF'
+{"uid":"probeuid","title":"Probe","panels":[{"id":62,"type":"timeseries","title":"String Current","targets":[
+  {"refId":"M","alias":"B","hide":true,"select":[[{"type":"field","params":["B_Current"]}]]},
+  {"refId":"S","alias":"B","select":[[{"type":"field","params":["B_Current"]}]]}
+]}]}
+EOF
+JOB_HIDE=$(printf '%s' '{"live":false,"reset":false,"legend":"","refresh":"","time":"","do_hide":true,"hide":["B"],"unhide":[],"stock":"'"$WORK/dashboards/manual.json"'","existing":"","response":"","datasources":"'"$WORK/datasources.json"'"}')
+printf '%s' "$JOB_HIDE" | run_python plan "$WORK/post-hide.json" > "$WORK/plan-hide.txt"
+python3 - "$WORK/post-hide.json" "$WORK/response-manual.json" <<'PY'
+import json, sys
+dash = json.load(open(sys.argv[1]))["dashboard"]
+panel = dash["panels"][0]
+targets = panel["targets"]
+if not (targets[0].get("hide") is True and targets[1].get("hide") is True and panel["dashboardTune"]["hidden"] == ["S"]):
+    sys.exit(1)
+json.dump({"meta": {}, "dashboard": dash}, open(sys.argv[2], "w"))
+PY
+if [ "$?" -ne 0 ]; then
+    echo "FAIL manual hide was recorded" >&2
+    fail=1
+else
+    JOB_RESET=$(printf '%s' '{"live":true,"reset":true,"legend":"","refresh":"","time":"","do_hide":false,"hide":[],"unhide":[],"stock":"","existing":"","datasources":"","response":"'"$WORK/response-manual.json"'"}')
+    printf '%s' "$JOB_RESET" | run_python plan "$WORK/post-manual-reset.json" > "$WORK/plan-manual-reset.txt"
+    python3 - "$WORK/post-manual-reset.json" <<'PY'
+import json, sys
+targets = json.load(open(sys.argv[1]))["dashboard"]["panels"][0]["targets"]
+panel = json.load(open(sys.argv[1]))["dashboard"]["panels"][0]
+targets = panel["targets"]
+ok = targets[0].get("hide") is True and targets[1].get("hide") is False and "dashboardTune" not in panel
+sys.exit(0 if ok else 1)
+PY
+    if [ "$?" -ne 0 ]; then
+        echo "FAIL reset cleared a manual hide" >&2
+        fail=1
+    else
+        echo "PASS reset keeps a manually hidden query"
+    fi
+fi
+
+mkdir -p "$WORK/failbin"
+cat > "$WORK/failbin/curl" <<'EOF'
+#!/bin/bash
+printf '503'
+exit 0
+EOF
+cat > "$WORK/failbin/docker" <<'EOF'
+#!/bin/bash
+printf '%s\n' "$*" >> "$DASHBOARD_IMPORT_DOCKER_LOG"
+case "$*" in
+    inspect*) printf 'true'; exit 0 ;;
+    *--fail*) exit 22 ;;
+    *curl*) printf '%s\n' '{"bad":true}'; exit 0 ;;
+esac
+exit 0
+EOF
+chmod 755 "$WORK/failbin/curl" "$WORK/failbin/docker"
+PATH="$WORK/failbin:$PATH" PW_HOST_PORT=9 fetch_strings "$WORK/strings-fail.json"
+fail_status=$?
+if [ "$fail_status" -eq 0 ] || ! grep -q -- '--fail' "$LOG"; then
+    echo "FAIL container curl accepted an HTTP error" >&2
+    fail=1
+else
+    echo "PASS container curl --fail rejects HTTP errors"
+fi
+
 exit "$fail"
